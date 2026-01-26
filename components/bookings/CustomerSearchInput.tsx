@@ -1,0 +1,80 @@
+import { useQuery } from "@tanstack/react-query";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "../ui/input-group";
+import { Search } from "lucide-react";
+import { searchCustomer } from "@/lib/server actions/customer";
+import { UseFormReturn } from "react-hook-form";
+import { CreateBookingTypes } from "@/lib/zod schemas/bookings";
+import { useState } from "react";
+import { Button } from "../ui/button";
+
+export default function CustomerSearchInput({
+  form,
+}: {
+  form: UseFormReturn<any>;
+}) {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showResults, setShowResults] = useState(false);
+
+  const { data, isLoading } = useQuery({
+    queryKey: ["customer", searchQuery],
+    queryFn: () => searchCustomer(searchQuery),
+    enabled: searchQuery.length > 0,
+  });
+
+  const handleSelectCustomer = (customer: { id: string; name: string }) => {
+    form.setValue("customerId", customer.id);
+    form.setValue("customerName", customer.name);
+    setSearchQuery(customer.name);
+    setShowResults(false);
+  };
+
+  return (
+    <div className="relative flex w-full flex-col">
+      <InputGroup>
+        <InputGroupInput
+          placeholder="Search customer"
+          value={searchQuery}
+          onChange={(e) => {
+            setSearchQuery(e.target.value);
+            setShowResults(true);
+            form.setValue("customerName", e.target.value);
+            form.setValue("customerId", "");
+          }}
+          onFocus={() => setShowResults(true)}
+        />
+        <InputGroupAddon>
+          <Search />
+        </InputGroupAddon>
+      </InputGroup>
+      {showResults && searchQuery.length > 0 && (
+        <div className="absolute top-full z-10 mt-1 w-full rounded-md border bg-background shadow-lg">
+          {isLoading ? (
+            <div className="p-2 text-sm text-muted-foreground">Loading...</div>
+          ) : data?.success && data?.data && data.data.length > 0 ? (
+            <div className="flex flex-col">
+              {data.data.map((customer: any) => (
+                <Button
+                  key={customer.id}
+                  variant="ghost"
+                  className="justify-start rounded-none"
+                  onClick={() => handleSelectCustomer(customer)}
+                  type="button"
+                >
+                  {customer.name}
+                </Button>
+              ))}
+            </div>
+          ) : (
+            <div className="p-2 text-sm text-muted-foreground">
+              No customers found.
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
