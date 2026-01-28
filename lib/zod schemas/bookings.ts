@@ -12,11 +12,18 @@ const serviceSchema = z.object({
   quantity: z.number().min(1).default(1),
 });
 
+export const paymentMethodEnum = z.enum(["CASH", "QRPH"]);
+export const paymentTypeEnum = z.enum(["FULL", "DOWNPAYMENT"]);
+
 export const createBookingSchema = z
   .object({
     customerId: z.string().optional(),
     customerName: z.string().min(1, "Customer name is required").optional(),
     services: z.array(serviceSchema),
+    scheduledAt: z.coerce.date({ message: "Please select a date and time" }),
+    employeeId: z.number().optional(),
+    paymentMethod: paymentMethodEnum.default("QRPH"),
+    paymentType: paymentTypeEnum.default("FULL"),
   })
   .refine((data) => data.customerId || data.customerName, {
     message: "Please select an existing customer or enter a new customer name",
@@ -24,3 +31,5 @@ export const createBookingSchema = z
   });
 
 export type CreateBookingTypes = z.infer<typeof createBookingSchema>;
+export type PaymentMethod = z.infer<typeof paymentMethodEnum>;
+export type PaymentType = z.infer<typeof paymentTypeEnum>;

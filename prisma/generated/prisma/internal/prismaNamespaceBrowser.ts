@@ -52,12 +52,19 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   Business: 'Business',
+  BusinessHours: 'BusinessHours',
+  SaleEvent: 'SaleEvent',
   User: 'User',
   Employee: 'Employee',
+  EmployeeAttendance: 'EmployeeAttendance',
+  Payslip: 'Payslip',
+  SpecialDate: 'SpecialDate',
   Owner: 'Owner',
   Service: 'Service',
+  ServicePackage: 'ServicePackage',
   Customer: 'Customer',
   Booking: 'Booking',
+  Voucher: 'Voucher',
   AvailedService: 'AvailedService'
 } as const
 
@@ -88,6 +95,34 @@ export const BusinessScalarFieldEnum = {
 export type BusinessScalarFieldEnum = (typeof BusinessScalarFieldEnum)[keyof typeof BusinessScalarFieldEnum]
 
 
+export const BusinessHoursScalarFieldEnum = {
+  id: 'id',
+  day_of_week: 'day_of_week',
+  open_time: 'open_time',
+  close_time: 'close_time',
+  is_closed: 'is_closed',
+  business_id: 'business_id'
+} as const
+
+export type BusinessHoursScalarFieldEnum = (typeof BusinessHoursScalarFieldEnum)[keyof typeof BusinessHoursScalarFieldEnum]
+
+
+export const SaleEventScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  description: 'description',
+  start_date: 'start_date',
+  end_date: 'end_date',
+  discount_type: 'discount_type',
+  discount_value: 'discount_value',
+  business_id: 'business_id',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type SaleEventScalarFieldEnum = (typeof SaleEventScalarFieldEnum)[keyof typeof SaleEventScalarFieldEnum]
+
+
 export const UserScalarFieldEnum = {
   id: 'id',
   email: 'email',
@@ -104,10 +139,52 @@ export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof User
 export const EmployeeScalarFieldEnum = {
   id: 'id',
   user_id: 'user_id',
+  salary: 'salary',
+  commission_percentage: 'commission_percentage',
+  daily_salary: 'daily_salary',
   business_id: 'business_id'
 } as const
 
 export type EmployeeScalarFieldEnum = (typeof EmployeeScalarFieldEnum)[keyof typeof EmployeeScalarFieldEnum]
+
+
+export const EmployeeAttendanceScalarFieldEnum = {
+  id: 'id',
+  employee_id: 'employee_id',
+  date: 'date',
+  status: 'status',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type EmployeeAttendanceScalarFieldEnum = (typeof EmployeeAttendanceScalarFieldEnum)[keyof typeof EmployeeAttendanceScalarFieldEnum]
+
+
+export const PayslipScalarFieldEnum = {
+  id: 'id',
+  employee_id: 'employee_id',
+  starting_date: 'starting_date',
+  ending_date: 'ending_date',
+  comment: 'comment',
+  deduction: 'deduction',
+  status: 'status',
+  total_salary: 'total_salary'
+} as const
+
+export type PayslipScalarFieldEnum = (typeof PayslipScalarFieldEnum)[keyof typeof PayslipScalarFieldEnum]
+
+
+export const SpecialDateScalarFieldEnum = {
+  id: 'id',
+  date: 'date',
+  salary_multiplier: 'salary_multiplier',
+  commission_multiplier: 'commission_multiplier',
+  business_id: 'business_id',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type SpecialDateScalarFieldEnum = (typeof SpecialDateScalarFieldEnum)[keyof typeof SpecialDateScalarFieldEnum]
 
 
 export const OwnerScalarFieldEnum = {
@@ -125,12 +202,28 @@ export const ServiceScalarFieldEnum = {
   description: 'description',
   price: 'price',
   duration: 'duration',
+  category: 'category',
   business_id: 'business_id',
   created_at: 'created_at',
   updated_at: 'updated_at'
 } as const
 
 export type ServiceScalarFieldEnum = (typeof ServiceScalarFieldEnum)[keyof typeof ServiceScalarFieldEnum]
+
+
+export const ServicePackageScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  price: 'price',
+  duration: 'duration',
+  category: 'category',
+  business_id: 'business_id',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type ServicePackageScalarFieldEnum = (typeof ServicePackageScalarFieldEnum)[keyof typeof ServicePackageScalarFieldEnum]
 
 
 export const CustomerScalarFieldEnum = {
@@ -148,10 +241,17 @@ export type CustomerScalarFieldEnum = (typeof CustomerScalarFieldEnum)[keyof typ
 
 export const BookingScalarFieldEnum = {
   id: 'id',
-  total: 'total',
   status: 'status',
   customer_id: 'customer_id',
   business_id: 'business_id',
+  payment_method: 'payment_method',
+  grand_total: 'grand_total',
+  total_discount: 'total_discount',
+  downpayment: 'downpayment',
+  downpayment_status: 'downpayment_status',
+  downpayment_date: 'downpayment_date',
+  scheduled_at: 'scheduled_at',
+  estimated_end: 'estimated_end',
   created_at: 'created_at',
   updated_at: 'updated_at'
 } as const
@@ -159,11 +259,35 @@ export const BookingScalarFieldEnum = {
 export type BookingScalarFieldEnum = (typeof BookingScalarFieldEnum)[keyof typeof BookingScalarFieldEnum]
 
 
+export const VoucherScalarFieldEnum = {
+  id: 'id',
+  code: 'code',
+  value: 'value',
+  type: 'type',
+  minimum_amount: 'minimum_amount',
+  expires_at: 'expires_at',
+  used_by_id: 'used_by_id',
+  business_id: 'business_id',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type VoucherScalarFieldEnum = (typeof VoucherScalarFieldEnum)[keyof typeof VoucherScalarFieldEnum]
+
+
 export const AvailedServiceScalarFieldEnum = {
   id: 'id',
   price: 'price',
+  discount: 'discount',
+  discount_reason: 'discount_reason',
+  final_price: 'final_price',
+  commission_base: 'commission_base',
   booking_id: 'booking_id',
   service_id: 'service_id',
+  package_id: 'package_id',
+  served_by_id: 'served_by_id',
+  scheduled_at: 'scheduled_at',
+  estimated_end: 'estimated_end',
   created_at: 'created_at',
   updated_at: 'updated_at'
 } as const

@@ -16,11 +16,13 @@ interface CreateCheckoutSessionParams {
   description?: string;
   success_url?: string;
   cancel_url?: string;
+  metadata?: Record<string, any>;
 }
 
 export async function createPayMongoCheckoutSession({
   line_items,
   description,
+  metadata,
   success_url = (process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000") +
     "/booking/success",
   cancel_url = (process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000") +
@@ -44,6 +46,7 @@ export async function createPayMongoCheckoutSession({
           description,
           success_url,
           cancel_url,
+          metadata,
         },
       },
     }),

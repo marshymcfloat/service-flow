@@ -23,6 +23,47 @@ model Business {
   owners    Owner[]
   customers Customer[]
   bookings Booking[]
+  sale_events SaleEvent[]
+  vouchers Voucher[]
+  special_dates SpecialDate[]
+  packages ServicePackage[]
+  business_hours BusinessHours[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model BusinessHours {
+  id          Int     @id @default(autoincrement())
+  day_of_week Int     // 0=Sunday, 1=Monday, ..., 6=Saturday
+  open_time   String  // "09:00" (24hr format)
+  close_time  String  // "18:00"
+  is_closed   Boolean @default(false)
+
+  business_id String
+  business    Business @relation(fields: [business_id], references: [id], onDelete: Cascade)
+
+  @@unique([business_id, day_of_week])
+}
+
+model SaleEvent {
+  id Int @id @default(autoincrement())
+
+  title String 
+  description String?
+
+  start_date DateTime
+  end_date DateTime
+
+  discount_type DiscountType @default(PERCENTAGE)
+  discount_value Float @default(0)
+
+  // Which services/packages this sale applies to (empty = all)
+  applicable_services Service[]
+  applicable_packages ServicePackage[]
+
+  business_id String
+  business    Business @relation(fields: [business_id], references: [id], onDelete: Cascade)
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -35,8 +76,8 @@ model User {
   name  String
 
   role      Role       @default(EMPLOYEE)
-  employees Employee[]
-  owners    Owner[]
+  employee  Employee?
+  owner     Owner?
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -44,8 +85,18 @@ model User {
 
 model Employee {
   id      Int    @id @default(autoincrement())
-  user_id String
+  user_id String @unique
   user    User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  salary Float
+  commission_percentage Float @default(0)
+  daily_salary Float @default(0)
+  attendance EmployeeAttendance[]
+
+
+
+  served_services AvailedService[]
+  payslips Payslip[]
+
 
   business_id String
   business    Business @relation(fields: [business_id], references: [id], onDelete: Cascade)
@@ -53,9 +104,49 @@ model Employee {
   @@unique([business_id, user_id])
 }
 
+model EmployeeAttendance{
+  id Int @id @default(autoincrement())
+  employee_id Int
+  employee Employee @relation(fields: [employee_id], references: [id], onDelete: Cascade)
+
+  date DateTime
+  status AttendanceStatus @default(PRESENT)
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+model Payslip {
+  id Int @id @default(autoincrement())
+
+  employee_id Int
+  employee    Employee @relation(fields: [employee_id], references: [id], onDelete: Cascade)
+
+  starting_date DateTime
+  ending_date DateTime
+  comment String?
+  deduction Float @default(0)
+  status PayslipStatus @default(PENDING)
+
+  total_salary Float
+}
+
+model SpecialDate {
+  id Int @id @default(autoincrement())
+  date DateTime
+  
+  salary_multiplier Float @default(1)
+  commission_multiplier Float @default(1)
+
+  business_id String
+  business Business @relation(fields: [business_id], references: [id], onDelete: Cascade)
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
 model Owner {
   id      Int    @id @default(autoincrement())
-  user_id String
+  user_id String @unique
   user    User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   business_id String
@@ -70,16 +161,38 @@ model Service {
   description String?
   price Float
   duration Int?
+  category String
 
   business_id String
   business    Business @relation(fields: [business_id], references: [id], onDelete: Cascade)
 
   availed_services AvailedService[]
+  packages ServicePackage[]
+  sale_events SaleEvent[]
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
-
 }
+
+model ServicePackage {
+  id Int @id @default(autoincrement())
+  name String
+  description String?
+  price Float
+  duration Int?
+  category String
+
+  business_id String
+  business    Business @relation(fields: [business_id], references: [id], onDelete: Cascade)
+
+  services Service[]
+  availed_services AvailedService[]
+  sale_events SaleEvent[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
 
 model Customer {
   id String @id @default(cuid())
@@ -98,11 +211,11 @@ model Customer {
 
 
 
+
 model Booking {
 
   id Int @id @default(autoincrement())
 
-  total Float
   status BookingStatus @default(PENDING)
   customer Customer @relation(fields: [customer_id], references: [id], onDelete: Cascade)
   customer_id String
@@ -110,7 +223,40 @@ model Booking {
   business Business @relation(fields: [business_id], references: [id], onDelete: Cascade)
   business_id String
 
+  vouchers Voucher[]
+
+  payment_method PaymentMethod @default(CASH)
   availed_services AvailedService[]
+  grand_total Float
+  total_discount Float
+  downpayment Float?
+  downpayment_status BookingStatus? @default(PENDING)
+  downpayment_date DateTime?
+
+  // Scheduling fields
+  scheduled_at  DateTime?  // When the booking is scheduled to start
+  estimated_end DateTime?  // Calculated from service durations
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+
+
+model Voucher{
+  id Int @id @default(autoincrement())
+  code String @unique
+  value Float
+  type VoucherType @default(PERCENTAGE)
+  minimum_amount Float @default(0)
+
+  expires_at DateTime
+
+  used_by_id Int?
+  used_by Booking? @relation(fields: [used_by_id], references: [id], onDelete: Cascade)
+ 
+  business_id String
+  business Business @relation(fields: [business_id], references: [id], onDelete: Cascade)
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -120,7 +266,19 @@ model Booking {
 
 model AvailedService {
   id Int @id @default(autoincrement())
-  price Float
+  
+  // Pricing
+  price Float                      // Original service price at time of booking
+  discount Float @default(0)       // Discount amount applied
+  discount_reason String?          // "SALE_EVENT", "MANUAL", "FAMILY_DISCOUNT", etc.
+  final_price Float                // price - discount = what customer pays
+  commission_base Float             // What the employee's commission is calculated on
+
+  // Claiming status
+  status AvailedServiceStatus @default(PENDING)
+  claimed_at DateTime?              // When employee claimed this service
+  served_at DateTime?               // When service actually started
+  completed_at DateTime?            // When service finished
 
   booking_id Int
   booking    Booking  @relation(fields: [booking_id], references: [id], onDelete: Cascade)
@@ -128,22 +286,71 @@ model AvailedService {
   service_id Int
   service    Service  @relation(fields: [service_id], references: [id], onDelete: Cascade)
 
+  // Optional: track if this came from a package
+  package_id Int?
+  package    ServicePackage? @relation(fields: [package_id], references: [id], onDelete: SetNull)
+
+  served_by_id Int?
+  served_by Employee? @relation(fields: [served_by_id], references: [id], onDelete: SetNull)
+
+  // Scheduling fields
+  scheduled_at  DateTime?  // When this specific service starts
+  estimated_end DateTime?  // scheduled_at + duration
+
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 }
+
 
 enum Role {
   OWNER
   EMPLOYEE
 }
 
+enum VoucherType {
+  PERCENTAGE
+  FLAT
+}
+
+enum DiscountType {
+  PERCENTAGE
+  FLAT
+}
 enum BookingStatus {
   PENDING
   ACCEPTED
   REJECTED
+  REFUNDED
   CANCELLED
   RESCHEDULED
   DOWNPAYMENT_PENDING
   DOWNPAYMENT_PAID
   COMPLETED
+}
+
+enum PayslipStatus {
+  PENDING
+  PAID
+  REJECTED
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  LATE
+  OFF
+}
+
+
+enum PaymentMethod {
+  CASH
+  QRPH
+}
+
+enum AvailedServiceStatus {
+  PENDING     // No employee claimed yet
+  CLAIMED     // Employee claimed, not yet served
+  SERVING     // Currently being served
+  COMPLETED   // Service finished
+  CANCELLED   // Service cancelled
 }

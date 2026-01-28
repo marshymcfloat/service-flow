@@ -214,15 +214,15 @@ export type OwnerOrderByWithRelationInput = {
 
 export type OwnerWhereUniqueInput = Prisma.AtLeast<{
   id?: number
+  user_id?: string
   business_id_user_id?: Prisma.OwnerBusiness_idUser_idCompoundUniqueInput
   AND?: Prisma.OwnerWhereInput | Prisma.OwnerWhereInput[]
   OR?: Prisma.OwnerWhereInput[]
   NOT?: Prisma.OwnerWhereInput | Prisma.OwnerWhereInput[]
-  user_id?: Prisma.StringFilter<"Owner"> | string
   business_id?: Prisma.StringFilter<"Owner"> | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   business?: Prisma.XOR<Prisma.BusinessScalarRelationFilter, Prisma.BusinessWhereInput>
-}, "id" | "business_id_user_id">
+}, "id" | "user_id" | "business_id_user_id">
 
 export type OwnerOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -245,7 +245,7 @@ export type OwnerScalarWhereWithAggregatesInput = {
 }
 
 export type OwnerCreateInput = {
-  user: Prisma.UserCreateNestedOneWithoutOwnersInput
+  user: Prisma.UserCreateNestedOneWithoutOwnerInput
   business: Prisma.BusinessCreateNestedOneWithoutOwnersInput
 }
 
@@ -256,7 +256,7 @@ export type OwnerUncheckedCreateInput = {
 }
 
 export type OwnerUpdateInput = {
-  user?: Prisma.UserUpdateOneRequiredWithoutOwnersNestedInput
+  user?: Prisma.UserUpdateOneRequiredWithoutOwnerNestedInput
   business?: Prisma.BusinessUpdateOneRequiredWithoutOwnersNestedInput
 }
 
@@ -290,6 +290,11 @@ export type OwnerListRelationFilter = {
 
 export type OwnerOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
+}
+
+export type OwnerNullableScalarRelationFilter = {
+  is?: Prisma.OwnerWhereInput | null
+  isNot?: Prisma.OwnerWhereInput | null
 }
 
 export type OwnerBusiness_idUser_idCompoundUniqueInput = {
@@ -365,50 +370,40 @@ export type OwnerUncheckedUpdateManyWithoutBusinessNestedInput = {
   deleteMany?: Prisma.OwnerScalarWhereInput | Prisma.OwnerScalarWhereInput[]
 }
 
-export type OwnerCreateNestedManyWithoutUserInput = {
-  create?: Prisma.XOR<Prisma.OwnerCreateWithoutUserInput, Prisma.OwnerUncheckedCreateWithoutUserInput> | Prisma.OwnerCreateWithoutUserInput[] | Prisma.OwnerUncheckedCreateWithoutUserInput[]
-  connectOrCreate?: Prisma.OwnerCreateOrConnectWithoutUserInput | Prisma.OwnerCreateOrConnectWithoutUserInput[]
-  createMany?: Prisma.OwnerCreateManyUserInputEnvelope
-  connect?: Prisma.OwnerWhereUniqueInput | Prisma.OwnerWhereUniqueInput[]
+export type OwnerCreateNestedOneWithoutUserInput = {
+  create?: Prisma.XOR<Prisma.OwnerCreateWithoutUserInput, Prisma.OwnerUncheckedCreateWithoutUserInput>
+  connectOrCreate?: Prisma.OwnerCreateOrConnectWithoutUserInput
+  connect?: Prisma.OwnerWhereUniqueInput
 }
 
-export type OwnerUncheckedCreateNestedManyWithoutUserInput = {
-  create?: Prisma.XOR<Prisma.OwnerCreateWithoutUserInput, Prisma.OwnerUncheckedCreateWithoutUserInput> | Prisma.OwnerCreateWithoutUserInput[] | Prisma.OwnerUncheckedCreateWithoutUserInput[]
-  connectOrCreate?: Prisma.OwnerCreateOrConnectWithoutUserInput | Prisma.OwnerCreateOrConnectWithoutUserInput[]
-  createMany?: Prisma.OwnerCreateManyUserInputEnvelope
-  connect?: Prisma.OwnerWhereUniqueInput | Prisma.OwnerWhereUniqueInput[]
+export type OwnerUncheckedCreateNestedOneWithoutUserInput = {
+  create?: Prisma.XOR<Prisma.OwnerCreateWithoutUserInput, Prisma.OwnerUncheckedCreateWithoutUserInput>
+  connectOrCreate?: Prisma.OwnerCreateOrConnectWithoutUserInput
+  connect?: Prisma.OwnerWhereUniqueInput
 }
 
-export type OwnerUpdateManyWithoutUserNestedInput = {
-  create?: Prisma.XOR<Prisma.OwnerCreateWithoutUserInput, Prisma.OwnerUncheckedCreateWithoutUserInput> | Prisma.OwnerCreateWithoutUserInput[] | Prisma.OwnerUncheckedCreateWithoutUserInput[]
-  connectOrCreate?: Prisma.OwnerCreateOrConnectWithoutUserInput | Prisma.OwnerCreateOrConnectWithoutUserInput[]
-  upsert?: Prisma.OwnerUpsertWithWhereUniqueWithoutUserInput | Prisma.OwnerUpsertWithWhereUniqueWithoutUserInput[]
-  createMany?: Prisma.OwnerCreateManyUserInputEnvelope
-  set?: Prisma.OwnerWhereUniqueInput | Prisma.OwnerWhereUniqueInput[]
-  disconnect?: Prisma.OwnerWhereUniqueInput | Prisma.OwnerWhereUniqueInput[]
-  delete?: Prisma.OwnerWhereUniqueInput | Prisma.OwnerWhereUniqueInput[]
-  connect?: Prisma.OwnerWhereUniqueInput | Prisma.OwnerWhereUniqueInput[]
-  update?: Prisma.OwnerUpdateWithWhereUniqueWithoutUserInput | Prisma.OwnerUpdateWithWhereUniqueWithoutUserInput[]
-  updateMany?: Prisma.OwnerUpdateManyWithWhereWithoutUserInput | Prisma.OwnerUpdateManyWithWhereWithoutUserInput[]
-  deleteMany?: Prisma.OwnerScalarWhereInput | Prisma.OwnerScalarWhereInput[]
+export type OwnerUpdateOneWithoutUserNestedInput = {
+  create?: Prisma.XOR<Prisma.OwnerCreateWithoutUserInput, Prisma.OwnerUncheckedCreateWithoutUserInput>
+  connectOrCreate?: Prisma.OwnerCreateOrConnectWithoutUserInput
+  upsert?: Prisma.OwnerUpsertWithoutUserInput
+  disconnect?: Prisma.OwnerWhereInput | boolean
+  delete?: Prisma.OwnerWhereInput | boolean
+  connect?: Prisma.OwnerWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.OwnerUpdateToOneWithWhereWithoutUserInput, Prisma.OwnerUpdateWithoutUserInput>, Prisma.OwnerUncheckedUpdateWithoutUserInput>
 }
 
-export type OwnerUncheckedUpdateManyWithoutUserNestedInput = {
-  create?: Prisma.XOR<Prisma.OwnerCreateWithoutUserInput, Prisma.OwnerUncheckedCreateWithoutUserInput> | Prisma.OwnerCreateWithoutUserInput[] | Prisma.OwnerUncheckedCreateWithoutUserInput[]
-  connectOrCreate?: Prisma.OwnerCreateOrConnectWithoutUserInput | Prisma.OwnerCreateOrConnectWithoutUserInput[]
-  upsert?: Prisma.OwnerUpsertWithWhereUniqueWithoutUserInput | Prisma.OwnerUpsertWithWhereUniqueWithoutUserInput[]
-  createMany?: Prisma.OwnerCreateManyUserInputEnvelope
-  set?: Prisma.OwnerWhereUniqueInput | Prisma.OwnerWhereUniqueInput[]
-  disconnect?: Prisma.OwnerWhereUniqueInput | Prisma.OwnerWhereUniqueInput[]
-  delete?: Prisma.OwnerWhereUniqueInput | Prisma.OwnerWhereUniqueInput[]
-  connect?: Prisma.OwnerWhereUniqueInput | Prisma.OwnerWhereUniqueInput[]
-  update?: Prisma.OwnerUpdateWithWhereUniqueWithoutUserInput | Prisma.OwnerUpdateWithWhereUniqueWithoutUserInput[]
-  updateMany?: Prisma.OwnerUpdateManyWithWhereWithoutUserInput | Prisma.OwnerUpdateManyWithWhereWithoutUserInput[]
-  deleteMany?: Prisma.OwnerScalarWhereInput | Prisma.OwnerScalarWhereInput[]
+export type OwnerUncheckedUpdateOneWithoutUserNestedInput = {
+  create?: Prisma.XOR<Prisma.OwnerCreateWithoutUserInput, Prisma.OwnerUncheckedCreateWithoutUserInput>
+  connectOrCreate?: Prisma.OwnerCreateOrConnectWithoutUserInput
+  upsert?: Prisma.OwnerUpsertWithoutUserInput
+  disconnect?: Prisma.OwnerWhereInput | boolean
+  delete?: Prisma.OwnerWhereInput | boolean
+  connect?: Prisma.OwnerWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.OwnerUpdateToOneWithWhereWithoutUserInput, Prisma.OwnerUpdateWithoutUserInput>, Prisma.OwnerUncheckedUpdateWithoutUserInput>
 }
 
 export type OwnerCreateWithoutBusinessInput = {
-  user: Prisma.UserCreateNestedOneWithoutOwnersInput
+  user: Prisma.UserCreateNestedOneWithoutOwnerInput
 }
 
 export type OwnerUncheckedCreateWithoutBusinessInput = {
@@ -465,49 +460,15 @@ export type OwnerCreateOrConnectWithoutUserInput = {
   create: Prisma.XOR<Prisma.OwnerCreateWithoutUserInput, Prisma.OwnerUncheckedCreateWithoutUserInput>
 }
 
-export type OwnerCreateManyUserInputEnvelope = {
-  data: Prisma.OwnerCreateManyUserInput | Prisma.OwnerCreateManyUserInput[]
-  skipDuplicates?: boolean
-}
-
-export type OwnerUpsertWithWhereUniqueWithoutUserInput = {
-  where: Prisma.OwnerWhereUniqueInput
+export type OwnerUpsertWithoutUserInput = {
   update: Prisma.XOR<Prisma.OwnerUpdateWithoutUserInput, Prisma.OwnerUncheckedUpdateWithoutUserInput>
   create: Prisma.XOR<Prisma.OwnerCreateWithoutUserInput, Prisma.OwnerUncheckedCreateWithoutUserInput>
+  where?: Prisma.OwnerWhereInput
 }
 
-export type OwnerUpdateWithWhereUniqueWithoutUserInput = {
-  where: Prisma.OwnerWhereUniqueInput
+export type OwnerUpdateToOneWithWhereWithoutUserInput = {
+  where?: Prisma.OwnerWhereInput
   data: Prisma.XOR<Prisma.OwnerUpdateWithoutUserInput, Prisma.OwnerUncheckedUpdateWithoutUserInput>
-}
-
-export type OwnerUpdateManyWithWhereWithoutUserInput = {
-  where: Prisma.OwnerScalarWhereInput
-  data: Prisma.XOR<Prisma.OwnerUpdateManyMutationInput, Prisma.OwnerUncheckedUpdateManyWithoutUserInput>
-}
-
-export type OwnerCreateManyBusinessInput = {
-  id?: number
-  user_id: string
-}
-
-export type OwnerUpdateWithoutBusinessInput = {
-  user?: Prisma.UserUpdateOneRequiredWithoutOwnersNestedInput
-}
-
-export type OwnerUncheckedUpdateWithoutBusinessInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  user_id?: Prisma.StringFieldUpdateOperationsInput | string
-}
-
-export type OwnerUncheckedUpdateManyWithoutBusinessInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  user_id?: Prisma.StringFieldUpdateOperationsInput | string
-}
-
-export type OwnerCreateManyUserInput = {
-  id?: number
-  business_id: string
 }
 
 export type OwnerUpdateWithoutUserInput = {
@@ -519,9 +480,23 @@ export type OwnerUncheckedUpdateWithoutUserInput = {
   business_id?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
-export type OwnerUncheckedUpdateManyWithoutUserInput = {
+export type OwnerCreateManyBusinessInput = {
+  id?: number
+  user_id: string
+}
+
+export type OwnerUpdateWithoutBusinessInput = {
+  user?: Prisma.UserUpdateOneRequiredWithoutOwnerNestedInput
+}
+
+export type OwnerUncheckedUpdateWithoutBusinessInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  business_id?: Prisma.StringFieldUpdateOperationsInput | string
+  user_id?: Prisma.StringFieldUpdateOperationsInput | string
+}
+
+export type OwnerUncheckedUpdateManyWithoutBusinessInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  user_id?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 

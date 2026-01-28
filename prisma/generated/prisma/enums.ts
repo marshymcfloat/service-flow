@@ -17,10 +17,27 @@ export const Role = {
 export type Role = (typeof Role)[keyof typeof Role]
 
 
+export const VoucherType = {
+  PERCENTAGE: 'PERCENTAGE',
+  FLAT: 'FLAT'
+} as const
+
+export type VoucherType = (typeof VoucherType)[keyof typeof VoucherType]
+
+
+export const DiscountType = {
+  PERCENTAGE: 'PERCENTAGE',
+  FLAT: 'FLAT'
+} as const
+
+export type DiscountType = (typeof DiscountType)[keyof typeof DiscountType]
+
+
 export const BookingStatus = {
   PENDING: 'PENDING',
   ACCEPTED: 'ACCEPTED',
   REJECTED: 'REJECTED',
+  REFUNDED: 'REFUNDED',
   CANCELLED: 'CANCELLED',
   RESCHEDULED: 'RESCHEDULED',
   DOWNPAYMENT_PENDING: 'DOWNPAYMENT_PENDING',
@@ -29,3 +46,30 @@ export const BookingStatus = {
 } as const
 
 export type BookingStatus = (typeof BookingStatus)[keyof typeof BookingStatus]
+
+
+export const PayslipStatus = {
+  PENDING: 'PENDING',
+  PAID: 'PAID',
+  REJECTED: 'REJECTED'
+} as const
+
+export type PayslipStatus = (typeof PayslipStatus)[keyof typeof PayslipStatus]
+
+
+export const AttendanceStatus = {
+  PRESENT: 'PRESENT',
+  ABSENT: 'ABSENT',
+  LATE: 'LATE',
+  OFF: 'OFF'
+} as const
+
+export type AttendanceStatus = (typeof AttendanceStatus)[keyof typeof AttendanceStatus]
+
+
+export const PaymentMethod = {
+  CASH: 'CASH',
+  QRPH: 'QRPH'
+} as const
+
+export type PaymentMethod = (typeof PaymentMethod)[keyof typeof PaymentMethod]

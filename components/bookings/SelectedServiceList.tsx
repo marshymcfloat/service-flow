@@ -51,7 +51,7 @@ export default function SelectedServiceList({
               <div className="flex flex-col">
                 <span className="font-medium text-sm">{service.name}</span>
                 <span className="text-xs text-muted-foreground">
-                  ${service.price.toFixed(2)}
+                  ₱{service.price.toFixed(2)}
                 </span>
               </div>
             </div>
@@ -82,7 +82,7 @@ export default function SelectedServiceList({
               </div>
 
               <div className="text-sm font-medium w-16 text-right">
-                ${(service.price * (service.quantity || 1)).toFixed(2)}
+                ₱{(service.price * (service.quantity || 1)).toFixed(2)}
               </div>
 
               <Button
@@ -100,7 +100,7 @@ export default function SelectedServiceList({
       </div>
       <div className="mt-4 flex justify-between border-t pt-2 font-medium">
         <span>Total</span>
-        <span>${totalPrice.toFixed(2)}</span>
+        <span>₱{totalPrice.toFixed(2)}</span>
       </div>
     </div>
   );

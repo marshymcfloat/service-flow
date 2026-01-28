@@ -5,9 +5,9 @@ import { CheckCircle2 } from "lucide-react";
 export default async function BookingSuccessPage({
   params,
 }: {
-  params: Promise<{ business_slug: string }>;
+  params: Promise<{ businessSlug: string }>;
 }) {
-  const { business_slug } = await params;
+  const { businessSlug } = await params;
 
   return (
     <div className="flex h-screen w-full flex-col items-center justify-center bg-background p-4">
@@ -29,7 +29,7 @@ export default async function BookingSuccessPage({
 
         <div className="flex w-full flex-col gap-2">
           <Button asChild className="w-full bg-violet-600 hover:bg-violet-700">
-            <Link href={`/${business_slug}/booking`}>Book Another Service</Link>
+            <Link href={`/${businessSlug}/booking`}>Book Another Service</Link>
           </Button>
           <Button asChild variant="outline" className="w-full">
             <Link href={`/`}>Return to Home</Link>

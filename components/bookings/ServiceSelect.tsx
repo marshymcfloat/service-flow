@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 
 import { Service } from "@/prisma/generated/prisma/client";
 import { UseFormReturn } from "react-hook-form";
-import { CreateBookingTypes } from "@/lib/zod schemas/bookings";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import {
   Command,
@@ -18,13 +17,21 @@ import {
 
 export default function ServiceSelect({
   services,
+  categories,
   form,
 }: {
   services: Service[];
+  categories: string[];
   form: UseFormReturn<any>;
 }) {
   const [open, setOpen] = React.useState(false);
+  const [selectedCategory, setSelectedCategory] = React.useState<string>("all");
   const selectedServices = (form.watch("services") as any[]) || [];
+
+  const filteredServices =
+    selectedCategory === "all"
+      ? services
+      : services.filter((s) => s.category === selectedCategory);
 
   const toggleService = (service: Service) => {
     const isSelected = selectedServices.some((s) => s.id === service.id);
@@ -55,15 +62,40 @@ export default function ServiceSelect({
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        className="w-[--radix-popover-trigger-width] p-0"
+        className="w-[var(--radix-popover-trigger-width)] p-0"
         align="start"
       >
+        {/* Category Filter Tabs */}
+        <div className="flex gap-1 p-2 border-b overflow-x-auto">
+          <Button
+            type="button"
+            variant={selectedCategory === "all" ? "default" : "ghost"}
+            size="sm"
+            className="text-xs shrink-0"
+            onClick={() => setSelectedCategory("all")}
+          >
+            All
+          </Button>
+          {categories.map((category) => (
+            <Button
+              key={category}
+              type="button"
+              variant={selectedCategory === category ? "default" : "ghost"}
+              size="sm"
+              className="text-xs shrink-0 capitalize"
+              onClick={() => setSelectedCategory(category)}
+            >
+              {category}
+            </Button>
+          ))}
+        </div>
+
         <Command>
           <CommandInput placeholder="Search service..." />
           <CommandList>
             <CommandEmpty>No service found.</CommandEmpty>
             <CommandGroup>
-              {services.map((service) => {
+              {filteredServices.map((service) => {
                 const isSelected = selectedServices.some(
                   (s) => s.id === service.id,
                 );
@@ -81,9 +113,14 @@ export default function ServiceSelect({
                         isSelected ? "opacity-100" : "opacity-0",
                       )}
                     />
-                    {service.name}
+                    <div className="flex flex-col">
+                      <span>{service.name}</span>
+                      <span className="text-xs text-muted-foreground capitalize">
+                        {service.category}
+                      </span>
+                    </div>
                     <span className="ml-auto text-muted-foreground text-xs">
-                      ${service.price.toFixed(2)}
+                      ₱{service.price.toFixed(2)}
                     </span>
                   </CommandItem>
                 );

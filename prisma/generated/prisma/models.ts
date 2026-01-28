@@ -9,11 +9,18 @@
  * 🟢 You can import this file directly.
  */
 export type * from './models/Business'
+export type * from './models/BusinessHours'
+export type * from './models/SaleEvent'
 export type * from './models/User'
 export type * from './models/Employee'
+export type * from './models/EmployeeAttendance'
+export type * from './models/Payslip'
+export type * from './models/SpecialDate'
 export type * from './models/Owner'
 export type * from './models/Service'
+export type * from './models/ServicePackage'
 export type * from './models/Customer'
 export type * from './models/Booking'
+export type * from './models/Voucher'
 export type * from './models/AvailedService'
 export type * from './commonInputTypes'

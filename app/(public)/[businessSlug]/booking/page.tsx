@@ -6,12 +6,12 @@ import { unstable_cache } from "next/cache";
 export default async function BookingPage({
   params,
 }: {
-  params: Promise<{ business_slug: string }>;
+  params: Promise<{ businessSlug: string }>;
 }) {
-  const { business_slug } = await params;
+  const { businessSlug } = await params;
 
   const business = await prisma.business.findUnique({
-    where: { slug: business_slug },
+    where: { slug: businessSlug },
   });
 
   if (!business) {

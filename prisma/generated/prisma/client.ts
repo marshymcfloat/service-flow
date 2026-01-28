@@ -45,6 +45,16 @@ export { Prisma }
  */
 export type Business = Prisma.BusinessModel
 /**
+ * Model BusinessHours
+ * 
+ */
+export type BusinessHours = Prisma.BusinessHoursModel
+/**
+ * Model SaleEvent
+ * 
+ */
+export type SaleEvent = Prisma.SaleEventModel
+/**
  * Model User
  * 
  */
@@ -54,6 +64,21 @@ export type User = Prisma.UserModel
  * 
  */
 export type Employee = Prisma.EmployeeModel
+/**
+ * Model EmployeeAttendance
+ * 
+ */
+export type EmployeeAttendance = Prisma.EmployeeAttendanceModel
+/**
+ * Model Payslip
+ * 
+ */
+export type Payslip = Prisma.PayslipModel
+/**
+ * Model SpecialDate
+ * 
+ */
+export type SpecialDate = Prisma.SpecialDateModel
 /**
  * Model Owner
  * 
@@ -65,6 +90,11 @@ export type Owner = Prisma.OwnerModel
  */
 export type Service = Prisma.ServiceModel
 /**
+ * Model ServicePackage
+ * 
+ */
+export type ServicePackage = Prisma.ServicePackageModel
+/**
  * Model Customer
  * 
  */
@@ -74,6 +104,11 @@ export type Customer = Prisma.CustomerModel
  * 
  */
 export type Booking = Prisma.BookingModel
+/**
+ * Model Voucher
+ * 
+ */
+export type Voucher = Prisma.VoucherModel
 /**
  * Model AvailedService
  * 
