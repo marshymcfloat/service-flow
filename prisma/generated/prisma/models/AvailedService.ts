@@ -57,6 +57,10 @@ export type AvailedServiceMinAggregateOutputType = {
   discount_reason: string | null
   final_price: number | null
   commission_base: number | null
+  status: $Enums.AvailedServiceStatus | null
+  claimed_at: Date | null
+  served_at: Date | null
+  completed_at: Date | null
   booking_id: number | null
   service_id: number | null
   package_id: number | null
@@ -74,6 +78,10 @@ export type AvailedServiceMaxAggregateOutputType = {
   discount_reason: string | null
   final_price: number | null
   commission_base: number | null
+  status: $Enums.AvailedServiceStatus | null
+  claimed_at: Date | null
+  served_at: Date | null
+  completed_at: Date | null
   booking_id: number | null
   service_id: number | null
   package_id: number | null
@@ -91,6 +99,10 @@ export type AvailedServiceCountAggregateOutputType = {
   discount_reason: number
   final_price: number
   commission_base: number
+  status: number
+  claimed_at: number
+  served_at: number
+  completed_at: number
   booking_id: number
   service_id: number
   package_id: number
@@ -134,6 +146,10 @@ export type AvailedServiceMinAggregateInputType = {
   discount_reason?: true
   final_price?: true
   commission_base?: true
+  status?: true
+  claimed_at?: true
+  served_at?: true
+  completed_at?: true
   booking_id?: true
   service_id?: true
   package_id?: true
@@ -151,6 +167,10 @@ export type AvailedServiceMaxAggregateInputType = {
   discount_reason?: true
   final_price?: true
   commission_base?: true
+  status?: true
+  claimed_at?: true
+  served_at?: true
+  completed_at?: true
   booking_id?: true
   service_id?: true
   package_id?: true
@@ -168,6 +188,10 @@ export type AvailedServiceCountAggregateInputType = {
   discount_reason?: true
   final_price?: true
   commission_base?: true
+  status?: true
+  claimed_at?: true
+  served_at?: true
+  completed_at?: true
   booking_id?: true
   service_id?: true
   package_id?: true
@@ -272,6 +296,10 @@ export type AvailedServiceGroupByOutputType = {
   discount_reason: string | null
   final_price: number
   commission_base: number
+  status: $Enums.AvailedServiceStatus
+  claimed_at: Date | null
+  served_at: Date | null
+  completed_at: Date | null
   booking_id: number
   service_id: number
   package_id: number | null
@@ -312,6 +340,10 @@ export type AvailedServiceWhereInput = {
   discount_reason?: Prisma.StringNullableFilter<"AvailedService"> | string | null
   final_price?: Prisma.FloatFilter<"AvailedService"> | number
   commission_base?: Prisma.FloatFilter<"AvailedService"> | number
+  status?: Prisma.EnumAvailedServiceStatusFilter<"AvailedService"> | $Enums.AvailedServiceStatus
+  claimed_at?: Prisma.DateTimeNullableFilter<"AvailedService"> | Date | string | null
+  served_at?: Prisma.DateTimeNullableFilter<"AvailedService"> | Date | string | null
+  completed_at?: Prisma.DateTimeNullableFilter<"AvailedService"> | Date | string | null
   booking_id?: Prisma.IntFilter<"AvailedService"> | number
   service_id?: Prisma.IntFilter<"AvailedService"> | number
   package_id?: Prisma.IntNullableFilter<"AvailedService"> | number | null
@@ -333,6 +365,10 @@ export type AvailedServiceOrderByWithRelationInput = {
   discount_reason?: Prisma.SortOrderInput | Prisma.SortOrder
   final_price?: Prisma.SortOrder
   commission_base?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  claimed_at?: Prisma.SortOrderInput | Prisma.SortOrder
+  served_at?: Prisma.SortOrderInput | Prisma.SortOrder
+  completed_at?: Prisma.SortOrderInput | Prisma.SortOrder
   booking_id?: Prisma.SortOrder
   service_id?: Prisma.SortOrder
   package_id?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -357,6 +393,10 @@ export type AvailedServiceWhereUniqueInput = Prisma.AtLeast<{
   discount_reason?: Prisma.StringNullableFilter<"AvailedService"> | string | null
   final_price?: Prisma.FloatFilter<"AvailedService"> | number
   commission_base?: Prisma.FloatFilter<"AvailedService"> | number
+  status?: Prisma.EnumAvailedServiceStatusFilter<"AvailedService"> | $Enums.AvailedServiceStatus
+  claimed_at?: Prisma.DateTimeNullableFilter<"AvailedService"> | Date | string | null
+  served_at?: Prisma.DateTimeNullableFilter<"AvailedService"> | Date | string | null
+  completed_at?: Prisma.DateTimeNullableFilter<"AvailedService"> | Date | string | null
   booking_id?: Prisma.IntFilter<"AvailedService"> | number
   service_id?: Prisma.IntFilter<"AvailedService"> | number
   package_id?: Prisma.IntNullableFilter<"AvailedService"> | number | null
@@ -378,6 +418,10 @@ export type AvailedServiceOrderByWithAggregationInput = {
   discount_reason?: Prisma.SortOrderInput | Prisma.SortOrder
   final_price?: Prisma.SortOrder
   commission_base?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  claimed_at?: Prisma.SortOrderInput | Prisma.SortOrder
+  served_at?: Prisma.SortOrderInput | Prisma.SortOrder
+  completed_at?: Prisma.SortOrderInput | Prisma.SortOrder
   booking_id?: Prisma.SortOrder
   service_id?: Prisma.SortOrder
   package_id?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -403,6 +447,10 @@ export type AvailedServiceScalarWhereWithAggregatesInput = {
   discount_reason?: Prisma.StringNullableWithAggregatesFilter<"AvailedService"> | string | null
   final_price?: Prisma.FloatWithAggregatesFilter<"AvailedService"> | number
   commission_base?: Prisma.FloatWithAggregatesFilter<"AvailedService"> | number
+  status?: Prisma.EnumAvailedServiceStatusWithAggregatesFilter<"AvailedService"> | $Enums.AvailedServiceStatus
+  claimed_at?: Prisma.DateTimeNullableWithAggregatesFilter<"AvailedService"> | Date | string | null
+  served_at?: Prisma.DateTimeNullableWithAggregatesFilter<"AvailedService"> | Date | string | null
+  completed_at?: Prisma.DateTimeNullableWithAggregatesFilter<"AvailedService"> | Date | string | null
   booking_id?: Prisma.IntWithAggregatesFilter<"AvailedService"> | number
   service_id?: Prisma.IntWithAggregatesFilter<"AvailedService"> | number
   package_id?: Prisma.IntNullableWithAggregatesFilter<"AvailedService"> | number | null
@@ -419,6 +467,10 @@ export type AvailedServiceCreateInput = {
   discount_reason?: string | null
   final_price: number
   commission_base: number
+  status?: $Enums.AvailedServiceStatus
+  claimed_at?: Date | string | null
+  served_at?: Date | string | null
+  completed_at?: Date | string | null
   scheduled_at?: Date | string | null
   estimated_end?: Date | string | null
   created_at?: Date | string
@@ -436,6 +488,10 @@ export type AvailedServiceUncheckedCreateInput = {
   discount_reason?: string | null
   final_price: number
   commission_base: number
+  status?: $Enums.AvailedServiceStatus
+  claimed_at?: Date | string | null
+  served_at?: Date | string | null
+  completed_at?: Date | string | null
   booking_id: number
   service_id: number
   package_id?: number | null
@@ -452,6 +508,10 @@ export type AvailedServiceUpdateInput = {
   discount_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   final_price?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_base?: Prisma.FloatFieldUpdateOperationsInput | number
+  status?: Prisma.EnumAvailedServiceStatusFieldUpdateOperationsInput | $Enums.AvailedServiceStatus
+  claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  served_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   scheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   estimated_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -469,6 +529,10 @@ export type AvailedServiceUncheckedUpdateInput = {
   discount_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   final_price?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_base?: Prisma.FloatFieldUpdateOperationsInput | number
+  status?: Prisma.EnumAvailedServiceStatusFieldUpdateOperationsInput | $Enums.AvailedServiceStatus
+  claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  served_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   booking_id?: Prisma.IntFieldUpdateOperationsInput | number
   service_id?: Prisma.IntFieldUpdateOperationsInput | number
   package_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -486,6 +550,10 @@ export type AvailedServiceCreateManyInput = {
   discount_reason?: string | null
   final_price: number
   commission_base: number
+  status?: $Enums.AvailedServiceStatus
+  claimed_at?: Date | string | null
+  served_at?: Date | string | null
+  completed_at?: Date | string | null
   booking_id: number
   service_id: number
   package_id?: number | null
@@ -502,6 +570,10 @@ export type AvailedServiceUpdateManyMutationInput = {
   discount_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   final_price?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_base?: Prisma.FloatFieldUpdateOperationsInput | number
+  status?: Prisma.EnumAvailedServiceStatusFieldUpdateOperationsInput | $Enums.AvailedServiceStatus
+  claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  served_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   scheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   estimated_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -515,6 +587,10 @@ export type AvailedServiceUncheckedUpdateManyInput = {
   discount_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   final_price?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_base?: Prisma.FloatFieldUpdateOperationsInput | number
+  status?: Prisma.EnumAvailedServiceStatusFieldUpdateOperationsInput | $Enums.AvailedServiceStatus
+  claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  served_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   booking_id?: Prisma.IntFieldUpdateOperationsInput | number
   service_id?: Prisma.IntFieldUpdateOperationsInput | number
   package_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -542,6 +618,10 @@ export type AvailedServiceCountOrderByAggregateInput = {
   discount_reason?: Prisma.SortOrder
   final_price?: Prisma.SortOrder
   commission_base?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  claimed_at?: Prisma.SortOrder
+  served_at?: Prisma.SortOrder
+  completed_at?: Prisma.SortOrder
   booking_id?: Prisma.SortOrder
   service_id?: Prisma.SortOrder
   package_id?: Prisma.SortOrder
@@ -571,6 +651,10 @@ export type AvailedServiceMaxOrderByAggregateInput = {
   discount_reason?: Prisma.SortOrder
   final_price?: Prisma.SortOrder
   commission_base?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  claimed_at?: Prisma.SortOrder
+  served_at?: Prisma.SortOrder
+  completed_at?: Prisma.SortOrder
   booking_id?: Prisma.SortOrder
   service_id?: Prisma.SortOrder
   package_id?: Prisma.SortOrder
@@ -588,6 +672,10 @@ export type AvailedServiceMinOrderByAggregateInput = {
   discount_reason?: Prisma.SortOrder
   final_price?: Prisma.SortOrder
   commission_base?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  claimed_at?: Prisma.SortOrder
+  served_at?: Prisma.SortOrder
+  completed_at?: Prisma.SortOrder
   booking_id?: Prisma.SortOrder
   service_id?: Prisma.SortOrder
   package_id?: Prisma.SortOrder
@@ -778,12 +866,20 @@ export type AvailedServiceUncheckedUpdateManyWithoutBookingNestedInput = {
   deleteMany?: Prisma.AvailedServiceScalarWhereInput | Prisma.AvailedServiceScalarWhereInput[]
 }
 
+export type EnumAvailedServiceStatusFieldUpdateOperationsInput = {
+  set?: $Enums.AvailedServiceStatus
+}
+
 export type AvailedServiceCreateWithoutServed_byInput = {
   price: number
   discount?: number
   discount_reason?: string | null
   final_price: number
   commission_base: number
+  status?: $Enums.AvailedServiceStatus
+  claimed_at?: Date | string | null
+  served_at?: Date | string | null
+  completed_at?: Date | string | null
   scheduled_at?: Date | string | null
   estimated_end?: Date | string | null
   created_at?: Date | string
@@ -800,6 +896,10 @@ export type AvailedServiceUncheckedCreateWithoutServed_byInput = {
   discount_reason?: string | null
   final_price: number
   commission_base: number
+  status?: $Enums.AvailedServiceStatus
+  claimed_at?: Date | string | null
+  served_at?: Date | string | null
+  completed_at?: Date | string | null
   booking_id: number
   service_id: number
   package_id?: number | null
@@ -845,6 +945,10 @@ export type AvailedServiceScalarWhereInput = {
   discount_reason?: Prisma.StringNullableFilter<"AvailedService"> | string | null
   final_price?: Prisma.FloatFilter<"AvailedService"> | number
   commission_base?: Prisma.FloatFilter<"AvailedService"> | number
+  status?: Prisma.EnumAvailedServiceStatusFilter<"AvailedService"> | $Enums.AvailedServiceStatus
+  claimed_at?: Prisma.DateTimeNullableFilter<"AvailedService"> | Date | string | null
+  served_at?: Prisma.DateTimeNullableFilter<"AvailedService"> | Date | string | null
+  completed_at?: Prisma.DateTimeNullableFilter<"AvailedService"> | Date | string | null
   booking_id?: Prisma.IntFilter<"AvailedService"> | number
   service_id?: Prisma.IntFilter<"AvailedService"> | number
   package_id?: Prisma.IntNullableFilter<"AvailedService"> | number | null
@@ -861,6 +965,10 @@ export type AvailedServiceCreateWithoutServiceInput = {
   discount_reason?: string | null
   final_price: number
   commission_base: number
+  status?: $Enums.AvailedServiceStatus
+  claimed_at?: Date | string | null
+  served_at?: Date | string | null
+  completed_at?: Date | string | null
   scheduled_at?: Date | string | null
   estimated_end?: Date | string | null
   created_at?: Date | string
@@ -877,6 +985,10 @@ export type AvailedServiceUncheckedCreateWithoutServiceInput = {
   discount_reason?: string | null
   final_price: number
   commission_base: number
+  status?: $Enums.AvailedServiceStatus
+  claimed_at?: Date | string | null
+  served_at?: Date | string | null
+  completed_at?: Date | string | null
   booking_id: number
   package_id?: number | null
   served_by_id?: number | null
@@ -918,6 +1030,10 @@ export type AvailedServiceCreateWithoutPackageInput = {
   discount_reason?: string | null
   final_price: number
   commission_base: number
+  status?: $Enums.AvailedServiceStatus
+  claimed_at?: Date | string | null
+  served_at?: Date | string | null
+  completed_at?: Date | string | null
   scheduled_at?: Date | string | null
   estimated_end?: Date | string | null
   created_at?: Date | string
@@ -934,6 +1050,10 @@ export type AvailedServiceUncheckedCreateWithoutPackageInput = {
   discount_reason?: string | null
   final_price: number
   commission_base: number
+  status?: $Enums.AvailedServiceStatus
+  claimed_at?: Date | string | null
+  served_at?: Date | string | null
+  completed_at?: Date | string | null
   booking_id: number
   service_id: number
   served_by_id?: number | null
@@ -975,6 +1095,10 @@ export type AvailedServiceCreateWithoutBookingInput = {
   discount_reason?: string | null
   final_price: number
   commission_base: number
+  status?: $Enums.AvailedServiceStatus
+  claimed_at?: Date | string | null
+  served_at?: Date | string | null
+  completed_at?: Date | string | null
   scheduled_at?: Date | string | null
   estimated_end?: Date | string | null
   created_at?: Date | string
@@ -991,6 +1115,10 @@ export type AvailedServiceUncheckedCreateWithoutBookingInput = {
   discount_reason?: string | null
   final_price: number
   commission_base: number
+  status?: $Enums.AvailedServiceStatus
+  claimed_at?: Date | string | null
+  served_at?: Date | string | null
+  completed_at?: Date | string | null
   service_id: number
   package_id?: number | null
   served_by_id?: number | null
@@ -1033,6 +1161,10 @@ export type AvailedServiceCreateManyServed_byInput = {
   discount_reason?: string | null
   final_price: number
   commission_base: number
+  status?: $Enums.AvailedServiceStatus
+  claimed_at?: Date | string | null
+  served_at?: Date | string | null
+  completed_at?: Date | string | null
   booking_id: number
   service_id: number
   package_id?: number | null
@@ -1048,6 +1180,10 @@ export type AvailedServiceUpdateWithoutServed_byInput = {
   discount_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   final_price?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_base?: Prisma.FloatFieldUpdateOperationsInput | number
+  status?: Prisma.EnumAvailedServiceStatusFieldUpdateOperationsInput | $Enums.AvailedServiceStatus
+  claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  served_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   scheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   estimated_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1064,6 +1200,10 @@ export type AvailedServiceUncheckedUpdateWithoutServed_byInput = {
   discount_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   final_price?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_base?: Prisma.FloatFieldUpdateOperationsInput | number
+  status?: Prisma.EnumAvailedServiceStatusFieldUpdateOperationsInput | $Enums.AvailedServiceStatus
+  claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  served_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   booking_id?: Prisma.IntFieldUpdateOperationsInput | number
   service_id?: Prisma.IntFieldUpdateOperationsInput | number
   package_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1080,6 +1220,10 @@ export type AvailedServiceUncheckedUpdateManyWithoutServed_byInput = {
   discount_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   final_price?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_base?: Prisma.FloatFieldUpdateOperationsInput | number
+  status?: Prisma.EnumAvailedServiceStatusFieldUpdateOperationsInput | $Enums.AvailedServiceStatus
+  claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  served_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   booking_id?: Prisma.IntFieldUpdateOperationsInput | number
   service_id?: Prisma.IntFieldUpdateOperationsInput | number
   package_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1096,6 +1240,10 @@ export type AvailedServiceCreateManyServiceInput = {
   discount_reason?: string | null
   final_price: number
   commission_base: number
+  status?: $Enums.AvailedServiceStatus
+  claimed_at?: Date | string | null
+  served_at?: Date | string | null
+  completed_at?: Date | string | null
   booking_id: number
   package_id?: number | null
   served_by_id?: number | null
@@ -1111,6 +1259,10 @@ export type AvailedServiceUpdateWithoutServiceInput = {
   discount_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   final_price?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_base?: Prisma.FloatFieldUpdateOperationsInput | number
+  status?: Prisma.EnumAvailedServiceStatusFieldUpdateOperationsInput | $Enums.AvailedServiceStatus
+  claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  served_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   scheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   estimated_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1127,6 +1279,10 @@ export type AvailedServiceUncheckedUpdateWithoutServiceInput = {
   discount_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   final_price?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_base?: Prisma.FloatFieldUpdateOperationsInput | number
+  status?: Prisma.EnumAvailedServiceStatusFieldUpdateOperationsInput | $Enums.AvailedServiceStatus
+  claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  served_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   booking_id?: Prisma.IntFieldUpdateOperationsInput | number
   package_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   served_by_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1143,6 +1299,10 @@ export type AvailedServiceUncheckedUpdateManyWithoutServiceInput = {
   discount_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   final_price?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_base?: Prisma.FloatFieldUpdateOperationsInput | number
+  status?: Prisma.EnumAvailedServiceStatusFieldUpdateOperationsInput | $Enums.AvailedServiceStatus
+  claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  served_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   booking_id?: Prisma.IntFieldUpdateOperationsInput | number
   package_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   served_by_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1159,6 +1319,10 @@ export type AvailedServiceCreateManyPackageInput = {
   discount_reason?: string | null
   final_price: number
   commission_base: number
+  status?: $Enums.AvailedServiceStatus
+  claimed_at?: Date | string | null
+  served_at?: Date | string | null
+  completed_at?: Date | string | null
   booking_id: number
   service_id: number
   served_by_id?: number | null
@@ -1174,6 +1338,10 @@ export type AvailedServiceUpdateWithoutPackageInput = {
   discount_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   final_price?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_base?: Prisma.FloatFieldUpdateOperationsInput | number
+  status?: Prisma.EnumAvailedServiceStatusFieldUpdateOperationsInput | $Enums.AvailedServiceStatus
+  claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  served_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   scheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   estimated_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1190,6 +1358,10 @@ export type AvailedServiceUncheckedUpdateWithoutPackageInput = {
   discount_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   final_price?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_base?: Prisma.FloatFieldUpdateOperationsInput | number
+  status?: Prisma.EnumAvailedServiceStatusFieldUpdateOperationsInput | $Enums.AvailedServiceStatus
+  claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  served_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   booking_id?: Prisma.IntFieldUpdateOperationsInput | number
   service_id?: Prisma.IntFieldUpdateOperationsInput | number
   served_by_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1206,6 +1378,10 @@ export type AvailedServiceUncheckedUpdateManyWithoutPackageInput = {
   discount_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   final_price?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_base?: Prisma.FloatFieldUpdateOperationsInput | number
+  status?: Prisma.EnumAvailedServiceStatusFieldUpdateOperationsInput | $Enums.AvailedServiceStatus
+  claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  served_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   booking_id?: Prisma.IntFieldUpdateOperationsInput | number
   service_id?: Prisma.IntFieldUpdateOperationsInput | number
   served_by_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1222,6 +1398,10 @@ export type AvailedServiceCreateManyBookingInput = {
   discount_reason?: string | null
   final_price: number
   commission_base: number
+  status?: $Enums.AvailedServiceStatus
+  claimed_at?: Date | string | null
+  served_at?: Date | string | null
+  completed_at?: Date | string | null
   service_id: number
   package_id?: number | null
   served_by_id?: number | null
@@ -1237,6 +1417,10 @@ export type AvailedServiceUpdateWithoutBookingInput = {
   discount_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   final_price?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_base?: Prisma.FloatFieldUpdateOperationsInput | number
+  status?: Prisma.EnumAvailedServiceStatusFieldUpdateOperationsInput | $Enums.AvailedServiceStatus
+  claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  served_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   scheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   estimated_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1253,6 +1437,10 @@ export type AvailedServiceUncheckedUpdateWithoutBookingInput = {
   discount_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   final_price?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_base?: Prisma.FloatFieldUpdateOperationsInput | number
+  status?: Prisma.EnumAvailedServiceStatusFieldUpdateOperationsInput | $Enums.AvailedServiceStatus
+  claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  served_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   service_id?: Prisma.IntFieldUpdateOperationsInput | number
   package_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   served_by_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1269,6 +1457,10 @@ export type AvailedServiceUncheckedUpdateManyWithoutBookingInput = {
   discount_reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   final_price?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_base?: Prisma.FloatFieldUpdateOperationsInput | number
+  status?: Prisma.EnumAvailedServiceStatusFieldUpdateOperationsInput | $Enums.AvailedServiceStatus
+  claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  served_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   service_id?: Prisma.IntFieldUpdateOperationsInput | number
   package_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   served_by_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1287,6 +1479,10 @@ export type AvailedServiceSelect<ExtArgs extends runtime.Types.Extensions.Intern
   discount_reason?: boolean
   final_price?: boolean
   commission_base?: boolean
+  status?: boolean
+  claimed_at?: boolean
+  served_at?: boolean
+  completed_at?: boolean
   booking_id?: boolean
   service_id?: boolean
   package_id?: boolean
@@ -1308,6 +1504,10 @@ export type AvailedServiceSelectCreateManyAndReturn<ExtArgs extends runtime.Type
   discount_reason?: boolean
   final_price?: boolean
   commission_base?: boolean
+  status?: boolean
+  claimed_at?: boolean
+  served_at?: boolean
+  completed_at?: boolean
   booking_id?: boolean
   service_id?: boolean
   package_id?: boolean
@@ -1329,6 +1529,10 @@ export type AvailedServiceSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
   discount_reason?: boolean
   final_price?: boolean
   commission_base?: boolean
+  status?: boolean
+  claimed_at?: boolean
+  served_at?: boolean
+  completed_at?: boolean
   booking_id?: boolean
   service_id?: boolean
   package_id?: boolean
@@ -1350,6 +1554,10 @@ export type AvailedServiceSelectScalar = {
   discount_reason?: boolean
   final_price?: boolean
   commission_base?: boolean
+  status?: boolean
+  claimed_at?: boolean
+  served_at?: boolean
+  completed_at?: boolean
   booking_id?: boolean
   service_id?: boolean
   package_id?: boolean
@@ -1360,7 +1568,7 @@ export type AvailedServiceSelectScalar = {
   updated_at?: boolean
 }
 
-export type AvailedServiceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "price" | "discount" | "discount_reason" | "final_price" | "commission_base" | "booking_id" | "service_id" | "package_id" | "served_by_id" | "scheduled_at" | "estimated_end" | "created_at" | "updated_at", ExtArgs["result"]["availedService"]>
+export type AvailedServiceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "price" | "discount" | "discount_reason" | "final_price" | "commission_base" | "status" | "claimed_at" | "served_at" | "completed_at" | "booking_id" | "service_id" | "package_id" | "served_by_id" | "scheduled_at" | "estimated_end" | "created_at" | "updated_at", ExtArgs["result"]["availedService"]>
 export type AvailedServiceInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   booking?: boolean | Prisma.BookingDefaultArgs<ExtArgs>
   service?: boolean | Prisma.ServiceDefaultArgs<ExtArgs>
@@ -1395,6 +1603,10 @@ export type $AvailedServicePayload<ExtArgs extends runtime.Types.Extensions.Inte
     discount_reason: string | null
     final_price: number
     commission_base: number
+    status: $Enums.AvailedServiceStatus
+    claimed_at: Date | null
+    served_at: Date | null
+    completed_at: Date | null
     booking_id: number
     service_id: number
     package_id: number | null
@@ -1836,6 +2048,10 @@ export interface AvailedServiceFieldRefs {
   readonly discount_reason: Prisma.FieldRef<"AvailedService", 'String'>
   readonly final_price: Prisma.FieldRef<"AvailedService", 'Float'>
   readonly commission_base: Prisma.FieldRef<"AvailedService", 'Float'>
+  readonly status: Prisma.FieldRef<"AvailedService", 'AvailedServiceStatus'>
+  readonly claimed_at: Prisma.FieldRef<"AvailedService", 'DateTime'>
+  readonly served_at: Prisma.FieldRef<"AvailedService", 'DateTime'>
+  readonly completed_at: Prisma.FieldRef<"AvailedService", 'DateTime'>
   readonly booking_id: Prisma.FieldRef<"AvailedService", 'Int'>
   readonly service_id: Prisma.FieldRef<"AvailedService", 'Int'>
   readonly package_id: Prisma.FieldRef<"AvailedService", 'Int'>

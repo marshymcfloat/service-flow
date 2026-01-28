@@ -1571,6 +1571,8 @@ export const BusinessScalarFieldEnum = {
   id: 'id',
   name: 'name',
   slug: 'slug',
+  latitude: 'latitude',
+  longitude: 'longitude',
   created_at: 'created_at',
   updated_at: 'updated_at'
 } as const
@@ -1636,6 +1638,11 @@ export const EmployeeAttendanceScalarFieldEnum = {
   employee_id: 'employee_id',
   date: 'date',
   status: 'status',
+  time_in: 'time_in',
+  time_out: 'time_out',
+  location_verified: 'location_verified',
+  latitude: 'latitude',
+  longitude: 'longitude',
   created_at: 'created_at',
   updated_at: 'updated_at'
 } as const
@@ -1765,6 +1772,10 @@ export const AvailedServiceScalarFieldEnum = {
   discount_reason: 'discount_reason',
   final_price: 'final_price',
   commission_base: 'commission_base',
+  status: 'status',
+  claimed_at: 'claimed_at',
+  served_at: 'served_at',
+  completed_at: 'completed_at',
   booking_id: 'booking_id',
   service_id: 'service_id',
   package_id: 'package_id',
@@ -1823,6 +1834,20 @@ export type ListStringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaMod
 
 
 /**
+ * Reference to a field of type 'Float'
+ */
+export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
+    
+
+
+/**
+ * Reference to a field of type 'Float[]'
+ */
+export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
+    
+
+
+/**
  * Reference to a field of type 'DateTime'
  */
 export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
@@ -1868,20 +1893,6 @@ export type EnumDiscountTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$Pri
  * Reference to a field of type 'DiscountType[]'
  */
 export type ListEnumDiscountTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DiscountType[]'>
-    
-
-
-/**
- * Reference to a field of type 'Float'
- */
-export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
-    
-
-
-/**
- * Reference to a field of type 'Float[]'
- */
-export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
     
 
 
@@ -1966,6 +1977,20 @@ export type EnumVoucherTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$Pris
  * Reference to a field of type 'VoucherType[]'
  */
 export type ListEnumVoucherTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'VoucherType[]'>
+    
+
+
+/**
+ * Reference to a field of type 'AvailedServiceStatus'
+ */
+export type EnumAvailedServiceStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AvailedServiceStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'AvailedServiceStatus[]'
+ */
+export type ListEnumAvailedServiceStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AvailedServiceStatus[]'>
     
 
 /**

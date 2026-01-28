@@ -62,10 +62,9 @@ export default function ServiceSelect({
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        className="w-[var(--radix-popover-trigger-width)] p-0"
+        className="w-(--radix-popover-trigger-width) p-0"
         align="start"
       >
-        {/* Category Filter Tabs */}
         <div className="flex gap-1 p-2 border-b overflow-x-auto">
           <Button
             type="button"

@@ -39,7 +39,9 @@ async function main() {
           user_id: ownerUser.id,
         },
       },
-    },
+      latitude: 9.682940016270514,
+      longitude: 118.75246245092016,
+    } as any,
   });
 
   console.log(`Created business: ${business.name} (slug: ${business.slug})`);
@@ -326,7 +328,6 @@ async function main() {
   }
   console.log(`Created ${packages.length} service packages`);
 
-  // Create Employee User
   const employeeUser = await prisma.user.create({
     data: {
       email: "anna@beautyfeel.com",
@@ -340,7 +341,7 @@ async function main() {
     data: {
       user_id: employeeUser.id,
       business_id: business.id,
-      salary: 18000,
+      salary: 0,
       daily_salary: 600,
       commission_percentage: 10,
     },
@@ -361,7 +362,7 @@ async function main() {
     data: {
       user_id: employeeUser2.id,
       business_id: business.id,
-      salary: 16000,
+      salary: 0,
       daily_salary: 533,
       commission_percentage: 8,
     },

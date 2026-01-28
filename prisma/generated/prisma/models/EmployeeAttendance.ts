@@ -29,11 +29,15 @@ export type AggregateEmployeeAttendance = {
 export type EmployeeAttendanceAvgAggregateOutputType = {
   id: number | null
   employee_id: number | null
+  latitude: number | null
+  longitude: number | null
 }
 
 export type EmployeeAttendanceSumAggregateOutputType = {
   id: number | null
   employee_id: number | null
+  latitude: number | null
+  longitude: number | null
 }
 
 export type EmployeeAttendanceMinAggregateOutputType = {
@@ -41,6 +45,11 @@ export type EmployeeAttendanceMinAggregateOutputType = {
   employee_id: number | null
   date: Date | null
   status: $Enums.AttendanceStatus | null
+  time_in: Date | null
+  time_out: Date | null
+  location_verified: boolean | null
+  latitude: number | null
+  longitude: number | null
   created_at: Date | null
   updated_at: Date | null
 }
@@ -50,6 +59,11 @@ export type EmployeeAttendanceMaxAggregateOutputType = {
   employee_id: number | null
   date: Date | null
   status: $Enums.AttendanceStatus | null
+  time_in: Date | null
+  time_out: Date | null
+  location_verified: boolean | null
+  latitude: number | null
+  longitude: number | null
   created_at: Date | null
   updated_at: Date | null
 }
@@ -59,6 +73,11 @@ export type EmployeeAttendanceCountAggregateOutputType = {
   employee_id: number
   date: number
   status: number
+  time_in: number
+  time_out: number
+  location_verified: number
+  latitude: number
+  longitude: number
   created_at: number
   updated_at: number
   _all: number
@@ -68,11 +87,15 @@ export type EmployeeAttendanceCountAggregateOutputType = {
 export type EmployeeAttendanceAvgAggregateInputType = {
   id?: true
   employee_id?: true
+  latitude?: true
+  longitude?: true
 }
 
 export type EmployeeAttendanceSumAggregateInputType = {
   id?: true
   employee_id?: true
+  latitude?: true
+  longitude?: true
 }
 
 export type EmployeeAttendanceMinAggregateInputType = {
@@ -80,6 +103,11 @@ export type EmployeeAttendanceMinAggregateInputType = {
   employee_id?: true
   date?: true
   status?: true
+  time_in?: true
+  time_out?: true
+  location_verified?: true
+  latitude?: true
+  longitude?: true
   created_at?: true
   updated_at?: true
 }
@@ -89,6 +117,11 @@ export type EmployeeAttendanceMaxAggregateInputType = {
   employee_id?: true
   date?: true
   status?: true
+  time_in?: true
+  time_out?: true
+  location_verified?: true
+  latitude?: true
+  longitude?: true
   created_at?: true
   updated_at?: true
 }
@@ -98,6 +131,11 @@ export type EmployeeAttendanceCountAggregateInputType = {
   employee_id?: true
   date?: true
   status?: true
+  time_in?: true
+  time_out?: true
+  location_verified?: true
+  latitude?: true
+  longitude?: true
   created_at?: true
   updated_at?: true
   _all?: true
@@ -194,6 +232,11 @@ export type EmployeeAttendanceGroupByOutputType = {
   employee_id: number
   date: Date
   status: $Enums.AttendanceStatus
+  time_in: Date | null
+  time_out: Date | null
+  location_verified: boolean
+  latitude: number | null
+  longitude: number | null
   created_at: Date
   updated_at: Date
   _count: EmployeeAttendanceCountAggregateOutputType | null
@@ -226,6 +269,11 @@ export type EmployeeAttendanceWhereInput = {
   employee_id?: Prisma.IntFilter<"EmployeeAttendance"> | number
   date?: Prisma.DateTimeFilter<"EmployeeAttendance"> | Date | string
   status?: Prisma.EnumAttendanceStatusFilter<"EmployeeAttendance"> | $Enums.AttendanceStatus
+  time_in?: Prisma.DateTimeNullableFilter<"EmployeeAttendance"> | Date | string | null
+  time_out?: Prisma.DateTimeNullableFilter<"EmployeeAttendance"> | Date | string | null
+  location_verified?: Prisma.BoolFilter<"EmployeeAttendance"> | boolean
+  latitude?: Prisma.FloatNullableFilter<"EmployeeAttendance"> | number | null
+  longitude?: Prisma.FloatNullableFilter<"EmployeeAttendance"> | number | null
   created_at?: Prisma.DateTimeFilter<"EmployeeAttendance"> | Date | string
   updated_at?: Prisma.DateTimeFilter<"EmployeeAttendance"> | Date | string
   employee?: Prisma.XOR<Prisma.EmployeeScalarRelationFilter, Prisma.EmployeeWhereInput>
@@ -236,6 +284,11 @@ export type EmployeeAttendanceOrderByWithRelationInput = {
   employee_id?: Prisma.SortOrder
   date?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  time_in?: Prisma.SortOrderInput | Prisma.SortOrder
+  time_out?: Prisma.SortOrderInput | Prisma.SortOrder
+  location_verified?: Prisma.SortOrder
+  latitude?: Prisma.SortOrderInput | Prisma.SortOrder
+  longitude?: Prisma.SortOrderInput | Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
   employee?: Prisma.EmployeeOrderByWithRelationInput
@@ -249,6 +302,11 @@ export type EmployeeAttendanceWhereUniqueInput = Prisma.AtLeast<{
   employee_id?: Prisma.IntFilter<"EmployeeAttendance"> | number
   date?: Prisma.DateTimeFilter<"EmployeeAttendance"> | Date | string
   status?: Prisma.EnumAttendanceStatusFilter<"EmployeeAttendance"> | $Enums.AttendanceStatus
+  time_in?: Prisma.DateTimeNullableFilter<"EmployeeAttendance"> | Date | string | null
+  time_out?: Prisma.DateTimeNullableFilter<"EmployeeAttendance"> | Date | string | null
+  location_verified?: Prisma.BoolFilter<"EmployeeAttendance"> | boolean
+  latitude?: Prisma.FloatNullableFilter<"EmployeeAttendance"> | number | null
+  longitude?: Prisma.FloatNullableFilter<"EmployeeAttendance"> | number | null
   created_at?: Prisma.DateTimeFilter<"EmployeeAttendance"> | Date | string
   updated_at?: Prisma.DateTimeFilter<"EmployeeAttendance"> | Date | string
   employee?: Prisma.XOR<Prisma.EmployeeScalarRelationFilter, Prisma.EmployeeWhereInput>
@@ -259,6 +317,11 @@ export type EmployeeAttendanceOrderByWithAggregationInput = {
   employee_id?: Prisma.SortOrder
   date?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  time_in?: Prisma.SortOrderInput | Prisma.SortOrder
+  time_out?: Prisma.SortOrderInput | Prisma.SortOrder
+  location_verified?: Prisma.SortOrder
+  latitude?: Prisma.SortOrderInput | Prisma.SortOrder
+  longitude?: Prisma.SortOrderInput | Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
   _count?: Prisma.EmployeeAttendanceCountOrderByAggregateInput
@@ -276,6 +339,11 @@ export type EmployeeAttendanceScalarWhereWithAggregatesInput = {
   employee_id?: Prisma.IntWithAggregatesFilter<"EmployeeAttendance"> | number
   date?: Prisma.DateTimeWithAggregatesFilter<"EmployeeAttendance"> | Date | string
   status?: Prisma.EnumAttendanceStatusWithAggregatesFilter<"EmployeeAttendance"> | $Enums.AttendanceStatus
+  time_in?: Prisma.DateTimeNullableWithAggregatesFilter<"EmployeeAttendance"> | Date | string | null
+  time_out?: Prisma.DateTimeNullableWithAggregatesFilter<"EmployeeAttendance"> | Date | string | null
+  location_verified?: Prisma.BoolWithAggregatesFilter<"EmployeeAttendance"> | boolean
+  latitude?: Prisma.FloatNullableWithAggregatesFilter<"EmployeeAttendance"> | number | null
+  longitude?: Prisma.FloatNullableWithAggregatesFilter<"EmployeeAttendance"> | number | null
   created_at?: Prisma.DateTimeWithAggregatesFilter<"EmployeeAttendance"> | Date | string
   updated_at?: Prisma.DateTimeWithAggregatesFilter<"EmployeeAttendance"> | Date | string
 }
@@ -283,6 +351,11 @@ export type EmployeeAttendanceScalarWhereWithAggregatesInput = {
 export type EmployeeAttendanceCreateInput = {
   date: Date | string
   status?: $Enums.AttendanceStatus
+  time_in?: Date | string | null
+  time_out?: Date | string | null
+  location_verified?: boolean
+  latitude?: number | null
+  longitude?: number | null
   created_at?: Date | string
   updated_at?: Date | string
   employee: Prisma.EmployeeCreateNestedOneWithoutAttendanceInput
@@ -293,6 +366,11 @@ export type EmployeeAttendanceUncheckedCreateInput = {
   employee_id: number
   date: Date | string
   status?: $Enums.AttendanceStatus
+  time_in?: Date | string | null
+  time_out?: Date | string | null
+  location_verified?: boolean
+  latitude?: number | null
+  longitude?: number | null
   created_at?: Date | string
   updated_at?: Date | string
 }
@@ -300,6 +378,11 @@ export type EmployeeAttendanceUncheckedCreateInput = {
 export type EmployeeAttendanceUpdateInput = {
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumAttendanceStatusFieldUpdateOperationsInput | $Enums.AttendanceStatus
+  time_in?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  time_out?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  location_verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   employee?: Prisma.EmployeeUpdateOneRequiredWithoutAttendanceNestedInput
@@ -310,6 +393,11 @@ export type EmployeeAttendanceUncheckedUpdateInput = {
   employee_id?: Prisma.IntFieldUpdateOperationsInput | number
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumAttendanceStatusFieldUpdateOperationsInput | $Enums.AttendanceStatus
+  time_in?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  time_out?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  location_verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -319,6 +407,11 @@ export type EmployeeAttendanceCreateManyInput = {
   employee_id: number
   date: Date | string
   status?: $Enums.AttendanceStatus
+  time_in?: Date | string | null
+  time_out?: Date | string | null
+  location_verified?: boolean
+  latitude?: number | null
+  longitude?: number | null
   created_at?: Date | string
   updated_at?: Date | string
 }
@@ -326,6 +419,11 @@ export type EmployeeAttendanceCreateManyInput = {
 export type EmployeeAttendanceUpdateManyMutationInput = {
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumAttendanceStatusFieldUpdateOperationsInput | $Enums.AttendanceStatus
+  time_in?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  time_out?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  location_verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -335,6 +433,11 @@ export type EmployeeAttendanceUncheckedUpdateManyInput = {
   employee_id?: Prisma.IntFieldUpdateOperationsInput | number
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumAttendanceStatusFieldUpdateOperationsInput | $Enums.AttendanceStatus
+  time_in?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  time_out?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  location_verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -354,6 +457,11 @@ export type EmployeeAttendanceCountOrderByAggregateInput = {
   employee_id?: Prisma.SortOrder
   date?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  time_in?: Prisma.SortOrder
+  time_out?: Prisma.SortOrder
+  location_verified?: Prisma.SortOrder
+  latitude?: Prisma.SortOrder
+  longitude?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
 }
@@ -361,6 +469,8 @@ export type EmployeeAttendanceCountOrderByAggregateInput = {
 export type EmployeeAttendanceAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
   employee_id?: Prisma.SortOrder
+  latitude?: Prisma.SortOrder
+  longitude?: Prisma.SortOrder
 }
 
 export type EmployeeAttendanceMaxOrderByAggregateInput = {
@@ -368,6 +478,11 @@ export type EmployeeAttendanceMaxOrderByAggregateInput = {
   employee_id?: Prisma.SortOrder
   date?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  time_in?: Prisma.SortOrder
+  time_out?: Prisma.SortOrder
+  location_verified?: Prisma.SortOrder
+  latitude?: Prisma.SortOrder
+  longitude?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
 }
@@ -377,6 +492,11 @@ export type EmployeeAttendanceMinOrderByAggregateInput = {
   employee_id?: Prisma.SortOrder
   date?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  time_in?: Prisma.SortOrder
+  time_out?: Prisma.SortOrder
+  location_verified?: Prisma.SortOrder
+  latitude?: Prisma.SortOrder
+  longitude?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
 }
@@ -384,6 +504,8 @@ export type EmployeeAttendanceMinOrderByAggregateInput = {
 export type EmployeeAttendanceSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   employee_id?: Prisma.SortOrder
+  latitude?: Prisma.SortOrder
+  longitude?: Prisma.SortOrder
 }
 
 export type EmployeeAttendanceCreateNestedManyWithoutEmployeeInput = {
@@ -432,9 +554,18 @@ export type EnumAttendanceStatusFieldUpdateOperationsInput = {
   set?: $Enums.AttendanceStatus
 }
 
+export type NullableDateTimeFieldUpdateOperationsInput = {
+  set?: Date | string | null
+}
+
 export type EmployeeAttendanceCreateWithoutEmployeeInput = {
   date: Date | string
   status?: $Enums.AttendanceStatus
+  time_in?: Date | string | null
+  time_out?: Date | string | null
+  location_verified?: boolean
+  latitude?: number | null
+  longitude?: number | null
   created_at?: Date | string
   updated_at?: Date | string
 }
@@ -443,6 +574,11 @@ export type EmployeeAttendanceUncheckedCreateWithoutEmployeeInput = {
   id?: number
   date: Date | string
   status?: $Enums.AttendanceStatus
+  time_in?: Date | string | null
+  time_out?: Date | string | null
+  location_verified?: boolean
+  latitude?: number | null
+  longitude?: number | null
   created_at?: Date | string
   updated_at?: Date | string
 }
@@ -481,6 +617,11 @@ export type EmployeeAttendanceScalarWhereInput = {
   employee_id?: Prisma.IntFilter<"EmployeeAttendance"> | number
   date?: Prisma.DateTimeFilter<"EmployeeAttendance"> | Date | string
   status?: Prisma.EnumAttendanceStatusFilter<"EmployeeAttendance"> | $Enums.AttendanceStatus
+  time_in?: Prisma.DateTimeNullableFilter<"EmployeeAttendance"> | Date | string | null
+  time_out?: Prisma.DateTimeNullableFilter<"EmployeeAttendance"> | Date | string | null
+  location_verified?: Prisma.BoolFilter<"EmployeeAttendance"> | boolean
+  latitude?: Prisma.FloatNullableFilter<"EmployeeAttendance"> | number | null
+  longitude?: Prisma.FloatNullableFilter<"EmployeeAttendance"> | number | null
   created_at?: Prisma.DateTimeFilter<"EmployeeAttendance"> | Date | string
   updated_at?: Prisma.DateTimeFilter<"EmployeeAttendance"> | Date | string
 }
@@ -489,6 +630,11 @@ export type EmployeeAttendanceCreateManyEmployeeInput = {
   id?: number
   date: Date | string
   status?: $Enums.AttendanceStatus
+  time_in?: Date | string | null
+  time_out?: Date | string | null
+  location_verified?: boolean
+  latitude?: number | null
+  longitude?: number | null
   created_at?: Date | string
   updated_at?: Date | string
 }
@@ -496,6 +642,11 @@ export type EmployeeAttendanceCreateManyEmployeeInput = {
 export type EmployeeAttendanceUpdateWithoutEmployeeInput = {
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumAttendanceStatusFieldUpdateOperationsInput | $Enums.AttendanceStatus
+  time_in?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  time_out?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  location_verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -504,6 +655,11 @@ export type EmployeeAttendanceUncheckedUpdateWithoutEmployeeInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumAttendanceStatusFieldUpdateOperationsInput | $Enums.AttendanceStatus
+  time_in?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  time_out?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  location_verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -512,6 +668,11 @@ export type EmployeeAttendanceUncheckedUpdateManyWithoutEmployeeInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumAttendanceStatusFieldUpdateOperationsInput | $Enums.AttendanceStatus
+  time_in?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  time_out?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  location_verified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -523,6 +684,11 @@ export type EmployeeAttendanceSelect<ExtArgs extends runtime.Types.Extensions.In
   employee_id?: boolean
   date?: boolean
   status?: boolean
+  time_in?: boolean
+  time_out?: boolean
+  location_verified?: boolean
+  latitude?: boolean
+  longitude?: boolean
   created_at?: boolean
   updated_at?: boolean
   employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
@@ -533,6 +699,11 @@ export type EmployeeAttendanceSelectCreateManyAndReturn<ExtArgs extends runtime.
   employee_id?: boolean
   date?: boolean
   status?: boolean
+  time_in?: boolean
+  time_out?: boolean
+  location_verified?: boolean
+  latitude?: boolean
+  longitude?: boolean
   created_at?: boolean
   updated_at?: boolean
   employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
@@ -543,6 +714,11 @@ export type EmployeeAttendanceSelectUpdateManyAndReturn<ExtArgs extends runtime.
   employee_id?: boolean
   date?: boolean
   status?: boolean
+  time_in?: boolean
+  time_out?: boolean
+  location_verified?: boolean
+  latitude?: boolean
+  longitude?: boolean
   created_at?: boolean
   updated_at?: boolean
   employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
@@ -553,11 +729,16 @@ export type EmployeeAttendanceSelectScalar = {
   employee_id?: boolean
   date?: boolean
   status?: boolean
+  time_in?: boolean
+  time_out?: boolean
+  location_verified?: boolean
+  latitude?: boolean
+  longitude?: boolean
   created_at?: boolean
   updated_at?: boolean
 }
 
-export type EmployeeAttendanceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "employee_id" | "date" | "status" | "created_at" | "updated_at", ExtArgs["result"]["employeeAttendance"]>
+export type EmployeeAttendanceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "employee_id" | "date" | "status" | "time_in" | "time_out" | "location_verified" | "latitude" | "longitude" | "created_at" | "updated_at", ExtArgs["result"]["employeeAttendance"]>
 export type EmployeeAttendanceInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
 }
@@ -578,6 +759,11 @@ export type $EmployeeAttendancePayload<ExtArgs extends runtime.Types.Extensions.
     employee_id: number
     date: Date
     status: $Enums.AttendanceStatus
+    time_in: Date | null
+    time_out: Date | null
+    location_verified: boolean
+    latitude: number | null
+    longitude: number | null
     created_at: Date
     updated_at: Date
   }, ExtArgs["result"]["employeeAttendance"]>
@@ -1008,6 +1194,11 @@ export interface EmployeeAttendanceFieldRefs {
   readonly employee_id: Prisma.FieldRef<"EmployeeAttendance", 'Int'>
   readonly date: Prisma.FieldRef<"EmployeeAttendance", 'DateTime'>
   readonly status: Prisma.FieldRef<"EmployeeAttendance", 'AttendanceStatus'>
+  readonly time_in: Prisma.FieldRef<"EmployeeAttendance", 'DateTime'>
+  readonly time_out: Prisma.FieldRef<"EmployeeAttendance", 'DateTime'>
+  readonly location_verified: Prisma.FieldRef<"EmployeeAttendance", 'Boolean'>
+  readonly latitude: Prisma.FieldRef<"EmployeeAttendance", 'Float'>
+  readonly longitude: Prisma.FieldRef<"EmployeeAttendance", 'Float'>
   readonly created_at: Prisma.FieldRef<"EmployeeAttendance", 'DateTime'>
   readonly updated_at: Prisma.FieldRef<"EmployeeAttendance", 'DateTime'>
 }

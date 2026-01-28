@@ -20,14 +20,28 @@ export type BusinessModel = runtime.Types.Result.DefaultSelection<Prisma.$Busine
 
 export type AggregateBusiness = {
   _count: BusinessCountAggregateOutputType | null
+  _avg: BusinessAvgAggregateOutputType | null
+  _sum: BusinessSumAggregateOutputType | null
   _min: BusinessMinAggregateOutputType | null
   _max: BusinessMaxAggregateOutputType | null
+}
+
+export type BusinessAvgAggregateOutputType = {
+  latitude: number | null
+  longitude: number | null
+}
+
+export type BusinessSumAggregateOutputType = {
+  latitude: number | null
+  longitude: number | null
 }
 
 export type BusinessMinAggregateOutputType = {
   id: string | null
   name: string | null
   slug: string | null
+  latitude: number | null
+  longitude: number | null
   created_at: Date | null
   updated_at: Date | null
 }
@@ -36,6 +50,8 @@ export type BusinessMaxAggregateOutputType = {
   id: string | null
   name: string | null
   slug: string | null
+  latitude: number | null
+  longitude: number | null
   created_at: Date | null
   updated_at: Date | null
 }
@@ -44,16 +60,30 @@ export type BusinessCountAggregateOutputType = {
   id: number
   name: number
   slug: number
+  latitude: number
+  longitude: number
   created_at: number
   updated_at: number
   _all: number
 }
 
 
+export type BusinessAvgAggregateInputType = {
+  latitude?: true
+  longitude?: true
+}
+
+export type BusinessSumAggregateInputType = {
+  latitude?: true
+  longitude?: true
+}
+
 export type BusinessMinAggregateInputType = {
   id?: true
   name?: true
   slug?: true
+  latitude?: true
+  longitude?: true
   created_at?: true
   updated_at?: true
 }
@@ -62,6 +92,8 @@ export type BusinessMaxAggregateInputType = {
   id?: true
   name?: true
   slug?: true
+  latitude?: true
+  longitude?: true
   created_at?: true
   updated_at?: true
 }
@@ -70,6 +102,8 @@ export type BusinessCountAggregateInputType = {
   id?: true
   name?: true
   slug?: true
+  latitude?: true
+  longitude?: true
   created_at?: true
   updated_at?: true
   _all?: true
@@ -113,6 +147,18 @@ export type BusinessAggregateArgs<ExtArgs extends runtime.Types.Extensions.Inter
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: BusinessAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: BusinessSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: BusinessMinAggregateInputType
@@ -143,6 +189,8 @@ export type BusinessGroupByArgs<ExtArgs extends runtime.Types.Extensions.Interna
   take?: number
   skip?: number
   _count?: BusinessCountAggregateInputType | true
+  _avg?: BusinessAvgAggregateInputType
+  _sum?: BusinessSumAggregateInputType
   _min?: BusinessMinAggregateInputType
   _max?: BusinessMaxAggregateInputType
 }
@@ -151,9 +199,13 @@ export type BusinessGroupByOutputType = {
   id: string
   name: string
   slug: string
+  latitude: number | null
+  longitude: number | null
   created_at: Date
   updated_at: Date
   _count: BusinessCountAggregateOutputType | null
+  _avg: BusinessAvgAggregateOutputType | null
+  _sum: BusinessSumAggregateOutputType | null
   _min: BusinessMinAggregateOutputType | null
   _max: BusinessMaxAggregateOutputType | null
 }
@@ -180,6 +232,8 @@ export type BusinessWhereInput = {
   id?: Prisma.StringFilter<"Business"> | string
   name?: Prisma.StringFilter<"Business"> | string
   slug?: Prisma.StringFilter<"Business"> | string
+  latitude?: Prisma.FloatNullableFilter<"Business"> | number | null
+  longitude?: Prisma.FloatNullableFilter<"Business"> | number | null
   created_at?: Prisma.DateTimeFilter<"Business"> | Date | string
   updated_at?: Prisma.DateTimeFilter<"Business"> | Date | string
   services?: Prisma.ServiceListRelationFilter
@@ -198,6 +252,8 @@ export type BusinessOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   slug?: Prisma.SortOrder
+  latitude?: Prisma.SortOrderInput | Prisma.SortOrder
+  longitude?: Prisma.SortOrderInput | Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
   services?: Prisma.ServiceOrderByRelationAggregateInput
@@ -219,6 +275,8 @@ export type BusinessWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.BusinessWhereInput[]
   NOT?: Prisma.BusinessWhereInput | Prisma.BusinessWhereInput[]
   name?: Prisma.StringFilter<"Business"> | string
+  latitude?: Prisma.FloatNullableFilter<"Business"> | number | null
+  longitude?: Prisma.FloatNullableFilter<"Business"> | number | null
   created_at?: Prisma.DateTimeFilter<"Business"> | Date | string
   updated_at?: Prisma.DateTimeFilter<"Business"> | Date | string
   services?: Prisma.ServiceListRelationFilter
@@ -237,11 +295,15 @@ export type BusinessOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   slug?: Prisma.SortOrder
+  latitude?: Prisma.SortOrderInput | Prisma.SortOrder
+  longitude?: Prisma.SortOrderInput | Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
   _count?: Prisma.BusinessCountOrderByAggregateInput
+  _avg?: Prisma.BusinessAvgOrderByAggregateInput
   _max?: Prisma.BusinessMaxOrderByAggregateInput
   _min?: Prisma.BusinessMinOrderByAggregateInput
+  _sum?: Prisma.BusinessSumOrderByAggregateInput
 }
 
 export type BusinessScalarWhereWithAggregatesInput = {
@@ -251,6 +313,8 @@ export type BusinessScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"Business"> | string
   name?: Prisma.StringWithAggregatesFilter<"Business"> | string
   slug?: Prisma.StringWithAggregatesFilter<"Business"> | string
+  latitude?: Prisma.FloatNullableWithAggregatesFilter<"Business"> | number | null
+  longitude?: Prisma.FloatNullableWithAggregatesFilter<"Business"> | number | null
   created_at?: Prisma.DateTimeWithAggregatesFilter<"Business"> | Date | string
   updated_at?: Prisma.DateTimeWithAggregatesFilter<"Business"> | Date | string
 }
@@ -259,6 +323,8 @@ export type BusinessCreateInput = {
   id?: string
   name: string
   slug: string
+  latitude?: number | null
+  longitude?: number | null
   created_at?: Date | string
   updated_at?: Date | string
   services?: Prisma.ServiceCreateNestedManyWithoutBusinessInput
@@ -277,6 +343,8 @@ export type BusinessUncheckedCreateInput = {
   id?: string
   name: string
   slug: string
+  latitude?: number | null
+  longitude?: number | null
   created_at?: Date | string
   updated_at?: Date | string
   services?: Prisma.ServiceUncheckedCreateNestedManyWithoutBusinessInput
@@ -295,6 +363,8 @@ export type BusinessUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   services?: Prisma.ServiceUpdateManyWithoutBusinessNestedInput
@@ -313,6 +383,8 @@ export type BusinessUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   services?: Prisma.ServiceUncheckedUpdateManyWithoutBusinessNestedInput
@@ -331,6 +403,8 @@ export type BusinessCreateManyInput = {
   id?: string
   name: string
   slug: string
+  latitude?: number | null
+  longitude?: number | null
   created_at?: Date | string
   updated_at?: Date | string
 }
@@ -339,6 +413,8 @@ export type BusinessUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -347,6 +423,8 @@ export type BusinessUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -355,14 +433,23 @@ export type BusinessCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   slug?: Prisma.SortOrder
+  latitude?: Prisma.SortOrder
+  longitude?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
+}
+
+export type BusinessAvgOrderByAggregateInput = {
+  latitude?: Prisma.SortOrder
+  longitude?: Prisma.SortOrder
 }
 
 export type BusinessMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   slug?: Prisma.SortOrder
+  latitude?: Prisma.SortOrder
+  longitude?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
 }
@@ -371,8 +458,15 @@ export type BusinessMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   slug?: Prisma.SortOrder
+  latitude?: Prisma.SortOrder
+  longitude?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
+}
+
+export type BusinessSumOrderByAggregateInput = {
+  latitude?: Prisma.SortOrder
+  longitude?: Prisma.SortOrder
 }
 
 export type BusinessScalarRelationFilter = {
@@ -382,6 +476,14 @@ export type BusinessScalarRelationFilter = {
 
 export type StringFieldUpdateOperationsInput = {
   set?: string
+}
+
+export type NullableFloatFieldUpdateOperationsInput = {
+  set?: number | null
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
 }
 
 export type DateTimeFieldUpdateOperationsInput = {
@@ -532,6 +634,8 @@ export type BusinessCreateWithoutBusiness_hoursInput = {
   id?: string
   name: string
   slug: string
+  latitude?: number | null
+  longitude?: number | null
   created_at?: Date | string
   updated_at?: Date | string
   services?: Prisma.ServiceCreateNestedManyWithoutBusinessInput
@@ -549,6 +653,8 @@ export type BusinessUncheckedCreateWithoutBusiness_hoursInput = {
   id?: string
   name: string
   slug: string
+  latitude?: number | null
+  longitude?: number | null
   created_at?: Date | string
   updated_at?: Date | string
   services?: Prisma.ServiceUncheckedCreateNestedManyWithoutBusinessInput
@@ -582,6 +688,8 @@ export type BusinessUpdateWithoutBusiness_hoursInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   services?: Prisma.ServiceUpdateManyWithoutBusinessNestedInput
@@ -599,6 +707,8 @@ export type BusinessUncheckedUpdateWithoutBusiness_hoursInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   services?: Prisma.ServiceUncheckedUpdateManyWithoutBusinessNestedInput
@@ -616,6 +726,8 @@ export type BusinessCreateWithoutSale_eventsInput = {
   id?: string
   name: string
   slug: string
+  latitude?: number | null
+  longitude?: number | null
   created_at?: Date | string
   updated_at?: Date | string
   services?: Prisma.ServiceCreateNestedManyWithoutBusinessInput
@@ -633,6 +745,8 @@ export type BusinessUncheckedCreateWithoutSale_eventsInput = {
   id?: string
   name: string
   slug: string
+  latitude?: number | null
+  longitude?: number | null
   created_at?: Date | string
   updated_at?: Date | string
   services?: Prisma.ServiceUncheckedCreateNestedManyWithoutBusinessInput
@@ -666,6 +780,8 @@ export type BusinessUpdateWithoutSale_eventsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   services?: Prisma.ServiceUpdateManyWithoutBusinessNestedInput
@@ -683,6 +799,8 @@ export type BusinessUncheckedUpdateWithoutSale_eventsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   services?: Prisma.ServiceUncheckedUpdateManyWithoutBusinessNestedInput
@@ -700,6 +818,8 @@ export type BusinessCreateWithoutEmployeesInput = {
   id?: string
   name: string
   slug: string
+  latitude?: number | null
+  longitude?: number | null
   created_at?: Date | string
   updated_at?: Date | string
   services?: Prisma.ServiceCreateNestedManyWithoutBusinessInput
@@ -717,6 +837,8 @@ export type BusinessUncheckedCreateWithoutEmployeesInput = {
   id?: string
   name: string
   slug: string
+  latitude?: number | null
+  longitude?: number | null
   created_at?: Date | string
   updated_at?: Date | string
   services?: Prisma.ServiceUncheckedCreateNestedManyWithoutBusinessInput
@@ -750,6 +872,8 @@ export type BusinessUpdateWithoutEmployeesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   services?: Prisma.ServiceUpdateManyWithoutBusinessNestedInput
@@ -767,6 +891,8 @@ export type BusinessUncheckedUpdateWithoutEmployeesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   services?: Prisma.ServiceUncheckedUpdateManyWithoutBusinessNestedInput
@@ -784,6 +910,8 @@ export type BusinessCreateWithoutSpecial_datesInput = {
   id?: string
   name: string
   slug: string
+  latitude?: number | null
+  longitude?: number | null
   created_at?: Date | string
   updated_at?: Date | string
   services?: Prisma.ServiceCreateNestedManyWithoutBusinessInput
@@ -801,6 +929,8 @@ export type BusinessUncheckedCreateWithoutSpecial_datesInput = {
   id?: string
   name: string
   slug: string
+  latitude?: number | null
+  longitude?: number | null
   created_at?: Date | string
   updated_at?: Date | string
   services?: Prisma.ServiceUncheckedCreateNestedManyWithoutBusinessInput
@@ -834,6 +964,8 @@ export type BusinessUpdateWithoutSpecial_datesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   services?: Prisma.ServiceUpdateManyWithoutBusinessNestedInput
@@ -851,6 +983,8 @@ export type BusinessUncheckedUpdateWithoutSpecial_datesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   services?: Prisma.ServiceUncheckedUpdateManyWithoutBusinessNestedInput
@@ -868,6 +1002,8 @@ export type BusinessCreateWithoutOwnersInput = {
   id?: string
   name: string
   slug: string
+  latitude?: number | null
+  longitude?: number | null
   created_at?: Date | string
   updated_at?: Date | string
   services?: Prisma.ServiceCreateNestedManyWithoutBusinessInput
@@ -885,6 +1021,8 @@ export type BusinessUncheckedCreateWithoutOwnersInput = {
   id?: string
   name: string
   slug: string
+  latitude?: number | null
+  longitude?: number | null
   created_at?: Date | string
   updated_at?: Date | string
   services?: Prisma.ServiceUncheckedCreateNestedManyWithoutBusinessInput
@@ -918,6 +1056,8 @@ export type BusinessUpdateWithoutOwnersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   services?: Prisma.ServiceUpdateManyWithoutBusinessNestedInput
@@ -935,6 +1075,8 @@ export type BusinessUncheckedUpdateWithoutOwnersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   services?: Prisma.ServiceUncheckedUpdateManyWithoutBusinessNestedInput
@@ -952,6 +1094,8 @@ export type BusinessCreateWithoutServicesInput = {
   id?: string
   name: string
   slug: string
+  latitude?: number | null
+  longitude?: number | null
   created_at?: Date | string
   updated_at?: Date | string
   employees?: Prisma.EmployeeCreateNestedManyWithoutBusinessInput
@@ -969,6 +1113,8 @@ export type BusinessUncheckedCreateWithoutServicesInput = {
   id?: string
   name: string
   slug: string
+  latitude?: number | null
+  longitude?: number | null
   created_at?: Date | string
   updated_at?: Date | string
   employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutBusinessInput
@@ -1002,6 +1148,8 @@ export type BusinessUpdateWithoutServicesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   employees?: Prisma.EmployeeUpdateManyWithoutBusinessNestedInput
@@ -1019,6 +1167,8 @@ export type BusinessUncheckedUpdateWithoutServicesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   employees?: Prisma.EmployeeUncheckedUpdateManyWithoutBusinessNestedInput
@@ -1036,6 +1186,8 @@ export type BusinessCreateWithoutPackagesInput = {
   id?: string
   name: string
   slug: string
+  latitude?: number | null
+  longitude?: number | null
   created_at?: Date | string
   updated_at?: Date | string
   services?: Prisma.ServiceCreateNestedManyWithoutBusinessInput
@@ -1053,6 +1205,8 @@ export type BusinessUncheckedCreateWithoutPackagesInput = {
   id?: string
   name: string
   slug: string
+  latitude?: number | null
+  longitude?: number | null
   created_at?: Date | string
   updated_at?: Date | string
   services?: Prisma.ServiceUncheckedCreateNestedManyWithoutBusinessInput
@@ -1086,6 +1240,8 @@ export type BusinessUpdateWithoutPackagesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   services?: Prisma.ServiceUpdateManyWithoutBusinessNestedInput
@@ -1103,6 +1259,8 @@ export type BusinessUncheckedUpdateWithoutPackagesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   services?: Prisma.ServiceUncheckedUpdateManyWithoutBusinessNestedInput
@@ -1120,6 +1278,8 @@ export type BusinessCreateWithoutCustomersInput = {
   id?: string
   name: string
   slug: string
+  latitude?: number | null
+  longitude?: number | null
   created_at?: Date | string
   updated_at?: Date | string
   services?: Prisma.ServiceCreateNestedManyWithoutBusinessInput
@@ -1137,6 +1297,8 @@ export type BusinessUncheckedCreateWithoutCustomersInput = {
   id?: string
   name: string
   slug: string
+  latitude?: number | null
+  longitude?: number | null
   created_at?: Date | string
   updated_at?: Date | string
   services?: Prisma.ServiceUncheckedCreateNestedManyWithoutBusinessInput
@@ -1170,6 +1332,8 @@ export type BusinessUpdateWithoutCustomersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   services?: Prisma.ServiceUpdateManyWithoutBusinessNestedInput
@@ -1187,6 +1351,8 @@ export type BusinessUncheckedUpdateWithoutCustomersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   services?: Prisma.ServiceUncheckedUpdateManyWithoutBusinessNestedInput
@@ -1204,6 +1370,8 @@ export type BusinessCreateWithoutBookingsInput = {
   id?: string
   name: string
   slug: string
+  latitude?: number | null
+  longitude?: number | null
   created_at?: Date | string
   updated_at?: Date | string
   services?: Prisma.ServiceCreateNestedManyWithoutBusinessInput
@@ -1221,6 +1389,8 @@ export type BusinessUncheckedCreateWithoutBookingsInput = {
   id?: string
   name: string
   slug: string
+  latitude?: number | null
+  longitude?: number | null
   created_at?: Date | string
   updated_at?: Date | string
   services?: Prisma.ServiceUncheckedCreateNestedManyWithoutBusinessInput
@@ -1254,6 +1424,8 @@ export type BusinessUpdateWithoutBookingsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   services?: Prisma.ServiceUpdateManyWithoutBusinessNestedInput
@@ -1271,6 +1443,8 @@ export type BusinessUncheckedUpdateWithoutBookingsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   services?: Prisma.ServiceUncheckedUpdateManyWithoutBusinessNestedInput
@@ -1288,6 +1462,8 @@ export type BusinessCreateWithoutVouchersInput = {
   id?: string
   name: string
   slug: string
+  latitude?: number | null
+  longitude?: number | null
   created_at?: Date | string
   updated_at?: Date | string
   services?: Prisma.ServiceCreateNestedManyWithoutBusinessInput
@@ -1305,6 +1481,8 @@ export type BusinessUncheckedCreateWithoutVouchersInput = {
   id?: string
   name: string
   slug: string
+  latitude?: number | null
+  longitude?: number | null
   created_at?: Date | string
   updated_at?: Date | string
   services?: Prisma.ServiceUncheckedCreateNestedManyWithoutBusinessInput
@@ -1338,6 +1516,8 @@ export type BusinessUpdateWithoutVouchersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   services?: Prisma.ServiceUpdateManyWithoutBusinessNestedInput
@@ -1355,6 +1535,8 @@ export type BusinessUncheckedUpdateWithoutVouchersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   services?: Prisma.ServiceUncheckedUpdateManyWithoutBusinessNestedInput
@@ -1484,6 +1666,8 @@ export type BusinessSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   id?: boolean
   name?: boolean
   slug?: boolean
+  latitude?: boolean
+  longitude?: boolean
   created_at?: boolean
   updated_at?: boolean
   services?: boolean | Prisma.Business$servicesArgs<ExtArgs>
@@ -1503,6 +1687,8 @@ export type BusinessSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   id?: boolean
   name?: boolean
   slug?: boolean
+  latitude?: boolean
+  longitude?: boolean
   created_at?: boolean
   updated_at?: boolean
 }, ExtArgs["result"]["business"]>
@@ -1511,6 +1697,8 @@ export type BusinessSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   id?: boolean
   name?: boolean
   slug?: boolean
+  latitude?: boolean
+  longitude?: boolean
   created_at?: boolean
   updated_at?: boolean
 }, ExtArgs["result"]["business"]>
@@ -1519,11 +1707,13 @@ export type BusinessSelectScalar = {
   id?: boolean
   name?: boolean
   slug?: boolean
+  latitude?: boolean
+  longitude?: boolean
   created_at?: boolean
   updated_at?: boolean
 }
 
-export type BusinessOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "created_at" | "updated_at", ExtArgs["result"]["business"]>
+export type BusinessOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "latitude" | "longitude" | "created_at" | "updated_at", ExtArgs["result"]["business"]>
 export type BusinessInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   services?: boolean | Prisma.Business$servicesArgs<ExtArgs>
   employees?: boolean | Prisma.Business$employeesArgs<ExtArgs>
@@ -1558,6 +1748,8 @@ export type $BusinessPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     id: string
     name: string
     slug: string
+    latitude: number | null
+    longitude: number | null
     created_at: Date
     updated_at: Date
   }, ExtArgs["result"]["business"]>
@@ -1996,6 +2188,8 @@ export interface BusinessFieldRefs {
   readonly id: Prisma.FieldRef<"Business", 'String'>
   readonly name: Prisma.FieldRef<"Business", 'String'>
   readonly slug: Prisma.FieldRef<"Business", 'String'>
+  readonly latitude: Prisma.FieldRef<"Business", 'Float'>
+  readonly longitude: Prisma.FieldRef<"Business", 'Float'>
   readonly created_at: Prisma.FieldRef<"Business", 'DateTime'>
   readonly updated_at: Prisma.FieldRef<"Business", 'DateTime'>
 }

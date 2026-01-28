@@ -18,6 +18,9 @@ model Business {
   name String
   slug String @unique
 
+  latitude Float?
+  longitude Float?
+
   services Service[]
   employees Employee[]
   owners    Owner[]
@@ -111,6 +114,12 @@ model EmployeeAttendance{
 
   date DateTime
   status AttendanceStatus @default(PRESENT)
+  
+  time_in DateTime?
+  time_out DateTime?
+  location_verified Boolean @default(false)
+  latitude Float?
+  longitude Float?
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt

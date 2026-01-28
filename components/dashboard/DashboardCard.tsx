@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 
 interface DashboardCardProps {
   title: string;
-  count: number;
+  count: number | string;
   description: string;
   Icon?: LucideIcon;
   variant?: "filled" | "light";
@@ -19,10 +19,10 @@ export default function DashboardCard({
   return (
     <div
       className={cn(
-        "min-w-[300px] p-6 rounded-[24px] flex flex-col justify-between h-[180px] transition-all duration-200",
+        "min-w-[300px] p-6 rounded-[30px] flex flex-col justify-between h-[180px] transition-all duration-300 hover:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.1)]",
         variant === "filled"
-          ? "bg-gradient-to-br from-emerald-800 to-emerald-900 text-white shadow-xl shadow-emerald-900/20"
-          : "bg-white text-zinc-900 border border-zinc-100 shadow-sm",
+          ? "bg-gradient-to-br from-emerald-800 to-emerald-950 text-white shadow-[0_20px_40px_-12px_rgba(6,95,70,0.3)]"
+          : "bg-white text-zinc-900 border border-zinc-50 shadow-[0_20px_40px_-12px_rgba(0,0,0,0.05)]",
       )}
     >
       <div className="flex justify-between items-start w-full">

@@ -73,3 +73,14 @@ export const PaymentMethod = {
 } as const
 
 export type PaymentMethod = (typeof PaymentMethod)[keyof typeof PaymentMethod]
+
+
+export const AvailedServiceStatus = {
+  PENDING: 'PENDING',
+  CLAIMED: 'CLAIMED',
+  SERVING: 'SERVING',
+  COMPLETED: 'COMPLETED',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type AvailedServiceStatus = (typeof AvailedServiceStatus)[keyof typeof AvailedServiceStatus]

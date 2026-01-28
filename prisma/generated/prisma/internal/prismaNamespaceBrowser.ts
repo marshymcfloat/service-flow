@@ -88,6 +88,8 @@ export const BusinessScalarFieldEnum = {
   id: 'id',
   name: 'name',
   slug: 'slug',
+  latitude: 'latitude',
+  longitude: 'longitude',
   created_at: 'created_at',
   updated_at: 'updated_at'
 } as const
@@ -153,6 +155,11 @@ export const EmployeeAttendanceScalarFieldEnum = {
   employee_id: 'employee_id',
   date: 'date',
   status: 'status',
+  time_in: 'time_in',
+  time_out: 'time_out',
+  location_verified: 'location_verified',
+  latitude: 'latitude',
+  longitude: 'longitude',
   created_at: 'created_at',
   updated_at: 'updated_at'
 } as const
@@ -282,6 +289,10 @@ export const AvailedServiceScalarFieldEnum = {
   discount_reason: 'discount_reason',
   final_price: 'final_price',
   commission_base: 'commission_base',
+  status: 'status',
+  claimed_at: 'claimed_at',
+  served_at: 'served_at',
+  completed_at: 'completed_at',
   booking_id: 'booking_id',
   service_id: 'service_id',
   package_id: 'package_id',
