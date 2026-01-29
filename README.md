@@ -2,7 +2,7 @@
 
 ServiceFlow is a comprehensive business management and booking SaaS platform designed to streamline operations for service-based businesses. It handles everything from customer bookings and employee attendance to payroll and sales events.
 
-![ServiceFlow Landing](public/serviceFlow-logo.png)
+![ServiceFlow Landing](public/serviceFlow2-logo.png)
 
 ## 🚀 Features
 
