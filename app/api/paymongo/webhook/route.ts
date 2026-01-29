@@ -1,4 +1,5 @@
 import { prisma } from "@/prisma/prisma";
+import { createBookingInDb } from "@/lib/services/booking";
 
 export async function POST(req: Request) {
   try {
@@ -21,112 +22,46 @@ export async function POST(req: Request) {
     const {
       businessSlug,
       customerName,
+      customerId,
       services: servicesJson,
       scheduledAt: scheduledAtStr,
       estimatedEnd: estimatedEndStr,
       employeeId: employeeIdStr,
       currentEmployeeId: currentEmployeeIdStr,
+      paymentMethod,
       paymentType,
     } = metadata;
-    let { customerId } = metadata;
+
+    if (!businessSlug || !customerId) {
+      console.error("Missing required metadata fields");
+      return new Response("Missing metadata", { status: 400 });
+    }
 
     const services = JSON.parse(servicesJson);
-    const scheduledAt = scheduledAtStr ? new Date(scheduledAtStr) : null;
-    const estimatedEnd = estimatedEndStr ? new Date(estimatedEndStr) : null;
-    const employeeId = employeeIdStr ? parseInt(employeeIdStr, 10) : null;
+    const scheduledAt = scheduledAtStr ? new Date(scheduledAtStr) : new Date();
+    const estimatedEnd = estimatedEndStr
+      ? new Date(estimatedEndStr)
+      : new Date();
+    const employeeId = employeeIdStr ? parseInt(employeeIdStr, 10) : undefined;
     const currentEmployeeId = currentEmployeeIdStr
       ? parseInt(currentEmployeeIdStr, 10)
-      : null;
+      : undefined;
 
-    // Find Business
-    const business = await prisma.business.findUnique({
-      where: { slug: businessSlug },
-    });
-
-    if (!business) {
-      console.error(`Business with slug ${businessSlug} not found`);
-      return new Response("Business not found", { status: 404 });
-    }
-
-    // Handle Customer (Find or Create)
-    if (!customerId) {
-      const newCustomer = await prisma.customer.create({
-        data: {
-          name: customerName,
-          business_id: business.id,
-        },
-      });
-      customerId = newCustomer.id;
-    }
-
-    // Calculate total
-    const total = services.reduce(
-      (acc: number, s: any) => acc + s.price * s.quantity,
-      0,
-    );
-
-    // Determine booking status based on payment type
-    const isDownpayment = paymentType === "DOWNPAYMENT";
-    const bookingStatus = isDownpayment ? "DOWNPAYMENT_PAID" : "COMPLETED";
-    const downpaymentAmount = isDownpayment ? total * 0.5 : null;
-
-    const booking = await prisma.booking.create({
-      data: {
-        business_id: business.id,
-        customer_id: customerId,
-        grand_total: total,
-        total_discount: 0,
-        payment_method: "QRPH",
-        status: bookingStatus,
-        scheduled_at: scheduledAt,
-        estimated_end: estimatedEnd,
-        downpayment: downpaymentAmount,
-        availed_services: {
-          create: services.map((s: any, index: number) => {
-            const serviceDuration = s.duration || 30;
-            const previousDurations = services
-              .slice(0, index)
-              .reduce(
-                (sum: number, prev: any) =>
-                  sum + (prev.duration || 30) * prev.quantity,
-                0,
-              );
-
-            const serviceStart = scheduledAt
-              ? new Date(scheduledAt.getTime() + previousDurations * 60 * 1000)
-              : null;
-            const serviceEnd = serviceStart
-              ? new Date(
-                  serviceStart.getTime() +
-                    serviceDuration * s.quantity * 60 * 1000,
-                )
-              : null;
-
-            // Determine claiming status
-            const isClaimed = s.claimedByCurrentEmployee && !!currentEmployeeId;
-            const serverId = isClaimed ? currentEmployeeId : employeeId;
-            const status = isClaimed ? "CLAIMED" : "PENDING";
-            const claimedAt = isClaimed ? new Date() : null;
-
-            return {
-              service_id: s.id,
-              price: s.price,
-              discount: 0,
-              final_price: s.price,
-              commission_base: s.price,
-              served_by_id: serverId,
-              status: status,
-              claimed_at: claimedAt,
-              scheduled_at: serviceStart,
-              estimated_end: serviceEnd,
-            };
-          }),
-        },
-      },
+    const booking = await createBookingInDb({
+      businessSlug,
+      customerId,
+      customerName,
+      services,
+      scheduledAt,
+      estimatedEnd,
+      employeeId,
+      currentEmployeeId,
+      paymentMethod: paymentMethod as "QRPH",
+      paymentType: paymentType as "FULL" | "DOWNPAYMENT",
     });
 
     console.log(
-      `Booking created successfully: ${booking.id} (${bookingStatus})`,
+      `Booking created successfully: ${booking.id} (${booking.status})`,
     );
 
     return new Response("Webhook processed", { status: 200 });

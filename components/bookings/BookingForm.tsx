@@ -11,10 +11,15 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   createBookingSchema,
-  CreateBookingTypes,
   PaymentMethod,
   PaymentType,
 } from "@/lib/zod schemas/bookings";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+
+const capitalizeWords = (str: string) => {
+  return str.replace(/\b\w/g, (char) => char.toUpperCase());
+};
 import {
   Form,
   FormControl,
@@ -23,6 +28,10 @@ import {
   FormLabel,
   FormMessage,
 } from "../ui/form";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Separator } from "../ui/separator";
+import { Badge } from "../ui/badge";
+import { User, Wallet } from "lucide-react";
 import CustomerSearchInput from "./CustomerSearchInput";
 import ServiceSelect from "./ServiceSelect";
 import SelectedServiceList from "./SelectedServiceList";
@@ -39,7 +48,8 @@ interface BookingFormProps {
   services: Service[];
   categories: string[];
   isEmployee?: boolean;
-  currentEmployeeId?: number; // The logged-in employee's ID (if applicable)
+  currentEmployeeId?: number;
+  isModal?: boolean;
 }
 
 export default function BookingForm({
@@ -47,7 +57,9 @@ export default function BookingForm({
   categories,
   isEmployee = false,
   currentEmployeeId,
+  isModal = false,
 }: BookingFormProps) {
+  const router = useRouter();
   const form = useForm<any>({
     resolver: zodResolver(createBookingSchema),
     defaultValues: {
@@ -55,7 +67,6 @@ export default function BookingForm({
       customerName: "",
       services: [],
       scheduledAt: undefined,
-      // Auto-assign employee if they're making the booking (they'll serve the customer)
       employeeId:
         isEmployee && currentEmployeeId ? currentEmployeeId : undefined,
       paymentMethod: isEmployee ? "CASH" : "QRPH",
@@ -66,17 +77,14 @@ export default function BookingForm({
   const params = useParams<{ businessSlug: string }>();
   const businessSlug = params.businessSlug;
 
-  // Watch form values for dependent queries
   const selectedServices = (form.watch("services") as any[]) || [];
   const selectedDate = form.watch("scheduledAt") as Date | undefined;
   const selectedTime = form.watch("selectedTime") as Date | undefined;
   const paymentMethod = form.watch("paymentMethod") as PaymentMethod;
   const paymentType = form.watch("paymentType") as PaymentType;
 
-  // For employee bookings: track which services they claim (using unique IDs "serviceId-index")
   const [claimedUniqueIds, setClaimedUniqueIds] = useState<string[]>([]);
 
-  // Calculate totals
   const { total, amountToPay } = useMemo(() => {
     const total = selectedServices.reduce((sum, s) => {
       return sum + s.price * (s.quantity || 1);
@@ -85,7 +93,6 @@ export default function BookingForm({
     return { total, amountToPay };
   }, [selectedServices, paymentType]);
 
-  // Calculate total service duration
   const totalDuration = useMemo(() => {
     return selectedServices.reduce((total, s) => {
       const duration = s.duration || 30;
@@ -93,7 +100,6 @@ export default function BookingForm({
     }, 0);
   }, [selectedServices]);
 
-  // Fetch available time slots when date changes
   const { data: timeSlots = [], isLoading: isLoadingSlots } = useQuery({
     queryKey: [
       "timeSlots",
@@ -114,7 +120,6 @@ export default function BookingForm({
     enabled: !!selectedDate && !!businessSlug && selectedServices.length > 0,
   });
 
-  // Fetch available employees when time is selected
   const { data: employees = [], isLoading: isLoadingEmployees } = useQuery({
     queryKey: [
       "employees",
@@ -138,7 +143,6 @@ export default function BookingForm({
     enabled: !!selectedTime && !!businessSlug,
   });
 
-  // Reset dependent fields when parent changes
   useEffect(() => {
     if (selectedServices.length === 0) {
       form.setValue("scheduledAt", undefined);
@@ -163,11 +167,19 @@ export default function BookingForm({
   const { mutate: createBookingAction, isPending } = useMutation({
     mutationFn: createBooking,
     onSuccess: (checkoutUrl) => {
-      if (checkoutUrl) {
+      if (isEmployee) {
+        toast.success("Booking successfully created");
+        if (isModal) {
+          router.back();
+        } else {
+          router.push(`/app/${businessSlug}`);
+        }
+      } else if (checkoutUrl) {
         window.location.href = checkoutUrl;
       }
     },
     onError: (error) => {
+      toast.error("Failed to create booking");
       console.error("Booking creation failed:", error);
     },
   });
@@ -175,12 +187,14 @@ export default function BookingForm({
   const onSubmit = (data: any) => {
     if (!businessSlug) {
       console.error("Business slug not found in URL");
+      toast.error("Business info missing. Please refresh the page.");
       return;
     }
 
+    console.log("Submitting booking:", data);
+
     const scheduledAt = data.selectedTime || data.scheduledAt;
 
-    // Flatten services for submission (handle quantity > 1 as separate items)
     const flatServicesPayload = data.services.flatMap((s: any) =>
       Array.from({ length: s.quantity || 1 }).map((_, i) => {
         const uniqueId = `${s.id}-${i}`;
@@ -188,18 +202,19 @@ export default function BookingForm({
           id: s.id,
           name: s.name,
           price: s.price,
-          quantity: 1, // Always 1 for flattened items
+          quantity: 1,
           duration: s.duration || 30,
-          // Mark as claimed if employee selected this specific instance
           claimedByCurrentEmployee:
             isEmployee && claimedUniqueIds.includes(uniqueId),
         };
       }),
     );
 
+    const capitalizedCustomerName = capitalizeWords(data.customerName || "");
+
     createBookingAction({
       customerId: data.customerId || undefined,
-      customerName: data.customerName,
+      customerName: capitalizedCustomerName,
       businessSlug,
       scheduledAt,
       currentEmployeeId: isEmployee ? currentEmployeeId : undefined,
@@ -209,7 +224,6 @@ export default function BookingForm({
     });
   };
 
-  // Payment method options
   const paymentMethodOptions = isEmployee
     ? [
         { value: "CASH" as const, label: "Cash" },
@@ -218,8 +232,8 @@ export default function BookingForm({
     : [{ value: "QRPH" as const, label: "QR Payment" }];
 
   const paymentTypeOptions = [
-    { value: "FULL" as const, label: "Full Payment" },
-    { value: "DOWNPAYMENT" as const, label: "50% Downpayment" },
+    { value: "FULL" as const, label: "Full" },
+    { value: "DOWNPAYMENT" as const, label: "50%" },
   ];
 
   return (
@@ -227,9 +241,15 @@ export default function BookingForm({
       <form
         onSubmit={form.handleSubmit(onSubmit, (errors) => {
           console.error("Form Validation Errors:", errors);
+          toast.error("Please fill in all required fields correctly.");
         })}
         className="flex flex-col h-full"
       >
+        <div className="text-xs text-red-500 p-2 border border-red-200 bg-red-50 mb-2 hidden">
+          isEmployee: {String(isEmployee)}, isModal: {String(isModal)},
+          selectedTime: {String(selectedTime)}, services:{" "}
+          {selectedServices.length}
+        </div>
         <div className="flex flex-1 flex-col gap-4 overflow-y-auto">
           <FormField
             control={form.control}
@@ -238,7 +258,18 @@ export default function BookingForm({
               <input type="hidden" {...field} value={field.value || ""} />
             )}
           />
-          <CustomerSearchInput form={form} />
+          <FormField
+            control={form.control}
+            name="customerName"
+            render={() => (
+              <FormItem>
+                <FormControl>
+                  <CustomerSearchInput form={form} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
           <FormField
             control={form.control}
@@ -259,7 +290,6 @@ export default function BookingForm({
           />
           <SelectedServiceList form={form} />
 
-          {/* Date Selection - only show if services are selected */}
           {selectedServices.length > 0 && (
             <FormField
               control={form.control}
@@ -283,7 +313,6 @@ export default function BookingForm({
             />
           )}
 
-          {/* Time Slot Selection - only show if date is selected */}
           {selectedDate && selectedServices.length > 0 && (
             <FormField
               control={form.control}
@@ -305,7 +334,6 @@ export default function BookingForm({
             />
           )}
 
-          {/* Employee Selection - only show for customers (not employees) */}
           {selectedTime && !isEmployee && (
             <FormField
               control={form.control}
@@ -327,92 +355,134 @@ export default function BookingForm({
             />
           )}
 
-          {/* Service Claim Selector - only show for employees after time selection */}
           {selectedTime && isEmployee && selectedServices.length > 0 && (
-            <div className="pt-4 border-t">
-              <FormLabel className="mb-2 block">Claim Services</FormLabel>
-              <ServiceClaimSelector
-                services={selectedServices.flatMap((s) =>
-                  Array.from({ length: s.quantity || 1 }).map((_, i) => ({
-                    id: s.id,
-                    uniqueId: `${s.id}-${i}`,
-                    name: s.name,
-                    price: s.price,
-                    duration: s.duration,
-                    quantity: 1,
-                  })),
-                )}
-                claimedUniqueIds={claimedUniqueIds}
-                onChange={setClaimedUniqueIds}
-              />
-            </div>
+            <Card>
+              <CardHeader className=" border-b  ">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <User className="size-4 text-primary" /> Claim Services
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="">
+                <ServiceClaimSelector
+                  services={selectedServices.flatMap((s) =>
+                    Array.from({ length: s.quantity || 1 }).map((_, i) => ({
+                      id: s.id,
+                      uniqueId: `${s.id}-${i}`,
+                      name: s.name,
+                      price: s.price,
+                      duration: s.duration,
+                      quantity: 1,
+                    })),
+                  )}
+                  claimedUniqueIds={claimedUniqueIds}
+                  onChange={setClaimedUniqueIds}
+                />
+              </CardContent>
+            </Card>
           )}
 
-          {/* Payment Options - only show if time is selected */}
           {selectedTime && selectedServices.length > 0 && (
-            <div className="space-y-4 pt-4 border-t">
-              {/* Payment Method */}
-              <FormField
-                control={form.control}
-                name="paymentMethod"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Payment Method</FormLabel>
-                    <FormControl>
-                      <SegmentedToggle
-                        options={paymentMethodOptions}
-                        value={field.value}
-                        onChange={field.onChange}
-                        className="w-full"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            <Card className="border-primary/20 shadow-sm overflow-hidden">
+              <CardHeader className=" flex flex-row items-center border-b space-y-0">
+                <CardTitle className="text-sm font-medium flex items-center gap-2 text-foreground">
+                  <Wallet className="size-4 text-primary" /> Payment Details
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6 pt-6 px-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <FormField
+                    control={form.control}
+                    name="paymentMethod"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
+                          Payment Method
+                        </FormLabel>
+                        <FormControl>
+                          <SegmentedToggle
+                            options={paymentMethodOptions}
+                            value={field.value}
+                            onChange={field.onChange}
+                            className="w-full"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-              {/* Payment Type */}
-              <FormField
-                control={form.control}
-                name="paymentType"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Payment Type</FormLabel>
-                    <FormControl>
-                      <SegmentedToggle
-                        options={paymentTypeOptions}
-                        value={field.value}
-                        onChange={field.onChange}
-                        className="w-full"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Amount Summary */}
-              <div className="rounded-lg bg-muted p-4 space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Total</span>
-                  <span>₱{total.toLocaleString()}</span>
+                  <FormField
+                    control={form.control}
+                    name="paymentType"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
+                          Payment Type
+                        </FormLabel>
+                        <FormControl>
+                          <SegmentedToggle
+                            options={paymentTypeOptions}
+                            value={field.value}
+                            onChange={field.onChange}
+                            className="w-full"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
-                {paymentType === "DOWNPAYMENT" && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">
-                      Remaining (pay at store)
+
+                <div className="bg-muted/30 rounded-xl p-4 border border-border/50 space-y-3">
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-muted-foreground">Subtotal</span>
+                    <span className="font-medium">
+                      ₱{total.toLocaleString()}
                     </span>
-                    <span>₱{(total - amountToPay).toLocaleString()}</span>
                   </div>
-                )}
-                <div className="flex justify-between font-semibold text-lg pt-2 border-t">
-                  <span>Amount to Pay Now</span>
-                  <span className="text-primary">
-                    ₱{amountToPay.toLocaleString()}
-                  </span>
+
+                  {paymentType === "DOWNPAYMENT" && (
+                    <>
+                      <div className="flex justify-between items-center text-sm text-green-600">
+                        <span className="flex items-center gap-1.5">
+                          <Badge
+                            variant="outline"
+                            className="text-[10px] px-1.5 py-0 h-4 border-green-200 bg-green-50 text-green-700"
+                          >
+                            50% OFF FRONT
+                          </Badge>
+                          Downpayment
+                        </span>
+                        <span>- ₱{(total - amountToPay).toLocaleString()}</span>
+                      </div>
+                      <Separator className="my-2 bg-border/60" />
+                      <div className="flex justify-between items-center text-sm text-muted-foreground">
+                        <span>Remaining Balance (Pay at Store)</span>
+                        <span>₱{(total - amountToPay).toLocaleString()}</span>
+                      </div>
+                    </>
+                  )}
+
+                  <Separator className="my-2" />
+
+                  <div className="flex justify-between items-end pt-1">
+                    <div>
+                      <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold mb-0.5">
+                        Total Amount Due
+                      </p>
+                      {paymentType === "DOWNPAYMENT" && (
+                        <p className="text-[10px] text-muted-foreground">
+                          Initial payment required
+                        </p>
+                      )}
+                    </div>
+                    <div className="text-2xl font-bold text-primary">
+                      ₱{amountToPay.toLocaleString()}
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
           )}
         </div>
 

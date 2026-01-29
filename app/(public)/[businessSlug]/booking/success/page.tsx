@@ -31,9 +31,6 @@ export default async function BookingSuccessPage({
           <Button asChild className="w-full bg-violet-600 hover:bg-violet-700">
             <Link href={`/${businessSlug}/booking`}>Book Another Service</Link>
           </Button>
-          <Button asChild variant="outline" className="w-full">
-            <Link href={`/`}>Return to Home</Link>
-          </Button>
         </div>
       </div>
     </div>

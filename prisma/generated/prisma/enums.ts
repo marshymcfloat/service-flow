@@ -34,15 +34,9 @@ export type DiscountType = (typeof DiscountType)[keyof typeof DiscountType]
 
 
 export const BookingStatus = {
-  PENDING: 'PENDING',
   ACCEPTED: 'ACCEPTED',
-  REJECTED: 'REJECTED',
-  REFUNDED: 'REFUNDED',
-  CANCELLED: 'CANCELLED',
-  RESCHEDULED: 'RESCHEDULED',
-  DOWNPAYMENT_PENDING: 'DOWNPAYMENT_PENDING',
-  DOWNPAYMENT_PAID: 'DOWNPAYMENT_PAID',
-  COMPLETED: 'COMPLETED'
+  COMPLETED: 'COMPLETED',
+  CANCELLED: 'CANCELLED'
 } as const
 
 export type BookingStatus = (typeof BookingStatus)[keyof typeof BookingStatus]

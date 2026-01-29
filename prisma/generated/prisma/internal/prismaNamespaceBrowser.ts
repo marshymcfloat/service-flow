@@ -293,6 +293,7 @@ export const AvailedServiceScalarFieldEnum = {
   claimed_at: 'claimed_at',
   served_at: 'served_at',
   completed_at: 'completed_at',
+  cancelled_at: 'cancelled_at',
   booking_id: 'booking_id',
   service_id: 'service_id',
   package_id: 'package_id',

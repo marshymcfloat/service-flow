@@ -9,13 +9,19 @@ import {
 } from "../ui/dialog";
 import AuthForm from "./AuthForm";
 
-export default function AuthDialog() {
+export default function AuthDialog({
+  children,
+}: {
+  children?: React.ReactNode;
+}) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button className="absolute top-4 right-4 bg-white/50 backdrop-blur-md hover:bg-white/80 text-green-950 border border-green-200/50 shadow-sm transition-all duration-300 hover:shadow-md cursor-pointer">
-          Get Started
-        </Button>
+        {children || (
+          <Button className="absolute top-4 right-4 bg-white/50 backdrop-blur-md hover:bg-white/80 text-green-950 border border-green-200/50 shadow-sm transition-all duration-300 hover:shadow-md cursor-pointer">
+            Get Started
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent className="flex min-w-[900px]! min-h-[500px]">
         <div className="flex-1 flex justify-center items-center  ">

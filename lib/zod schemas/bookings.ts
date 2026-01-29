@@ -21,6 +21,7 @@ export const createBookingSchema = z
     customerName: z.string().min(1, "Customer name is required").optional(),
     services: z.array(serviceSchema),
     scheduledAt: z.coerce.date({ message: "Please select a date and time" }),
+    selectedTime: z.date().optional(),
     employeeId: z.number().optional(),
     paymentMethod: paymentMethodEnum.default("QRPH"),
     paymentType: paymentTypeEnum.default("FULL"),

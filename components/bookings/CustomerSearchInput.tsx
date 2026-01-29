@@ -8,7 +8,7 @@ import { Search } from "lucide-react";
 import { searchCustomer } from "@/lib/server actions/customer";
 import { UseFormReturn } from "react-hook-form";
 import { CreateBookingTypes } from "@/lib/zod schemas/bookings";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "../ui/button";
 
 export default function CustomerSearchInput({
@@ -18,12 +18,29 @@ export default function CustomerSearchInput({
 }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [showResults, setShowResults] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ["customer", searchQuery],
     queryFn: () => searchCustomer(searchQuery),
     enabled: searchQuery.length > 0,
   });
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
+        setShowResults(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const handleSelectCustomer = (customer: { id: string; name: string }) => {
     form.setValue("customerId", customer.id);
@@ -33,7 +50,7 @@ export default function CustomerSearchInput({
   };
 
   return (
-    <div className="relative flex w-full flex-col">
+    <div ref={containerRef} className="relative flex w-full flex-col">
       <InputGroup>
         <InputGroupInput
           placeholder="Search customer"

@@ -2,9 +2,8 @@ import BookingForm from "@/components/bookings/BookingForm";
 import { Modal } from "@/components/ui/modal";
 import { Service } from "@/prisma/generated/prisma/client";
 import { prisma } from "@/prisma/prisma";
-import { unstable_cache } from "next/cache";
 import { notFound } from "next/navigation";
-import React from "react";
+import { getCachedBusinessBySlug, getCachedServices } from "@/lib/data/cached";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/next auth/options";
 
@@ -15,17 +14,14 @@ export default async function InterceptedBookingPage({
 }) {
   const { businessSlug } = await params;
 
-  const business = await prisma.business.findUnique({
-    where: { slug: businessSlug },
-  });
+  const business = await getCachedBusinessBySlug(businessSlug);
 
   if (!business) {
     return notFound();
   }
 
-  // Check if current user is an employee of this business
   const session = await getServerSession(authOptions);
-  let isEmployee = false;
+  let isStaff = false;
   let currentEmployeeId: number | undefined;
 
   if (session?.user?.id) {
@@ -35,25 +31,22 @@ export default async function InterceptedBookingPage({
         business_id: business.id,
       },
     });
-    isEmployee = !!employee;
-    currentEmployeeId = employee?.id;
+
+    if (employee) {
+      isStaff = true;
+      currentEmployeeId = employee.id;
+    } else {
+      const owner = await prisma.owner.findFirst({
+        where: {
+          user_id: session.user.id,
+          business_id: business.id,
+        },
+      });
+      isStaff = !!owner;
+    }
   }
 
-  const getServices = unstable_cache(
-    async () => {
-      const services = await prisma.service.findMany({
-        where: { business_id: business.id },
-      });
-      return services;
-    },
-    [`services-${business.id}`],
-    {
-      revalidate: 3600,
-      tags: [`services-${business.id}`],
-    },
-  );
-
-  const services = await getServices();
+  const services = await getCachedServices(business.id);
 
   const servicesByCategory = services.reduce<Record<string, Service[]>>(
     (acc, curr: Service) => {
@@ -74,8 +67,9 @@ export default async function InterceptedBookingPage({
         <BookingForm
           services={services}
           categories={categories}
-          isEmployee={isEmployee}
+          isEmployee={isStaff}
           currentEmployeeId={currentEmployeeId}
+          isModal={true}
         />
       </div>
     </Modal>

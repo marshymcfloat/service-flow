@@ -8,7 +8,7 @@ import Link from "next/link";
 import EmployeeServedHistory from "./EmployeeServedHistory";
 import PendingServicesList from "./PendingServicesList";
 import AttendanceCard from "./AttendanceCard";
-import { motion, AnimatePresence } from "motion/react";
+import { motion } from "motion/react";
 
 export default function EmployeeDashboard({
   businessName,
@@ -38,9 +38,13 @@ export default function EmployeeDashboard({
               {businessName} | Employee Dashboard
             </h1>
           </div>
-          <Button asChild className="rounded-full shadow-lg shadow-blue-500/20">
+          <Button
+            asChild
+            className="rounded-full shadow-lg shadow-blue-500/20 px-3 md:px-4"
+          >
             <Link href={`/${businessSlug}/booking`}>
-              <Plus className="mr-2 h-4 w-4" /> Add Booking
+              <Plus className="h-4 w-4 md:mr-2" />
+              <span className="hidden md:inline">Add Booking</span>
             </Link>
           </Button>
         </header>

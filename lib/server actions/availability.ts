@@ -13,66 +13,74 @@ export interface GetAvailableSlotsParams {
   businessSlug: string;
   date: Date;
   serviceDurationMinutes: number;
-  slotIntervalMinutes?: number; // defaults to 30
+  slotIntervalMinutes?: number;
 }
 
-/**
- * Get available time slots for a given date at a business
- * Takes into account:
- * - Business hours for that day
- * - Existing bookings that would overlap
- * - Employee availability
- */
+import { getCachedBusinessWithHoursAndEmployees } from "@/lib/data/cached";
+
 export async function getAvailableSlots({
   businessSlug,
   date,
   serviceDurationMinutes,
   slotIntervalMinutes = 30,
 }: GetAvailableSlotsParams): Promise<TimeSlot[]> {
-  // 1. Get business and its hours for this day
-  const business = await prisma.business.findUnique({
-    where: { slug: businessSlug },
-    include: {
-      business_hours: true,
-      employees: true,
-    },
-  });
+  const business = await getCachedBusinessWithHoursAndEmployees(businessSlug);
 
   if (!business) {
     throw new Error("Business not found");
   }
 
-  const dayOfWeek = date.getDay(); // 0=Sunday, 1=Monday, etc.
+  const dayOfWeek = date.getDay();
   const businessHours = business.business_hours.find(
     (h) => h.day_of_week === dayOfWeek,
   );
 
-  // If no hours configured or closed that day, return empty
   if (!businessHours || businessHours.is_closed) {
     return [];
   }
 
-  // 2. Parse open/close times
-  // Use local date (server time) instead of ISO (UTC) to avoid timezone shifts
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  const dateStr = `${year}-${month}-${day}`;
+  const TIMEZONE_OFFSET = 8 * 60;
 
-  const openTime = new Date(`${dateStr}T${businessHours.open_time}:00`);
-  const closeTime = new Date(`${dateStr}T${businessHours.close_time}:00`);
+  const getPHDateComponents = (d: Date) => {
+    const formatter = new Intl.DateTimeFormat("en-US", {
+      timeZone: "Asia/Manila",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: false,
+    });
 
-  // Get current time to filter out past slots
+    const parts = formatter.formatToParts(d);
+    const getPart = (type: string) =>
+      parts.find((p) => p.type === type)?.value || "";
+
+    return {
+      year: getPart("year"),
+      month: getPart("month"),
+      day: getPart("day"),
+      hour: getPart("hour"),
+      minute: getPart("minute"),
+    };
+  };
+
+  const phDate = getPHDateComponents(date);
+  const dateStr = `${phDate.year}-${phDate.month}-${phDate.day}`;
+
+  const openTimeStr = `${dateStr}T${businessHours.open_time}:00+08:00`;
+  const closeTimeStr = `${dateStr}T${businessHours.close_time}:00+08:00`;
+
+  const openTime = new Date(openTimeStr);
+  const closeTime = new Date(closeTimeStr);
+
   const now = new Date();
-
-  const nowYear = now.getFullYear();
-  const nowMonth = String(now.getMonth() + 1).padStart(2, "0");
-  const nowDay = String(now.getDate()).padStart(2, "0");
-  const nowStr = `${nowYear}-${nowMonth}-${nowDay}`;
+  const phNow = getPHDateComponents(now);
+  const nowStr = `${phNow.year}-${phNow.month}-${phNow.day}`;
 
   const isToday = dateStr === nowStr;
 
-  // 3. Get all bookings for this date that have scheduled times
   const dayStart = new Date(dateStr);
   dayStart.setHours(0, 0, 0, 0);
   const dayEnd = new Date(dateStr);
@@ -86,7 +94,7 @@ export async function getAvailableSlots({
         lte: dayEnd,
       },
       status: {
-        notIn: ["CANCELLED", "REJECTED", "REFUNDED"],
+        not: "CANCELLED",
       },
     },
     include: {
@@ -98,7 +106,6 @@ export async function getAvailableSlots({
     },
   });
 
-  // 4. Generate time slots
   const slots: TimeSlot[] = [];
   const totalEmployees = business.employees.length;
 
@@ -109,12 +116,10 @@ export async function getAvailableSlots({
       currentSlotStart.getTime() + serviceDurationMinutes * 60 * 1000,
     );
 
-    // Don't create slots that extend past closing time
     if (slotEnd > closeTime) {
       break;
     }
 
-    // Skip slots that are in the past (for today)
     if (isToday && currentSlotStart <= now) {
       currentSlotStart = new Date(
         currentSlotStart.getTime() + slotIntervalMinutes * 60 * 1000,
@@ -122,7 +127,6 @@ export async function getAvailableSlots({
       continue;
     }
 
-    // 5. Count how many employees are busy during this slot
     let busyEmployees = 0;
 
     for (const booking of existingBookings) {
@@ -131,17 +135,15 @@ export async function getAvailableSlots({
       const bookingStart = booking.scheduled_at;
       const bookingEnd = booking.estimated_end;
 
-      // Check if this booking overlaps with our slot
       const overlaps = currentSlotStart < bookingEnd && slotEnd > bookingStart;
 
       if (overlaps) {
-        // Count unique employees serving this booking
         const employeeIds = new Set(
           booking.availed_services
             .filter((s) => s.served_by_id)
             .map((s) => s.served_by_id),
         );
-        busyEmployees += employeeIds.size || 1; // At least 1 employee if booking exists
+        busyEmployees += employeeIds.size || 1;
       }
     }
 
@@ -154,7 +156,6 @@ export async function getAvailableSlots({
       availableEmployeeCount,
     });
 
-    // Move to next slot
     currentSlotStart = new Date(
       currentSlotStart.getTime() + slotIntervalMinutes * 60 * 1000,
     );
@@ -163,9 +164,6 @@ export async function getAvailableSlots({
   return slots;
 }
 
-/**
- * Get employees who are available for a specific time slot
- */
 export async function getAvailableEmployees({
   businessSlug,
   startTime,
@@ -175,33 +173,19 @@ export async function getAvailableEmployees({
   startTime: Date;
   endTime: Date;
 }) {
-  const business = await prisma.business.findUnique({
-    where: { slug: businessSlug },
-    include: {
-      employees: {
-        include: {
-          user: {
-            select: {
-              name: true,
-            },
-          },
-        },
-      },
-    },
-  });
+  const business = await getCachedBusinessWithHoursAndEmployees(businessSlug);
 
   if (!business) {
     throw new Error("Business not found");
   }
 
-  // Find bookings that overlap with the requested time
   const overlappingBookings = await prisma.booking.findMany({
     where: {
       business_id: business.id,
       scheduled_at: { lte: endTime },
       estimated_end: { gte: startTime },
       status: {
-        notIn: ["CANCELLED", "REJECTED", "REFUNDED"],
+        not: "CANCELLED",
       },
     },
     include: {
@@ -209,7 +193,6 @@ export async function getAvailableEmployees({
     },
   });
 
-  // Get IDs of busy employees
   const busyEmployeeIds = new Set<number>();
   for (const booking of overlappingBookings) {
     for (const service of booking.availed_services) {
@@ -219,7 +202,6 @@ export async function getAvailableEmployees({
     }
   }
 
-  // Return employees with availability status
   return business.employees.map((emp) => ({
     id: emp.id,
     name: emp.user.name,
@@ -227,9 +209,6 @@ export async function getAvailableEmployees({
   }));
 }
 
-/**
- * Get business hours for a business
- */
 export async function getBusinessHours(businessSlug: string) {
   const business = await prisma.business.findUnique({
     where: { slug: businessSlug },

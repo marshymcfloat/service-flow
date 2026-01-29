@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 
 interface ServiceItem {
   id: number;
-  uniqueId: string; // Added for distinguishing multiple instances
+  uniqueId: string;
   name: string;
   price: number;
   duration: number | null;
@@ -14,7 +14,7 @@ interface ServiceItem {
 
 interface ServiceClaimSelectorProps {
   services: ServiceItem[];
-  claimedUniqueIds: string[]; // Changed from claimedServiceIds number[]
+  claimedUniqueIds: string[];
   onChange: (claimedIds: string[]) => void;
 }
 
@@ -43,10 +43,10 @@ export default function ServiceClaimSelector({
           return (
             <div
               key={service.uniqueId}
-              className={`flex items-center gap-3 p-3 rounded-lg border transition-colors ${
+              className={`group flex items-center gap-4 p-4 rounded-xl border transition-all duration-200 ${
                 isChecked
-                  ? "border-primary bg-primary/5"
-                  : "border-border hover:border-muted-foreground/50"
+                  ? "border-primary/50 bg-primary/5 shadow-sm"
+                  : "border-border/50 hover:border-border hover:bg-muted/30"
               }`}
             >
               <Checkbox
@@ -55,27 +55,32 @@ export default function ServiceClaimSelector({
                 onCheckedChange={(checked) =>
                   handleToggle(service.uniqueId, checked === true)
                 }
+                className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
               />
               <Label
                 htmlFor={`claim-${service.uniqueId}`}
-                className="flex-1 cursor-pointer"
+                className="flex-1 cursor-pointer select-none"
               >
                 <div className="flex items-center justify-between">
-                  <div>
-                    <span className="font-medium">
-                      {service.name}{" "}
-                      <span className="text-xs text-muted-foreground">
+                  <div className="space-y-0.5">
+                    <p
+                      className={`font-medium text-sm ${isChecked ? "text-primary" : "text-foreground"}`}
+                    >
+                      {service.name}
+                    </p>
+                    <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+                      <span className="inline-flex items-center justify-center size-5 rounded-full bg-muted text-[10px] font-medium text-muted-foreground">
                         #{index + 1}
                       </span>
-                    </span>
-                    {/* Quantity hidden since we list individually, or we explicitly show it's 1 of N */}
+                      <span>Service Unit</span>
+                    </p>
                   </div>
-                  <div className="text-right text-sm">
-                    <div className="text-muted-foreground">
-                      {service.duration || 30} min
-                    </div>
-                    <div className="font-medium">
+                  <div className="text-right">
+                    <div className="font-semibold text-sm">
                       ₱{service.price.toLocaleString()}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {service.duration || 30} min
                     </div>
                   </div>
                 </div>

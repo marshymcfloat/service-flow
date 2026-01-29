@@ -1,8 +1,10 @@
 import { Calendar, Home, Inbox, Search, Settings } from "lucide-react";
+import { getServerSession } from "next-auth";
 
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -10,37 +12,34 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { authOptions } from "@/lib/next auth/options";
+import { SidebarUserFooter } from "./SidebarUserFooter";
+import { SidebarSkeleton } from "./SidebarSkeleton";
+import { Suspense } from "react";
 
-// Menu items.
-const items = [
-  {
-    title: "Home",
-    url: "#",
-    icon: Home,
-  },
-  {
-    title: "Inbox",
-    url: "#",
-    icon: Inbox,
-  },
-  {
-    title: "Calendar",
-    url: "#",
-    icon: Calendar,
-  },
-  {
-    title: "Search",
-    url: "#",
-    icon: Search,
-  },
-  {
-    title: "Settings",
-    url: "#",
-    icon: Settings,
-  },
-];
+export async function AppSidebar() {
+  const session = await getServerSession(authOptions);
 
-export function AppSidebar() {
+  if (!session || !session.user) {
+    return <SidebarSkeleton />;
+  }
+
+  const { businessSlug } = session.user;
+  const slug = businessSlug || "demo";
+
+  const items = [
+    {
+      title: "Home",
+      url: `/app/${slug}`,
+      icon: Home,
+    },
+    {
+      title: "Inbox",
+      url: `/app/${slug}/inbox`,
+      icon: Inbox,
+    },
+  ];
+
   return (
     <Sidebar>
       <SidebarContent>
@@ -62,6 +61,9 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      <SidebarFooter>
+        <SidebarUserFooter user={session.user} />
+      </SidebarFooter>
     </Sidebar>
   );
 }

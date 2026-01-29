@@ -1,19 +1,21 @@
-import AuthDialog from "@/components/auth/AuthDialog";
+import LandingHeader from "@/components/landing/LandingHeader";
+import HeroSection from "@/components/landing/HeroSection";
+import FeaturesSection from "@/components/landing/FeaturesSection";
+import PricingSection from "@/components/landing/PricingSection";
+import LandingFooter from "@/components/landing/LandingFooter";
+
+import { Suspense } from "react";
 
 export default function Home() {
   return (
-    <main className="min-h-screen w-screen bg-linear-to-bl from-green-100 to-green-100 via-green-200">
-      <AuthDialog />
-      <section className="w-full h-screen flex items-center justify-center">
-        <div className="">
-          <h1 className="text-8xl font-bold font-sans tracking-widest">
-            ServiceFlow
-          </h1>
-          <p className="text-center text-gray-600 text-xl">
-            Manage your business with ease
-          </p>
-        </div>
-      </section>
+    <main className="min-h-screen w-full bg-background flex flex-col font-sans">
+      <LandingHeader />
+      <HeroSection />
+      <FeaturesSection />
+      <PricingSection />
+      <Suspense fallback={null}>
+        <LandingFooter />
+      </Suspense>
     </main>
   );
 }

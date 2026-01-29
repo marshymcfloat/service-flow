@@ -15,6 +15,7 @@ export default function DashboardCard({
   count,
   description,
   variant = "light",
+  Icon,
 }: DashboardCardProps) {
   return (
     <div
@@ -42,12 +43,14 @@ export default function DashboardCard({
               : "border border-zinc-200 text-zinc-900 bg-white",
           )}
         >
-          <ArrowUpRight size={20} />
+          {Icon ? <Icon size={20} /> : <ArrowUpRight size={20} />}
         </div>
       </div>
 
       <div className="space-y-1">
-        <div className="text-5xl font-semibold tracking-tight">{count}</div>
+        <div className="text-5xl font-semibold tracking-tight">
+          {typeof count === "number" ? count.toLocaleString() : count}
+        </div>
         <div
           className={cn(
             "flex items-center gap-2 text-sm font-medium",

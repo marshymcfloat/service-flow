@@ -22,7 +22,12 @@ export function SegmentedToggle<T extends string>({
   className,
 }: SegmentedToggleProps<T>) {
   return (
-    <div className={cn("inline-flex rounded-lg bg-muted p-1 gap-1", className)}>
+    <div
+      className={cn(
+        "inline-flex h-9 items-center justify-center rounded-lg bg-muted p-1 text-muted-foreground",
+        className,
+      )}
+    >
       {options.map((option) => (
         <button
           key={option.value}
@@ -30,12 +35,11 @@ export function SegmentedToggle<T extends string>({
           disabled={option.disabled}
           onClick={() => !option.disabled && onChange(option.value)}
           className={cn(
-            "px-4 py-2 text-sm font-medium rounded-md transition-all",
-            "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+            "inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+            "flex-1",
             value === option.value
               ? "bg-background text-foreground shadow-sm"
-              : "text-muted-foreground hover:text-foreground hover:bg-background/50",
-            option.disabled && "opacity-50 cursor-not-allowed",
+              : "hover:bg-background/50 hover:text-foreground",
           )}
         >
           {option.label}

@@ -1,12 +1,23 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { format } from "date-fns";
+import { formatPH } from "@/lib/date-utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { markServiceServedAction } from "@/lib/server actions/dashboard";
+import {
+  markServiceServedAction,
+  unclaimServiceAction,
+  unserveServiceAction,
+} from "@/lib/server actions/dashboard";
 import { useState } from "react";
-import { Loader2, History, CheckCircle2, User, Calendar } from "lucide-react";
+import {
+  Loader2,
+  History,
+  CheckCircle2,
+  User,
+  Calendar,
+  RotateCcw,
+} from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   Dialog,
@@ -15,6 +26,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface ServedService {
   id: number;
@@ -45,6 +66,10 @@ export default function EmployeeServedHistory({
   const [selectedService, setSelectedService] = useState<ServedService | null>(
     null,
   );
+  const [pendingAction, setPendingAction] = useState<{
+    type: "unclaim" | "unserve";
+    serviceId: number;
+  } | null>(null);
 
   const handleMarkAsServed = async (serviceId: number) => {
     setLoadingId(serviceId);
@@ -63,9 +88,63 @@ export default function EmployeeServedHistory({
       setLoadingId(null);
     }
   };
+
+  const requestUnclaim = (serviceId: number) => {
+    setPendingAction({ type: "unclaim", serviceId });
+  };
+
+  const executeUnclaim = async (serviceId: number) => {
+    setLoadingId(serviceId);
+    try {
+      const result = await unclaimServiceAction(serviceId);
+      if (!result.success) {
+        alert(result.error);
+      } else {
+        setSelectedService(null);
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Something went wrong");
+    } finally {
+      setLoadingId(null);
+      setPendingAction(null);
+    }
+  };
+
+  const requestUnserve = (serviceId: number) => {
+    setPendingAction({ type: "unserve", serviceId });
+  };
+
+  const executeUnserve = async (serviceId: number) => {
+    setLoadingId(serviceId);
+    try {
+      const result = await unserveServiceAction(serviceId);
+      if (!result.success) {
+        alert(result.error);
+      } else {
+        setSelectedService(null);
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Something went wrong");
+    } finally {
+      setLoadingId(null);
+      setPendingAction(null);
+    }
+  };
+
+  const handleConfirmAction = () => {
+    if (!pendingAction) return;
+    if (pendingAction.type === "unclaim") {
+      executeUnclaim(pendingAction.serviceId);
+    } else if (pendingAction.type === "unserve") {
+      executeUnserve(pendingAction.serviceId);
+    }
+  };
+
   return (
     <>
-      <Card className="h-full border-zinc-50 shadow-[0_20px_40px_-12px_rgba(0,0,0,0.05)] flex flex-col overflow-hidden rounded-[30px] hover:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.1)] transition-shadow duration-300">
+      <Card className="h-full lg:max-h-[500px] overflow-y-auto border-zinc-50 shadow-[0_20px_40px_-12px_rgba(0,0,0,0.05)] flex flex-col overflow-hidden rounded-[30px] hover:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.1)] transition-shadow duration-300">
         <CardHeader>
           <CardTitle className="text-lg font-medium">
             My Served History
@@ -121,10 +200,7 @@ export default function EmployeeServedHistory({
                           <span className="flex items-center gap-1 text-xs">
                             <Calendar className="w-3 h-3" />
                             {item.scheduled_at
-                              ? format(
-                                  new Date(item.scheduled_at),
-                                  "MMM d, h:mm a",
-                                )
+                              ? formatPH(item.scheduled_at, "MMM d, h:mm a")
                               : "Unscheduled"}
                           </span>
                         </div>
@@ -136,22 +212,36 @@ export default function EmployeeServedHistory({
                         ₱{item.price.toLocaleString()}
                       </div>
                       {item.status === "CLAIMED" ? (
-                        <Button
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleMarkAsServed(item.id);
-                          }}
-                          disabled={loadingId === item.id}
-                          className="bg-green-600 hover:bg-green-700 text-white h-7 text-xs"
-                        >
-                          {loadingId === item.id ? (
-                            <Loader2 className="mr-2 h-3 w-3 animate-spin" />
-                          ) : (
-                            <CheckCircle2 className="mr-1.5 h-3 w-3" />
-                          )}
-                          Mark Served
-                        </Button>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              requestUnclaim(item.id);
+                            }}
+                            disabled={loadingId === item.id}
+                            className="h-7 w-7 text-muted-foreground hover:text-red-500"
+                          >
+                            <RotateCcw className="h-3 w-3" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleMarkAsServed(item.id);
+                            }}
+                            disabled={loadingId === item.id}
+                            className="bg-green-600 hover:bg-green-700 text-white h-7 text-xs"
+                          >
+                            {loadingId === item.id ? (
+                              <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                            ) : (
+                              <CheckCircle2 className="mr-1.5 h-3 w-3" />
+                            )}
+                            Mark Served
+                          </Button>
+                        </div>
                       ) : (
                         <Badge
                           variant="secondary"
@@ -229,7 +319,7 @@ export default function EmployeeServedHistory({
                   <span className="text-muted-foreground">Scheduled For</span>
                   <span className="font-medium">
                     {selectedService.scheduled_at
-                      ? format(new Date(selectedService.scheduled_at), "PPP p")
+                      ? formatPH(selectedService.scheduled_at, "PPP p")
                       : "Unscheduled"}
                   </span>
                 </div>
@@ -246,24 +336,87 @@ export default function EmployeeServedHistory({
               </div>
 
               {selectedService.status === "CLAIMED" && (
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    className="flex-1 text-red-600 hover:text-red-700 hover:bg-red-50"
+                    onClick={() => requestUnclaim(selectedService.id)}
+                    disabled={loadingId === selectedService.id}
+                  >
+                    {loadingId === selectedService.id ? (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                      <RotateCcw className="mr-2 h-4 w-4" />
+                    )}
+                    Unclaim
+                  </Button>
+                  <Button
+                    className="flex-2 bg-green-600 hover:bg-green-700 text-white"
+                    onClick={() => {
+                      handleMarkAsServed(selectedService.id);
+                      setSelectedService(null);
+                    }}
+                    disabled={loadingId === selectedService.id}
+                  >
+                    {loadingId === selectedService.id && (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    )}
+                    Mark as Served
+                  </Button>
+                </div>
+              )}
+              {selectedService.status === "COMPLETED" && (
                 <Button
-                  className="w-full bg-green-600 hover:bg-green-700 text-white"
-                  onClick={() => {
-                    handleMarkAsServed(selectedService.id);
-                    setSelectedService(null);
-                  }}
+                  variant="outline"
+                  className="w-full text-orange-600 hover:text-orange-700 hover:bg-orange-50"
+                  onClick={() => requestUnserve(selectedService.id)}
                   disabled={loadingId === selectedService.id}
                 >
-                  {loadingId === selectedService.id && (
+                  {loadingId === selectedService.id ? (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <RotateCcw className="mr-2 h-4 w-4" />
                   )}
-                  Mark as Served
+                  Undo (Unserve)
                 </Button>
               )}
             </div>
           )}
         </DialogContent>
       </Dialog>
+
+      <AlertDialog
+        open={!!pendingAction}
+        onOpenChange={(open) => !open && setPendingAction(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {pendingAction?.type === "unclaim"
+                ? "Unclaim this service?"
+                : "Undo this service?"}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {pendingAction?.type === "unclaim"
+                ? "This service will go back to the pending list and can be claimed by anyone."
+                : "This will revert the service status and remove the commission."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmAction}
+              className={
+                pendingAction?.type === "unclaim"
+                  ? "bg-red-600 hover:bg-red-700"
+                  : "bg-orange-600 hover:bg-orange-700"
+              }
+            >
+              {pendingAction?.type === "unclaim" ? "Unclaim" : "Undo"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }

@@ -72,7 +72,12 @@ export default function TimeSlotPicker({
             )}
           >
             <span className="font-semibold text-sm">
-              {format(slot.startTime, "h:mm a")}
+              {new Date(slot.startTime).toLocaleTimeString("en-US", {
+                timeZone: "Asia/Manila",
+                hour: "numeric",
+                minute: "2-digit",
+                hour12: true,
+              })}
             </span>
             <span
               className={cn(

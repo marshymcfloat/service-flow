@@ -1,7 +1,6 @@
-import BookingForm from "@/components/bookings/BookingForm";
-import { prisma } from "@/prisma/prisma";
-import { notFound } from "next/navigation";
-import { unstable_cache } from "next/cache";
+import BookingDataContainer from "@/components/bookings/BookingDataContainer";
+import BookingSkeleton from "@/components/skeletons/BookingSkeleton";
+import { Suspense } from "react";
 
 export default async function BookingPage({
   params,
@@ -10,36 +9,14 @@ export default async function BookingPage({
 }) {
   const { businessSlug } = await params;
 
-  const business = await prisma.business.findUnique({
-    where: { slug: businessSlug },
-  });
-
-  if (!business) {
-    return notFound();
-  }
-
-  const getServices = unstable_cache(
-    async () => {
-      const services = await prisma.service.findMany({
-        where: { business_id: business.id },
-      });
-      return services;
-    },
-    [`services-${business.id}`],
-    {
-      revalidate: 3600,
-      tags: [`services-${business.id}`],
-    },
-  );
-
-  const services = await getServices();
-
   return (
-    <div className="flex h-screen flex-col p-4">
-      <h1 className="mb-6 text-center font-sans text-2xl font-medium">
-        {business.name}
-      </h1>
-      <BookingForm services={services} />
+    <div className="min-h-screen w-full bg-muted/40 p-4 md:p-8 flex items-center justify-center">
+      <div className="w-full max-w-2xl relative z-0">
+        <Suspense fallback={<BookingSkeleton />}>
+          <BookingDataContainer businessSlug={businessSlug} />
+        </Suspense>
+      </div>
+      <div className="fixed inset-0 -z-10 h-full w-full bg-white [background:radial-gradient(125%_125%_at_50%_10%,#fff_40%,#63e_100%)] opacity-20" />
     </div>
   );
 }

@@ -1,9 +1,9 @@
-import React from "react";
 import EmployeeDashboard from "./EmployeeDashboard";
 import { prisma } from "@/prisma/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/next auth/options";
 import { redirect } from "next/navigation";
+import { getCachedBusinessBySlug } from "@/lib/data/cached";
 
 export default async function EmployeeDashboardDataContainer({
   businessSlug,
@@ -15,10 +15,7 @@ export default async function EmployeeDashboardDataContainer({
     redirect("/");
   }
 
-  const business = await prisma.business.findUnique({
-    where: { slug: businessSlug },
-    select: { id: true, name: true },
-  });
+  const business = await getCachedBusinessBySlug(businessSlug);
 
   const employee = await prisma.employee.findFirst({
     where: {

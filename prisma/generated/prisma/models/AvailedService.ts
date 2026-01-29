@@ -61,6 +61,7 @@ export type AvailedServiceMinAggregateOutputType = {
   claimed_at: Date | null
   served_at: Date | null
   completed_at: Date | null
+  cancelled_at: Date | null
   booking_id: number | null
   service_id: number | null
   package_id: number | null
@@ -82,6 +83,7 @@ export type AvailedServiceMaxAggregateOutputType = {
   claimed_at: Date | null
   served_at: Date | null
   completed_at: Date | null
+  cancelled_at: Date | null
   booking_id: number | null
   service_id: number | null
   package_id: number | null
@@ -103,6 +105,7 @@ export type AvailedServiceCountAggregateOutputType = {
   claimed_at: number
   served_at: number
   completed_at: number
+  cancelled_at: number
   booking_id: number
   service_id: number
   package_id: number
@@ -150,6 +153,7 @@ export type AvailedServiceMinAggregateInputType = {
   claimed_at?: true
   served_at?: true
   completed_at?: true
+  cancelled_at?: true
   booking_id?: true
   service_id?: true
   package_id?: true
@@ -171,6 +175,7 @@ export type AvailedServiceMaxAggregateInputType = {
   claimed_at?: true
   served_at?: true
   completed_at?: true
+  cancelled_at?: true
   booking_id?: true
   service_id?: true
   package_id?: true
@@ -192,6 +197,7 @@ export type AvailedServiceCountAggregateInputType = {
   claimed_at?: true
   served_at?: true
   completed_at?: true
+  cancelled_at?: true
   booking_id?: true
   service_id?: true
   package_id?: true
@@ -300,6 +306,7 @@ export type AvailedServiceGroupByOutputType = {
   claimed_at: Date | null
   served_at: Date | null
   completed_at: Date | null
+  cancelled_at: Date | null
   booking_id: number
   service_id: number
   package_id: number | null
@@ -344,6 +351,7 @@ export type AvailedServiceWhereInput = {
   claimed_at?: Prisma.DateTimeNullableFilter<"AvailedService"> | Date | string | null
   served_at?: Prisma.DateTimeNullableFilter<"AvailedService"> | Date | string | null
   completed_at?: Prisma.DateTimeNullableFilter<"AvailedService"> | Date | string | null
+  cancelled_at?: Prisma.DateTimeNullableFilter<"AvailedService"> | Date | string | null
   booking_id?: Prisma.IntFilter<"AvailedService"> | number
   service_id?: Prisma.IntFilter<"AvailedService"> | number
   package_id?: Prisma.IntNullableFilter<"AvailedService"> | number | null
@@ -369,6 +377,7 @@ export type AvailedServiceOrderByWithRelationInput = {
   claimed_at?: Prisma.SortOrderInput | Prisma.SortOrder
   served_at?: Prisma.SortOrderInput | Prisma.SortOrder
   completed_at?: Prisma.SortOrderInput | Prisma.SortOrder
+  cancelled_at?: Prisma.SortOrderInput | Prisma.SortOrder
   booking_id?: Prisma.SortOrder
   service_id?: Prisma.SortOrder
   package_id?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -397,6 +406,7 @@ export type AvailedServiceWhereUniqueInput = Prisma.AtLeast<{
   claimed_at?: Prisma.DateTimeNullableFilter<"AvailedService"> | Date | string | null
   served_at?: Prisma.DateTimeNullableFilter<"AvailedService"> | Date | string | null
   completed_at?: Prisma.DateTimeNullableFilter<"AvailedService"> | Date | string | null
+  cancelled_at?: Prisma.DateTimeNullableFilter<"AvailedService"> | Date | string | null
   booking_id?: Prisma.IntFilter<"AvailedService"> | number
   service_id?: Prisma.IntFilter<"AvailedService"> | number
   package_id?: Prisma.IntNullableFilter<"AvailedService"> | number | null
@@ -422,6 +432,7 @@ export type AvailedServiceOrderByWithAggregationInput = {
   claimed_at?: Prisma.SortOrderInput | Prisma.SortOrder
   served_at?: Prisma.SortOrderInput | Prisma.SortOrder
   completed_at?: Prisma.SortOrderInput | Prisma.SortOrder
+  cancelled_at?: Prisma.SortOrderInput | Prisma.SortOrder
   booking_id?: Prisma.SortOrder
   service_id?: Prisma.SortOrder
   package_id?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -451,6 +462,7 @@ export type AvailedServiceScalarWhereWithAggregatesInput = {
   claimed_at?: Prisma.DateTimeNullableWithAggregatesFilter<"AvailedService"> | Date | string | null
   served_at?: Prisma.DateTimeNullableWithAggregatesFilter<"AvailedService"> | Date | string | null
   completed_at?: Prisma.DateTimeNullableWithAggregatesFilter<"AvailedService"> | Date | string | null
+  cancelled_at?: Prisma.DateTimeNullableWithAggregatesFilter<"AvailedService"> | Date | string | null
   booking_id?: Prisma.IntWithAggregatesFilter<"AvailedService"> | number
   service_id?: Prisma.IntWithAggregatesFilter<"AvailedService"> | number
   package_id?: Prisma.IntNullableWithAggregatesFilter<"AvailedService"> | number | null
@@ -471,6 +483,7 @@ export type AvailedServiceCreateInput = {
   claimed_at?: Date | string | null
   served_at?: Date | string | null
   completed_at?: Date | string | null
+  cancelled_at?: Date | string | null
   scheduled_at?: Date | string | null
   estimated_end?: Date | string | null
   created_at?: Date | string
@@ -492,6 +505,7 @@ export type AvailedServiceUncheckedCreateInput = {
   claimed_at?: Date | string | null
   served_at?: Date | string | null
   completed_at?: Date | string | null
+  cancelled_at?: Date | string | null
   booking_id: number
   service_id: number
   package_id?: number | null
@@ -512,6 +526,7 @@ export type AvailedServiceUpdateInput = {
   claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   served_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   scheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   estimated_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -533,6 +548,7 @@ export type AvailedServiceUncheckedUpdateInput = {
   claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   served_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   booking_id?: Prisma.IntFieldUpdateOperationsInput | number
   service_id?: Prisma.IntFieldUpdateOperationsInput | number
   package_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -554,6 +570,7 @@ export type AvailedServiceCreateManyInput = {
   claimed_at?: Date | string | null
   served_at?: Date | string | null
   completed_at?: Date | string | null
+  cancelled_at?: Date | string | null
   booking_id: number
   service_id: number
   package_id?: number | null
@@ -574,6 +591,7 @@ export type AvailedServiceUpdateManyMutationInput = {
   claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   served_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   scheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   estimated_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -591,6 +609,7 @@ export type AvailedServiceUncheckedUpdateManyInput = {
   claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   served_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   booking_id?: Prisma.IntFieldUpdateOperationsInput | number
   service_id?: Prisma.IntFieldUpdateOperationsInput | number
   package_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -622,6 +641,7 @@ export type AvailedServiceCountOrderByAggregateInput = {
   claimed_at?: Prisma.SortOrder
   served_at?: Prisma.SortOrder
   completed_at?: Prisma.SortOrder
+  cancelled_at?: Prisma.SortOrder
   booking_id?: Prisma.SortOrder
   service_id?: Prisma.SortOrder
   package_id?: Prisma.SortOrder
@@ -655,6 +675,7 @@ export type AvailedServiceMaxOrderByAggregateInput = {
   claimed_at?: Prisma.SortOrder
   served_at?: Prisma.SortOrder
   completed_at?: Prisma.SortOrder
+  cancelled_at?: Prisma.SortOrder
   booking_id?: Prisma.SortOrder
   service_id?: Prisma.SortOrder
   package_id?: Prisma.SortOrder
@@ -676,6 +697,7 @@ export type AvailedServiceMinOrderByAggregateInput = {
   claimed_at?: Prisma.SortOrder
   served_at?: Prisma.SortOrder
   completed_at?: Prisma.SortOrder
+  cancelled_at?: Prisma.SortOrder
   booking_id?: Prisma.SortOrder
   service_id?: Prisma.SortOrder
   package_id?: Prisma.SortOrder
@@ -880,6 +902,7 @@ export type AvailedServiceCreateWithoutServed_byInput = {
   claimed_at?: Date | string | null
   served_at?: Date | string | null
   completed_at?: Date | string | null
+  cancelled_at?: Date | string | null
   scheduled_at?: Date | string | null
   estimated_end?: Date | string | null
   created_at?: Date | string
@@ -900,6 +923,7 @@ export type AvailedServiceUncheckedCreateWithoutServed_byInput = {
   claimed_at?: Date | string | null
   served_at?: Date | string | null
   completed_at?: Date | string | null
+  cancelled_at?: Date | string | null
   booking_id: number
   service_id: number
   package_id?: number | null
@@ -949,6 +973,7 @@ export type AvailedServiceScalarWhereInput = {
   claimed_at?: Prisma.DateTimeNullableFilter<"AvailedService"> | Date | string | null
   served_at?: Prisma.DateTimeNullableFilter<"AvailedService"> | Date | string | null
   completed_at?: Prisma.DateTimeNullableFilter<"AvailedService"> | Date | string | null
+  cancelled_at?: Prisma.DateTimeNullableFilter<"AvailedService"> | Date | string | null
   booking_id?: Prisma.IntFilter<"AvailedService"> | number
   service_id?: Prisma.IntFilter<"AvailedService"> | number
   package_id?: Prisma.IntNullableFilter<"AvailedService"> | number | null
@@ -969,6 +994,7 @@ export type AvailedServiceCreateWithoutServiceInput = {
   claimed_at?: Date | string | null
   served_at?: Date | string | null
   completed_at?: Date | string | null
+  cancelled_at?: Date | string | null
   scheduled_at?: Date | string | null
   estimated_end?: Date | string | null
   created_at?: Date | string
@@ -989,6 +1015,7 @@ export type AvailedServiceUncheckedCreateWithoutServiceInput = {
   claimed_at?: Date | string | null
   served_at?: Date | string | null
   completed_at?: Date | string | null
+  cancelled_at?: Date | string | null
   booking_id: number
   package_id?: number | null
   served_by_id?: number | null
@@ -1034,6 +1061,7 @@ export type AvailedServiceCreateWithoutPackageInput = {
   claimed_at?: Date | string | null
   served_at?: Date | string | null
   completed_at?: Date | string | null
+  cancelled_at?: Date | string | null
   scheduled_at?: Date | string | null
   estimated_end?: Date | string | null
   created_at?: Date | string
@@ -1054,6 +1082,7 @@ export type AvailedServiceUncheckedCreateWithoutPackageInput = {
   claimed_at?: Date | string | null
   served_at?: Date | string | null
   completed_at?: Date | string | null
+  cancelled_at?: Date | string | null
   booking_id: number
   service_id: number
   served_by_id?: number | null
@@ -1099,6 +1128,7 @@ export type AvailedServiceCreateWithoutBookingInput = {
   claimed_at?: Date | string | null
   served_at?: Date | string | null
   completed_at?: Date | string | null
+  cancelled_at?: Date | string | null
   scheduled_at?: Date | string | null
   estimated_end?: Date | string | null
   created_at?: Date | string
@@ -1119,6 +1149,7 @@ export type AvailedServiceUncheckedCreateWithoutBookingInput = {
   claimed_at?: Date | string | null
   served_at?: Date | string | null
   completed_at?: Date | string | null
+  cancelled_at?: Date | string | null
   service_id: number
   package_id?: number | null
   served_by_id?: number | null
@@ -1165,6 +1196,7 @@ export type AvailedServiceCreateManyServed_byInput = {
   claimed_at?: Date | string | null
   served_at?: Date | string | null
   completed_at?: Date | string | null
+  cancelled_at?: Date | string | null
   booking_id: number
   service_id: number
   package_id?: number | null
@@ -1184,6 +1216,7 @@ export type AvailedServiceUpdateWithoutServed_byInput = {
   claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   served_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   scheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   estimated_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1204,6 +1237,7 @@ export type AvailedServiceUncheckedUpdateWithoutServed_byInput = {
   claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   served_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   booking_id?: Prisma.IntFieldUpdateOperationsInput | number
   service_id?: Prisma.IntFieldUpdateOperationsInput | number
   package_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1224,6 +1258,7 @@ export type AvailedServiceUncheckedUpdateManyWithoutServed_byInput = {
   claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   served_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   booking_id?: Prisma.IntFieldUpdateOperationsInput | number
   service_id?: Prisma.IntFieldUpdateOperationsInput | number
   package_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1244,6 +1279,7 @@ export type AvailedServiceCreateManyServiceInput = {
   claimed_at?: Date | string | null
   served_at?: Date | string | null
   completed_at?: Date | string | null
+  cancelled_at?: Date | string | null
   booking_id: number
   package_id?: number | null
   served_by_id?: number | null
@@ -1263,6 +1299,7 @@ export type AvailedServiceUpdateWithoutServiceInput = {
   claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   served_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   scheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   estimated_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1283,6 +1320,7 @@ export type AvailedServiceUncheckedUpdateWithoutServiceInput = {
   claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   served_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   booking_id?: Prisma.IntFieldUpdateOperationsInput | number
   package_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   served_by_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1303,6 +1341,7 @@ export type AvailedServiceUncheckedUpdateManyWithoutServiceInput = {
   claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   served_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   booking_id?: Prisma.IntFieldUpdateOperationsInput | number
   package_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   served_by_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1323,6 +1362,7 @@ export type AvailedServiceCreateManyPackageInput = {
   claimed_at?: Date | string | null
   served_at?: Date | string | null
   completed_at?: Date | string | null
+  cancelled_at?: Date | string | null
   booking_id: number
   service_id: number
   served_by_id?: number | null
@@ -1342,6 +1382,7 @@ export type AvailedServiceUpdateWithoutPackageInput = {
   claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   served_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   scheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   estimated_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1362,6 +1403,7 @@ export type AvailedServiceUncheckedUpdateWithoutPackageInput = {
   claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   served_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   booking_id?: Prisma.IntFieldUpdateOperationsInput | number
   service_id?: Prisma.IntFieldUpdateOperationsInput | number
   served_by_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1382,6 +1424,7 @@ export type AvailedServiceUncheckedUpdateManyWithoutPackageInput = {
   claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   served_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   booking_id?: Prisma.IntFieldUpdateOperationsInput | number
   service_id?: Prisma.IntFieldUpdateOperationsInput | number
   served_by_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1402,6 +1445,7 @@ export type AvailedServiceCreateManyBookingInput = {
   claimed_at?: Date | string | null
   served_at?: Date | string | null
   completed_at?: Date | string | null
+  cancelled_at?: Date | string | null
   service_id: number
   package_id?: number | null
   served_by_id?: number | null
@@ -1421,6 +1465,7 @@ export type AvailedServiceUpdateWithoutBookingInput = {
   claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   served_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   scheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   estimated_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1441,6 +1486,7 @@ export type AvailedServiceUncheckedUpdateWithoutBookingInput = {
   claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   served_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   service_id?: Prisma.IntFieldUpdateOperationsInput | number
   package_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   served_by_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1461,6 +1507,7 @@ export type AvailedServiceUncheckedUpdateManyWithoutBookingInput = {
   claimed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   served_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completed_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   service_id?: Prisma.IntFieldUpdateOperationsInput | number
   package_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   served_by_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1483,6 +1530,7 @@ export type AvailedServiceSelect<ExtArgs extends runtime.Types.Extensions.Intern
   claimed_at?: boolean
   served_at?: boolean
   completed_at?: boolean
+  cancelled_at?: boolean
   booking_id?: boolean
   service_id?: boolean
   package_id?: boolean
@@ -1508,6 +1556,7 @@ export type AvailedServiceSelectCreateManyAndReturn<ExtArgs extends runtime.Type
   claimed_at?: boolean
   served_at?: boolean
   completed_at?: boolean
+  cancelled_at?: boolean
   booking_id?: boolean
   service_id?: boolean
   package_id?: boolean
@@ -1533,6 +1582,7 @@ export type AvailedServiceSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
   claimed_at?: boolean
   served_at?: boolean
   completed_at?: boolean
+  cancelled_at?: boolean
   booking_id?: boolean
   service_id?: boolean
   package_id?: boolean
@@ -1558,6 +1608,7 @@ export type AvailedServiceSelectScalar = {
   claimed_at?: boolean
   served_at?: boolean
   completed_at?: boolean
+  cancelled_at?: boolean
   booking_id?: boolean
   service_id?: boolean
   package_id?: boolean
@@ -1568,7 +1619,7 @@ export type AvailedServiceSelectScalar = {
   updated_at?: boolean
 }
 
-export type AvailedServiceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "price" | "discount" | "discount_reason" | "final_price" | "commission_base" | "status" | "claimed_at" | "served_at" | "completed_at" | "booking_id" | "service_id" | "package_id" | "served_by_id" | "scheduled_at" | "estimated_end" | "created_at" | "updated_at", ExtArgs["result"]["availedService"]>
+export type AvailedServiceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "price" | "discount" | "discount_reason" | "final_price" | "commission_base" | "status" | "claimed_at" | "served_at" | "completed_at" | "cancelled_at" | "booking_id" | "service_id" | "package_id" | "served_by_id" | "scheduled_at" | "estimated_end" | "created_at" | "updated_at", ExtArgs["result"]["availedService"]>
 export type AvailedServiceInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   booking?: boolean | Prisma.BookingDefaultArgs<ExtArgs>
   service?: boolean | Prisma.ServiceDefaultArgs<ExtArgs>
@@ -1607,6 +1658,7 @@ export type $AvailedServicePayload<ExtArgs extends runtime.Types.Extensions.Inte
     claimed_at: Date | null
     served_at: Date | null
     completed_at: Date | null
+    cancelled_at: Date | null
     booking_id: number
     service_id: number
     package_id: number | null
@@ -2052,6 +2104,7 @@ export interface AvailedServiceFieldRefs {
   readonly claimed_at: Prisma.FieldRef<"AvailedService", 'DateTime'>
   readonly served_at: Prisma.FieldRef<"AvailedService", 'DateTime'>
   readonly completed_at: Prisma.FieldRef<"AvailedService", 'DateTime'>
+  readonly cancelled_at: Prisma.FieldRef<"AvailedService", 'DateTime'>
   readonly booking_id: Prisma.FieldRef<"AvailedService", 'Int'>
   readonly service_id: Prisma.FieldRef<"AvailedService", 'Int'>
   readonly package_id: Prisma.FieldRef<"AvailedService", 'Int'>

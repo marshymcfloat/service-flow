@@ -1,6 +1,6 @@
 "use client";
 
-import { format } from "date-fns";
+import { formatPH } from "@/lib/date-utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -75,7 +75,7 @@ export default function PendingServicesList({
 
   return (
     <>
-      <Card className="h-full border-zinc-50 shadow-[0_20px_40px_-12px_rgba(0,0,0,0.05)] flex flex-col overflow-hidden rounded-[30px] hover:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.1)] transition-shadow duration-300">
+      <Card className="h-full lg:max-h-[500px] border-zinc-50 shadow-[0_20px_40px_-12px_rgba(0,0,0,0.05)] flex flex-col overflow-hidden rounded-[30px] hover:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.1)] transition-shadow duration-300">
         <CardHeader>
           <CardTitle className="text-lg font-medium">
             Available to Serve
@@ -126,7 +126,7 @@ export default function PendingServicesList({
                           <span className="flex items-center gap-1 text-xs">
                             <ClockIcon className="w-3 h-3" />
                             {item.scheduled_at
-                              ? format(new Date(item.scheduled_at), "h:mm a")
+                              ? formatPH(item.scheduled_at, "h:mm a")
                               : "Unscheduled"}
                           </span>
                         </div>

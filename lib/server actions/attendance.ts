@@ -2,8 +2,8 @@
 
 import { prisma } from "@/prisma/prisma";
 import { revalidatePath } from "next/cache";
+import { getEndOfDayPH, getMonthRangePH, getStartOfDayPH } from "../date-utils";
 
-// Maximum distance in meters
 const MAX_DISTANCE_METERS = 100;
 
 function calculateDistance(
@@ -12,7 +12,7 @@ function calculateDistance(
   lat2: number,
   lon2: number,
 ): number {
-  const R = 6371e3; // Earth radius in meters
+  const R = 6371e3;
   const φ1 = (lat1 * Math.PI) / 180;
   const φ2 = (lat2 * Math.PI) / 180;
   const Δφ = ((lat2 - lat1) * Math.PI) / 180;
@@ -31,12 +31,8 @@ export async function checkAttendanceStatusAction(
   date: Date = new Date(),
 ) {
   try {
-    // Correct way to filter by date range for "today"
-    const startOfDay = new Date(date);
-    startOfDay.setHours(0, 0, 0, 0);
-
-    const endOfDay = new Date(date);
-    endOfDay.setHours(23, 59, 59, 999);
+    const startOfDay = getStartOfDayPH(date);
+    const endOfDay = getEndOfDayPH(date);
 
     const attendance = await prisma.employeeAttendance.findFirst({
       where: {
@@ -92,17 +88,19 @@ export async function clockInAction(
       };
     }
 
-    // Check if already clocked in today
     const existing = await checkAttendanceStatusAction(employeeId);
     if (existing.success && existing.data) {
       return { success: false, error: "Already clocked in today." };
     }
 
+    const now = new Date();
+    const datePH = getStartOfDayPH(now);
+
     const attendance = await prisma.employeeAttendance.create({
       data: {
         employee_id: employeeId,
-        date: new Date(),
-        time_in: new Date(),
+        date: datePH,
+        time_in: now,
         status: "PRESENT",
         location_verified: true,
         latitude,
@@ -120,9 +118,9 @@ export async function clockInAction(
 
 export async function clockOutAction(employeeId: number) {
   try {
-    const today = new Date();
-    const startOfDay = new Date(today.setHours(0, 0, 0, 0));
-    const endOfDay = new Date(today.setHours(23, 59, 59, 999));
+    const now = new Date();
+    const startOfDay = getStartOfDayPH(now);
+    const endOfDay = getEndOfDayPH(now);
 
     const attendance = await prisma.employeeAttendance.findFirst({
       where: {
@@ -145,7 +143,7 @@ export async function clockOutAction(employeeId: number) {
     const updated = await prisma.employeeAttendance.update({
       where: { id: attendance.id },
       data: {
-        time_out: new Date(),
+        time_out: now,
       },
     });
 
@@ -161,11 +159,10 @@ export async function clockOutAction(employeeId: number) {
 export async function getMonthlyAttendanceAction(
   employeeId: number,
   year: number,
-  month: number, // 0-11
+  month: number,
 ) {
   try {
-    const startDate = new Date(year, month, 1);
-    const endDate = new Date(year, month + 1, 0, 23, 59, 59, 999);
+    const { startDate, endDate } = getMonthRangePH(year, month);
 
     const attendance = await prisma.employeeAttendance.findMany({
       where: {
