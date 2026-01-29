@@ -7,7 +7,9 @@ import { getCachedBusinessBySlug, getCachedServices } from "@/lib/data/cached";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/next auth/options";
 
-export default async function InterceptedBookingPage({
+import { Suspense } from "react";
+
+async function InterceptedBookingContent({
   params,
 }: {
   params: Promise<{ businessSlug: string }>;
@@ -73,5 +75,25 @@ export default async function InterceptedBookingPage({
         />
       </div>
     </Modal>
+  );
+}
+
+export default function InterceptedBookingPage({
+  params,
+}: {
+  params: Promise<{ businessSlug: string }>;
+}) {
+  return (
+    <Suspense
+      fallback={
+        <Modal title="Loading..." description="Please wait...">
+          <div className="h-96 w-full flex items-center justify-center">
+            Loading...
+          </div>
+        </Modal>
+      }
+    >
+      <InterceptedBookingContent params={params} />
+    </Suspense>
   );
 }
