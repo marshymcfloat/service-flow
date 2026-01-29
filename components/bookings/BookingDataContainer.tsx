@@ -11,10 +11,11 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default async function BookingDataContainer({
-  businessSlug,
+  params,
 }: {
-  businessSlug: string;
+  params: Promise<{ businessSlug: string }>;
 }) {
+  const { businessSlug } = await params;
   const business = await getCachedBusinessBySlug(businessSlug);
 
   if (!business) {
