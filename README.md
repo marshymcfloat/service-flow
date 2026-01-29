@@ -17,7 +17,7 @@ ServiceFlow is a comprehensive business management and booking SaaS platform des
   - Role-based access (Owner vs. Employee).
   - Attendance tracking (Time-in/Time-out) with location verification.
   - Commission and Salary calculation.
-  - Payslip generation.
+  - Payslip generation.f
 - **Sales & Marketing**:
   - Manage "Sale Events" with custom discounts.
   - Create special date configurations (e.g., holiday rates).

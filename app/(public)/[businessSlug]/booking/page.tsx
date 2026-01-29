@@ -2,6 +2,8 @@ import BookingDataContainer from "@/components/bookings/BookingDataContainer";
 import BookingSkeleton from "@/components/skeletons/BookingSkeleton";
 import { Suspense } from "react";
 
+export const dynamic = "force-dynamic";
+
 export default async function BookingPage({
   params,
 }: {
