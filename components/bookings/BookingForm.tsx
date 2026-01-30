@@ -167,15 +167,15 @@ export default function BookingForm({
   const { mutate: createBookingAction, isPending } = useMutation({
     mutationFn: createBooking,
     onSuccess: (checkoutUrl) => {
-      if (isEmployee) {
+      if (checkoutUrl && checkoutUrl.startsWith("http")) {
+        window.location.href = checkoutUrl;
+      } else if (isEmployee) {
         toast.success("Booking successfully created");
         if (isModal) {
           router.back();
         } else {
           router.push(`/app/${businessSlug}`);
         }
-      } else if (checkoutUrl) {
-        window.location.href = checkoutUrl;
       }
     },
     onError: (error) => {

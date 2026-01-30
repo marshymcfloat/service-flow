@@ -116,6 +116,10 @@ export async function createBooking({
       metadata,
       success_url: `${baseUrl}/${businessSlug}/booking/success`,
       cancel_url: `${baseUrl}/${businessSlug}/booking?canceled=true`,
+      allowed_payment_methods:
+        currentEmployeeId && paymentMethod === "QRPH"
+          ? ["qrph"]
+          : ["qrph", "gcash", "card"],
     });
 
     if (process.env.NODE_ENV === "development") {

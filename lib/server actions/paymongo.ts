@@ -17,6 +17,7 @@ interface CreateCheckoutSessionParams {
   success_url?: string;
   cancel_url?: string;
   metadata?: Record<string, any>;
+  allowed_payment_methods?: string[];
 }
 
 export async function createPayMongoCheckoutSession({
@@ -27,6 +28,7 @@ export async function createPayMongoCheckoutSession({
     "/booking/success",
   cancel_url = (process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000") +
     "/booking/cancel",
+  allowed_payment_methods = ["qrph", "gcash", "card"],
 }: CreateCheckoutSessionParams) {
   const options = {
     method: "POST",
@@ -41,7 +43,7 @@ export async function createPayMongoCheckoutSession({
           send_email_receipt: true,
           show_description: true,
           show_line_items: true,
-          payment_method_types: ["qrph", "gcash", "card"],
+          payment_method_types: allowed_payment_methods,
           line_items,
           description,
           success_url,
