@@ -1,14 +1,22 @@
 "use client";
 
 import React from "react";
-import DashboardCard from "../DashboardCard";
-import { Plus } from "lucide-react";
+import { Plus, LogOut, User as UserIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import EmployeeServedHistory from "./EmployeeServedHistory";
 import PendingServicesList from "./PendingServicesList";
 import AttendanceCard from "./AttendanceCard";
-import { motion } from "motion/react";
+import { signOut } from "next-auth/react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 export default function EmployeeDashboard({
   businessName,
@@ -29,79 +37,142 @@ export default function EmployeeDashboard({
   currentEmployeeSalary: number;
   todayAttendance: any;
 }) {
+  const handleSignOut = () => {
+    signOut({ callbackUrl: "/" });
+  };
+
   return (
-    <main className="w-screen h-screen flex items-center justify-center p-4 md:p-8 lg:p-12 bg-zinc-50/50">
-      <section className="w-full h-full border border-gray-200 shadow-xl bg-white rounded-3xl p-4 md:p-6 flex flex-col overflow-hidden">
-        <header className="mb-6 md:mb-8 flex justify-between items-center shrink-0">
-          <div className="">
-            <h1 className="font-semibold text-xl md:text-2xl text-zinc-800">
-              {businessName} | Employee Dashboard
-            </h1>
-          </div>
+    <main className="min-h-screen bg-background pb-20 md:pb-8">
+      <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b px-4 py-3 flex items-center justify-between md:px-8 md:py-4">
+        <div>
+          <h1 className="font-bold text-lg leading-tight md:text-xl text-foreground">
+            {businessName}
+          </h1>
+          <p className="text-xs text-muted-foreground">Employee Dashboard</p>
+        </div>
+
+        <div className="flex items-center gap-2">
           <Button
             asChild
-            className="rounded-full shadow-lg shadow-blue-500/20 px-3 md:px-4"
+            size="sm"
+            className="rounded-full shadow-sm h-8 w-8 p-0 md:w-auto md:h-9 md:px-4 transition-all"
           >
             <Link href={`/${businessSlug}/booking`}>
-              <Plus className="h-4 w-4 md:mr-2" />
-              <span className="hidden md:inline">Add Booking</span>
+              <Plus className="h-4 w-4 md:mr-1.5" />
+              <span className="hidden md:inline font-medium">Add Booking</span>
             </Link>
           </Button>
-        </header>
 
-        <div className="flex-1 overflow-y-auto pr-2 -mr-2">
-          <motion.div
-            layout
-            className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6 w-full mb-8"
-          >
-            <motion.div layout className="h-full">
-              <DashboardCard
-                title="Total Projects"
-                count={servedHistory.length}
-                description="All time served"
-                variant="filled"
-              />
-            </motion.div>
-            <motion.div layout className="h-full">
-              <DashboardCard
-                title="Available Tasks"
-                count={pendingServices.length}
-                description="Waiting to be claimed"
-                variant="light"
-              />
-            </motion.div>
-            <motion.div layout className="h-full">
-              <DashboardCard
-                title="Total Earnings"
-                count={`₱${currentEmployeeSalary.toLocaleString()}`}
-                description="Commission accumulated"
-                variant="light"
-              />
-            </motion.div>
-            <AttendanceCard
-              employeeId={currentEmployeeId}
-              businessSlug={businessSlug}
-              todayAttendance={todayAttendance}
-            />
-          </motion.div>
-
-          <motion.div
-            layout
-            className="grid grid-cols-1 lg:grid-cols-2 gap-8 min-h-[400px]"
-          >
-            <EmployeeServedHistory
-              services={servedHistory}
-              currentEmployeeId={currentEmployeeId}
-              currentEmployeeCommission={currentEmployeeCommission}
-            />
-            <PendingServicesList
-              services={pendingServices}
-              businessSlug={businessSlug}
-              currentEmployeeId={currentEmployeeId}
-            />
-          </motion.div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 rounded-full"
+              >
+                <Avatar className="h-7 w-7 md:h-8 md:w-8">
+                  <AvatarFallback className="bg-muted text-xs">
+                    <UserIcon className="h-4 w-4" />
+                  </AvatarFallback>
+                </Avatar>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={handleSignOut}
+                className="text-red-600 focus:text-red-600 focus:bg-red-50"
+              >
+                <LogOut className="mr-2 h-4 w-4" />
+                Log out
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
-      </section>
+      </header>
+
+      <div className="px-4 py-6 md:px-8 max-w-5xl mx-auto space-y-8">
+        <section className="grid grid-cols-2 md:grid-cols-5 gap-3 md:gap-4">
+          <AttendanceCard
+            employeeId={currentEmployeeId}
+            businessSlug={businessSlug}
+            todayAttendance={todayAttendance}
+            className="col-span-2 md:col-span-2"
+          />
+
+          <div className="bg-card border rounded-2xl p-4 flex flex-col justify-center shadow-sm col-span-1">
+            <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
+              Estimated Salary
+            </span>
+            <span className="text-xl md:text-2xl font-bold mt-1">
+              ₱{currentEmployeeSalary.toLocaleString()}
+            </span>
+          </div>
+
+          <div className="bg-card border rounded-2xl p-4 flex flex-col justify-center shadow-sm col-span-1">
+            <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
+              Served today
+            </span>
+            <span className="text-xl md:text-2xl font-bold mt-1 text-green-600">
+              {
+                servedHistory.filter((s) => {
+                  const today = new Date();
+                  const date = new Date(s.updated_at);
+                  return (
+                    date.getDate() === today.getDate() &&
+                    date.getMonth() === today.getMonth() &&
+                    date.getFullYear() === today.getFullYear()
+                  );
+                }).length
+              }
+            </span>
+          </div>
+
+          <div className="bg-card border rounded-2xl p-4 flex flex-col justify-center shadow-sm col-span-2 md:col-span-1">
+            <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
+              Queue
+            </span>
+            <span className="text-xl md:text-2xl font-bold mt-1 text-blue-600">
+              {pendingServices.length}
+            </span>
+          </div>
+        </section>
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          <section className="lg:col-span-7 space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-base font-semibold text-foreground">
+                Queue / Pending
+              </h2>
+              <span className="text-xs bg-muted px-2 py-1 rounded-full text-muted-foreground">
+                {pendingServices.length} waiting
+              </span>
+            </div>
+
+            <div className="-mx-4 md:mx-0">
+              <PendingServicesList
+                services={pendingServices}
+                businessSlug={businessSlug}
+                currentEmployeeId={currentEmployeeId}
+              />
+            </div>
+          </section>
+
+          <section className="lg:col-span-5 space-y-4">
+            <h2 className="text-base font-semibold text-foreground">
+              Recent Activity
+            </h2>
+            <div className="-mx-4 md:mx-0">
+              <EmployeeServedHistory
+                services={servedHistory}
+                currentEmployeeId={currentEmployeeId}
+                currentEmployeeCommission={currentEmployeeCommission}
+              />
+            </div>
+          </section>
+        </div>
+      </div>
     </main>
   );
 }

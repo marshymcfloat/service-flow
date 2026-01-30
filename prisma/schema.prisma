@@ -91,7 +91,7 @@ model Employee {
   user    User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
   salary Float
   commission_percentage Float @default(0)
-  daily_salary Float @default(0)
+  daily_rate Float @default(0)
   attendance EmployeeAttendance[]
 
 

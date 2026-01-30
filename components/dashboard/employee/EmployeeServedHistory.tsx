@@ -1,6 +1,5 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatPH } from "@/lib/date-utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -144,126 +143,96 @@ export default function EmployeeServedHistory({
 
   return (
     <>
-      <Card className="h-full lg:max-h-[500px] overflow-y-auto border-zinc-50 shadow-[0_20px_40px_-12px_rgba(0,0,0,0.05)] flex flex-col overflow-hidden rounded-[30px] hover:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.1)] transition-shadow duration-300">
-        <CardHeader>
-          <CardTitle className="text-lg font-medium">
-            My Served History
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="flex-1 overflow-y-auto">
-          <div className="space-y-4">
-            {services.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full py-12 text-center space-y-3 opacity-60">
-                <div className="bg-muted p-4 rounded-full">
-                  <History className="w-8 h-8 text-muted-foreground" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-lg">No served history</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Completed services will appear here.
-                  </p>
-                </div>
+      <div className="h-full flex flex-col">
+        <div className="space-y-3">
+          {services.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-12 text-center space-y-3 opacity-60 bg-muted/30 rounded-2xl border border-dashed">
+              <div className="bg-muted p-4 rounded-full">
+                <History className="w-8 h-8 text-muted-foreground" />
               </div>
-            ) : (
-              services.map((item) => {
-                const customerInitials = item.booking.customer.name
-                  .split(" ")
-                  .map((n) => n[0])
-                  .join("")
-                  .toUpperCase()
-                  .slice(0, 2);
+              <div>
+                <h3 className="font-semibold text-lg">No served history</h3>
+                <p className="text-sm text-muted-foreground">
+                  Completed services will appear here.
+                </p>
+              </div>
+            </div>
+          ) : (
+            services.map((item) => {
+              const customerInitials = item.booking.customer.name
+                .split(" ")
+                .map((n) => n[0])
+                .join("")
+                .toUpperCase()
+                .slice(0, 2);
 
-                return (
-                  <div
-                    key={item.id}
-                    className="flex items-center justify-between p-4 border rounded-xl hover:bg-muted/40 transition-colors bg-card cursor-pointer group"
-                    onClick={() => setSelectedService(item)}
-                  >
-                    <div className="flex items-center gap-4">
-                      <Avatar className="h-10 w-10 border">
-                        <AvatarFallback className="bg-primary/5 text-primary/80 font-medium">
-                          {customerInitials}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="space-y-1">
-                        <div className="font-semibold flex items-center gap-2">
-                          {item.service.name}
-                        </div>
-                        <div className="text-sm text-muted-foreground flex items-center gap-2">
-                          <span className="flex items-center gap-1">
-                            <User className="w-3 h-3" />
-                            {item.booking.customer.name}
-                          </span>
-                          <span className="text-xs text-muted-foreground/50">
-                            •
-                          </span>
-                          <span className="flex items-center gap-1 text-xs">
-                            <Calendar className="w-3 h-3" />
-                            {item.scheduled_at
-                              ? formatPH(item.scheduled_at, "MMM d, h:mm a")
-                              : "Unscheduled"}
-                          </span>
-                        </div>
+              return (
+                <div
+                  key={item.id}
+                  className="flex items-center justify-between p-4 m-2 bg-card border rounded-2xl shadow-sm hover:shadow-md transition-all cursor-pointer group active:scale-[0.98]"
+                  onClick={() => setSelectedService(item)}
+                >
+                  <div className="flex items-center gap-4 ">
+                    <Avatar className="h-10 w-10 border border-border">
+                      <AvatarFallback className="bg-primary/5 text-primary/80 font-medium">
+                        {customerInitials}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="space-y-1">
+                      <div className="font-semibold text-base flex items-center gap-2">
+                        {item.service.name}
                       </div>
-                    </div>
-
-                    <div className="flex flex-col items-end gap-2">
-                      <div className="font-bold text-sm">
-                        ₱{item.price.toLocaleString()}
+                      <div className="text-sm text-muted-foreground flex items-center gap-2 flex-wrap">
+                        <span className="flex items-center gap-1 font-medium text-foreground/80">
+                          {item.booking.customer.name}
+                        </span>
+                        <span className="text-xs text-muted-foreground/30 hidden md:inline">
+                          •
+                        </span>
+                        <span className="flex items-center gap-1 text-xs bg-muted px-1.5 py-0.5 rounded-md">
+                          <Calendar className="w-3 h-3" />
+                          {item.scheduled_at
+                            ? formatPH(item.scheduled_at, "MMM d, h:mm a")
+                            : "Unscheduled"}
+                        </span>
                       </div>
-                      {item.status === "CLAIMED" ? (
-                        <div className="flex items-center gap-2">
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              requestUnclaim(item.id);
-                            }}
-                            disabled={loadingId === item.id}
-                            className="h-7 w-7 text-muted-foreground hover:text-red-500"
-                          >
-                            <RotateCcw className="h-3 w-3" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleMarkAsServed(item.id);
-                            }}
-                            disabled={loadingId === item.id}
-                            className="bg-green-600 hover:bg-green-700 text-white h-7 text-xs"
-                          >
-                            {loadingId === item.id ? (
-                              <Loader2 className="mr-2 h-3 w-3 animate-spin" />
-                            ) : (
-                              <CheckCircle2 className="mr-1.5 h-3 w-3" />
-                            )}
-                            Mark Served
-                          </Button>
-                        </div>
-                      ) : (
-                        <Badge
-                          variant="secondary"
-                          className="bg-green-50 text-green-700 border-green-200"
-                        >
-                          {item.status}
-                        </Badge>
-                      )}
                     </div>
                   </div>
-                );
-              })
-            )}
-          </div>
-        </CardContent>
-      </Card>
+
+                  <div className="flex flex-col items-end gap-2">
+                    <span className="font-bold text-sm">
+                      ₱{item.price.toLocaleString()}
+                    </span>
+                    {item.status === "CLAIMED" ? (
+                      <div className="flex items-center gap-2">
+                        <Badge
+                          variant="outline"
+                          className="bg-blue-50 text-blue-700 border-blue-200"
+                        >
+                          Serving
+                        </Badge>
+                      </div>
+                    ) : (
+                      <Badge
+                        variant="secondary"
+                        className="bg-green-50 text-green-700 border-green-200"
+                      >
+                        {item.status}
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+      </div>
 
       <Dialog
         open={!!selectedService}
         onOpenChange={(open) => !open && setSelectedService(null)}
       >
-        <DialogContent>
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Service Details</DialogTitle>
             <DialogDescription>
@@ -336,10 +305,10 @@ export default function EmployeeServedHistory({
               </div>
 
               {selectedService.status === "CLAIMED" && (
-                <div className="flex gap-2">
+                <div className="flex gap-2 pt-2">
                   <Button
                     variant="outline"
-                    className="flex-1 text-red-600 hover:text-red-700 hover:bg-red-50"
+                    className="flex-1 text-red-600 hover:text-red-700 hover:bg-red-50 h-11"
                     onClick={() => requestUnclaim(selectedService.id)}
                     disabled={loadingId === selectedService.id}
                   >
@@ -351,7 +320,7 @@ export default function EmployeeServedHistory({
                     Unclaim
                   </Button>
                   <Button
-                    className="flex-2 bg-green-600 hover:bg-green-700 text-white"
+                    className="flex-2 bg-green-600 hover:bg-green-700 text-white h-11"
                     onClick={() => {
                       handleMarkAsServed(selectedService.id);
                       setSelectedService(null);
@@ -368,7 +337,7 @@ export default function EmployeeServedHistory({
               {selectedService.status === "COMPLETED" && (
                 <Button
                   variant="outline"
-                  className="w-full text-orange-600 hover:text-orange-700 hover:bg-orange-50"
+                  className="w-full text-orange-600 hover:text-orange-700 hover:bg-orange-50 h-11"
                   onClick={() => requestUnserve(selectedService.id)}
                   disabled={loadingId === selectedService.id}
                 >

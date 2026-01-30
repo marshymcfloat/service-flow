@@ -12,9 +12,7 @@ export default async function LandingFooter() {
           <div className="size-6 bg-green-600/20 rounded-md flex items-center justify-center">
             <span className="text-green-700 font-bold text-xs">S</span>
           </div>
-          <span className="font-semibold text-lg tracking-tight">
-            ServiceFlow
-          </span>
+          <span className="font-semibold text-lg tracking-tight">Staflow</span>
         </div>
         <p className="text-sm text-muted-foreground">
           &copy; {year} ServiceFlow. All rights reserved.

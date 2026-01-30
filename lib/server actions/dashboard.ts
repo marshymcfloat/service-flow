@@ -75,7 +75,7 @@ export async function claimServiceAction(
       },
     });
 
-    revalidatePath("/[businessSlug]");
+    revalidatePath("/[businessSlug]", "page");
     return { success: true, data: result };
   } catch (error) {
     console.error("Error claiming service:", error);
@@ -94,7 +94,7 @@ export async function unclaimServiceAction(serviceId: number) {
       },
     });
 
-    revalidatePath("/[businessSlug]");
+    revalidatePath("/[businessSlug]", "page");
     return { success: true, data: result };
   } catch (error) {
     console.error("Error unclaiming service:", error);
@@ -171,7 +171,7 @@ export async function markServiceServedAction(
       return updatedService;
     });
 
-    revalidatePath("/[businessSlug]");
+    revalidatePath("/[businessSlug]", "page");
     return { success: true, data: result };
   } catch (error) {
     console.error("Error marking service as served:", error);
@@ -233,7 +233,7 @@ export async function unserveServiceAction(serviceId: number) {
       return updatedService;
     });
 
-    revalidatePath("/[businessSlug]");
+    revalidatePath("/[businessSlug]", "page");
     return { success: true, data: result };
   } catch (error) {
     console.error("Error unserving service:", error);
@@ -250,7 +250,7 @@ export async function updateBookingStatusAction(
       where: { id: bookingId },
       data: { status },
     });
-    revalidatePath("/[businessSlug]");
+    revalidatePath("/[businessSlug]", "page");
     return { success: true };
   } catch (error) {
     return { success: false, error: "Failed to update status" };
@@ -267,7 +267,7 @@ export async function deleteBookingAction(bookingId: number) {
     await prisma.booking.delete({
       where: { id: bookingId },
     });
-    revalidatePath("/[businessSlug]");
+    revalidatePath("/[businessSlug]", "page");
     return { success: true };
   } catch (error) {
     return { success: false, error: "Failed to delete" };

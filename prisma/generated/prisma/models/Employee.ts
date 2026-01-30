@@ -30,14 +30,14 @@ export type EmployeeAvgAggregateOutputType = {
   id: number | null
   salary: number | null
   commission_percentage: number | null
-  daily_salary: number | null
+  daily_rate: number | null
 }
 
 export type EmployeeSumAggregateOutputType = {
   id: number | null
   salary: number | null
   commission_percentage: number | null
-  daily_salary: number | null
+  daily_rate: number | null
 }
 
 export type EmployeeMinAggregateOutputType = {
@@ -45,7 +45,7 @@ export type EmployeeMinAggregateOutputType = {
   user_id: string | null
   salary: number | null
   commission_percentage: number | null
-  daily_salary: number | null
+  daily_rate: number | null
   business_id: string | null
 }
 
@@ -54,7 +54,7 @@ export type EmployeeMaxAggregateOutputType = {
   user_id: string | null
   salary: number | null
   commission_percentage: number | null
-  daily_salary: number | null
+  daily_rate: number | null
   business_id: string | null
 }
 
@@ -63,7 +63,7 @@ export type EmployeeCountAggregateOutputType = {
   user_id: number
   salary: number
   commission_percentage: number
-  daily_salary: number
+  daily_rate: number
   business_id: number
   _all: number
 }
@@ -73,14 +73,14 @@ export type EmployeeAvgAggregateInputType = {
   id?: true
   salary?: true
   commission_percentage?: true
-  daily_salary?: true
+  daily_rate?: true
 }
 
 export type EmployeeSumAggregateInputType = {
   id?: true
   salary?: true
   commission_percentage?: true
-  daily_salary?: true
+  daily_rate?: true
 }
 
 export type EmployeeMinAggregateInputType = {
@@ -88,7 +88,7 @@ export type EmployeeMinAggregateInputType = {
   user_id?: true
   salary?: true
   commission_percentage?: true
-  daily_salary?: true
+  daily_rate?: true
   business_id?: true
 }
 
@@ -97,7 +97,7 @@ export type EmployeeMaxAggregateInputType = {
   user_id?: true
   salary?: true
   commission_percentage?: true
-  daily_salary?: true
+  daily_rate?: true
   business_id?: true
 }
 
@@ -106,7 +106,7 @@ export type EmployeeCountAggregateInputType = {
   user_id?: true
   salary?: true
   commission_percentage?: true
-  daily_salary?: true
+  daily_rate?: true
   business_id?: true
   _all?: true
 }
@@ -202,7 +202,7 @@ export type EmployeeGroupByOutputType = {
   user_id: string
   salary: number
   commission_percentage: number
-  daily_salary: number
+  daily_rate: number
   business_id: string
   _count: EmployeeCountAggregateOutputType | null
   _avg: EmployeeAvgAggregateOutputType | null
@@ -234,7 +234,7 @@ export type EmployeeWhereInput = {
   user_id?: Prisma.StringFilter<"Employee"> | string
   salary?: Prisma.FloatFilter<"Employee"> | number
   commission_percentage?: Prisma.FloatFilter<"Employee"> | number
-  daily_salary?: Prisma.FloatFilter<"Employee"> | number
+  daily_rate?: Prisma.FloatFilter<"Employee"> | number
   business_id?: Prisma.StringFilter<"Employee"> | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   attendance?: Prisma.EmployeeAttendanceListRelationFilter
@@ -248,7 +248,7 @@ export type EmployeeOrderByWithRelationInput = {
   user_id?: Prisma.SortOrder
   salary?: Prisma.SortOrder
   commission_percentage?: Prisma.SortOrder
-  daily_salary?: Prisma.SortOrder
+  daily_rate?: Prisma.SortOrder
   business_id?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
   attendance?: Prisma.EmployeeAttendanceOrderByRelationAggregateInput
@@ -266,7 +266,7 @@ export type EmployeeWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.EmployeeWhereInput | Prisma.EmployeeWhereInput[]
   salary?: Prisma.FloatFilter<"Employee"> | number
   commission_percentage?: Prisma.FloatFilter<"Employee"> | number
-  daily_salary?: Prisma.FloatFilter<"Employee"> | number
+  daily_rate?: Prisma.FloatFilter<"Employee"> | number
   business_id?: Prisma.StringFilter<"Employee"> | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   attendance?: Prisma.EmployeeAttendanceListRelationFilter
@@ -280,7 +280,7 @@ export type EmployeeOrderByWithAggregationInput = {
   user_id?: Prisma.SortOrder
   salary?: Prisma.SortOrder
   commission_percentage?: Prisma.SortOrder
-  daily_salary?: Prisma.SortOrder
+  daily_rate?: Prisma.SortOrder
   business_id?: Prisma.SortOrder
   _count?: Prisma.EmployeeCountOrderByAggregateInput
   _avg?: Prisma.EmployeeAvgOrderByAggregateInput
@@ -297,14 +297,14 @@ export type EmployeeScalarWhereWithAggregatesInput = {
   user_id?: Prisma.StringWithAggregatesFilter<"Employee"> | string
   salary?: Prisma.FloatWithAggregatesFilter<"Employee"> | number
   commission_percentage?: Prisma.FloatWithAggregatesFilter<"Employee"> | number
-  daily_salary?: Prisma.FloatWithAggregatesFilter<"Employee"> | number
+  daily_rate?: Prisma.FloatWithAggregatesFilter<"Employee"> | number
   business_id?: Prisma.StringWithAggregatesFilter<"Employee"> | string
 }
 
 export type EmployeeCreateInput = {
   salary: number
   commission_percentage?: number
-  daily_salary?: number
+  daily_rate?: number
   user: Prisma.UserCreateNestedOneWithoutEmployeeInput
   attendance?: Prisma.EmployeeAttendanceCreateNestedManyWithoutEmployeeInput
   served_services?: Prisma.AvailedServiceCreateNestedManyWithoutServed_byInput
@@ -317,7 +317,7 @@ export type EmployeeUncheckedCreateInput = {
   user_id: string
   salary: number
   commission_percentage?: number
-  daily_salary?: number
+  daily_rate?: number
   business_id: string
   attendance?: Prisma.EmployeeAttendanceUncheckedCreateNestedManyWithoutEmployeeInput
   served_services?: Prisma.AvailedServiceUncheckedCreateNestedManyWithoutServed_byInput
@@ -327,7 +327,7 @@ export type EmployeeUncheckedCreateInput = {
 export type EmployeeUpdateInput = {
   salary?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
-  daily_salary?: Prisma.FloatFieldUpdateOperationsInput | number
+  daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
   user?: Prisma.UserUpdateOneRequiredWithoutEmployeeNestedInput
   attendance?: Prisma.EmployeeAttendanceUpdateManyWithoutEmployeeNestedInput
   served_services?: Prisma.AvailedServiceUpdateManyWithoutServed_byNestedInput
@@ -340,7 +340,7 @@ export type EmployeeUncheckedUpdateInput = {
   user_id?: Prisma.StringFieldUpdateOperationsInput | string
   salary?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
-  daily_salary?: Prisma.FloatFieldUpdateOperationsInput | number
+  daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
   business_id?: Prisma.StringFieldUpdateOperationsInput | string
   attendance?: Prisma.EmployeeAttendanceUncheckedUpdateManyWithoutEmployeeNestedInput
   served_services?: Prisma.AvailedServiceUncheckedUpdateManyWithoutServed_byNestedInput
@@ -352,14 +352,14 @@ export type EmployeeCreateManyInput = {
   user_id: string
   salary: number
   commission_percentage?: number
-  daily_salary?: number
+  daily_rate?: number
   business_id: string
 }
 
 export type EmployeeUpdateManyMutationInput = {
   salary?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
-  daily_salary?: Prisma.FloatFieldUpdateOperationsInput | number
+  daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
 }
 
 export type EmployeeUncheckedUpdateManyInput = {
@@ -367,7 +367,7 @@ export type EmployeeUncheckedUpdateManyInput = {
   user_id?: Prisma.StringFieldUpdateOperationsInput | string
   salary?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
-  daily_salary?: Prisma.FloatFieldUpdateOperationsInput | number
+  daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
   business_id?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
@@ -396,7 +396,7 @@ export type EmployeeCountOrderByAggregateInput = {
   user_id?: Prisma.SortOrder
   salary?: Prisma.SortOrder
   commission_percentage?: Prisma.SortOrder
-  daily_salary?: Prisma.SortOrder
+  daily_rate?: Prisma.SortOrder
   business_id?: Prisma.SortOrder
 }
 
@@ -404,7 +404,7 @@ export type EmployeeAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
   salary?: Prisma.SortOrder
   commission_percentage?: Prisma.SortOrder
-  daily_salary?: Prisma.SortOrder
+  daily_rate?: Prisma.SortOrder
 }
 
 export type EmployeeMaxOrderByAggregateInput = {
@@ -412,7 +412,7 @@ export type EmployeeMaxOrderByAggregateInput = {
   user_id?: Prisma.SortOrder
   salary?: Prisma.SortOrder
   commission_percentage?: Prisma.SortOrder
-  daily_salary?: Prisma.SortOrder
+  daily_rate?: Prisma.SortOrder
   business_id?: Prisma.SortOrder
 }
 
@@ -421,7 +421,7 @@ export type EmployeeMinOrderByAggregateInput = {
   user_id?: Prisma.SortOrder
   salary?: Prisma.SortOrder
   commission_percentage?: Prisma.SortOrder
-  daily_salary?: Prisma.SortOrder
+  daily_rate?: Prisma.SortOrder
   business_id?: Prisma.SortOrder
 }
 
@@ -429,7 +429,7 @@ export type EmployeeSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   salary?: Prisma.SortOrder
   commission_percentage?: Prisma.SortOrder
-  daily_salary?: Prisma.SortOrder
+  daily_rate?: Prisma.SortOrder
 }
 
 export type EmployeeScalarRelationFilter = {
@@ -558,7 +558,7 @@ export type EmployeeUpdateOneWithoutServed_servicesNestedInput = {
 export type EmployeeCreateWithoutBusinessInput = {
   salary: number
   commission_percentage?: number
-  daily_salary?: number
+  daily_rate?: number
   user: Prisma.UserCreateNestedOneWithoutEmployeeInput
   attendance?: Prisma.EmployeeAttendanceCreateNestedManyWithoutEmployeeInput
   served_services?: Prisma.AvailedServiceCreateNestedManyWithoutServed_byInput
@@ -570,7 +570,7 @@ export type EmployeeUncheckedCreateWithoutBusinessInput = {
   user_id: string
   salary: number
   commission_percentage?: number
-  daily_salary?: number
+  daily_rate?: number
   attendance?: Prisma.EmployeeAttendanceUncheckedCreateNestedManyWithoutEmployeeInput
   served_services?: Prisma.AvailedServiceUncheckedCreateNestedManyWithoutServed_byInput
   payslips?: Prisma.PayslipUncheckedCreateNestedManyWithoutEmployeeInput
@@ -610,14 +610,14 @@ export type EmployeeScalarWhereInput = {
   user_id?: Prisma.StringFilter<"Employee"> | string
   salary?: Prisma.FloatFilter<"Employee"> | number
   commission_percentage?: Prisma.FloatFilter<"Employee"> | number
-  daily_salary?: Prisma.FloatFilter<"Employee"> | number
+  daily_rate?: Prisma.FloatFilter<"Employee"> | number
   business_id?: Prisma.StringFilter<"Employee"> | string
 }
 
 export type EmployeeCreateWithoutUserInput = {
   salary: number
   commission_percentage?: number
-  daily_salary?: number
+  daily_rate?: number
   attendance?: Prisma.EmployeeAttendanceCreateNestedManyWithoutEmployeeInput
   served_services?: Prisma.AvailedServiceCreateNestedManyWithoutServed_byInput
   payslips?: Prisma.PayslipCreateNestedManyWithoutEmployeeInput
@@ -628,7 +628,7 @@ export type EmployeeUncheckedCreateWithoutUserInput = {
   id?: number
   salary: number
   commission_percentage?: number
-  daily_salary?: number
+  daily_rate?: number
   business_id: string
   attendance?: Prisma.EmployeeAttendanceUncheckedCreateNestedManyWithoutEmployeeInput
   served_services?: Prisma.AvailedServiceUncheckedCreateNestedManyWithoutServed_byInput
@@ -654,7 +654,7 @@ export type EmployeeUpdateToOneWithWhereWithoutUserInput = {
 export type EmployeeUpdateWithoutUserInput = {
   salary?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
-  daily_salary?: Prisma.FloatFieldUpdateOperationsInput | number
+  daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
   attendance?: Prisma.EmployeeAttendanceUpdateManyWithoutEmployeeNestedInput
   served_services?: Prisma.AvailedServiceUpdateManyWithoutServed_byNestedInput
   payslips?: Prisma.PayslipUpdateManyWithoutEmployeeNestedInput
@@ -665,7 +665,7 @@ export type EmployeeUncheckedUpdateWithoutUserInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   salary?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
-  daily_salary?: Prisma.FloatFieldUpdateOperationsInput | number
+  daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
   business_id?: Prisma.StringFieldUpdateOperationsInput | string
   attendance?: Prisma.EmployeeAttendanceUncheckedUpdateManyWithoutEmployeeNestedInput
   served_services?: Prisma.AvailedServiceUncheckedUpdateManyWithoutServed_byNestedInput
@@ -675,7 +675,7 @@ export type EmployeeUncheckedUpdateWithoutUserInput = {
 export type EmployeeCreateWithoutAttendanceInput = {
   salary: number
   commission_percentage?: number
-  daily_salary?: number
+  daily_rate?: number
   user: Prisma.UserCreateNestedOneWithoutEmployeeInput
   served_services?: Prisma.AvailedServiceCreateNestedManyWithoutServed_byInput
   payslips?: Prisma.PayslipCreateNestedManyWithoutEmployeeInput
@@ -687,7 +687,7 @@ export type EmployeeUncheckedCreateWithoutAttendanceInput = {
   user_id: string
   salary: number
   commission_percentage?: number
-  daily_salary?: number
+  daily_rate?: number
   business_id: string
   served_services?: Prisma.AvailedServiceUncheckedCreateNestedManyWithoutServed_byInput
   payslips?: Prisma.PayslipUncheckedCreateNestedManyWithoutEmployeeInput
@@ -712,7 +712,7 @@ export type EmployeeUpdateToOneWithWhereWithoutAttendanceInput = {
 export type EmployeeUpdateWithoutAttendanceInput = {
   salary?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
-  daily_salary?: Prisma.FloatFieldUpdateOperationsInput | number
+  daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
   user?: Prisma.UserUpdateOneRequiredWithoutEmployeeNestedInput
   served_services?: Prisma.AvailedServiceUpdateManyWithoutServed_byNestedInput
   payslips?: Prisma.PayslipUpdateManyWithoutEmployeeNestedInput
@@ -724,7 +724,7 @@ export type EmployeeUncheckedUpdateWithoutAttendanceInput = {
   user_id?: Prisma.StringFieldUpdateOperationsInput | string
   salary?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
-  daily_salary?: Prisma.FloatFieldUpdateOperationsInput | number
+  daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
   business_id?: Prisma.StringFieldUpdateOperationsInput | string
   served_services?: Prisma.AvailedServiceUncheckedUpdateManyWithoutServed_byNestedInput
   payslips?: Prisma.PayslipUncheckedUpdateManyWithoutEmployeeNestedInput
@@ -733,7 +733,7 @@ export type EmployeeUncheckedUpdateWithoutAttendanceInput = {
 export type EmployeeCreateWithoutPayslipsInput = {
   salary: number
   commission_percentage?: number
-  daily_salary?: number
+  daily_rate?: number
   user: Prisma.UserCreateNestedOneWithoutEmployeeInput
   attendance?: Prisma.EmployeeAttendanceCreateNestedManyWithoutEmployeeInput
   served_services?: Prisma.AvailedServiceCreateNestedManyWithoutServed_byInput
@@ -745,7 +745,7 @@ export type EmployeeUncheckedCreateWithoutPayslipsInput = {
   user_id: string
   salary: number
   commission_percentage?: number
-  daily_salary?: number
+  daily_rate?: number
   business_id: string
   attendance?: Prisma.EmployeeAttendanceUncheckedCreateNestedManyWithoutEmployeeInput
   served_services?: Prisma.AvailedServiceUncheckedCreateNestedManyWithoutServed_byInput
@@ -770,7 +770,7 @@ export type EmployeeUpdateToOneWithWhereWithoutPayslipsInput = {
 export type EmployeeUpdateWithoutPayslipsInput = {
   salary?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
-  daily_salary?: Prisma.FloatFieldUpdateOperationsInput | number
+  daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
   user?: Prisma.UserUpdateOneRequiredWithoutEmployeeNestedInput
   attendance?: Prisma.EmployeeAttendanceUpdateManyWithoutEmployeeNestedInput
   served_services?: Prisma.AvailedServiceUpdateManyWithoutServed_byNestedInput
@@ -782,7 +782,7 @@ export type EmployeeUncheckedUpdateWithoutPayslipsInput = {
   user_id?: Prisma.StringFieldUpdateOperationsInput | string
   salary?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
-  daily_salary?: Prisma.FloatFieldUpdateOperationsInput | number
+  daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
   business_id?: Prisma.StringFieldUpdateOperationsInput | string
   attendance?: Prisma.EmployeeAttendanceUncheckedUpdateManyWithoutEmployeeNestedInput
   served_services?: Prisma.AvailedServiceUncheckedUpdateManyWithoutServed_byNestedInput
@@ -791,7 +791,7 @@ export type EmployeeUncheckedUpdateWithoutPayslipsInput = {
 export type EmployeeCreateWithoutServed_servicesInput = {
   salary: number
   commission_percentage?: number
-  daily_salary?: number
+  daily_rate?: number
   user: Prisma.UserCreateNestedOneWithoutEmployeeInput
   attendance?: Prisma.EmployeeAttendanceCreateNestedManyWithoutEmployeeInput
   payslips?: Prisma.PayslipCreateNestedManyWithoutEmployeeInput
@@ -803,7 +803,7 @@ export type EmployeeUncheckedCreateWithoutServed_servicesInput = {
   user_id: string
   salary: number
   commission_percentage?: number
-  daily_salary?: number
+  daily_rate?: number
   business_id: string
   attendance?: Prisma.EmployeeAttendanceUncheckedCreateNestedManyWithoutEmployeeInput
   payslips?: Prisma.PayslipUncheckedCreateNestedManyWithoutEmployeeInput
@@ -828,7 +828,7 @@ export type EmployeeUpdateToOneWithWhereWithoutServed_servicesInput = {
 export type EmployeeUpdateWithoutServed_servicesInput = {
   salary?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
-  daily_salary?: Prisma.FloatFieldUpdateOperationsInput | number
+  daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
   user?: Prisma.UserUpdateOneRequiredWithoutEmployeeNestedInput
   attendance?: Prisma.EmployeeAttendanceUpdateManyWithoutEmployeeNestedInput
   payslips?: Prisma.PayslipUpdateManyWithoutEmployeeNestedInput
@@ -840,7 +840,7 @@ export type EmployeeUncheckedUpdateWithoutServed_servicesInput = {
   user_id?: Prisma.StringFieldUpdateOperationsInput | string
   salary?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
-  daily_salary?: Prisma.FloatFieldUpdateOperationsInput | number
+  daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
   business_id?: Prisma.StringFieldUpdateOperationsInput | string
   attendance?: Prisma.EmployeeAttendanceUncheckedUpdateManyWithoutEmployeeNestedInput
   payslips?: Prisma.PayslipUncheckedUpdateManyWithoutEmployeeNestedInput
@@ -851,13 +851,13 @@ export type EmployeeCreateManyBusinessInput = {
   user_id: string
   salary: number
   commission_percentage?: number
-  daily_salary?: number
+  daily_rate?: number
 }
 
 export type EmployeeUpdateWithoutBusinessInput = {
   salary?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
-  daily_salary?: Prisma.FloatFieldUpdateOperationsInput | number
+  daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
   user?: Prisma.UserUpdateOneRequiredWithoutEmployeeNestedInput
   attendance?: Prisma.EmployeeAttendanceUpdateManyWithoutEmployeeNestedInput
   served_services?: Prisma.AvailedServiceUpdateManyWithoutServed_byNestedInput
@@ -869,7 +869,7 @@ export type EmployeeUncheckedUpdateWithoutBusinessInput = {
   user_id?: Prisma.StringFieldUpdateOperationsInput | string
   salary?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
-  daily_salary?: Prisma.FloatFieldUpdateOperationsInput | number
+  daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
   attendance?: Prisma.EmployeeAttendanceUncheckedUpdateManyWithoutEmployeeNestedInput
   served_services?: Prisma.AvailedServiceUncheckedUpdateManyWithoutServed_byNestedInput
   payslips?: Prisma.PayslipUncheckedUpdateManyWithoutEmployeeNestedInput
@@ -880,7 +880,7 @@ export type EmployeeUncheckedUpdateManyWithoutBusinessInput = {
   user_id?: Prisma.StringFieldUpdateOperationsInput | string
   salary?: Prisma.FloatFieldUpdateOperationsInput | number
   commission_percentage?: Prisma.FloatFieldUpdateOperationsInput | number
-  daily_salary?: Prisma.FloatFieldUpdateOperationsInput | number
+  daily_rate?: Prisma.FloatFieldUpdateOperationsInput | number
 }
 
 
@@ -937,7 +937,7 @@ export type EmployeeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   user_id?: boolean
   salary?: boolean
   commission_percentage?: boolean
-  daily_salary?: boolean
+  daily_rate?: boolean
   business_id?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   attendance?: boolean | Prisma.Employee$attendanceArgs<ExtArgs>
@@ -952,7 +952,7 @@ export type EmployeeSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   user_id?: boolean
   salary?: boolean
   commission_percentage?: boolean
-  daily_salary?: boolean
+  daily_rate?: boolean
   business_id?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
@@ -963,7 +963,7 @@ export type EmployeeSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   user_id?: boolean
   salary?: boolean
   commission_percentage?: boolean
-  daily_salary?: boolean
+  daily_rate?: boolean
   business_id?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
@@ -974,11 +974,11 @@ export type EmployeeSelectScalar = {
   user_id?: boolean
   salary?: boolean
   commission_percentage?: boolean
-  daily_salary?: boolean
+  daily_rate?: boolean
   business_id?: boolean
 }
 
-export type EmployeeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "user_id" | "salary" | "commission_percentage" | "daily_salary" | "business_id", ExtArgs["result"]["employee"]>
+export type EmployeeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "user_id" | "salary" | "commission_percentage" | "daily_rate" | "business_id", ExtArgs["result"]["employee"]>
 export type EmployeeInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   attendance?: boolean | Prisma.Employee$attendanceArgs<ExtArgs>
@@ -1010,7 +1010,7 @@ export type $EmployeePayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     user_id: string
     salary: number
     commission_percentage: number
-    daily_salary: number
+    daily_rate: number
     business_id: string
   }, ExtArgs["result"]["employee"]>
   composites: {}
@@ -1444,7 +1444,7 @@ export interface EmployeeFieldRefs {
   readonly user_id: Prisma.FieldRef<"Employee", 'String'>
   readonly salary: Prisma.FieldRef<"Employee", 'Float'>
   readonly commission_percentage: Prisma.FieldRef<"Employee", 'Float'>
-  readonly daily_salary: Prisma.FieldRef<"Employee", 'Float'>
+  readonly daily_rate: Prisma.FieldRef<"Employee", 'Float'>
   readonly business_id: Prisma.FieldRef<"Employee", 'String'>
 }
     

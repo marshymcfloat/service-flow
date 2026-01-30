@@ -68,9 +68,28 @@ export default async function OwnerDashboardDataContainer({
     },
     include: {
       customer: true,
+      availed_services: {
+        include: {
+          service: true,
+          served_by: {
+            include: { user: true },
+          },
+        },
+      },
     },
     orderBy: {
       created_at: "desc",
+    },
+  });
+
+  const employees = await prisma.employee.findMany({
+    where: { business_id: business?.id },
+    include: {
+      user: true,
+      payslips: {
+        orderBy: { ending_date: "desc" },
+        take: 1,
+      },
     },
   });
 
@@ -84,6 +103,7 @@ export default async function OwnerDashboardDataContainer({
         presentEmployeesToday={presentEmployeesToday}
         bookings={allSuccessfulBookings}
         allBookings={allBookings}
+        employees={employees}
       />
     </>
   );

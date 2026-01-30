@@ -4,6 +4,10 @@ import { SidebarSkeleton } from "@/components/dashboard/SidebarSkeleton";
 import React from "react";
 import { Metadata } from "next";
 import { prisma } from "@/prisma/prisma";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/next auth/options";
+
+import { connection } from "next/server";
 
 type Props = {
   children: React.ReactNode;
@@ -24,13 +28,26 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default function AppLayout({
+async function AppLayoutContent({
   children,
   modal,
 }: {
   children: React.ReactNode;
   modal: React.ReactNode;
 }) {
+  await connection();
+  const session = await getServerSession(authOptions);
+  const isEmployee = session?.user?.role === "EMPLOYEE";
+
+  if (isEmployee) {
+    return (
+      <div className="bg-background min-h-screen">
+        {children}
+        {modal}
+      </div>
+    );
+  }
+
   return (
     <div className="bg-background">
       <SidebarProvider>
@@ -42,5 +59,19 @@ export default function AppLayout({
         {modal}
       </SidebarProvider>
     </div>
+  );
+}
+
+export default function AppLayout({
+  children,
+  modal,
+}: {
+  children: React.ReactNode;
+  modal: React.ReactNode;
+}) {
+  return (
+    <React.Suspense fallback={<SidebarSkeleton />}>
+      <AppLayoutContent children={children} modal={modal} />
+    </React.Suspense>
   );
 }

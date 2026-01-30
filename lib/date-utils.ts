@@ -44,7 +44,13 @@ export function getMonthRangePH(year: number, month: number) {
 
 export function formatPH(
   date: Date | string | null | undefined,
-  formatStr: "MMM d, h:mm a" | "h:mm a" | "PPP p" | "EEE",
+  formatStr:
+    | "MMM d, h:mm a"
+    | "h:mm a"
+    | "PPP p"
+    | "EEE"
+    | "MMMM d, yyyy"
+    | "MMM d, yyyy",
 ): string {
   if (!date) return "Unscheduled";
   const d = new Date(date);
@@ -87,6 +93,22 @@ export function formatPH(
       options = {
         ...options,
         weekday: "short",
+      };
+      break;
+    case "MMMM d, yyyy":
+      options = {
+        ...options,
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      };
+      break;
+    case "MMM d, yyyy":
+      options = {
+        ...options,
+        year: "numeric",
+        month: "short",
+        day: "numeric",
       };
       break;
   }

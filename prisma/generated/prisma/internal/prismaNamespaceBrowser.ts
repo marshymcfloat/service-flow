@@ -143,7 +143,7 @@ export const EmployeeScalarFieldEnum = {
   user_id: 'user_id',
   salary: 'salary',
   commission_percentage: 'commission_percentage',
-  daily_salary: 'daily_salary',
+  daily_rate: 'daily_rate',
   business_id: 'business_id'
 } as const
 

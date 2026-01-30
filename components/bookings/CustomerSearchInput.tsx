@@ -10,6 +10,7 @@ import { UseFormReturn } from "react-hook-form";
 import { CreateBookingTypes } from "@/lib/zod schemas/bookings";
 import { useState, useRef, useEffect } from "react";
 import { Button } from "../ui/button";
+import { useDebounce } from "@/hooks/use-debounce";
 
 export default function CustomerSearchInput({
   form,
@@ -17,13 +18,14 @@ export default function CustomerSearchInput({
   form: UseFormReturn<any>;
 }) {
   const [searchQuery, setSearchQuery] = useState("");
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
   const [showResults, setShowResults] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const { data, isLoading } = useQuery({
-    queryKey: ["customer", searchQuery],
-    queryFn: () => searchCustomer(searchQuery),
-    enabled: searchQuery.length > 0,
+    queryKey: ["customer", debouncedSearchQuery],
+    queryFn: () => searchCustomer(debouncedSearchQuery),
+    enabled: debouncedSearchQuery.length > 0,
   });
 
   useEffect(() => {

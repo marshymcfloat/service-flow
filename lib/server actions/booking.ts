@@ -6,6 +6,7 @@ import { createPayMongoCheckoutSession } from "./paymongo";
 import { prisma } from "@/prisma/prisma";
 import { PaymentMethod, PaymentType } from "@/lib/zod schemas/bookings";
 import { headers } from "next/headers";
+import { revalidatePath } from "next/cache";
 
 interface CreateBookingParams {
   customerId?: string;
@@ -70,6 +71,7 @@ export async function createBooking({
         paymentType,
       });
 
+      revalidatePath(`/app/${businessSlug}`);
       return `/app/${businessSlug}/bookings/${booking.id}?created=true`;
     }
 
@@ -130,6 +132,7 @@ export async function createBooking({
         paymentMethod,
         paymentType,
       });
+      revalidatePath(`/app/${businessSlug}`);
     }
 
     return checkoutUrl;

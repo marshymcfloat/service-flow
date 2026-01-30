@@ -4,8 +4,32 @@ import Link from "next/link";
 import DashboardCard from "../DashboardCard";
 
 import { SalesChart } from "./SalesChart";
-import { Booking, Customer } from "@/prisma/generated/prisma/client";
+import {
+  Booking,
+  Customer,
+  AvailedService,
+  Service,
+  Employee,
+  User,
+  Payslip,
+} from "@/prisma/generated/prisma/client";
+
 import { BookingList } from "./BookingList";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PayrollList } from "./PayrollList";
+
+type BookingWithDetails = Booking & {
+  customer: Customer;
+  availed_services: (AvailedService & {
+    service: Service;
+    served_by: (Employee & { user: User }) | null;
+  })[];
+};
+
+type EmployeeWithDetails = Employee & {
+  user: User;
+  payslips: Payslip[];
+};
 
 export default function OwnerDashboard({
   businessName,
@@ -15,6 +39,7 @@ export default function OwnerDashboard({
   presentEmployeesToday,
   bookings,
   allBookings,
+  employees,
 }: {
   businessName: string;
   businessSlug: string;
@@ -22,7 +47,8 @@ export default function OwnerDashboard({
   bookingsToday: number;
   presentEmployeesToday: number;
   bookings: { id: number; created_at: Date; grand_total: number }[];
-  allBookings: (Booking & { customer: Customer })[];
+  allBookings: BookingWithDetails[];
+  employees: EmployeeWithDetails[];
 }) {
   return (
     <main className="w-screen h-screen flex items-center justify-center p-4 md:p-8 lg:p-12 bg-zinc-50/50">
@@ -65,14 +91,31 @@ export default function OwnerDashboard({
             />
           </div>
 
-          <div className="grid grid-cols-1 xl:grid-cols-4 gap-6 h-[500px]">
-            <div className="xl:col-span-2 h-full">
-              <SalesChart bookings={bookings} className="h-full" />
+          <Tabs defaultValue="bookings" className="w-full h-full flex flex-col">
+            <div className="flex items-center justify-between mb-4">
+              <TabsList>
+                <TabsTrigger value="bookings">Bookings</TabsTrigger>
+                <TabsTrigger value="payroll">Payroll</TabsTrigger>
+              </TabsList>
             </div>
-            <div className="xl:col-span-2 h-full min-h-0 overflow-hidden">
-              <BookingList bookings={allBookings} />
-            </div>
-          </div>
+
+            <TabsContent value="bookings" className="flex-1 h-full mt-0">
+              <div className="grid grid-cols-1 xl:grid-cols-4 gap-6 h-[500px]">
+                <div className="xl:col-span-2 h-full">
+                  <SalesChart bookings={bookings} className="h-full" />
+                </div>
+                <div className="xl:col-span-2 h-full min-h-0 overflow-hidden">
+                  <BookingList bookings={allBookings} />
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="payroll" className="flex-1 h-full mt-0">
+              <div className="h-[500px]">
+                <PayrollList employees={employees} />
+              </div>
+            </TabsContent>
+          </Tabs>
         </div>
       </section>
     </main>

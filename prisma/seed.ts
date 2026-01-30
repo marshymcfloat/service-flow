@@ -342,13 +342,12 @@ async function main() {
       user_id: employeeUser.id,
       business_id: business.id,
       salary: 0,
-      daily_salary: 600,
+      daily_rate: 600,
       commission_percentage: 10,
     },
   });
   console.log(`Created employee: ${employeeUser.name}`);
 
-  // Create another employee
   const employeeUser2 = await prisma.user.create({
     data: {
       email: "joy@beautyfeel.com",
@@ -363,13 +362,12 @@ async function main() {
       user_id: employeeUser2.id,
       business_id: business.id,
       salary: 0,
-      daily_salary: 533,
+      daily_rate: 533,
       commission_percentage: 8,
     },
   });
   console.log(`Created employee: ${employeeUser2.name}`);
 
-  // Create sample customers
   const customers = [
     { name: "Sofia Cruz", email: "sofia@email.com", phone: "09171234567" },
     { name: "Camille Tan", email: "camille@email.com", phone: "09181234567" },

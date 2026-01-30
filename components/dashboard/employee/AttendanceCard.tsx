@@ -31,7 +31,8 @@ export default function AttendanceCard({
   employeeId,
   businessSlug,
   todayAttendance,
-}: AttendanceCardProps) {
+  className,
+}: AttendanceCardProps & { className?: string }) {
   const [loading, setLoading] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
   const [monthlyAttendance, setMonthlyAttendance] = useState<any[]>([]);
@@ -102,25 +103,24 @@ export default function AttendanceCard({
 
   return (
     <motion.div
-      layout
+      layout="position"
       transition={{ type: "spring", stiffness: 300, damping: 30 }}
-      className={`p-6 rounded-[30px] flex flex-col justify-between bg-white text-zinc-900 border border-zinc-50 shadow-[0_20px_40px_-12px_rgba(0,0,0,0.05)] relative overflow-hidden group hover:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.1)] transition-shadow duration-300 ${
-        showCalendar
-          ? "col-span-1 lg:col-span-2 row-span-2 h-auto"
-          : "h-[180px] min-w-[300px]"
-      }`}
+      className={`p-4 rounded-2xl flex flex-col justify-between  bg-card text-card-foreground border shadow-sm relative overflow-hidden transition-all duration-300 ${
+        showCalendar ? "row-span-2" : "min-h-[140px]"
+      } ${className}`}
     >
-      <motion.div
-        layout="position"
-        className="flex justify-between items-start w-full relative z-10 mb-4"
-      >
+      <div className="flex justify-between items-start w-full relative z-10 mb-4">
         <div>
-          <h3 className="font-medium text-lg leading-tight text-zinc-700">
+          <h3 className="font-medium text-sm text-muted-foreground uppercase tracking-wider">
             Attendance
           </h3>
-          <p className="text-zinc-400 text-sm">
+          <p className="text-xl font-bold mt-1">
             {new Date().toLocaleDateString("en-US", {
               weekday: "long",
+            })}
+          </p>
+          <p className="text-xs text-muted-foreground">
+            {new Date().toLocaleDateString("en-US", {
               day: "numeric",
               month: "short",
               year: "numeric",
@@ -128,25 +128,25 @@ export default function AttendanceCard({
           </p>
         </div>
         <motion.button
-          layout
+          layout="position"
           onClick={() => setShowCalendar(!showCalendar)}
-          className="size-10 rounded-full flex items-center justify-center border border-zinc-200 text-zinc-600 bg-white hover:bg-zinc-50 transition-colors"
+          className="size-8 rounded-full flex items-center justify-center border bg-background hover:bg-muted transition-colors"
         >
-          {showCalendar ? <MapPin size={20} /> : <CalendarDays size={20} />}
+          {showCalendar ? <MapPin size={16} /> : <CalendarDays size={16} />}
         </motion.button>
-      </motion.div>
+      </div>
 
-      <div className="flex flex-col md:flex-row gap-6 relative z-10">
-        <motion.div layout className="flex-1 space-y-4">
-          <motion.div layout className="flex items-center gap-2">
+      <div className="flex flex-col gap-6 relative z-10 h-full">
+        <div className="w-full space-y-4">
+          <div className="flex items-center gap-2">
             {isClockedOut ? (
               <div className="text-zinc-500 font-medium flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-zinc-400"></div>
                 Done for today
               </div>
             ) : isClockedIn ? (
-              <div className="flex items-center gap-2 text-green-600 font-medium animate-pulse">
-                <div className="w-2 h-2 rounded-full bg-green-600"></div>
+              <div className="text-green-600 font-medium flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-green-600 animate-pulse"></div>
                 Clocked In –{" "}
                 {todayAttendance?.time_in
                   ? new Date(todayAttendance.time_in).toLocaleTimeString(
@@ -161,10 +161,10 @@ export default function AttendanceCard({
                 Not started
               </div>
             )}
-          </motion.div>
+          </div>
 
           {!isClockedOut && (
-            <motion.div layout>
+            <div>
               <Button
                 onClick={isClockedIn ? handleClockOut : handleClockIn}
                 disabled={loading}
@@ -187,18 +187,18 @@ export default function AttendanceCard({
                     ? "Clock Out"
                     : "Clock In"}
               </Button>
-            </motion.div>
+            </div>
           )}
-        </motion.div>
+        </div>
 
         <AnimatePresence>
           {showCalendar && (
             <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 20 }}
-              transition={{ duration: 0.2 }}
-              className="w-full md:w-[320px] shrink-0 border-t md:border-t-0 md:border-l border-zinc-100 pt-6 md:pt-0 md:pl-6"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
+              className="w-full shrink-0 border-t border-zinc-100 pt-6 overflow-hidden"
             >
               <AttendanceCalendar
                 attendanceRecords={monthlyAttendance}
@@ -209,11 +209,6 @@ export default function AttendanceCard({
           )}
         </AnimatePresence>
       </div>
-
-      <motion.div
-        layout
-        className="absolute -bottom-6 -right-6 w-32 h-32 bg-zinc-50 rounded-full z-0 transition-transform duration-500 group-hover:scale-110"
-      />
     </motion.div>
   );
 }
