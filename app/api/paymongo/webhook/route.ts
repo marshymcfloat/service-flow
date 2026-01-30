@@ -32,8 +32,9 @@ export async function POST(req: Request) {
       paymentType,
     } = metadata;
 
-    if (!businessSlug || !customerId) {
-      console.error("Missing required metadata fields");
+    // Check required fields (customerId is optional for new customers)
+    if (!businessSlug) {
+      console.error("Missing required metadata fields: businessSlug");
       return new Response("Missing metadata", { status: 400 });
     }
 
