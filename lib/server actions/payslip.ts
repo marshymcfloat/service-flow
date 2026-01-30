@@ -7,6 +7,7 @@ import {
   BookingStatus,
   PayslipStatus,
 } from "@/prisma/generated/prisma/client";
+import { getStartOfDayPH } from "@/lib/date-utils";
 import { revalidatePath } from "next/cache";
 
 export async function getPayslipDataAction(employeeId: number) {
@@ -20,27 +21,18 @@ export async function getPayslipDataAction(employeeId: number) {
 
     if (!employee) throw new Error("Employee not found");
 
-    // 1. Determine Date Range
     const lastPayslip = await prisma.payslip.findFirst({
       where: { employee_id: employeeId },
       orderBy: { ending_date: "desc" },
     });
 
-    // Use strict PH time logic?
-    // Actually, timestamps in DB are UTC. We just need to make sure we compare correctly.
-    // If last payslip ended at T, we start from T (exclusive) or T + 1ms.
-    // We will use > last_payslip.ending_date.
-
     const startingDate = lastPayslip
       ? lastPayslip.ending_date
-      : employee.user.created_at; // Or some default start
+      : getStartOfDayPH(employee.user.created_at);
 
-    // For safety, if no payslip, use 1st of current month or join date?
-    // Plan said: derived from employee.created_at. Correct.
+    const { getEndOfDayPH } = await import("@/lib/date-utils");
+    const endingDate = getEndOfDayPH(new Date());
 
-    const endingDate = new Date(); // Now
-
-    // 2. Fetch Attendance (Days Present) within range
     const attendanceRecords = await prisma.employeeAttendance.findMany({
       where: {
         employee_id: employeeId,
@@ -53,10 +45,8 @@ export async function getPayslipDataAction(employeeId: number) {
     });
 
     const daysPresent = attendanceRecords.length;
-    const basicSalary = daysPresent * employee.daily_rate; // Using new daily_rate
+    const basicSalary = daysPresent * employee.daily_rate;
 
-    // 3. Fetch Commissions (Completed services by this employee in range)
-    // We look for AvailedService where served_by_id = employeeId AND completed_at in range
     const commissionServices = await prisma.availedService.findMany({
       where: {
         served_by_id: employeeId,
@@ -127,7 +117,7 @@ export async function createPayslipAction(data: {
         total_salary: data.totalSalary,
         deduction: data.deduction || 0,
         comment: data.comment,
-        status: PayslipStatus.PENDING, // Or PAID? Usually pending first.
+        status: PayslipStatus.PENDING,
       },
     });
 

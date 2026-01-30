@@ -1,6 +1,5 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-  Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
@@ -12,7 +11,7 @@ import {
 
 export function SidebarSkeleton() {
   return (
-    <Sidebar>
+    <div className="flex h-screen w-64 flex-col border-r bg-sidebar">
       <SidebarHeader>
         <Skeleton className="h-8 w-full rounded-md" />
       </SidebarHeader>
@@ -30,6 +29,6 @@ export function SidebarSkeleton() {
       <SidebarFooter>
         <Skeleton className="h-12 w-full rounded-md" />
       </SidebarFooter>
-    </Sidebar>
+    </div>
   );
 }

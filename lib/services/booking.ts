@@ -32,7 +32,6 @@ export async function createBookingInDb({
   paymentMethod,
   paymentType,
 }: BookingServiceParams) {
-  // Find Business
   const business = await prisma.business.findUnique({
     where: { slug: businessSlug },
   });
@@ -41,25 +40,32 @@ export async function createBookingInDb({
     throw new Error(`Business with slug ${businessSlug} not found`);
   }
 
-  // Handle Customer (Find or Create)
   let finalCustomerId = customerId;
   if (!finalCustomerId) {
-    // If no ID provided, we MUST create a new customer.
-    // This is the "lazy creation" logic: only create when we are sure we're booking.
-    const newCustomer = await prisma.customer.create({
-      data: {
-        name: customerName,
-        business_id: business.id,
+    const existingCustomer = await prisma.customer.findFirst({
+      where: {
+        AND: [
+          { business_id: business.id },
+          { name: { equals: customerName, mode: "insensitive" } },
+        ],
       },
     });
-    finalCustomerId = newCustomer.id;
+
+    if (existingCustomer) {
+      finalCustomerId = existingCustomer.id;
+    } else {
+      const newCustomer = await prisma.customer.create({
+        data: {
+          name: customerName,
+          business_id: business.id,
+        },
+      });
+      finalCustomerId = newCustomer.id;
+    }
   }
 
-  // Calculate total
   const total = services.reduce((acc, s) => acc + s.price * s.quantity, 0);
 
-  // Determine booking status - with new simplified model, everything starts as ACCEPTED
-  // The UI will handle "Balance Due" display based on paymentType.
   const isDownpayment = paymentType === "DOWNPAYMENT";
   const bookingStatus: "ACCEPTED" | "COMPLETED" = "ACCEPTED";
 
@@ -93,7 +99,6 @@ export async function createBookingInDb({
             serviceStart.getTime() + serviceDuration * s.quantity * 60 * 1000,
           );
 
-          // Determine claiming status
           const isClaimed = s.claimedByCurrentEmployee && !!currentEmployeeId;
           const serverId = isClaimed ? currentEmployeeId : employeeId;
           const status = isClaimed ? "CLAIMED" : "PENDING";

@@ -24,6 +24,9 @@ export default async function EmployeeDashboardDataContainer({
       },
       business_id: business?.id,
     },
+    include: {
+      user: true,
+    },
   });
 
   if (!employee || !business) {
@@ -70,12 +73,33 @@ export default async function EmployeeDashboardDataContainer({
     take: 20,
   });
 
-  const { checkAttendanceStatusAction } =
+  const { checkAttendanceStatusAction, getAttendanceCountAction } =
     await import("@/lib/server actions/attendance");
   const attendanceResult = await checkAttendanceStatusAction(employee.id);
   const todayAttendance = attendanceResult.success
     ? attendanceResult.data
     : null;
+
+  const { getStartOfDayPH } = await import("@/lib/date-utils");
+  const lastPayslip = await prisma.payslip.findFirst({
+    where: { employee_id: employee.id },
+    orderBy: { ending_date: "desc" },
+  });
+  const salaryStartDate = lastPayslip
+    ? lastPayslip.ending_date
+    : getStartOfDayPH(employee.user.created_at);
+
+  const attendanceCountResult = await getAttendanceCountAction(
+    employee.id,
+    salaryStartDate,
+    new Date(),
+  );
+  const daysPresent = attendanceCountResult.success
+    ? (attendanceCountResult.data ?? 0)
+    : 0;
+  const attendanceSalary = daysPresent * (employee.daily_rate || 0);
+
+  const totalEstimatedSalary = (employee.salary || 0) + attendanceSalary;
 
   return (
     <EmployeeDashboard
@@ -85,7 +109,7 @@ export default async function EmployeeDashboardDataContainer({
       pendingServices={pendingServices}
       currentEmployeeId={employee.id}
       currentEmployeeCommission={employee.commission_percentage}
-      currentEmployeeSalary={employee.salary}
+      currentEmployeeSalary={totalEstimatedSalary}
       todayAttendance={todayAttendance}
     />
   );
