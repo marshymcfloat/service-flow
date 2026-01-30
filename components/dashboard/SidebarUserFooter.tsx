@@ -29,8 +29,11 @@ import { signOut } from "next-auth/react";
 import { User } from "next-auth";
 
 interface SidebarUserFooterProps {
-  user: User & {
-    businessSlug?: string | null;
+  user: {
+    name?: string | null;
+    email?: string | null;
+    image?: string | null;
+    role?: string;
   };
 }
 

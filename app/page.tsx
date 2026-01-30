@@ -8,7 +8,7 @@ import { Suspense } from "react";
 
 export default function Home() {
   return (
-    <main className="min-h-screen w-full bg-background flex flex-col font-sans">
+    <main className="min-h-screen  w-full bg-background flex flex-col font-sans">
       <LandingHeader />
       <HeroSection />
       <FeaturesSection />

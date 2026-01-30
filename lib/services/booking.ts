@@ -11,6 +11,8 @@ export type BookingServiceParams = {
     quantity: number;
     duration?: number;
     claimedByCurrentEmployee?: boolean;
+    packageId?: number;
+    originalPrice?: number;
   }[];
   scheduledAt: Date;
   estimatedEnd: Date;
@@ -104,17 +106,23 @@ export async function createBookingInDb({
           const status = isClaimed ? "CLAIMED" : "PENDING";
           const claimedAt = isClaimed ? new Date() : null;
 
+          // Logic for packages
+          const originalPrice = s.originalPrice || s.price;
+          const finalPrice = s.price;
+          const discount = originalPrice - finalPrice;
+
           return {
             service_id: s.id,
-            price: s.price,
-            discount: 0,
-            final_price: s.price,
-            commission_base: s.price,
+            price: originalPrice,
+            discount: discount,
+            final_price: finalPrice,
+            commission_base: finalPrice,
             served_by_id: serverId,
             status: status,
             claimed_at: claimedAt,
             scheduled_at: serviceStart,
             estimated_end: serviceEnd,
+            package_id: s.packageId,
           };
         }),
       },

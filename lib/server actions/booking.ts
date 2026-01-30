@@ -23,6 +23,8 @@ interface CreateBookingParams {
     quantity: number;
     duration?: number;
     claimedByCurrentEmployee?: boolean;
+    packageId?: number;
+    originalPrice?: number;
   }[];
 }
 
@@ -101,6 +103,8 @@ export async function createBooking({
           quantity: s.quantity,
           duration: s.duration || 30,
           claimedByCurrentEmployee: s.claimedByCurrentEmployee,
+          packageId: s.packageId,
+          originalPrice: s.originalPrice,
         })),
       ),
     };

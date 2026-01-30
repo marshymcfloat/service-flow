@@ -82,29 +82,15 @@ export default async function OwnerDashboardDataContainer({
     },
   });
 
-  const employees = await prisma.employee.findMany({
-    where: { business_id: business?.id },
-    include: {
-      user: true,
-      payslips: {
-        orderBy: { ending_date: "desc" },
-        take: 1,
-      },
-    },
-  });
-
   return (
-    <>
-      <OwnerDashboard
-        businessName={business?.name || ""}
-        businessSlug={businessSlug}
-        totalSales={totalSales}
-        bookingsToday={bookingsTodayCount}
-        presentEmployeesToday={presentEmployeesToday}
-        bookings={allSuccessfulBookings}
-        allBookings={allBookings}
-        employees={employees}
-      />
-    </>
+    <OwnerDashboard
+      businessName={business?.name || ""}
+      businessSlug={businessSlug}
+      totalSales={totalSales}
+      bookingsToday={bookingsTodayCount}
+      presentEmployeesToday={presentEmployeesToday}
+      bookings={allSuccessfulBookings}
+      allBookings={allBookings}
+    />
   );
 }

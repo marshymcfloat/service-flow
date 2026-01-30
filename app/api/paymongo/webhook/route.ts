@@ -5,7 +5,6 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
 
-    // Verify the event type
     const eventType = body.data.attributes.type;
     if (eventType !== "checkout_session.payment.paid") {
       return new Response("Event ignored", { status: 200 });
@@ -32,7 +31,6 @@ export async function POST(req: Request) {
       paymentType,
     } = metadata;
 
-    // Check required fields (customerId is optional for new customers)
     if (!businessSlug) {
       console.error("Missing required metadata fields: businessSlug");
       return new Response("Missing metadata", { status: 400 });
