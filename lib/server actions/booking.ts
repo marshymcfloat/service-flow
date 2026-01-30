@@ -16,6 +16,7 @@ interface CreateBookingParams {
   employeeId?: number;
   paymentMethod: PaymentMethod;
   paymentType: PaymentType;
+  email?: string;
   services: {
     id: number;
     name: string;
@@ -38,6 +39,7 @@ export async function createBooking({
   paymentMethod,
   paymentType,
   services,
+  email,
 }: CreateBookingParams & { currentEmployeeId?: number }) {
   try {
     const total = services.reduce((sum, s) => s.price * s.quantity + sum, 0);
@@ -71,6 +73,7 @@ export async function createBooking({
         currentEmployeeId,
         paymentMethod: "CASH",
         paymentType,
+        email,
       });
 
       revalidatePath(`/app/${businessSlug}`);
@@ -139,6 +142,7 @@ export async function createBooking({
         currentEmployeeId,
         paymentMethod,
         paymentType,
+        email,
       });
       revalidatePath(`/app/${businessSlug}`);
     }

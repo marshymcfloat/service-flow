@@ -79,7 +79,9 @@ export default function BookingForm({
       employeeId:
         isEmployee && currentEmployeeId ? currentEmployeeId : undefined,
       paymentMethod: isEmployee ? "CASH" : "QRPH",
+
       paymentType: "FULL",
+      email: "",
     },
   });
 

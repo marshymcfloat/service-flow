@@ -270,6 +270,7 @@ export const BookingScalarFieldEnum = {
   downpayment_date: 'downpayment_date',
   scheduled_at: 'scheduled_at',
   estimated_end: 'estimated_end',
+  reminder_sent: 'reminder_sent',
   created_at: 'created_at',
   updated_at: 'updated_at'
 } as const

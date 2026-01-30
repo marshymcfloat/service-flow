@@ -19,7 +19,9 @@ export type BookingServiceParams = {
   employeeId?: number | null;
   currentEmployeeId?: number | null;
   paymentMethod: "CASH" | "QRPH";
+
   paymentType: "FULL" | "DOWNPAYMENT";
+  email?: string;
 };
 
 export async function createBookingInDb({
@@ -32,7 +34,9 @@ export async function createBookingInDb({
   employeeId,
   currentEmployeeId,
   paymentMethod,
+
   paymentType,
+  email,
 }: BookingServiceParams) {
   const business = await prisma.business.findUnique({
     where: { slug: businessSlug },
@@ -55,10 +59,18 @@ export async function createBookingInDb({
 
     if (existingCustomer) {
       finalCustomerId = existingCustomer.id;
+      // Update email if provided and not set
+      if (email && !existingCustomer.email) {
+        await prisma.customer.update({
+          where: { id: existingCustomer.id },
+          data: { email },
+        });
+      }
     } else {
       const newCustomer = await prisma.customer.create({
         data: {
           name: customerName,
+          email: email,
           business_id: business.id,
         },
       });

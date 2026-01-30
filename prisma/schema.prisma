@@ -258,6 +258,7 @@ model Booking {
   // Scheduling fields
   scheduled_at  DateTime?  // When the booking is scheduled to start
   estimated_end DateTime?  // Calculated from service durations
+  reminder_sent Boolean @default(false)
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt

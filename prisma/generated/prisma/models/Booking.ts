@@ -53,6 +53,7 @@ export type BookingMinAggregateOutputType = {
   downpayment_date: Date | null
   scheduled_at: Date | null
   estimated_end: Date | null
+  reminder_sent: boolean | null
   created_at: Date | null
   updated_at: Date | null
 }
@@ -70,6 +71,7 @@ export type BookingMaxAggregateOutputType = {
   downpayment_date: Date | null
   scheduled_at: Date | null
   estimated_end: Date | null
+  reminder_sent: boolean | null
   created_at: Date | null
   updated_at: Date | null
 }
@@ -87,6 +89,7 @@ export type BookingCountAggregateOutputType = {
   downpayment_date: number
   scheduled_at: number
   estimated_end: number
+  reminder_sent: number
   created_at: number
   updated_at: number
   _all: number
@@ -120,6 +123,7 @@ export type BookingMinAggregateInputType = {
   downpayment_date?: true
   scheduled_at?: true
   estimated_end?: true
+  reminder_sent?: true
   created_at?: true
   updated_at?: true
 }
@@ -137,6 +141,7 @@ export type BookingMaxAggregateInputType = {
   downpayment_date?: true
   scheduled_at?: true
   estimated_end?: true
+  reminder_sent?: true
   created_at?: true
   updated_at?: true
 }
@@ -154,6 +159,7 @@ export type BookingCountAggregateInputType = {
   downpayment_date?: true
   scheduled_at?: true
   estimated_end?: true
+  reminder_sent?: true
   created_at?: true
   updated_at?: true
   _all?: true
@@ -258,6 +264,7 @@ export type BookingGroupByOutputType = {
   downpayment_date: Date | null
   scheduled_at: Date | null
   estimated_end: Date | null
+  reminder_sent: boolean
   created_at: Date
   updated_at: Date
   _count: BookingCountAggregateOutputType | null
@@ -298,6 +305,7 @@ export type BookingWhereInput = {
   downpayment_date?: Prisma.DateTimeNullableFilter<"Booking"> | Date | string | null
   scheduled_at?: Prisma.DateTimeNullableFilter<"Booking"> | Date | string | null
   estimated_end?: Prisma.DateTimeNullableFilter<"Booking"> | Date | string | null
+  reminder_sent?: Prisma.BoolFilter<"Booking"> | boolean
   created_at?: Prisma.DateTimeFilter<"Booking"> | Date | string
   updated_at?: Prisma.DateTimeFilter<"Booking"> | Date | string
   customer?: Prisma.XOR<Prisma.CustomerScalarRelationFilter, Prisma.CustomerWhereInput>
@@ -319,6 +327,7 @@ export type BookingOrderByWithRelationInput = {
   downpayment_date?: Prisma.SortOrderInput | Prisma.SortOrder
   scheduled_at?: Prisma.SortOrderInput | Prisma.SortOrder
   estimated_end?: Prisma.SortOrderInput | Prisma.SortOrder
+  reminder_sent?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
   customer?: Prisma.CustomerOrderByWithRelationInput
@@ -343,6 +352,7 @@ export type BookingWhereUniqueInput = Prisma.AtLeast<{
   downpayment_date?: Prisma.DateTimeNullableFilter<"Booking"> | Date | string | null
   scheduled_at?: Prisma.DateTimeNullableFilter<"Booking"> | Date | string | null
   estimated_end?: Prisma.DateTimeNullableFilter<"Booking"> | Date | string | null
+  reminder_sent?: Prisma.BoolFilter<"Booking"> | boolean
   created_at?: Prisma.DateTimeFilter<"Booking"> | Date | string
   updated_at?: Prisma.DateTimeFilter<"Booking"> | Date | string
   customer?: Prisma.XOR<Prisma.CustomerScalarRelationFilter, Prisma.CustomerWhereInput>
@@ -364,6 +374,7 @@ export type BookingOrderByWithAggregationInput = {
   downpayment_date?: Prisma.SortOrderInput | Prisma.SortOrder
   scheduled_at?: Prisma.SortOrderInput | Prisma.SortOrder
   estimated_end?: Prisma.SortOrderInput | Prisma.SortOrder
+  reminder_sent?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
   _count?: Prisma.BookingCountOrderByAggregateInput
@@ -389,6 +400,7 @@ export type BookingScalarWhereWithAggregatesInput = {
   downpayment_date?: Prisma.DateTimeNullableWithAggregatesFilter<"Booking"> | Date | string | null
   scheduled_at?: Prisma.DateTimeNullableWithAggregatesFilter<"Booking"> | Date | string | null
   estimated_end?: Prisma.DateTimeNullableWithAggregatesFilter<"Booking"> | Date | string | null
+  reminder_sent?: Prisma.BoolWithAggregatesFilter<"Booking"> | boolean
   created_at?: Prisma.DateTimeWithAggregatesFilter<"Booking"> | Date | string
   updated_at?: Prisma.DateTimeWithAggregatesFilter<"Booking"> | Date | string
 }
@@ -403,6 +415,7 @@ export type BookingCreateInput = {
   downpayment_date?: Date | string | null
   scheduled_at?: Date | string | null
   estimated_end?: Date | string | null
+  reminder_sent?: boolean
   created_at?: Date | string
   updated_at?: Date | string
   customer: Prisma.CustomerCreateNestedOneWithoutBookingsInput
@@ -424,6 +437,7 @@ export type BookingUncheckedCreateInput = {
   downpayment_date?: Date | string | null
   scheduled_at?: Date | string | null
   estimated_end?: Date | string | null
+  reminder_sent?: boolean
   created_at?: Date | string
   updated_at?: Date | string
   vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutUsed_byInput
@@ -440,6 +454,7 @@ export type BookingUpdateInput = {
   downpayment_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   scheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   estimated_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminder_sent?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customer?: Prisma.CustomerUpdateOneRequiredWithoutBookingsNestedInput
@@ -461,6 +476,7 @@ export type BookingUncheckedUpdateInput = {
   downpayment_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   scheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   estimated_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminder_sent?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutUsed_byNestedInput
@@ -480,6 +496,7 @@ export type BookingCreateManyInput = {
   downpayment_date?: Date | string | null
   scheduled_at?: Date | string | null
   estimated_end?: Date | string | null
+  reminder_sent?: boolean
   created_at?: Date | string
   updated_at?: Date | string
 }
@@ -494,6 +511,7 @@ export type BookingUpdateManyMutationInput = {
   downpayment_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   scheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   estimated_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminder_sent?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -511,6 +529,7 @@ export type BookingUncheckedUpdateManyInput = {
   downpayment_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   scheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   estimated_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminder_sent?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -538,6 +557,7 @@ export type BookingCountOrderByAggregateInput = {
   downpayment_date?: Prisma.SortOrder
   scheduled_at?: Prisma.SortOrder
   estimated_end?: Prisma.SortOrder
+  reminder_sent?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
 }
@@ -562,6 +582,7 @@ export type BookingMaxOrderByAggregateInput = {
   downpayment_date?: Prisma.SortOrder
   scheduled_at?: Prisma.SortOrder
   estimated_end?: Prisma.SortOrder
+  reminder_sent?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
 }
@@ -579,6 +600,7 @@ export type BookingMinOrderByAggregateInput = {
   downpayment_date?: Prisma.SortOrder
   scheduled_at?: Prisma.SortOrder
   estimated_end?: Prisma.SortOrder
+  reminder_sent?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
 }
@@ -736,6 +758,7 @@ export type BookingCreateWithoutBusinessInput = {
   downpayment_date?: Date | string | null
   scheduled_at?: Date | string | null
   estimated_end?: Date | string | null
+  reminder_sent?: boolean
   created_at?: Date | string
   updated_at?: Date | string
   customer: Prisma.CustomerCreateNestedOneWithoutBookingsInput
@@ -755,6 +778,7 @@ export type BookingUncheckedCreateWithoutBusinessInput = {
   downpayment_date?: Date | string | null
   scheduled_at?: Date | string | null
   estimated_end?: Date | string | null
+  reminder_sent?: boolean
   created_at?: Date | string
   updated_at?: Date | string
   vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutUsed_byInput
@@ -803,6 +827,7 @@ export type BookingScalarWhereInput = {
   downpayment_date?: Prisma.DateTimeNullableFilter<"Booking"> | Date | string | null
   scheduled_at?: Prisma.DateTimeNullableFilter<"Booking"> | Date | string | null
   estimated_end?: Prisma.DateTimeNullableFilter<"Booking"> | Date | string | null
+  reminder_sent?: Prisma.BoolFilter<"Booking"> | boolean
   created_at?: Prisma.DateTimeFilter<"Booking"> | Date | string
   updated_at?: Prisma.DateTimeFilter<"Booking"> | Date | string
 }
@@ -817,6 +842,7 @@ export type BookingCreateWithoutCustomerInput = {
   downpayment_date?: Date | string | null
   scheduled_at?: Date | string | null
   estimated_end?: Date | string | null
+  reminder_sent?: boolean
   created_at?: Date | string
   updated_at?: Date | string
   business: Prisma.BusinessCreateNestedOneWithoutBookingsInput
@@ -836,6 +862,7 @@ export type BookingUncheckedCreateWithoutCustomerInput = {
   downpayment_date?: Date | string | null
   scheduled_at?: Date | string | null
   estimated_end?: Date | string | null
+  reminder_sent?: boolean
   created_at?: Date | string
   updated_at?: Date | string
   vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutUsed_byInput
@@ -878,6 +905,7 @@ export type BookingCreateWithoutVouchersInput = {
   downpayment_date?: Date | string | null
   scheduled_at?: Date | string | null
   estimated_end?: Date | string | null
+  reminder_sent?: boolean
   created_at?: Date | string
   updated_at?: Date | string
   customer: Prisma.CustomerCreateNestedOneWithoutBookingsInput
@@ -898,6 +926,7 @@ export type BookingUncheckedCreateWithoutVouchersInput = {
   downpayment_date?: Date | string | null
   scheduled_at?: Date | string | null
   estimated_end?: Date | string | null
+  reminder_sent?: boolean
   created_at?: Date | string
   updated_at?: Date | string
   availed_services?: Prisma.AvailedServiceUncheckedCreateNestedManyWithoutBookingInput
@@ -929,6 +958,7 @@ export type BookingUpdateWithoutVouchersInput = {
   downpayment_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   scheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   estimated_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminder_sent?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customer?: Prisma.CustomerUpdateOneRequiredWithoutBookingsNestedInput
@@ -949,6 +979,7 @@ export type BookingUncheckedUpdateWithoutVouchersInput = {
   downpayment_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   scheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   estimated_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminder_sent?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   availed_services?: Prisma.AvailedServiceUncheckedUpdateManyWithoutBookingNestedInput
@@ -964,6 +995,7 @@ export type BookingCreateWithoutAvailed_servicesInput = {
   downpayment_date?: Date | string | null
   scheduled_at?: Date | string | null
   estimated_end?: Date | string | null
+  reminder_sent?: boolean
   created_at?: Date | string
   updated_at?: Date | string
   customer: Prisma.CustomerCreateNestedOneWithoutBookingsInput
@@ -984,6 +1016,7 @@ export type BookingUncheckedCreateWithoutAvailed_servicesInput = {
   downpayment_date?: Date | string | null
   scheduled_at?: Date | string | null
   estimated_end?: Date | string | null
+  reminder_sent?: boolean
   created_at?: Date | string
   updated_at?: Date | string
   vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutUsed_byInput
@@ -1015,6 +1048,7 @@ export type BookingUpdateWithoutAvailed_servicesInput = {
   downpayment_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   scheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   estimated_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminder_sent?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customer?: Prisma.CustomerUpdateOneRequiredWithoutBookingsNestedInput
@@ -1035,6 +1069,7 @@ export type BookingUncheckedUpdateWithoutAvailed_servicesInput = {
   downpayment_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   scheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   estimated_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminder_sent?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutUsed_byNestedInput
@@ -1052,6 +1087,7 @@ export type BookingCreateManyBusinessInput = {
   downpayment_date?: Date | string | null
   scheduled_at?: Date | string | null
   estimated_end?: Date | string | null
+  reminder_sent?: boolean
   created_at?: Date | string
   updated_at?: Date | string
 }
@@ -1066,6 +1102,7 @@ export type BookingUpdateWithoutBusinessInput = {
   downpayment_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   scheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   estimated_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminder_sent?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customer?: Prisma.CustomerUpdateOneRequiredWithoutBookingsNestedInput
@@ -1085,6 +1122,7 @@ export type BookingUncheckedUpdateWithoutBusinessInput = {
   downpayment_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   scheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   estimated_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminder_sent?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutUsed_byNestedInput
@@ -1103,6 +1141,7 @@ export type BookingUncheckedUpdateManyWithoutBusinessInput = {
   downpayment_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   scheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   estimated_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminder_sent?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1119,6 +1158,7 @@ export type BookingCreateManyCustomerInput = {
   downpayment_date?: Date | string | null
   scheduled_at?: Date | string | null
   estimated_end?: Date | string | null
+  reminder_sent?: boolean
   created_at?: Date | string
   updated_at?: Date | string
 }
@@ -1133,6 +1173,7 @@ export type BookingUpdateWithoutCustomerInput = {
   downpayment_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   scheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   estimated_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminder_sent?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   business?: Prisma.BusinessUpdateOneRequiredWithoutBookingsNestedInput
@@ -1152,6 +1193,7 @@ export type BookingUncheckedUpdateWithoutCustomerInput = {
   downpayment_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   scheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   estimated_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminder_sent?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutUsed_byNestedInput
@@ -1170,6 +1212,7 @@ export type BookingUncheckedUpdateManyWithoutCustomerInput = {
   downpayment_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   scheduled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   estimated_end?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminder_sent?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1227,6 +1270,7 @@ export type BookingSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   downpayment_date?: boolean
   scheduled_at?: boolean
   estimated_end?: boolean
+  reminder_sent?: boolean
   created_at?: boolean
   updated_at?: boolean
   customer?: boolean | Prisma.CustomerDefaultArgs<ExtArgs>
@@ -1249,6 +1293,7 @@ export type BookingSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   downpayment_date?: boolean
   scheduled_at?: boolean
   estimated_end?: boolean
+  reminder_sent?: boolean
   created_at?: boolean
   updated_at?: boolean
   customer?: boolean | Prisma.CustomerDefaultArgs<ExtArgs>
@@ -1268,6 +1313,7 @@ export type BookingSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   downpayment_date?: boolean
   scheduled_at?: boolean
   estimated_end?: boolean
+  reminder_sent?: boolean
   created_at?: boolean
   updated_at?: boolean
   customer?: boolean | Prisma.CustomerDefaultArgs<ExtArgs>
@@ -1287,11 +1333,12 @@ export type BookingSelectScalar = {
   downpayment_date?: boolean
   scheduled_at?: boolean
   estimated_end?: boolean
+  reminder_sent?: boolean
   created_at?: boolean
   updated_at?: boolean
 }
 
-export type BookingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "status" | "customer_id" | "business_id" | "payment_method" | "grand_total" | "total_discount" | "downpayment" | "downpayment_status" | "downpayment_date" | "scheduled_at" | "estimated_end" | "created_at" | "updated_at", ExtArgs["result"]["booking"]>
+export type BookingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "status" | "customer_id" | "business_id" | "payment_method" | "grand_total" | "total_discount" | "downpayment" | "downpayment_status" | "downpayment_date" | "scheduled_at" | "estimated_end" | "reminder_sent" | "created_at" | "updated_at", ExtArgs["result"]["booking"]>
 export type BookingInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   customer?: boolean | Prisma.CustomerDefaultArgs<ExtArgs>
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
@@ -1329,6 +1376,7 @@ export type $BookingPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     downpayment_date: Date | null
     scheduled_at: Date | null
     estimated_end: Date | null
+    reminder_sent: boolean
     created_at: Date
     updated_at: Date
   }, ExtArgs["result"]["booking"]>
@@ -1770,6 +1818,7 @@ export interface BookingFieldRefs {
   readonly downpayment_date: Prisma.FieldRef<"Booking", 'DateTime'>
   readonly scheduled_at: Prisma.FieldRef<"Booking", 'DateTime'>
   readonly estimated_end: Prisma.FieldRef<"Booking", 'DateTime'>
+  readonly reminder_sent: Prisma.FieldRef<"Booking", 'Boolean'>
   readonly created_at: Prisma.FieldRef<"Booking", 'DateTime'>
   readonly updated_at: Prisma.FieldRef<"Booking", 'DateTime'>
 }
