@@ -28,7 +28,7 @@ export async function getPayslipDataAction(employeeId: number) {
 
     const startingDate = lastPayslip
       ? lastPayslip.ending_date
-      : getStartOfDayPH(employee.user.created_at);
+      : new Date(getStartOfDayPH(employee.user.created_at).getTime() - 1);
 
     const { getEndOfDayPH } = await import("@/lib/date-utils");
     const endingDate = getEndOfDayPH(new Date());
@@ -86,6 +86,7 @@ export async function getPayslipDataAction(employeeId: number) {
         },
         breakdown: {
           days_present: daysPresent,
+          attendance_dates: attendanceRecords.map((r) => r.date),
           basic_salary: basicSalary,
           commission_services_count: commissionServices.length,
           commission_total: commissionTotal,
@@ -117,7 +118,7 @@ export async function createPayslipAction(data: {
         total_salary: data.totalSalary,
         deduction: data.deduction || 0,
         comment: data.comment,
-        status: PayslipStatus.PENDING,
+        status: PayslipStatus.PAID,
       },
     });
 
@@ -126,5 +127,18 @@ export async function createPayslipAction(data: {
   } catch (error) {
     console.error("Error creating payslip:", error);
     return { success: false, error: "Failed to create payslip" };
+  }
+}
+
+export async function getPayslipHistoryAction(employeeId: number) {
+  try {
+    const payslips = await prisma.payslip.findMany({
+      where: { employee_id: employeeId },
+      orderBy: { ending_date: "desc" },
+    });
+    return { success: true, data: payslips };
+  } catch (error) {
+    console.error("Error fetching payslip history:", error);
+    return { success: false, error: "Failed to fetch payslip history" };
   }
 }

@@ -7,7 +7,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { useState, useEffect } from "react";
 import {
   createPayslipAction,
@@ -33,11 +37,15 @@ export function PayslipGenerationDialog({
 }: PayslipGenerationDialogProps) {
   const [loading, setLoading] = useState(false);
   const [generating, setGenerating] = useState(false);
-  const [data, setData] = useState<any>(null); // Type this properly later
+  const [data, setData] = useState<any>(null);
+  const [deduction, setDeduction] = useState(0);
+  const [comment, setComment] = useState("");
 
   useEffect(() => {
     if (open && employeeId) {
       fetchData();
+      setDeduction(0);
+      setComment("");
     } else {
       setData(null);
     }
@@ -64,7 +72,9 @@ export function PayslipGenerationDialog({
       startingDate: data.period.start,
       endingDate: data.period.end,
       daysPresent: data.breakdown.days_present,
-      totalSalary: data.total_salary,
+      totalSalary: data.total_salary - deduction,
+      deduction: deduction,
+      comment: comment,
     });
     setGenerating(false);
 
@@ -81,7 +91,7 @@ export function PayslipGenerationDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto md:max-w-[600px]!">
         <DialogHeader>
           <DialogTitle>Generate Payslip</DialogTitle>
           <DialogDescription>
@@ -140,19 +150,83 @@ export function PayslipGenerationDialog({
 
             <Separator />
 
-            <div className="flex justify-between font-bold text-lg">
-              <span>Total Payout</span>
-              <span>₱{data.total_salary.toLocaleString()}</span>
+            <div className="flex justify-center">
+              <Calendar
+                mode="multiple"
+                month={new Date(data.period.end)}
+                selected={data.breakdown.attendance_dates.map(
+                  (d: string) => new Date(d),
+                )}
+                modifiers={{
+                  present: data.breakdown.attendance_dates.map(
+                    (d: string) => new Date(d),
+                  ),
+                }}
+                modifiersClassNames={{
+                  present:
+                    "bg-primary text-primary-foreground rounded-full font-medium",
+                }}
+                disabled={(date) =>
+                  date < new Date(data.period.start) ||
+                  date > new Date(data.period.end)
+                }
+                className="rounded-md border shadow-sm"
+              />
             </div>
 
-            <Button
-              className="w-full mt-4"
-              onClick={handleGenerate}
-              disabled={generating}
-            >
-              {generating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Generate & Save Payslip
-            </Button>
+            <Separator />
+
+            <div className="space-y-3">
+              <div className="space-y-1">
+                <Label htmlFor="deduction">Deduction</Label>
+                <div className="relative">
+                  <span className="absolute left-3 top-2.5 text-muted-foreground">
+                    ₱
+                  </span>
+                  <Input
+                    id="deduction"
+                    type="number"
+                    min="0"
+                    placeholder="0.00"
+                    className="pl-7"
+                    value={deduction || ""}
+                    onChange={(e) => setDeduction(Number(e.target.value))}
+                  />
+                </div>
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="comment">Comment</Label>
+                <Textarea
+                  id="comment"
+                  placeholder="Optional notes..."
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <Separator />
+
+            <div className="flex justify-between font-bold text-lg">
+              <span>Total Payout</span>
+              <span>₱{(data.total_salary - deduction).toLocaleString()}</span>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2 mt-4">
+              <Button
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+                disabled={generating}
+              >
+                Cancel
+              </Button>
+              <Button onClick={handleGenerate} disabled={generating}>
+                {generating && (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                )}
+                Pay & Save
+              </Button>
+            </div>
           </div>
         ) : (
           <div className="py-8 text-center text-muted-foreground">
