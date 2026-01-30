@@ -62,6 +62,7 @@ export const ModelName = {
   Owner: 'Owner',
   Service: 'Service',
   ServicePackage: 'ServicePackage',
+  PackageItem: 'PackageItem',
   Customer: 'Customer',
   Booking: 'Booking',
   Voucher: 'Voucher',
@@ -231,6 +232,16 @@ export const ServicePackageScalarFieldEnum = {
 } as const
 
 export type ServicePackageScalarFieldEnum = (typeof ServicePackageScalarFieldEnum)[keyof typeof ServicePackageScalarFieldEnum]
+
+
+export const PackageItemScalarFieldEnum = {
+  id: 'id',
+  custom_price: 'custom_price',
+  package_id: 'package_id',
+  service_id: 'service_id'
+} as const
+
+export type PackageItemScalarFieldEnum = (typeof PackageItemScalarFieldEnum)[keyof typeof PackageItemScalarFieldEnum]
 
 
 export const CustomerScalarFieldEnum = {

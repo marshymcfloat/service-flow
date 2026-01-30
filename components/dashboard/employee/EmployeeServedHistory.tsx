@@ -50,6 +50,9 @@ interface ServedService {
   scheduled_at: Date | null;
   price: number;
   status: string;
+  package?: {
+    name: string;
+  } | null;
 }
 
 export default function EmployeeServedHistory({
@@ -181,6 +184,14 @@ export default function EmployeeServedHistory({
                     <div className="space-y-1">
                       <div className="font-semibold text-base flex items-center gap-2">
                         {item.service.name}
+                        {item.package && (
+                          <Badge
+                            variant="secondary"
+                            className="bg-indigo-50 text-indigo-700 hover:bg-indigo-50 border-indigo-200 text-[10px] h-5 px-1.5"
+                          >
+                            {item.package.name}
+                          </Badge>
+                        )}
                       </div>
                       <div className="text-sm text-muted-foreground flex items-center gap-2 flex-wrap">
                         <span className="flex items-center gap-1 font-medium text-foreground/80">

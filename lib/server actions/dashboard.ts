@@ -30,6 +30,12 @@ export async function getPendingServicesAction(businessSlug: string) {
         id: true,
         price: true,
         scheduled_at: true,
+        package_id: true,
+        package: {
+          select: {
+            name: true,
+          },
+        },
         service: {
           select: {
             name: true,

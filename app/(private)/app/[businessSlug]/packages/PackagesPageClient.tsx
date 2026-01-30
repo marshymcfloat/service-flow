@@ -57,12 +57,16 @@ import { deletePackageAction } from "@/lib/server actions/packages";
 import { toast } from "sonner";
 import { PackageForm } from "./PackageForm";
 
-type ServicePackageWithServices = ServicePackage & {
-  services: Service[];
+type ServicePackageWithItems = ServicePackage & {
+  items: {
+    service: Service;
+    custom_price: number;
+    service_id: number;
+  }[];
 };
 
 interface PackagesPageClientProps {
-  packages: ServicePackageWithServices[];
+  packages: ServicePackageWithItems[];
   services: Service[];
   categories: string[];
   businessSlug: string;
@@ -70,8 +74,8 @@ interface PackagesPageClientProps {
 
 type OptimisticAction =
   | { type: "delete"; packageId: number }
-  | { type: "update"; packageId: number; data: ServicePackageWithServices }
-  | { type: "create"; data: ServicePackageWithServices };
+  | { type: "update"; packageId: number; data: ServicePackageWithItems }
+  | { type: "create"; data: ServicePackageWithItems };
 
 export function PackagesPageClient({
   packages,
@@ -83,12 +87,12 @@ export function PackagesPageClient({
   const [search, setSearch] = useState("");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingPackage, setEditingPackage] =
-    useState<ServicePackageWithServices | null>(null);
+    useState<ServicePackageWithItems | null>(null);
   const [isPending, startTransition] = useTransition();
 
   const [optimisticPackages, addOptimisticUpdate] = useOptimistic(
     packages,
-    (state: ServicePackageWithServices[], action: OptimisticAction) => {
+    (state: ServicePackageWithItems[], action: OptimisticAction) => {
       switch (action.type) {
         case "delete":
           return state.filter((pkg) => pkg.id !== action.packageId);
@@ -123,7 +127,7 @@ export function PackagesPageClient({
     });
   };
 
-  const handleEditClick = (pkg: ServicePackageWithServices) => {
+  const handleEditClick = (pkg: ServicePackageWithItems) => {
     setEditingPackage(pkg);
   };
 
@@ -204,21 +208,21 @@ export function PackagesPageClient({
                         </TableCell>
                         <TableCell>
                           <div className="flex flex-wrap gap-1">
-                            {pkg.services.slice(0, 3).map((service) => (
+                            {pkg.items.slice(0, 3).map((item) => (
                               <Badge
-                                key={service.id}
+                                key={item.service_id}
                                 variant="outline"
                                 className="text-[10px] h-5 font-normal"
                               >
-                                {service.name}
+                                {item.service.name}
                               </Badge>
                             ))}
-                            {pkg.services.length > 3 && (
+                            {pkg.items.length > 3 && (
                               <Badge
                                 variant="outline"
                                 className="text-[10px] h-5 font-normal"
                               >
-                                +{pkg.services.length - 3} more
+                                +{pkg.items.length - 3} more
                               </Badge>
                             )}
                           </div>

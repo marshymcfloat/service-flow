@@ -40,6 +40,7 @@ export default async function EmployeeDashboardDataContainer({
     },
     include: {
       service: true,
+      package: true,
       booking: {
         include: {
           customer: true,
@@ -61,6 +62,7 @@ export default async function EmployeeDashboardDataContainer({
     },
     include: {
       service: true,
+      package: true,
       booking: {
         include: {
           customer: true,
@@ -85,6 +87,8 @@ export default async function EmployeeDashboardDataContainer({
     where: { employee_id: employee.id },
     orderBy: { ending_date: "desc" },
   });
+
+  // Start from the day AFTER the last payslip
   const salaryStartDate = lastPayslip
     ? lastPayslip.ending_date
     : getStartOfDayPH(employee.user.created_at);
@@ -97,9 +101,31 @@ export default async function EmployeeDashboardDataContainer({
   const daysPresent = attendanceCountResult.success
     ? (attendanceCountResult.data ?? 0)
     : 0;
+
+  // Calculate attendance-based salary
   const attendanceSalary = daysPresent * (employee.daily_rate || 0);
 
-  const totalEstimatedSalary = (employee.salary || 0) + attendanceSalary;
+  // Calculate unpaid commissions since last payslip
+  const unpaidCommissions = await prisma.availedService.findMany({
+    where: {
+      served_by_id: employee.id,
+      status: "COMPLETED",
+      completed_at: {
+        gt: salaryStartDate,
+      },
+    },
+    select: {
+      price: true,
+      commission_base: true,
+    },
+  });
+
+  const totalCommissions = unpaidCommissions.reduce((acc, curr) => {
+    const base = curr.commission_base ?? curr.price;
+    return acc + (base * (employee.commission_percentage || 0)) / 100;
+  }, 0);
+
+  const totalEstimatedSalary = attendanceSalary + totalCommissions;
 
   return (
     <EmployeeDashboard

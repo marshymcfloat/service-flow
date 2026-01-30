@@ -73,6 +73,11 @@ export type Service = Prisma.ServiceModel
  */
 export type ServicePackage = Prisma.ServicePackageModel
 /**
+ * Model PackageItem
+ * 
+ */
+export type PackageItem = Prisma.PackageItemModel
+/**
  * Model Customer
  * 
  */

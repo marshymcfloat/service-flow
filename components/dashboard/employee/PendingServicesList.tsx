@@ -33,6 +33,10 @@ interface PendingService {
   };
   scheduled_at: Date | null;
   price: number;
+  package_id: number | null;
+  package: {
+    name: string;
+  } | null;
 }
 
 export default function PendingServicesList({
@@ -110,8 +114,16 @@ export default function PendingServicesList({
                       </AvatarFallback>
                     </Avatar>
                     <div className="space-y-1">
-                      <div className="font-semibold text-base mr-2">
+                      <div className="font-semibold text-base mr-2 flex items-center gap-2">
                         {item.service.name}
+                        {item.package && (
+                          <Badge
+                            variant="secondary"
+                            className="bg-indigo-50 text-indigo-700 hover:bg-indigo-50 border-indigo-200 text-[10px] h-5 px-1.5"
+                          >
+                            {item.package.name}
+                          </Badge>
+                        )}
                       </div>
                       <div className="text-sm text-muted-foreground flex items-center gap-2 flex-wrap">
                         <span className="font-medium text-foreground/80">

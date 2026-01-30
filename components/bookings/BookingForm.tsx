@@ -5,8 +5,12 @@ import {
   getAvailableSlots,
   getAvailableEmployees,
 } from "@/lib/server actions/availability";
-import { useParams } from "next/navigation";
-import { Service } from "@/prisma/generated/prisma/client";
+import { useParams, useRouter } from "next/navigation";
+import {
+  Service,
+  ServicePackage,
+  PackageItem,
+} from "@/prisma/generated/prisma/client";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -14,8 +18,9 @@ import {
   PaymentMethod,
   PaymentType,
 } from "@/lib/zod schemas/bookings";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { useEffect, useMemo, useState } from "react";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 const capitalizeWords = (str: string) => {
   return str.replace(/\b\w/g, (char) => char.toUpperCase());
@@ -41,11 +46,14 @@ import EmployeeSelect from "./EmployeeSelect";
 import ServiceClaimSelector from "./ServiceClaimSelector";
 import { SegmentedToggle } from "../ui/segmented-toggle";
 import { Button } from "../ui/button";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { useEffect, useMemo, useState } from "react";
+
+type PackageWithItems = ServicePackage & {
+  items: (PackageItem & { service: Service })[];
+};
 
 interface BookingFormProps {
   services: Service[];
+  packages?: PackageWithItems[];
   categories: string[];
   isEmployee?: boolean;
   currentEmployeeId?: number;
@@ -54,6 +62,7 @@ interface BookingFormProps {
 
 export default function BookingForm({
   services,
+  packages = [],
   categories,
   isEmployee = false,
   currentEmployeeId,
@@ -281,6 +290,7 @@ export default function BookingForm({
                   <ServiceSelect
                     form={form}
                     services={services}
+                    packages={packages}
                     categories={categories}
                   />
                 </FormControl>

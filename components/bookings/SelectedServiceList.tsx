@@ -1,10 +1,7 @@
-import React from "react";
-import { Badge } from "../ui/badge";
+import { useMemo } from "react";
 import { UseFormReturn } from "react-hook-form";
-import { CreateBookingTypes } from "@/lib/zod schemas/bookings";
 import { Button } from "../ui/button";
-import { Minus, Plus, X } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Minus, Plus, X, Package } from "lucide-react";
 
 export default function SelectedServiceList({
   form,
@@ -17,9 +14,13 @@ export default function SelectedServiceList({
     return null;
   }
 
-  const updateQuantity = (serviceId: number, delta: number) => {
+  const updateQuantity = (
+    serviceId: number,
+    delta: number,
+    packageId?: number,
+  ) => {
     const newServices = selectedServices.map((s) => {
-      if (s.id === serviceId) {
+      if (s.id === serviceId && s.packageId === packageId) {
         const newQuantity = (s.quantity || 1) + delta;
         return { ...s, quantity: Math.max(1, newQuantity) };
       }
@@ -28,8 +29,15 @@ export default function SelectedServiceList({
     form.setValue("services", newServices);
   };
 
-  const removeService = (serviceId: number) => {
-    const newServices = selectedServices.filter((s) => s.id !== serviceId);
+  const removeService = (serviceId: number, packageId?: number) => {
+    let newServices;
+    if (packageId) {
+      newServices = selectedServices.filter((s) => s.packageId !== packageId);
+    } else {
+      newServices = selectedServices.filter(
+        (s) => !(s.id === serviceId && !s.packageId),
+      );
+    }
     form.setValue("services", newServices);
   };
 
@@ -38,13 +46,86 @@ export default function SelectedServiceList({
     0,
   );
 
+  const groupedServices = useMemo(() => {
+    const groups: { [key: string]: any[] } = {};
+    const standalone: any[] = [];
+
+    selectedServices.forEach((service) => {
+      if (service.packageId) {
+        if (!groups[service.packageId]) {
+          groups[service.packageId] = [];
+        }
+        groups[service.packageId].push(service);
+      } else {
+        standalone.push(service);
+      }
+    });
+
+    return { groups, standalone };
+  }, [selectedServices]);
+
   return (
     <div className="mt-4 rounded-lg border bg-card p-4 shadow-sm">
       <h3 className="mb-3 text-sm font-medium">Selected Services</h3>
       <div className="flex flex-col gap-2">
-        {selectedServices.map((service) => (
+        {Object.entries(groupedServices.groups).map(([pkgId, services]) => {
+          const packageName = services[0]?.packageName || "Package";
+          const pkgPrice = services.reduce(
+            (sum, s) => sum + s.price * (s.quantity || 1),
+            0,
+          );
+
+          return (
+            <div
+              key={`pkg-${pkgId}`}
+              className="rounded-md border border-primary/20 bg-primary/5 p-3 space-y-2 relative overflow-hidden"
+            >
+              <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary/50" />
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 pl-2">
+                  <Package className="h-4 w-4 text-primary" />
+                  <span className="font-semibold text-sm text-primary">
+                    {packageName}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium">
+                    ₱{pkgPrice.toFixed(2)}
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6 text-muted-foreground hover:text-destructive"
+                    onClick={() => removeService(services[0].id, Number(pkgId))}
+                    type="button"
+                    title="Remove Package"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+
+              <div className="pl-2 space-y-1">
+                {services.map((service, idx) => (
+                  <div
+                    key={`${service.id}-${service.packageId}-${idx}`}
+                    className="flex items-center justify-between text-xs text-muted-foreground"
+                  >
+                    <span>
+                      {service.quantity > 1 ? `${service.quantity}x ` : ""}
+                      {service.name}
+                    </span>
+                    <span>₱{service.price.toFixed(2)}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })}
+
+        {groupedServices.standalone.map((service) => (
           <div
-            key={service.id}
+            key={`standalone-${service.id}`}
             className="flex items-center justify-between rounded-md border p-2"
           >
             <div className="flex items-center gap-2">

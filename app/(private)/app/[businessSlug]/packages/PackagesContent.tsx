@@ -26,7 +26,11 @@ export async function PackagesContent({ businessSlug }: PackagesContentProps) {
     prisma.servicePackage.findMany({
       where: { business_id: business.id },
       include: {
-        services: true,
+        items: {
+          include: {
+            service: true,
+          },
+        },
       },
       orderBy: { name: "asc" },
     }),

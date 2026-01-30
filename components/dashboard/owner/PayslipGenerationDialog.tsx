@@ -138,11 +138,51 @@ export function PayslipGenerationDialog({
             </div>
 
             <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span>Commission ({data.employee.commission_percentage}%)</span>
-                <span>{data.breakdown.commission_services_count} services</span>
+              <div className="flex justify-between items-center">
+                <span className="font-medium">
+                  Commission ({data.employee.commission_percentage}%)
+                </span>
+                <span className="text-muted-foreground text-xs">
+                  {data.breakdown.commission_services_count} services
+                </span>
               </div>
-              <div className="flex justify-between font-medium text-zinc-700">
+
+              {/* Commission Services List */}
+              <div className="bg-muted/30 rounded-md border text-xs max-h-[150px] overflow-y-auto">
+                {data.breakdown.commission_services.length > 0 ? (
+                  <div className="divide-y">
+                    {data.breakdown.commission_services.map((service: any) => (
+                      <div
+                        key={service.id}
+                        className="p-2 flex justify-between items-center"
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium">
+                            {service.service.name}
+                          </span>
+                          {service.package && (
+                            <span className="bg-indigo-50 text-indigo-700 border border-indigo-200 px-1 py-0.5 rounded text-[9px] font-medium leading-none">
+                              {service.package.name}
+                            </span>
+                          )}
+                        </div>
+                        <span className="tabular-nums text-muted-foreground">
+                          ₱
+                          {(
+                            service.commission_base ?? service.price
+                          ).toLocaleString()}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="p-3 text-center text-muted-foreground italic">
+                    No commission based services
+                  </div>
+                )}
+              </div>
+
+              <div className="flex justify-between font-medium text-zinc-700 pt-1">
                 <span>Commission Pay</span>
                 <span>₱{data.breakdown.commission_total.toLocaleString()}</span>
               </div>

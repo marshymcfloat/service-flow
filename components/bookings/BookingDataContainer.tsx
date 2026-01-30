@@ -1,6 +1,10 @@
 import BookingForm from "@/components/bookings/BookingForm";
 import { notFound } from "next/navigation";
-import { getCachedBusinessBySlug, getCachedServices } from "@/lib/data/cached";
+import {
+  getCachedBusinessBySlug,
+  getCachedServices,
+  getCachedPackages,
+} from "@/lib/data/cached";
 import {
   Card,
   CardContent,
@@ -23,6 +27,7 @@ export default async function BookingDataContainer({
   }
 
   const services = await getCachedServices(business.id);
+  const packages = await getCachedPackages(business.id);
   const categories = Array.from(new Set(services.map((s) => s.category)));
 
   return (
@@ -46,7 +51,11 @@ export default async function BookingDataContainer({
         </div>
       </CardHeader>
       <CardContent className="p-6 md:p-8">
-        <BookingForm services={services} categories={categories} />
+        <BookingForm
+          services={services}
+          packages={packages}
+          categories={categories}
+        />
       </CardContent>
     </Card>
   );

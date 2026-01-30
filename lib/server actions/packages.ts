@@ -3,6 +3,11 @@
 import { prisma } from "@/prisma/prisma";
 import { revalidatePath } from "next/cache";
 
+interface PackageItemInput {
+  serviceId: number;
+  customPrice: number;
+}
+
 interface CreatePackageParams {
   name: string;
   description?: string;
@@ -10,7 +15,7 @@ interface CreatePackageParams {
   duration?: number;
   category: string;
   businessSlug: string;
-  serviceIds: number[];
+  items: PackageItemInput[];
 }
 
 interface UpdatePackageParams {
@@ -19,7 +24,7 @@ interface UpdatePackageParams {
   price: number;
   duration?: number;
   category: string;
-  serviceIds: number[];
+  items: PackageItemInput[];
 }
 
 export async function createPackageAction(params: CreatePackageParams) {
@@ -32,14 +37,17 @@ export async function createPackageAction(params: CreatePackageParams) {
       return { success: false, error: "Business not found" };
     }
 
-    const { serviceIds, businessSlug, ...packageData } = params;
+    const { items, businessSlug, ...packageData } = params;
 
     const newPackage = await prisma.servicePackage.create({
       data: {
         ...packageData,
         business_id: business.id,
-        services: {
-          connect: serviceIds.map((id) => ({ id })),
+        items: {
+          create: items.map((item) => ({
+            service_id: item.serviceId,
+            custom_price: item.customPrice,
+          })),
         },
       },
     });
@@ -57,17 +65,34 @@ export async function updatePackageAction(
   params: UpdatePackageParams,
 ) {
   try {
-    const { serviceIds, ...packageData } = params;
+    const { items, ...packageData } = params;
 
-    const updatedPackage = await prisma.servicePackage.update({
-      where: { id: packageId },
-      data: {
-        ...packageData,
-        services: {
-          set: serviceIds.map((id) => ({ id })), // Update relationships
-        },
-      },
-      include: { business: true },
+    // Transaction to update package details and replace items
+    const updatedPackage = await prisma.$transaction(async (tx) => {
+      // 1. Update package basic info
+      const pkg = await tx.servicePackage.update({
+        where: { id: packageId },
+        data: packageData,
+        include: { business: true },
+      });
+
+      // 2. Delete existing items
+      await tx.packageItem.deleteMany({
+        where: { package_id: packageId },
+      });
+
+      // 3. Create new items
+      if (items.length > 0) {
+        await tx.packageItem.createMany({
+          data: items.map((item) => ({
+            package_id: packageId,
+            service_id: item.serviceId,
+            custom_price: item.customPrice,
+          })),
+        });
+      }
+
+      return pkg;
     });
 
     revalidatePath(`/app/${updatedPackage.business.slug}/packages`);

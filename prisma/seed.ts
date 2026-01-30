@@ -263,6 +263,7 @@ async function main() {
     `Created ${createdServices.length} services for ${business.name}`,
   );
 
+  /*
   // Create Service Packages
   const packages = [
     {
@@ -327,6 +328,7 @@ async function main() {
     });
   }
   console.log(`Created ${packages.length} service packages`);
+  */
 
   const employeeUser = await prisma.user.create({
     data: {

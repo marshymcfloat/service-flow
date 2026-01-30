@@ -175,8 +175,8 @@ model Service {
   business    Business @relation(fields: [business_id], references: [id], onDelete: Cascade)
 
   availed_services AvailedService[]
-  packages ServicePackage[]
   sale_events SaleEvent[]
+  package_items PackageItem[]
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -193,12 +193,26 @@ model ServicePackage {
   business_id String
   business    Business @relation(fields: [business_id], references: [id], onDelete: Cascade)
 
-  services Service[]
+  items PackageItem[]
   availed_services AvailedService[]
   sale_events SaleEvent[]
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+}
+
+model PackageItem {
+  id Int @id @default(autoincrement())
+
+  custom_price Float
+
+  package_id Int
+  package    ServicePackage @relation(fields: [package_id], references: [id], onDelete: Cascade)
+
+  service_id Int
+  service    Service @relation(fields: [service_id], references: [id], onDelete: Cascade)
+
+  @@unique([package_id, service_id])
 }
 
 

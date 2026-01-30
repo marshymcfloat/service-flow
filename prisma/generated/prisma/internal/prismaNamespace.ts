@@ -395,6 +395,7 @@ export const ModelName = {
   Owner: 'Owner',
   Service: 'Service',
   ServicePackage: 'ServicePackage',
+  PackageItem: 'PackageItem',
   Customer: 'Customer',
   Booking: 'Booking',
   Voucher: 'Voucher',
@@ -414,7 +415,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "business" | "businessHours" | "saleEvent" | "user" | "employee" | "employeeAttendance" | "payslip" | "specialDate" | "owner" | "service" | "servicePackage" | "customer" | "booking" | "voucher" | "availedService"
+    modelProps: "business" | "businessHours" | "saleEvent" | "user" | "employee" | "employeeAttendance" | "payslip" | "specialDate" | "owner" | "service" | "servicePackage" | "packageItem" | "customer" | "booking" | "voucher" | "availedService"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1232,6 +1233,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    PackageItem: {
+      payload: Prisma.$PackageItemPayload<ExtArgs>
+      fields: Prisma.PackageItemFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PackageItemFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PackageItemPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PackageItemFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PackageItemPayload>
+        }
+        findFirst: {
+          args: Prisma.PackageItemFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PackageItemPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PackageItemFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PackageItemPayload>
+        }
+        findMany: {
+          args: Prisma.PackageItemFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PackageItemPayload>[]
+        }
+        create: {
+          args: Prisma.PackageItemCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PackageItemPayload>
+        }
+        createMany: {
+          args: Prisma.PackageItemCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.PackageItemCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PackageItemPayload>[]
+        }
+        delete: {
+          args: Prisma.PackageItemDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PackageItemPayload>
+        }
+        update: {
+          args: Prisma.PackageItemUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PackageItemPayload>
+        }
+        deleteMany: {
+          args: Prisma.PackageItemDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PackageItemUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.PackageItemUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PackageItemPayload>[]
+        }
+        upsert: {
+          args: Prisma.PackageItemUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PackageItemPayload>
+        }
+        aggregate: {
+          args: Prisma.PackageItemAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePackageItem>
+        }
+        groupBy: {
+          args: Prisma.PackageItemGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PackageItemGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PackageItemCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PackageItemCountAggregateOutputType> | number
+        }
+      }
+    }
     Customer: {
       payload: Prisma.$CustomerPayload<ExtArgs>
       fields: Prisma.CustomerFieldRefs
@@ -1716,6 +1791,16 @@ export const ServicePackageScalarFieldEnum = {
 export type ServicePackageScalarFieldEnum = (typeof ServicePackageScalarFieldEnum)[keyof typeof ServicePackageScalarFieldEnum]
 
 
+export const PackageItemScalarFieldEnum = {
+  id: 'id',
+  custom_price: 'custom_price',
+  package_id: 'package_id',
+  service_id: 'service_id'
+} as const
+
+export type PackageItemScalarFieldEnum = (typeof PackageItemScalarFieldEnum)[keyof typeof PackageItemScalarFieldEnum]
+
+
 export const CustomerScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -2100,6 +2185,7 @@ export type GlobalOmitConfig = {
   owner?: Prisma.OwnerOmit
   service?: Prisma.ServiceOmit
   servicePackage?: Prisma.ServicePackageOmit
+  packageItem?: Prisma.PackageItemOmit
   customer?: Prisma.CustomerOmit
   booking?: Prisma.BookingOmit
   voucher?: Prisma.VoucherOmit

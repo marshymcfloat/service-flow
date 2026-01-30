@@ -31,3 +31,17 @@ export async function getCachedBusinessWithHoursAndEmployees(slug: string) {
     },
   });
 }
+
+export async function getCachedPackages(businessId: string) {
+  "use cache";
+  return prisma.servicePackage.findMany({
+    where: { business_id: businessId },
+    include: {
+      items: {
+        include: {
+          service: true,
+        },
+      },
+    },
+  });
+}

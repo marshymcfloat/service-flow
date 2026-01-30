@@ -15,6 +15,15 @@ export async function proxy(request: NextRequest) {
     }
   }
 
+  if (request.nextUrl.pathname === "/" && isAuthenticated) {
+    const businessSlug = token.businessSlug as string;
+    if (businessSlug) {
+      return NextResponse.redirect(
+        new URL(`/app/${businessSlug}`, request.url),
+      );
+    }
+  }
+
   return NextResponse.next();
 }
 

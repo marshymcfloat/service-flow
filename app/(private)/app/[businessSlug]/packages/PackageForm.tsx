@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, memo, useCallback } from "react";
+import { ServiceItem } from "./ServiceItem";
 import { Service, ServicePackage } from "@/prisma/generated/prisma/client";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,7 +9,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
   SelectContent,
@@ -24,17 +24,50 @@ import {
 import { Clock, PhilippinePeso, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-type ServicePackageWithServices = ServicePackage & {
-  services: Service[];
+type ServicePackageWithItems = ServicePackage & {
+  items: {
+    service: Service;
+    custom_price: number;
+    service_id: number;
+  }[];
 };
 
 interface PackageFormProps {
   services: Service[];
   categories: string[];
   businessSlug: string;
-  initialData?: ServicePackageWithServices;
+  initialData?: ServicePackageWithItems;
   onSuccess: () => void;
 }
+
+const CategorySelector = memo(
+  ({
+    value,
+    categories,
+    onChange,
+  }: {
+    value: string;
+    categories: string[];
+    onChange: (value: string) => void;
+  }) => {
+    return (
+      <Select value={value} onValueChange={onChange}>
+        <SelectTrigger>
+          <SelectValue placeholder="Select category" />
+        </SelectTrigger>
+        <SelectContent>
+          {categories.map((cat) => (
+            <SelectItem key={cat} value={cat}>
+              {cat}
+            </SelectItem>
+          ))}
+          <SelectItem value="new">+ Create New Category</SelectItem>
+        </SelectContent>
+      </Select>
+    );
+  },
+);
+CategorySelector.displayName = "CategorySelector";
 
 export function PackageForm({
   services,
@@ -46,21 +79,25 @@ export function PackageForm({
   const [formData, setFormData] = useState({
     name: initialData?.name || "",
     description: initialData?.description || "",
-    price: initialData?.price.toString() || "",
     category: initialData?.category || "",
   });
 
-  const [selectedServiceIds, setSelectedServiceIds] = useState<number[]>(
-    initialData?.services.map((s) => s.id) || [],
+  const [selectedItems, setSelectedItems] = useState<Map<number, number>>(
+    () => {
+      if (initialData?.items) {
+        const map = new Map();
+        initialData.items.forEach((item) => {
+          map.set(item.service_id, item.custom_price);
+        });
+        return map;
+      }
+      return new Map();
+    },
   );
 
   const [serviceSearch, setServiceSearch] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [newCategory, setNewCategory] = useState("");
-
-  const selectedServices = useMemo(() => {
-    return services.filter((s) => selectedServiceIds.includes(s.id));
-  }, [services, selectedServiceIds]);
 
   const filteredServices = useMemo(() => {
     return services.filter(
@@ -70,37 +107,58 @@ export function PackageForm({
     );
   }, [services, serviceSearch]);
 
-  const totalValue = selectedServices.reduce((sum, s) => sum + s.price, 0);
-  const totalDuration = selectedServices.reduce(
-    (sum, s) => sum + (s.duration || 0),
-    0,
-  );
+  const totalValue = useMemo(() => {
+    let sum = 0;
+    selectedItems.forEach((price) => {
+      sum += price;
+    });
+    return sum;
+  }, [selectedItems]);
 
-  const discountAmount =
-    formData.price && !isNaN(parseFloat(formData.price))
-      ? totalValue - parseFloat(formData.price)
-      : 0;
+  const originalTotalValue = useMemo(() => {
+    let sum = 0;
+    selectedItems.forEach((_, serviceId) => {
+      const service = services.find((s) => s.id === serviceId);
+      if (service) {
+        sum += service.price;
+      }
+    });
+    return sum;
+  }, [selectedItems, services]);
 
-  const discountPercentage =
-    totalValue > 0 ? Math.round((discountAmount / totalValue) * 100) : 0;
+  const totalDuration = useMemo(() => {
+    let duration = 0;
+    selectedItems.forEach((_, serviceId) => {
+      const service = services.find((s) => s.id === serviceId);
+      if (service) {
+        duration += service.duration || 0;
+      }
+    });
+    return duration;
+  }, [selectedItems, services]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.name || !formData.price || !formData.category) {
+    if (!formData.name || !formData.category) {
       toast.error("Please fill in required fields");
       return;
     }
 
-    if (selectedServiceIds.length === 0) {
+    if (selectedItems.size === 0) {
       toast.error("Please select at least one service");
       return;
     }
 
     setIsLoading(true);
 
-    const price = parseFloat(formData.price);
     const category = newCategory || formData.category;
+    const items = Array.from(selectedItems.entries()).map(
+      ([serviceId, price]) => ({
+        serviceId,
+        customPrice: price,
+      }),
+    );
 
     try {
       let result;
@@ -109,20 +167,20 @@ export function PackageForm({
         result = await updatePackageAction(initialData.id, {
           name: formData.name,
           description: formData.description || undefined,
-          price,
+          price: totalValue,
           duration: totalDuration,
           category,
-          serviceIds: selectedServiceIds,
+          items,
         });
       } else {
         result = await createPackageAction({
           name: formData.name,
           description: formData.description || undefined,
-          price,
+          price: totalValue,
           duration: totalDuration,
           category,
           businessSlug,
-          serviceIds: selectedServiceIds,
+          items,
         });
       }
 
@@ -141,13 +199,39 @@ export function PackageForm({
     }
   };
 
-  const toggleService = (serviceId: number) => {
-    setSelectedServiceIds((prev) =>
-      prev.includes(serviceId)
-        ? prev.filter((id) => id !== serviceId)
-        : [...prev, serviceId],
-    );
-  };
+  const toggleService = useCallback((service: Service) => {
+    setSelectedItems((prev) => {
+      const newMap = new Map(prev);
+      if (newMap.has(service.id)) {
+        newMap.delete(service.id);
+      } else {
+        newMap.set(service.id, service.price);
+      }
+      return newMap;
+    });
+  }, []);
+
+  const updateItemPrice = useCallback((serviceId: number, price: number) => {
+    setSelectedItems((prev) => {
+      const newMap = new Map(prev);
+      if (newMap.has(serviceId)) {
+        newMap.set(serviceId, price);
+      }
+      return newMap;
+    });
+  }, []);
+
+  const handleCategoryChange = useMemo(
+    () => (value: string) => {
+      if (value === "new") {
+        setFormData((prev) => ({ ...prev, category: "new" }));
+      } else {
+        setFormData((prev) => ({ ...prev, category: value }));
+        setNewCategory("");
+      }
+    },
+    [],
+  );
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col h-[600px] md:h-auto">
@@ -186,29 +270,11 @@ export function PackageForm({
             <Label htmlFor="category">
               Category <span className="text-destructive">*</span>
             </Label>
-            <Select
+            <CategorySelector
               value={formData.category}
-              onValueChange={(value) => {
-                if (value === "new") {
-                  setFormData({ ...formData, category: "new" });
-                } else {
-                  setFormData({ ...formData, category: value });
-                  setNewCategory("");
-                }
-              }}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select category" />
-              </SelectTrigger>
-              <SelectContent>
-                {categories.map((cat) => (
-                  <SelectItem key={cat} value={cat}>
-                    {cat}
-                  </SelectItem>
-                ))}
-                <SelectItem value="new">+ Create New Category</SelectItem>
-              </SelectContent>
-            </Select>
+              categories={categories}
+              onChange={handleCategoryChange}
+            />
             {(formData.category === "new" || categories.length === 0) && (
               <Input
                 placeholder="Enter new category name"
@@ -223,46 +289,34 @@ export function PackageForm({
           </div>
 
           <div className="p-4 bg-zinc-50 rounded-lg border space-y-3">
-            <Label htmlFor="price">Pricing</Label>
+            <Label>Package Summary</Label>
             <div className="space-y-2">
-              <div className="relative">
-                <PhilippinePeso className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  id="price"
-                  type="number"
-                  placeholder="0.00"
-                  className="pl-9 bg-white"
-                  value={formData.price}
-                  onChange={(e) =>
-                    setFormData({ ...formData, price: e.target.value })
-                  }
-                  required
-                  min="0"
-                  step="0.01"
-                />
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-muted-foreground">
+                  Included Services:
+                </span>
+                <span className="font-medium">{selectedItems.size}</span>
               </div>
-              {totalValue > 0 && (
-                <div className="text-xs space-y-1">
-                  <div className="flex justify-between text-muted-foreground">
-                    <span>Total Service Value:</span>
-                    <span className="font-medium text-foreground">
-                      ₱{totalValue.toLocaleString()}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground">Discount:</span>
-                    {discountAmount > 0 ? (
-                      <Badge
-                        variant="secondary"
-                        className="bg-green-100 text-green-700 hover:bg-green-100 border-green-200"
-                      >
-                        Save ₱{discountAmount.toLocaleString()} (
-                        {discountPercentage}%)
-                      </Badge>
-                    ) : (
-                      <span className="text-amber-600 font-medium">None</span>
-                    )}
-                  </div>
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-muted-foreground">Original Value:</span>
+                <span className="font-medium">
+                  ₱{originalTotalValue.toLocaleString()}
+                </span>
+              </div>
+              <div className="flex justify-between items-center text-lg font-bold pt-2 border-t">
+                <span>Total Package Price:</span>
+                <span className="text-primary">
+                  ₱{totalValue.toLocaleString()}
+                </span>
+              </div>
+              {originalTotalValue > totalValue && (
+                <div className="flex justify-end pt-1">
+                  <Badge
+                    variant="outline"
+                    className="border-green-200 bg-green-50 text-green-700"
+                  >
+                    Save ₱{(originalTotalValue - totalValue).toLocaleString()}
+                  </Badge>
                 </div>
               )}
             </div>
@@ -272,9 +326,9 @@ export function PackageForm({
         <div className="flex flex-col h-[400px] md:h-full border rounded-lg overflow-hidden bg-zinc-50/50">
           <div className="p-3 border-b bg-white space-y-2">
             <div className="flex justify-between items-center">
-              <Label>Included Services</Label>
+              <Label>Select Services Included</Label>
               <span className="text-xs text-muted-foreground font-medium">
-                {selectedServices.length} selected
+                Customize prices below
               </span>
             </div>
             <div className="relative">
@@ -288,61 +342,26 @@ export function PackageForm({
             </div>
           </div>
 
-          <ScrollArea className="flex-1 bg-white max-h-[50vh]">
+          <div className="flex-1 bg-white max-h-[50vh] overflow-y-auto custom-scrollbar">
             <div className="divide-y">
               {filteredServices.length === 0 ? (
                 <div className="p-8 text-center text-sm text-muted-foreground">
                   No services found
                 </div>
               ) : (
-                filteredServices.map((service) => {
-                  const isSelected = selectedServiceIds.includes(service.id);
-                  return (
-                    <div
-                      key={service.id}
-                      className={cn(
-                        "flex items-start space-x-3 p-3 transition-colors cursor-pointer hover:bg-zinc-50",
-                        isSelected && "bg-primary/5 hover:bg-primary/10",
-                      )}
-                      onClick={() => toggleService(service.id)}
-                    >
-                      <Checkbox
-                        checked={isSelected}
-                        onCheckedChange={() => toggleService(service.id)}
-                        id={`service-${service.id}`}
-                        className="mt-0.5"
-                      />
-                      <div className="flex-1 space-y-1">
-                        <div className="flex justify-between items-start">
-                          <Label
-                            htmlFor={`service-${service.id}`}
-                            className="text-sm font-medium cursor-pointer leading-none"
-                          >
-                            {service.name}
-                          </Label>
-                          <span className="text-xs font-medium tabular-nums">
-                            ₱{service.price}
-                          </span>
-                        </div>
-                        <div className="flex items-center text-[10px] text-muted-foreground gap-2">
-                          <Badge
-                            variant="outline"
-                            className="text-[10px] py-0 h-4 border-zinc-200 text-zinc-500 font-normal"
-                          >
-                            {service.category}
-                          </Badge>
-                          <span className="flex items-center">
-                            <Clock className="h-3 w-3 mr-1" />
-                            {service.duration || 30}m
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })
+                filteredServices.map((service) => (
+                  <ServiceItem
+                    key={service.id}
+                    service={service}
+                    isSelected={selectedItems.has(service.id)}
+                    customPrice={selectedItems.get(service.id)}
+                    onToggle={toggleService}
+                    onPriceUpdate={updateItemPrice}
+                  />
+                ))
               )}
             </div>
-          </ScrollArea>
+          </div>
 
           <div className="p-3 border-t bg-white flex justify-between items-center text-xs text-muted-foreground">
             <span>Total Duration:</span>

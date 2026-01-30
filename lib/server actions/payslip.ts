@@ -60,6 +60,17 @@ export async function getPayslipDataAction(employeeId: number) {
         id: true,
         commission_base: true,
         price: true,
+        package_id: true,
+        package: {
+          select: {
+            name: true,
+          },
+        },
+        service: {
+          select: {
+            name: true,
+          },
+        },
       },
     });
 
@@ -89,6 +100,7 @@ export async function getPayslipDataAction(employeeId: number) {
           attendance_dates: attendanceRecords.map((r) => r.date),
           basic_salary: basicSalary,
           commission_services_count: commissionServices.length,
+          commission_services: commissionServices,
           commission_total: commissionTotal,
         },
         total_salary: totalSalary,
