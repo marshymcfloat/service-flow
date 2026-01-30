@@ -29,14 +29,14 @@ export async function AppSidebar() {
 
   const items = [
     {
-      title: "Home",
+      title: "Dashboard",
       url: `/app/${slug}`,
       icon: Home,
     },
     {
-      title: "Inbox",
-      url: `/app/${slug}/inbox`,
-      icon: Inbox,
+      title: "Manage Business",
+      url: `/app/${slug}/business`,
+      icon: Settings,
     },
   ];
 

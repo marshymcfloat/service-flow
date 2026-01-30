@@ -56,7 +56,6 @@ export function PayrollList({
                 Manage employee salaries and generate payslips
               </CardDescription>
             </div>
-            {/* Optional: Add "Run All Payroll" button later */}
           </div>
         </CardHeader>
         <CardContent className="flex-1 overflow-auto p-0 border-t min-h-[400px]">

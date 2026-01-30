@@ -1,5 +1,9 @@
 import { AppSidebar } from "@/components/dashboard/AppSidebar";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import {
+  SidebarInset,
+  SidebarProvider,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
 import { SidebarSkeleton } from "@/components/dashboard/SidebarSkeleton";
 import React from "react";
 import { Metadata } from "next";
@@ -54,9 +58,16 @@ async function AppLayoutContent({
         <React.Suspense fallback={<SidebarSkeleton />}>
           <AppSidebar />
         </React.Suspense>
-        <SidebarTrigger />
-        {children}
-        {modal}
+        <SidebarInset>
+          <header className="flex h-14 items-center gap-2 border-b bg-white px-4 lg:hidden">
+            <SidebarTrigger />
+            <span className="font-semibold">Menu</span>
+          </header>
+          <div className="flex-1 min-h-0 overflow-hidden">
+            {children}
+            {modal}
+          </div>
+        </SidebarInset>
       </SidebarProvider>
     </div>
   );

@@ -51,8 +51,8 @@ export default function OwnerDashboard({
   employees: EmployeeWithDetails[];
 }) {
   return (
-    <main className="w-screen h-screen flex items-center justify-center p-4 md:p-8 lg:p-12 bg-zinc-50/50">
-      <section className="w-full h-full border border-gray-200 shadow-xl bg-white rounded-3xl p-4 md:p-6 flex flex-col overflow-hidden">
+    <div className="h-full flex flex-col md:p-8 bg-zinc-50/50">
+      <section className="flex-1 flex flex-col bg-white overflow-hidden md:rounded-3xl md:border md:border-gray-200 md:shadow-xl p-4 md:p-6 max-h-[calc(100vh-4rem)]">
         <header className="mb-6 flex justify-between items-center shrink-0">
           <h1 className="font-semibold text-xl md:text-2xl text-zinc-800">
             {businessName} | Owner Dashboard
@@ -68,7 +68,7 @@ export default function OwnerDashboard({
           </Button>
         </header>
 
-        <div className="flex-1 overflow-y-auto min-h-0 space-y-6 pr-2">
+        <div className="flex-1 overflow-y-auto min-h-0 space-y-6 pr-1 md:pr-2">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <DashboardCard
               variant="filled"
@@ -91,33 +91,39 @@ export default function OwnerDashboard({
             />
           </div>
 
-          <Tabs defaultValue="bookings" className="w-full h-full flex flex-col">
-            <div className="flex items-center justify-between mb-4">
+          <Tabs defaultValue="bookings" className="w-full flex flex-col flex-1">
+            <div className="flex items-center justify-between mb-4 shrink-0">
               <TabsList>
                 <TabsTrigger value="bookings">Bookings</TabsTrigger>
                 <TabsTrigger value="payroll">Payroll</TabsTrigger>
               </TabsList>
             </div>
 
-            <TabsContent value="bookings" className="flex-1 h-full mt-0">
-              <div className="grid grid-cols-1 xl:grid-cols-4 gap-6 h-[500px]">
-                <div className="xl:col-span-2 h-full">
-                  <SalesChart bookings={bookings} className="h-full" />
+            <TabsContent
+              value="bookings"
+              className="flex-1 mt-0 min-h-0 overflow-hidden"
+            >
+              <div className="grid grid-cols-1 xl:grid-cols-4 gap-6 h-full max-h-[500px]">
+                <div className="xl:col-span-2 max-h-[50 0px] xl:h-full min-h-0 ">
+                  <SalesChart bookings={bookings} className="h-full w-full" />
                 </div>
-                <div className="xl:col-span-2 h-full min-h-0 overflow-hidden">
+                <div className="xl:col-span-2 h-[400px] xl:h-full max-h-[500px] min-h-0 overflow-hidden">
                   <BookingList bookings={allBookings} />
                 </div>
               </div>
             </TabsContent>
 
-            <TabsContent value="payroll" className="flex-1 h-full mt-0">
-              <div className="h-[500px]">
+            <TabsContent
+              value="payroll"
+              className="flex-1 mt-0 h-full min-h-0  overflow-hidden"
+            >
+              <div className="h-[500px] xl:h-full min-h-0">
                 <PayrollList employees={employees} />
               </div>
             </TabsContent>
           </Tabs>
         </div>
       </section>
-    </main>
+    </div>
   );
 }
