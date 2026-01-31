@@ -208,7 +208,7 @@ export function CustomersClient({
   const handleDeleteCustomer = async (id: string) => {
     startTransition(async () => {
       addOptimisticUpdate({ type: "delete", id });
-      const result = await deleteCustomer(id, businessSlug);
+      const result = await deleteCustomer(id);
 
       if (result.success) {
         toast.success("Customer deleted successfully");
