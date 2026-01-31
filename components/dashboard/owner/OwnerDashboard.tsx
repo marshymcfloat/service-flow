@@ -45,19 +45,20 @@ export default function OwnerDashboard({
           <h1 className="font-semibold text-xl md:text-2xl text-zinc-800">
             {businessName} | Owner Dashboard
           </h1>
-          <Button
-            asChild
-            className="rounded-full shadow-lg shadow-blue-500/20 px-3 md:px-4"
-          >
-            <Link href={`/${businessSlug}/booking`}>
-              <Plus className="h-4 w-4 md:mr-2" />
-              <span className="hidden md:inline">Add Booking</span>
-            </Link>
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              asChild
+              className="rounded-full shadow-lg shadow-blue-500/20 px-3 md:px-4"
+            >
+              <Link href={`/${businessSlug}/booking`}>
+                <Plus className="h-4 w-4 md:mr-2" />
+                <span className="hidden md:inline">Add Booking</span>
+              </Link>
+            </Button>
+          </div>
         </header>
 
         <div className="flex-1 overflow-y-auto min-h-0 space-y-6 pr-1 md:pr-2">
-          {/* Stat Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <DashboardCard
               variant="filled"
