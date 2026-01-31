@@ -52,6 +52,7 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   Business: 'Business',
+  LeaveRequest: 'LeaveRequest',
   BusinessHours: 'BusinessHours',
   SaleEvent: 'SaleEvent',
   User: 'User',
@@ -89,6 +90,7 @@ export const BusinessScalarFieldEnum = {
   id: 'id',
   name: 'name',
   slug: 'slug',
+  initials: 'initials',
   latitude: 'latitude',
   longitude: 'longitude',
   created_at: 'created_at',
@@ -96,6 +98,22 @@ export const BusinessScalarFieldEnum = {
 } as const
 
 export type BusinessScalarFieldEnum = (typeof BusinessScalarFieldEnum)[keyof typeof BusinessScalarFieldEnum]
+
+
+export const LeaveRequestScalarFieldEnum = {
+  id: 'id',
+  employee_id: 'employee_id',
+  business_id: 'business_id',
+  start_date: 'start_date',
+  end_date: 'end_date',
+  reason: 'reason',
+  status: 'status',
+  admin_comment: 'admin_comment',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type LeaveRequestScalarFieldEnum = (typeof LeaveRequestScalarFieldEnum)[keyof typeof LeaveRequestScalarFieldEnum]
 
 
 export const BusinessHoursScalarFieldEnum = {
@@ -285,6 +303,7 @@ export const VoucherScalarFieldEnum = {
   type: 'type',
   minimum_amount: 'minimum_amount',
   expires_at: 'expires_at',
+  is_active: 'is_active',
   used_by_id: 'used_by_id',
   business_id: 'business_id',
   created_at: 'created_at',

@@ -9,17 +9,45 @@ import {
 } from "@/prisma/generated/prisma/client";
 import { getStartOfDayPH } from "@/lib/date-utils";
 import { revalidatePath } from "next/cache";
+import { requireAuth } from "@/lib/auth/guards";
+import { Role } from "@/prisma/generated/prisma/enums";
 
 export async function getPayslipDataAction(employeeId: number) {
+  const auth = await requireAuth();
+  if (!auth.success) return auth;
+  const { session, businessSlug } = auth;
+
+  // 1. Employee Self-Check
+  if (session.user.role === Role.EMPLOYEE) {
+    const userEmployee = await prisma.employee.findUnique({
+      where: { user_id: session.user.id },
+    });
+    if (!userEmployee || userEmployee.id !== employeeId) {
+      return {
+        success: false,
+        error: "Unauthorized: You can only view your own payslips.",
+      };
+    }
+  }
+
   try {
     const employee = await prisma.employee.findUnique({
       where: { id: employeeId },
       include: {
         user: true,
+        business: { select: { slug: true } },
       },
     });
 
     if (!employee) throw new Error("Employee not found");
+
+    // 2. Owner Business Check
+    if (employee.business.slug !== businessSlug) {
+      return {
+        success: false,
+        error: "Unauthorized: Employee belongs to another business.",
+      };
+    }
 
     const lastPayslip = await prisma.payslip.findFirst({
       where: { employee_id: employeeId },
@@ -121,7 +149,31 @@ export async function createPayslipAction(data: {
   deduction?: number;
   comment?: string;
 }) {
+  const auth = await requireAuth();
+  if (!auth.success) return auth;
+  const { session, businessSlug } = auth;
+
+  // STRICT: Only Owners can generate payslips
+  if (session.user.role !== Role.OWNER) {
+    return {
+      success: false,
+      error: "Unauthorized: Only owners can create payslips.",
+    };
+  }
+
   try {
+    // Verify employee belongs to business
+    const employee = await prisma.employee.findUnique({
+      where: { id: data.employeeId },
+      select: { business: { select: { slug: true } } },
+    });
+
+    if (!employee || employee.business.slug !== businessSlug) {
+      return {
+        success: false,
+        error: "Unauthorized operation on employee from another business.",
+      };
+    }
     const payslip = await prisma.payslip.create({
       data: {
         employee_id: data.employeeId,
@@ -143,6 +195,28 @@ export async function createPayslipAction(data: {
 }
 
 export async function getPayslipHistoryAction(employeeId: number) {
+  const auth = await requireAuth();
+  if (!auth.success) return auth;
+  const { session, businessSlug } = auth;
+
+  if (session.user.role === Role.EMPLOYEE) {
+    const userEmployee = await prisma.employee.findUnique({
+      where: { user_id: session.user.id },
+    });
+    if (!userEmployee || userEmployee.id !== employeeId) {
+      return { success: false, error: "Unauthorized" };
+    }
+  }
+
+  // Cross-tenant check
+  const employee = await prisma.employee.findUnique({
+    where: { id: employeeId },
+    select: { business: { select: { slug: true } } },
+  });
+  if (!employee || employee.business.slug !== businessSlug) {
+    return { success: false, error: "Unauthorized" };
+  }
+
   try {
     const payslips = await prisma.payslip.findMany({
       where: { employee_id: employeeId },

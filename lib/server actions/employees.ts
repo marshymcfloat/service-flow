@@ -2,28 +2,34 @@
 
 import { prisma } from "@/prisma/prisma";
 import { Prisma } from "@/prisma/generated/prisma/client";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/next auth/options";
+import { requireAuth } from "@/lib/auth/guards";
 import { revalidatePath } from "next/cache";
 import { hash } from "bcryptjs";
 
 // Get all employees for a business
 export async function getEmployeesAction() {
-  const session = await getServerSession(authOptions);
-
-  if (!session?.user?.businessSlug) {
-    return { success: false, error: "Unauthorized" };
-  }
+  const auth = await requireAuth();
+  if (!auth.success) return auth;
+  const { businessSlug } = auth;
 
   try {
     const employees = await prisma.employee.findMany({
       where: {
         business: {
-          slug: session.user.businessSlug,
+          slug: businessSlug,
         },
       },
       include: {
-        user: true,
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+            created_at: true,
+            updated_at: true,
+          },
+        },
         attendance: {
           orderBy: { date: "desc" },
           take: 7,
@@ -60,11 +66,9 @@ export async function createEmployeeAction(data: {
   daily_rate: number;
   commission_percentage: number;
 }) {
-  const session = await getServerSession(authOptions);
-
-  if (!session?.user?.businessSlug) {
-    return { success: false, error: "Unauthorized" };
-  }
+  const auth = await requireAuth();
+  if (!auth.success) return auth;
+  const { businessSlug } = auth;
 
   try {
     // Check if email already exists
@@ -77,7 +81,7 @@ export async function createEmployeeAction(data: {
     }
 
     const business = await prisma.business.findUnique({
-      where: { slug: session.user.businessSlug },
+      where: { slug: businessSlug },
     });
 
     if (!business) {
@@ -88,33 +92,35 @@ export async function createEmployeeAction(data: {
     const hashedPassword = await hash(data.password, 12);
 
     // Create user and employee in a transaction
-    const result = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-      const user = await tx.user.create({
-        data: {
-          name: data.name,
-          email: data.email,
-          hashed_password: hashedPassword,
-          role: "EMPLOYEE",
-        },
-      });
+    const result = await prisma.$transaction(
+      async (tx: Prisma.TransactionClient) => {
+        const user = await tx.user.create({
+          data: {
+            name: data.name,
+            email: data.email,
+            hashed_password: hashedPassword,
+            role: "EMPLOYEE",
+          },
+        });
 
-      const employee = await tx.employee.create({
-        data: {
-          user_id: user.id,
-          business_id: business.id,
-          salary: 0, // Legacy field
-          daily_rate: data.daily_rate,
-          commission_percentage: data.commission_percentage,
-        },
-        include: {
-          user: true,
-        },
-      });
+        const employee = await tx.employee.create({
+          data: {
+            user_id: user.id,
+            business_id: business.id,
+            salary: 0, // Legacy field
+            daily_rate: data.daily_rate,
+            commission_percentage: data.commission_percentage,
+          },
+          include: {
+            user: true,
+          },
+        });
 
-      return employee;
-    });
+        return employee;
+      },
+    );
 
-    revalidatePath(`/app/${session.user.businessSlug}/employees`);
+    revalidatePath(`/app/${businessSlug}/employees`);
     return { success: true, data: result };
   } catch (error) {
     console.error("Failed to create employee:", error);
@@ -132,11 +138,9 @@ export async function updateEmployeeAction(
     commission_percentage?: number;
   },
 ) {
-  const session = await getServerSession(authOptions);
-
-  if (!session?.user?.businessSlug) {
-    return { success: false, error: "Unauthorized" };
-  }
+  const auth = await requireAuth();
+  if (!auth.success) return auth;
+  const { businessSlug } = auth;
 
   try {
     const employee = await prisma.employee.findUnique({
@@ -171,7 +175,7 @@ export async function updateEmployeeAction(
       });
     });
 
-    revalidatePath(`/app/${session.user.businessSlug}/employees`);
+    revalidatePath(`/app/${businessSlug}/employees`);
     return { success: true };
   } catch (error) {
     console.error("Failed to update employee:", error);
@@ -181,11 +185,9 @@ export async function updateEmployeeAction(
 
 // Delete an employee
 export async function deleteEmployeeAction(employeeId: number) {
-  const session = await getServerSession(authOptions);
-
-  if (!session?.user?.businessSlug) {
-    return { success: false, error: "Unauthorized" };
-  }
+  const auth = await requireAuth();
+  if (!auth.success) return auth;
+  const { businessSlug } = auth;
 
   try {
     const employee = await prisma.employee.findUnique({
@@ -202,7 +204,7 @@ export async function deleteEmployeeAction(employeeId: number) {
       where: { id: employeeId },
     });
 
-    revalidatePath(`/app/${session.user.businessSlug}/employees`);
+    revalidatePath(`/app/${businessSlug}/employees`);
     return { success: true };
   } catch (error) {
     console.error("Failed to delete employee:", error);
@@ -215,11 +217,9 @@ export async function resetEmployeePasswordAction(
   employeeId: number,
   newPassword: string,
 ) {
-  const session = await getServerSession(authOptions);
-
-  if (!session?.user?.businessSlug) {
-    return { success: false, error: "Unauthorized" };
-  }
+  const auth = await requireAuth();
+  if (!auth.success) return auth;
+  const { businessSlug } = auth;
 
   try {
     const employee = await prisma.employee.findUnique({

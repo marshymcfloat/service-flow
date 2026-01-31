@@ -2,6 +2,7 @@
 
 import { prisma } from "@/prisma/prisma";
 import { revalidatePath } from "next/cache";
+import { requireAuth } from "@/lib/auth/guards";
 
 interface PackageItemInput {
   serviceId: number;
@@ -28,6 +29,17 @@ interface UpdatePackageParams {
 }
 
 export async function createPackageAction(params: CreatePackageParams) {
+  const auth = await requireAuth();
+  if (!auth.success) return auth;
+  const { businessSlug } = auth;
+
+  if (params.businessSlug !== businessSlug) {
+    return {
+      success: false,
+      error: "Unauthorized operation for this business.",
+    };
+  }
+
   try {
     const business = await prisma.business.findUnique({
       where: { slug: params.businessSlug },
@@ -64,24 +76,33 @@ export async function updatePackageAction(
   packageId: number,
   params: UpdatePackageParams,
 ) {
+  const auth = await requireAuth();
+  if (!auth.success) return auth;
+  const { businessSlug } = auth;
+
   try {
+    const existingPackage = await prisma.servicePackage.findUnique({
+      where: { id: packageId },
+      select: { business: { select: { slug: true } } },
+    });
+
+    if (!existingPackage || existingPackage.business.slug !== businessSlug) {
+      return { success: false, error: "Package not found or unauthorized" };
+    }
+
     const { items, ...packageData } = params;
 
-    // Transaction to update package details and replace items
     const updatedPackage = await prisma.$transaction(async (tx) => {
-      // 1. Update package basic info
       const pkg = await tx.servicePackage.update({
         where: { id: packageId },
         data: packageData,
         include: { business: true },
       });
 
-      // 2. Delete existing items
       await tx.packageItem.deleteMany({
         where: { package_id: packageId },
       });
 
-      // 3. Create new items
       if (items.length > 0) {
         await tx.packageItem.createMany({
           data: items.map((item) => ({
@@ -104,7 +125,21 @@ export async function updatePackageAction(
 }
 
 export async function deletePackageAction(packageId: number) {
+  const auth = await requireAuth();
+  if (!auth.success) return auth;
+  const { businessSlug } = auth;
+
   try {
+    // Verify ownership
+    const existingPackage = await prisma.servicePackage.findUnique({
+      where: { id: packageId },
+      select: { business: { select: { slug: true } } },
+    });
+
+    if (!existingPackage || existingPackage.business.slug !== businessSlug) {
+      return { success: false, error: "Package not found or unauthorized" };
+    }
+
     const deletedPackage = await prisma.servicePackage.delete({
       where: { id: packageId },
       include: { business: true },

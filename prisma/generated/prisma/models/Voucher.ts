@@ -47,6 +47,7 @@ export type VoucherMinAggregateOutputType = {
   type: $Enums.VoucherType | null
   minimum_amount: number | null
   expires_at: Date | null
+  is_active: boolean | null
   used_by_id: number | null
   business_id: string | null
   created_at: Date | null
@@ -60,6 +61,7 @@ export type VoucherMaxAggregateOutputType = {
   type: $Enums.VoucherType | null
   minimum_amount: number | null
   expires_at: Date | null
+  is_active: boolean | null
   used_by_id: number | null
   business_id: string | null
   created_at: Date | null
@@ -73,6 +75,7 @@ export type VoucherCountAggregateOutputType = {
   type: number
   minimum_amount: number
   expires_at: number
+  is_active: number
   used_by_id: number
   business_id: number
   created_at: number
@@ -102,6 +105,7 @@ export type VoucherMinAggregateInputType = {
   type?: true
   minimum_amount?: true
   expires_at?: true
+  is_active?: true
   used_by_id?: true
   business_id?: true
   created_at?: true
@@ -115,6 +119,7 @@ export type VoucherMaxAggregateInputType = {
   type?: true
   minimum_amount?: true
   expires_at?: true
+  is_active?: true
   used_by_id?: true
   business_id?: true
   created_at?: true
@@ -128,6 +133,7 @@ export type VoucherCountAggregateInputType = {
   type?: true
   minimum_amount?: true
   expires_at?: true
+  is_active?: true
   used_by_id?: true
   business_id?: true
   created_at?: true
@@ -228,6 +234,7 @@ export type VoucherGroupByOutputType = {
   type: $Enums.VoucherType
   minimum_amount: number
   expires_at: Date
+  is_active: boolean
   used_by_id: number | null
   business_id: string
   created_at: Date
@@ -264,6 +271,7 @@ export type VoucherWhereInput = {
   type?: Prisma.EnumVoucherTypeFilter<"Voucher"> | $Enums.VoucherType
   minimum_amount?: Prisma.FloatFilter<"Voucher"> | number
   expires_at?: Prisma.DateTimeFilter<"Voucher"> | Date | string
+  is_active?: Prisma.BoolFilter<"Voucher"> | boolean
   used_by_id?: Prisma.IntNullableFilter<"Voucher"> | number | null
   business_id?: Prisma.StringFilter<"Voucher"> | string
   created_at?: Prisma.DateTimeFilter<"Voucher"> | Date | string
@@ -279,6 +287,7 @@ export type VoucherOrderByWithRelationInput = {
   type?: Prisma.SortOrder
   minimum_amount?: Prisma.SortOrder
   expires_at?: Prisma.SortOrder
+  is_active?: Prisma.SortOrder
   used_by_id?: Prisma.SortOrderInput | Prisma.SortOrder
   business_id?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
@@ -297,6 +306,7 @@ export type VoucherWhereUniqueInput = Prisma.AtLeast<{
   type?: Prisma.EnumVoucherTypeFilter<"Voucher"> | $Enums.VoucherType
   minimum_amount?: Prisma.FloatFilter<"Voucher"> | number
   expires_at?: Prisma.DateTimeFilter<"Voucher"> | Date | string
+  is_active?: Prisma.BoolFilter<"Voucher"> | boolean
   used_by_id?: Prisma.IntNullableFilter<"Voucher"> | number | null
   business_id?: Prisma.StringFilter<"Voucher"> | string
   created_at?: Prisma.DateTimeFilter<"Voucher"> | Date | string
@@ -312,6 +322,7 @@ export type VoucherOrderByWithAggregationInput = {
   type?: Prisma.SortOrder
   minimum_amount?: Prisma.SortOrder
   expires_at?: Prisma.SortOrder
+  is_active?: Prisma.SortOrder
   used_by_id?: Prisma.SortOrderInput | Prisma.SortOrder
   business_id?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
@@ -333,6 +344,7 @@ export type VoucherScalarWhereWithAggregatesInput = {
   type?: Prisma.EnumVoucherTypeWithAggregatesFilter<"Voucher"> | $Enums.VoucherType
   minimum_amount?: Prisma.FloatWithAggregatesFilter<"Voucher"> | number
   expires_at?: Prisma.DateTimeWithAggregatesFilter<"Voucher"> | Date | string
+  is_active?: Prisma.BoolWithAggregatesFilter<"Voucher"> | boolean
   used_by_id?: Prisma.IntNullableWithAggregatesFilter<"Voucher"> | number | null
   business_id?: Prisma.StringWithAggregatesFilter<"Voucher"> | string
   created_at?: Prisma.DateTimeWithAggregatesFilter<"Voucher"> | Date | string
@@ -345,6 +357,7 @@ export type VoucherCreateInput = {
   type?: $Enums.VoucherType
   minimum_amount?: number
   expires_at: Date | string
+  is_active?: boolean
   created_at?: Date | string
   updated_at?: Date | string
   used_by?: Prisma.BookingCreateNestedOneWithoutVouchersInput
@@ -358,6 +371,7 @@ export type VoucherUncheckedCreateInput = {
   type?: $Enums.VoucherType
   minimum_amount?: number
   expires_at: Date | string
+  is_active?: boolean
   used_by_id?: number | null
   business_id: string
   created_at?: Date | string
@@ -370,6 +384,7 @@ export type VoucherUpdateInput = {
   type?: Prisma.EnumVoucherTypeFieldUpdateOperationsInput | $Enums.VoucherType
   minimum_amount?: Prisma.FloatFieldUpdateOperationsInput | number
   expires_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  is_active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   used_by?: Prisma.BookingUpdateOneWithoutVouchersNestedInput
@@ -383,6 +398,7 @@ export type VoucherUncheckedUpdateInput = {
   type?: Prisma.EnumVoucherTypeFieldUpdateOperationsInput | $Enums.VoucherType
   minimum_amount?: Prisma.FloatFieldUpdateOperationsInput | number
   expires_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  is_active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   used_by_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   business_id?: Prisma.StringFieldUpdateOperationsInput | string
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -396,6 +412,7 @@ export type VoucherCreateManyInput = {
   type?: $Enums.VoucherType
   minimum_amount?: number
   expires_at: Date | string
+  is_active?: boolean
   used_by_id?: number | null
   business_id: string
   created_at?: Date | string
@@ -408,6 +425,7 @@ export type VoucherUpdateManyMutationInput = {
   type?: Prisma.EnumVoucherTypeFieldUpdateOperationsInput | $Enums.VoucherType
   minimum_amount?: Prisma.FloatFieldUpdateOperationsInput | number
   expires_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  is_active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -419,6 +437,7 @@ export type VoucherUncheckedUpdateManyInput = {
   type?: Prisma.EnumVoucherTypeFieldUpdateOperationsInput | $Enums.VoucherType
   minimum_amount?: Prisma.FloatFieldUpdateOperationsInput | number
   expires_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  is_active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   used_by_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   business_id?: Prisma.StringFieldUpdateOperationsInput | string
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -442,6 +461,7 @@ export type VoucherCountOrderByAggregateInput = {
   type?: Prisma.SortOrder
   minimum_amount?: Prisma.SortOrder
   expires_at?: Prisma.SortOrder
+  is_active?: Prisma.SortOrder
   used_by_id?: Prisma.SortOrder
   business_id?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
@@ -462,6 +482,7 @@ export type VoucherMaxOrderByAggregateInput = {
   type?: Prisma.SortOrder
   minimum_amount?: Prisma.SortOrder
   expires_at?: Prisma.SortOrder
+  is_active?: Prisma.SortOrder
   used_by_id?: Prisma.SortOrder
   business_id?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
@@ -475,6 +496,7 @@ export type VoucherMinOrderByAggregateInput = {
   type?: Prisma.SortOrder
   minimum_amount?: Prisma.SortOrder
   expires_at?: Prisma.SortOrder
+  is_active?: Prisma.SortOrder
   used_by_id?: Prisma.SortOrder
   business_id?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
@@ -582,6 +604,7 @@ export type VoucherCreateWithoutBusinessInput = {
   type?: $Enums.VoucherType
   minimum_amount?: number
   expires_at: Date | string
+  is_active?: boolean
   created_at?: Date | string
   updated_at?: Date | string
   used_by?: Prisma.BookingCreateNestedOneWithoutVouchersInput
@@ -594,6 +617,7 @@ export type VoucherUncheckedCreateWithoutBusinessInput = {
   type?: $Enums.VoucherType
   minimum_amount?: number
   expires_at: Date | string
+  is_active?: boolean
   used_by_id?: number | null
   created_at?: Date | string
   updated_at?: Date | string
@@ -635,6 +659,7 @@ export type VoucherScalarWhereInput = {
   type?: Prisma.EnumVoucherTypeFilter<"Voucher"> | $Enums.VoucherType
   minimum_amount?: Prisma.FloatFilter<"Voucher"> | number
   expires_at?: Prisma.DateTimeFilter<"Voucher"> | Date | string
+  is_active?: Prisma.BoolFilter<"Voucher"> | boolean
   used_by_id?: Prisma.IntNullableFilter<"Voucher"> | number | null
   business_id?: Prisma.StringFilter<"Voucher"> | string
   created_at?: Prisma.DateTimeFilter<"Voucher"> | Date | string
@@ -647,6 +672,7 @@ export type VoucherCreateWithoutUsed_byInput = {
   type?: $Enums.VoucherType
   minimum_amount?: number
   expires_at: Date | string
+  is_active?: boolean
   created_at?: Date | string
   updated_at?: Date | string
   business: Prisma.BusinessCreateNestedOneWithoutVouchersInput
@@ -659,6 +685,7 @@ export type VoucherUncheckedCreateWithoutUsed_byInput = {
   type?: $Enums.VoucherType
   minimum_amount?: number
   expires_at: Date | string
+  is_active?: boolean
   business_id: string
   created_at?: Date | string
   updated_at?: Date | string
@@ -697,6 +724,7 @@ export type VoucherCreateManyBusinessInput = {
   type?: $Enums.VoucherType
   minimum_amount?: number
   expires_at: Date | string
+  is_active?: boolean
   used_by_id?: number | null
   created_at?: Date | string
   updated_at?: Date | string
@@ -708,6 +736,7 @@ export type VoucherUpdateWithoutBusinessInput = {
   type?: Prisma.EnumVoucherTypeFieldUpdateOperationsInput | $Enums.VoucherType
   minimum_amount?: Prisma.FloatFieldUpdateOperationsInput | number
   expires_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  is_active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   used_by?: Prisma.BookingUpdateOneWithoutVouchersNestedInput
@@ -720,6 +749,7 @@ export type VoucherUncheckedUpdateWithoutBusinessInput = {
   type?: Prisma.EnumVoucherTypeFieldUpdateOperationsInput | $Enums.VoucherType
   minimum_amount?: Prisma.FloatFieldUpdateOperationsInput | number
   expires_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  is_active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   used_by_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -732,6 +762,7 @@ export type VoucherUncheckedUpdateManyWithoutBusinessInput = {
   type?: Prisma.EnumVoucherTypeFieldUpdateOperationsInput | $Enums.VoucherType
   minimum_amount?: Prisma.FloatFieldUpdateOperationsInput | number
   expires_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  is_active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   used_by_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -744,6 +775,7 @@ export type VoucherCreateManyUsed_byInput = {
   type?: $Enums.VoucherType
   minimum_amount?: number
   expires_at: Date | string
+  is_active?: boolean
   business_id: string
   created_at?: Date | string
   updated_at?: Date | string
@@ -755,6 +787,7 @@ export type VoucherUpdateWithoutUsed_byInput = {
   type?: Prisma.EnumVoucherTypeFieldUpdateOperationsInput | $Enums.VoucherType
   minimum_amount?: Prisma.FloatFieldUpdateOperationsInput | number
   expires_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  is_active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   business?: Prisma.BusinessUpdateOneRequiredWithoutVouchersNestedInput
@@ -767,6 +800,7 @@ export type VoucherUncheckedUpdateWithoutUsed_byInput = {
   type?: Prisma.EnumVoucherTypeFieldUpdateOperationsInput | $Enums.VoucherType
   minimum_amount?: Prisma.FloatFieldUpdateOperationsInput | number
   expires_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  is_active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   business_id?: Prisma.StringFieldUpdateOperationsInput | string
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -779,6 +813,7 @@ export type VoucherUncheckedUpdateManyWithoutUsed_byInput = {
   type?: Prisma.EnumVoucherTypeFieldUpdateOperationsInput | $Enums.VoucherType
   minimum_amount?: Prisma.FloatFieldUpdateOperationsInput | number
   expires_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  is_active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   business_id?: Prisma.StringFieldUpdateOperationsInput | string
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -793,6 +828,7 @@ export type VoucherSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   type?: boolean
   minimum_amount?: boolean
   expires_at?: boolean
+  is_active?: boolean
   used_by_id?: boolean
   business_id?: boolean
   created_at?: boolean
@@ -808,6 +844,7 @@ export type VoucherSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   type?: boolean
   minimum_amount?: boolean
   expires_at?: boolean
+  is_active?: boolean
   used_by_id?: boolean
   business_id?: boolean
   created_at?: boolean
@@ -823,6 +860,7 @@ export type VoucherSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   type?: boolean
   minimum_amount?: boolean
   expires_at?: boolean
+  is_active?: boolean
   used_by_id?: boolean
   business_id?: boolean
   created_at?: boolean
@@ -838,13 +876,14 @@ export type VoucherSelectScalar = {
   type?: boolean
   minimum_amount?: boolean
   expires_at?: boolean
+  is_active?: boolean
   used_by_id?: boolean
   business_id?: boolean
   created_at?: boolean
   updated_at?: boolean
 }
 
-export type VoucherOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "code" | "value" | "type" | "minimum_amount" | "expires_at" | "used_by_id" | "business_id" | "created_at" | "updated_at", ExtArgs["result"]["voucher"]>
+export type VoucherOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "code" | "value" | "type" | "minimum_amount" | "expires_at" | "is_active" | "used_by_id" | "business_id" | "created_at" | "updated_at", ExtArgs["result"]["voucher"]>
 export type VoucherInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   used_by?: boolean | Prisma.Voucher$used_byArgs<ExtArgs>
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
@@ -871,6 +910,7 @@ export type $VoucherPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     type: $Enums.VoucherType
     minimum_amount: number
     expires_at: Date
+    is_active: boolean
     used_by_id: number | null
     business_id: string
     created_at: Date
@@ -1306,6 +1346,7 @@ export interface VoucherFieldRefs {
   readonly type: Prisma.FieldRef<"Voucher", 'VoucherType'>
   readonly minimum_amount: Prisma.FieldRef<"Voucher", 'Float'>
   readonly expires_at: Prisma.FieldRef<"Voucher", 'DateTime'>
+  readonly is_active: Prisma.FieldRef<"Voucher", 'Boolean'>
   readonly used_by_id: Prisma.FieldRef<"Voucher", 'Int'>
   readonly business_id: Prisma.FieldRef<"Voucher", 'String'>
   readonly created_at: Prisma.FieldRef<"Voucher", 'DateTime'>

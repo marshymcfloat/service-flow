@@ -2,7 +2,7 @@ import BookingDataContainer from "@/components/bookings/BookingDataContainer";
 import BookingSkeleton from "@/components/skeletons/BookingSkeleton";
 import { Suspense } from "react";
 
-export default function BookingPage({
+export default async function BookingPage({
   params,
 }: {
   params: Promise<{ businessSlug: string }>;

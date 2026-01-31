@@ -40,6 +40,7 @@ export type BusinessMinAggregateOutputType = {
   id: string | null
   name: string | null
   slug: string | null
+  initials: string | null
   latitude: number | null
   longitude: number | null
   created_at: Date | null
@@ -50,6 +51,7 @@ export type BusinessMaxAggregateOutputType = {
   id: string | null
   name: string | null
   slug: string | null
+  initials: string | null
   latitude: number | null
   longitude: number | null
   created_at: Date | null
@@ -60,6 +62,7 @@ export type BusinessCountAggregateOutputType = {
   id: number
   name: number
   slug: number
+  initials: number
   latitude: number
   longitude: number
   created_at: number
@@ -82,6 +85,7 @@ export type BusinessMinAggregateInputType = {
   id?: true
   name?: true
   slug?: true
+  initials?: true
   latitude?: true
   longitude?: true
   created_at?: true
@@ -92,6 +96,7 @@ export type BusinessMaxAggregateInputType = {
   id?: true
   name?: true
   slug?: true
+  initials?: true
   latitude?: true
   longitude?: true
   created_at?: true
@@ -102,6 +107,7 @@ export type BusinessCountAggregateInputType = {
   id?: true
   name?: true
   slug?: true
+  initials?: true
   latitude?: true
   longitude?: true
   created_at?: true
@@ -199,6 +205,7 @@ export type BusinessGroupByOutputType = {
   id: string
   name: string
   slug: string
+  initials: string
   latitude: number | null
   longitude: number | null
   created_at: Date
@@ -232,6 +239,7 @@ export type BusinessWhereInput = {
   id?: Prisma.StringFilter<"Business"> | string
   name?: Prisma.StringFilter<"Business"> | string
   slug?: Prisma.StringFilter<"Business"> | string
+  initials?: Prisma.StringFilter<"Business"> | string
   latitude?: Prisma.FloatNullableFilter<"Business"> | number | null
   longitude?: Prisma.FloatNullableFilter<"Business"> | number | null
   created_at?: Prisma.DateTimeFilter<"Business"> | Date | string
@@ -245,6 +253,7 @@ export type BusinessWhereInput = {
   vouchers?: Prisma.VoucherListRelationFilter
   special_dates?: Prisma.SpecialDateListRelationFilter
   packages?: Prisma.ServicePackageListRelationFilter
+  leave_requests?: Prisma.LeaveRequestListRelationFilter
   business_hours?: Prisma.BusinessHoursListRelationFilter
 }
 
@@ -252,6 +261,7 @@ export type BusinessOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   slug?: Prisma.SortOrder
+  initials?: Prisma.SortOrder
   latitude?: Prisma.SortOrderInput | Prisma.SortOrder
   longitude?: Prisma.SortOrderInput | Prisma.SortOrder
   created_at?: Prisma.SortOrder
@@ -265,6 +275,7 @@ export type BusinessOrderByWithRelationInput = {
   vouchers?: Prisma.VoucherOrderByRelationAggregateInput
   special_dates?: Prisma.SpecialDateOrderByRelationAggregateInput
   packages?: Prisma.ServicePackageOrderByRelationAggregateInput
+  leave_requests?: Prisma.LeaveRequestOrderByRelationAggregateInput
   business_hours?: Prisma.BusinessHoursOrderByRelationAggregateInput
 }
 
@@ -275,6 +286,7 @@ export type BusinessWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.BusinessWhereInput[]
   NOT?: Prisma.BusinessWhereInput | Prisma.BusinessWhereInput[]
   name?: Prisma.StringFilter<"Business"> | string
+  initials?: Prisma.StringFilter<"Business"> | string
   latitude?: Prisma.FloatNullableFilter<"Business"> | number | null
   longitude?: Prisma.FloatNullableFilter<"Business"> | number | null
   created_at?: Prisma.DateTimeFilter<"Business"> | Date | string
@@ -288,6 +300,7 @@ export type BusinessWhereUniqueInput = Prisma.AtLeast<{
   vouchers?: Prisma.VoucherListRelationFilter
   special_dates?: Prisma.SpecialDateListRelationFilter
   packages?: Prisma.ServicePackageListRelationFilter
+  leave_requests?: Prisma.LeaveRequestListRelationFilter
   business_hours?: Prisma.BusinessHoursListRelationFilter
 }, "id" | "slug">
 
@@ -295,6 +308,7 @@ export type BusinessOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   slug?: Prisma.SortOrder
+  initials?: Prisma.SortOrder
   latitude?: Prisma.SortOrderInput | Prisma.SortOrder
   longitude?: Prisma.SortOrderInput | Prisma.SortOrder
   created_at?: Prisma.SortOrder
@@ -313,6 +327,7 @@ export type BusinessScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"Business"> | string
   name?: Prisma.StringWithAggregatesFilter<"Business"> | string
   slug?: Prisma.StringWithAggregatesFilter<"Business"> | string
+  initials?: Prisma.StringWithAggregatesFilter<"Business"> | string
   latitude?: Prisma.FloatNullableWithAggregatesFilter<"Business"> | number | null
   longitude?: Prisma.FloatNullableWithAggregatesFilter<"Business"> | number | null
   created_at?: Prisma.DateTimeWithAggregatesFilter<"Business"> | Date | string
@@ -323,6 +338,7 @@ export type BusinessCreateInput = {
   id?: string
   name: string
   slug: string
+  initials: string
   latitude?: number | null
   longitude?: number | null
   created_at?: Date | string
@@ -336,6 +352,7 @@ export type BusinessCreateInput = {
   vouchers?: Prisma.VoucherCreateNestedManyWithoutBusinessInput
   special_dates?: Prisma.SpecialDateCreateNestedManyWithoutBusinessInput
   packages?: Prisma.ServicePackageCreateNestedManyWithoutBusinessInput
+  leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
 }
 
@@ -343,6 +360,7 @@ export type BusinessUncheckedCreateInput = {
   id?: string
   name: string
   slug: string
+  initials: string
   latitude?: number | null
   longitude?: number | null
   created_at?: Date | string
@@ -356,6 +374,7 @@ export type BusinessUncheckedCreateInput = {
   vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutBusinessInput
   special_dates?: Prisma.SpecialDateUncheckedCreateNestedManyWithoutBusinessInput
   packages?: Prisma.ServicePackageUncheckedCreateNestedManyWithoutBusinessInput
+  leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
 }
 
@@ -363,6 +382,7 @@ export type BusinessUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  initials?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -376,6 +396,7 @@ export type BusinessUpdateInput = {
   vouchers?: Prisma.VoucherUpdateManyWithoutBusinessNestedInput
   special_dates?: Prisma.SpecialDateUpdateManyWithoutBusinessNestedInput
   packages?: Prisma.ServicePackageUpdateManyWithoutBusinessNestedInput
+  leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
 }
 
@@ -383,6 +404,7 @@ export type BusinessUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  initials?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -396,6 +418,7 @@ export type BusinessUncheckedUpdateInput = {
   vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutBusinessNestedInput
   special_dates?: Prisma.SpecialDateUncheckedUpdateManyWithoutBusinessNestedInput
   packages?: Prisma.ServicePackageUncheckedUpdateManyWithoutBusinessNestedInput
+  leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
@@ -403,6 +426,7 @@ export type BusinessCreateManyInput = {
   id?: string
   name: string
   slug: string
+  initials: string
   latitude?: number | null
   longitude?: number | null
   created_at?: Date | string
@@ -413,6 +437,7 @@ export type BusinessUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  initials?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -423,6 +448,7 @@ export type BusinessUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  initials?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -433,6 +459,7 @@ export type BusinessCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   slug?: Prisma.SortOrder
+  initials?: Prisma.SortOrder
   latitude?: Prisma.SortOrder
   longitude?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
@@ -448,6 +475,7 @@ export type BusinessMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   slug?: Prisma.SortOrder
+  initials?: Prisma.SortOrder
   latitude?: Prisma.SortOrder
   longitude?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
@@ -458,6 +486,7 @@ export type BusinessMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   slug?: Prisma.SortOrder
+  initials?: Prisma.SortOrder
   latitude?: Prisma.SortOrder
   longitude?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
@@ -488,6 +517,20 @@ export type NullableFloatFieldUpdateOperationsInput = {
 
 export type DateTimeFieldUpdateOperationsInput = {
   set?: Date | string
+}
+
+export type BusinessCreateNestedOneWithoutLeave_requestsInput = {
+  create?: Prisma.XOR<Prisma.BusinessCreateWithoutLeave_requestsInput, Prisma.BusinessUncheckedCreateWithoutLeave_requestsInput>
+  connectOrCreate?: Prisma.BusinessCreateOrConnectWithoutLeave_requestsInput
+  connect?: Prisma.BusinessWhereUniqueInput
+}
+
+export type BusinessUpdateOneRequiredWithoutLeave_requestsNestedInput = {
+  create?: Prisma.XOR<Prisma.BusinessCreateWithoutLeave_requestsInput, Prisma.BusinessUncheckedCreateWithoutLeave_requestsInput>
+  connectOrCreate?: Prisma.BusinessCreateOrConnectWithoutLeave_requestsInput
+  upsert?: Prisma.BusinessUpsertWithoutLeave_requestsInput
+  connect?: Prisma.BusinessWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.BusinessUpdateToOneWithWhereWithoutLeave_requestsInput, Prisma.BusinessUpdateWithoutLeave_requestsInput>, Prisma.BusinessUncheckedUpdateWithoutLeave_requestsInput>
 }
 
 export type BusinessCreateNestedOneWithoutBusiness_hoursInput = {
@@ -630,10 +673,11 @@ export type BusinessUpdateOneRequiredWithoutVouchersNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.BusinessUpdateToOneWithWhereWithoutVouchersInput, Prisma.BusinessUpdateWithoutVouchersInput>, Prisma.BusinessUncheckedUpdateWithoutVouchersInput>
 }
 
-export type BusinessCreateWithoutBusiness_hoursInput = {
+export type BusinessCreateWithoutLeave_requestsInput = {
   id?: string
   name: string
   slug: string
+  initials: string
   latitude?: number | null
   longitude?: number | null
   created_at?: Date | string
@@ -647,12 +691,14 @@ export type BusinessCreateWithoutBusiness_hoursInput = {
   vouchers?: Prisma.VoucherCreateNestedManyWithoutBusinessInput
   special_dates?: Prisma.SpecialDateCreateNestedManyWithoutBusinessInput
   packages?: Prisma.ServicePackageCreateNestedManyWithoutBusinessInput
+  business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
 }
 
-export type BusinessUncheckedCreateWithoutBusiness_hoursInput = {
+export type BusinessUncheckedCreateWithoutLeave_requestsInput = {
   id?: string
   name: string
   slug: string
+  initials: string
   latitude?: number | null
   longitude?: number | null
   created_at?: Date | string
@@ -666,6 +712,107 @@ export type BusinessUncheckedCreateWithoutBusiness_hoursInput = {
   vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutBusinessInput
   special_dates?: Prisma.SpecialDateUncheckedCreateNestedManyWithoutBusinessInput
   packages?: Prisma.ServicePackageUncheckedCreateNestedManyWithoutBusinessInput
+  business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
+}
+
+export type BusinessCreateOrConnectWithoutLeave_requestsInput = {
+  where: Prisma.BusinessWhereUniqueInput
+  create: Prisma.XOR<Prisma.BusinessCreateWithoutLeave_requestsInput, Prisma.BusinessUncheckedCreateWithoutLeave_requestsInput>
+}
+
+export type BusinessUpsertWithoutLeave_requestsInput = {
+  update: Prisma.XOR<Prisma.BusinessUpdateWithoutLeave_requestsInput, Prisma.BusinessUncheckedUpdateWithoutLeave_requestsInput>
+  create: Prisma.XOR<Prisma.BusinessCreateWithoutLeave_requestsInput, Prisma.BusinessUncheckedCreateWithoutLeave_requestsInput>
+  where?: Prisma.BusinessWhereInput
+}
+
+export type BusinessUpdateToOneWithWhereWithoutLeave_requestsInput = {
+  where?: Prisma.BusinessWhereInput
+  data: Prisma.XOR<Prisma.BusinessUpdateWithoutLeave_requestsInput, Prisma.BusinessUncheckedUpdateWithoutLeave_requestsInput>
+}
+
+export type BusinessUpdateWithoutLeave_requestsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  initials?: Prisma.StringFieldUpdateOperationsInput | string
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  services?: Prisma.ServiceUpdateManyWithoutBusinessNestedInput
+  employees?: Prisma.EmployeeUpdateManyWithoutBusinessNestedInput
+  owners?: Prisma.OwnerUpdateManyWithoutBusinessNestedInput
+  customers?: Prisma.CustomerUpdateManyWithoutBusinessNestedInput
+  bookings?: Prisma.BookingUpdateManyWithoutBusinessNestedInput
+  sale_events?: Prisma.SaleEventUpdateManyWithoutBusinessNestedInput
+  vouchers?: Prisma.VoucherUpdateManyWithoutBusinessNestedInput
+  special_dates?: Prisma.SpecialDateUpdateManyWithoutBusinessNestedInput
+  packages?: Prisma.ServicePackageUpdateManyWithoutBusinessNestedInput
+  business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
+}
+
+export type BusinessUncheckedUpdateWithoutLeave_requestsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  initials?: Prisma.StringFieldUpdateOperationsInput | string
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  services?: Prisma.ServiceUncheckedUpdateManyWithoutBusinessNestedInput
+  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutBusinessNestedInput
+  owners?: Prisma.OwnerUncheckedUpdateManyWithoutBusinessNestedInput
+  customers?: Prisma.CustomerUncheckedUpdateManyWithoutBusinessNestedInput
+  bookings?: Prisma.BookingUncheckedUpdateManyWithoutBusinessNestedInput
+  sale_events?: Prisma.SaleEventUncheckedUpdateManyWithoutBusinessNestedInput
+  vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutBusinessNestedInput
+  special_dates?: Prisma.SpecialDateUncheckedUpdateManyWithoutBusinessNestedInput
+  packages?: Prisma.ServicePackageUncheckedUpdateManyWithoutBusinessNestedInput
+  business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
+}
+
+export type BusinessCreateWithoutBusiness_hoursInput = {
+  id?: string
+  name: string
+  slug: string
+  initials: string
+  latitude?: number | null
+  longitude?: number | null
+  created_at?: Date | string
+  updated_at?: Date | string
+  services?: Prisma.ServiceCreateNestedManyWithoutBusinessInput
+  employees?: Prisma.EmployeeCreateNestedManyWithoutBusinessInput
+  owners?: Prisma.OwnerCreateNestedManyWithoutBusinessInput
+  customers?: Prisma.CustomerCreateNestedManyWithoutBusinessInput
+  bookings?: Prisma.BookingCreateNestedManyWithoutBusinessInput
+  sale_events?: Prisma.SaleEventCreateNestedManyWithoutBusinessInput
+  vouchers?: Prisma.VoucherCreateNestedManyWithoutBusinessInput
+  special_dates?: Prisma.SpecialDateCreateNestedManyWithoutBusinessInput
+  packages?: Prisma.ServicePackageCreateNestedManyWithoutBusinessInput
+  leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
+}
+
+export type BusinessUncheckedCreateWithoutBusiness_hoursInput = {
+  id?: string
+  name: string
+  slug: string
+  initials: string
+  latitude?: number | null
+  longitude?: number | null
+  created_at?: Date | string
+  updated_at?: Date | string
+  services?: Prisma.ServiceUncheckedCreateNestedManyWithoutBusinessInput
+  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutBusinessInput
+  owners?: Prisma.OwnerUncheckedCreateNestedManyWithoutBusinessInput
+  customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutBusinessInput
+  bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutBusinessInput
+  sale_events?: Prisma.SaleEventUncheckedCreateNestedManyWithoutBusinessInput
+  vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutBusinessInput
+  special_dates?: Prisma.SpecialDateUncheckedCreateNestedManyWithoutBusinessInput
+  packages?: Prisma.ServicePackageUncheckedCreateNestedManyWithoutBusinessInput
+  leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessCreateOrConnectWithoutBusiness_hoursInput = {
@@ -688,6 +835,7 @@ export type BusinessUpdateWithoutBusiness_hoursInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  initials?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -701,12 +849,14 @@ export type BusinessUpdateWithoutBusiness_hoursInput = {
   vouchers?: Prisma.VoucherUpdateManyWithoutBusinessNestedInput
   special_dates?: Prisma.SpecialDateUpdateManyWithoutBusinessNestedInput
   packages?: Prisma.ServicePackageUpdateManyWithoutBusinessNestedInput
+  leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateWithoutBusiness_hoursInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  initials?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -720,12 +870,14 @@ export type BusinessUncheckedUpdateWithoutBusiness_hoursInput = {
   vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutBusinessNestedInput
   special_dates?: Prisma.SpecialDateUncheckedUpdateManyWithoutBusinessNestedInput
   packages?: Prisma.ServicePackageUncheckedUpdateManyWithoutBusinessNestedInput
+  leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessCreateWithoutSale_eventsInput = {
   id?: string
   name: string
   slug: string
+  initials: string
   latitude?: number | null
   longitude?: number | null
   created_at?: Date | string
@@ -738,6 +890,7 @@ export type BusinessCreateWithoutSale_eventsInput = {
   vouchers?: Prisma.VoucherCreateNestedManyWithoutBusinessInput
   special_dates?: Prisma.SpecialDateCreateNestedManyWithoutBusinessInput
   packages?: Prisma.ServicePackageCreateNestedManyWithoutBusinessInput
+  leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
 }
 
@@ -745,6 +898,7 @@ export type BusinessUncheckedCreateWithoutSale_eventsInput = {
   id?: string
   name: string
   slug: string
+  initials: string
   latitude?: number | null
   longitude?: number | null
   created_at?: Date | string
@@ -757,6 +911,7 @@ export type BusinessUncheckedCreateWithoutSale_eventsInput = {
   vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutBusinessInput
   special_dates?: Prisma.SpecialDateUncheckedCreateNestedManyWithoutBusinessInput
   packages?: Prisma.ServicePackageUncheckedCreateNestedManyWithoutBusinessInput
+  leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
 }
 
@@ -780,6 +935,7 @@ export type BusinessUpdateWithoutSale_eventsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  initials?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -792,6 +948,7 @@ export type BusinessUpdateWithoutSale_eventsInput = {
   vouchers?: Prisma.VoucherUpdateManyWithoutBusinessNestedInput
   special_dates?: Prisma.SpecialDateUpdateManyWithoutBusinessNestedInput
   packages?: Prisma.ServicePackageUpdateManyWithoutBusinessNestedInput
+  leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
 }
 
@@ -799,6 +956,7 @@ export type BusinessUncheckedUpdateWithoutSale_eventsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  initials?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -811,6 +969,7 @@ export type BusinessUncheckedUpdateWithoutSale_eventsInput = {
   vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutBusinessNestedInput
   special_dates?: Prisma.SpecialDateUncheckedUpdateManyWithoutBusinessNestedInput
   packages?: Prisma.ServicePackageUncheckedUpdateManyWithoutBusinessNestedInput
+  leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
@@ -818,6 +977,7 @@ export type BusinessCreateWithoutEmployeesInput = {
   id?: string
   name: string
   slug: string
+  initials: string
   latitude?: number | null
   longitude?: number | null
   created_at?: Date | string
@@ -830,6 +990,7 @@ export type BusinessCreateWithoutEmployeesInput = {
   vouchers?: Prisma.VoucherCreateNestedManyWithoutBusinessInput
   special_dates?: Prisma.SpecialDateCreateNestedManyWithoutBusinessInput
   packages?: Prisma.ServicePackageCreateNestedManyWithoutBusinessInput
+  leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
 }
 
@@ -837,6 +998,7 @@ export type BusinessUncheckedCreateWithoutEmployeesInput = {
   id?: string
   name: string
   slug: string
+  initials: string
   latitude?: number | null
   longitude?: number | null
   created_at?: Date | string
@@ -849,6 +1011,7 @@ export type BusinessUncheckedCreateWithoutEmployeesInput = {
   vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutBusinessInput
   special_dates?: Prisma.SpecialDateUncheckedCreateNestedManyWithoutBusinessInput
   packages?: Prisma.ServicePackageUncheckedCreateNestedManyWithoutBusinessInput
+  leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
 }
 
@@ -872,6 +1035,7 @@ export type BusinessUpdateWithoutEmployeesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  initials?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -884,6 +1048,7 @@ export type BusinessUpdateWithoutEmployeesInput = {
   vouchers?: Prisma.VoucherUpdateManyWithoutBusinessNestedInput
   special_dates?: Prisma.SpecialDateUpdateManyWithoutBusinessNestedInput
   packages?: Prisma.ServicePackageUpdateManyWithoutBusinessNestedInput
+  leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
 }
 
@@ -891,6 +1056,7 @@ export type BusinessUncheckedUpdateWithoutEmployeesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  initials?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -903,6 +1069,7 @@ export type BusinessUncheckedUpdateWithoutEmployeesInput = {
   vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutBusinessNestedInput
   special_dates?: Prisma.SpecialDateUncheckedUpdateManyWithoutBusinessNestedInput
   packages?: Prisma.ServicePackageUncheckedUpdateManyWithoutBusinessNestedInput
+  leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
@@ -910,6 +1077,7 @@ export type BusinessCreateWithoutSpecial_datesInput = {
   id?: string
   name: string
   slug: string
+  initials: string
   latitude?: number | null
   longitude?: number | null
   created_at?: Date | string
@@ -922,6 +1090,7 @@ export type BusinessCreateWithoutSpecial_datesInput = {
   sale_events?: Prisma.SaleEventCreateNestedManyWithoutBusinessInput
   vouchers?: Prisma.VoucherCreateNestedManyWithoutBusinessInput
   packages?: Prisma.ServicePackageCreateNestedManyWithoutBusinessInput
+  leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
 }
 
@@ -929,6 +1098,7 @@ export type BusinessUncheckedCreateWithoutSpecial_datesInput = {
   id?: string
   name: string
   slug: string
+  initials: string
   latitude?: number | null
   longitude?: number | null
   created_at?: Date | string
@@ -941,6 +1111,7 @@ export type BusinessUncheckedCreateWithoutSpecial_datesInput = {
   sale_events?: Prisma.SaleEventUncheckedCreateNestedManyWithoutBusinessInput
   vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutBusinessInput
   packages?: Prisma.ServicePackageUncheckedCreateNestedManyWithoutBusinessInput
+  leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
 }
 
@@ -964,6 +1135,7 @@ export type BusinessUpdateWithoutSpecial_datesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  initials?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -976,6 +1148,7 @@ export type BusinessUpdateWithoutSpecial_datesInput = {
   sale_events?: Prisma.SaleEventUpdateManyWithoutBusinessNestedInput
   vouchers?: Prisma.VoucherUpdateManyWithoutBusinessNestedInput
   packages?: Prisma.ServicePackageUpdateManyWithoutBusinessNestedInput
+  leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
 }
 
@@ -983,6 +1156,7 @@ export type BusinessUncheckedUpdateWithoutSpecial_datesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  initials?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -995,6 +1169,7 @@ export type BusinessUncheckedUpdateWithoutSpecial_datesInput = {
   sale_events?: Prisma.SaleEventUncheckedUpdateManyWithoutBusinessNestedInput
   vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutBusinessNestedInput
   packages?: Prisma.ServicePackageUncheckedUpdateManyWithoutBusinessNestedInput
+  leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
@@ -1002,6 +1177,7 @@ export type BusinessCreateWithoutOwnersInput = {
   id?: string
   name: string
   slug: string
+  initials: string
   latitude?: number | null
   longitude?: number | null
   created_at?: Date | string
@@ -1014,6 +1190,7 @@ export type BusinessCreateWithoutOwnersInput = {
   vouchers?: Prisma.VoucherCreateNestedManyWithoutBusinessInput
   special_dates?: Prisma.SpecialDateCreateNestedManyWithoutBusinessInput
   packages?: Prisma.ServicePackageCreateNestedManyWithoutBusinessInput
+  leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
 }
 
@@ -1021,6 +1198,7 @@ export type BusinessUncheckedCreateWithoutOwnersInput = {
   id?: string
   name: string
   slug: string
+  initials: string
   latitude?: number | null
   longitude?: number | null
   created_at?: Date | string
@@ -1033,6 +1211,7 @@ export type BusinessUncheckedCreateWithoutOwnersInput = {
   vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutBusinessInput
   special_dates?: Prisma.SpecialDateUncheckedCreateNestedManyWithoutBusinessInput
   packages?: Prisma.ServicePackageUncheckedCreateNestedManyWithoutBusinessInput
+  leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
 }
 
@@ -1056,6 +1235,7 @@ export type BusinessUpdateWithoutOwnersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  initials?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1068,6 +1248,7 @@ export type BusinessUpdateWithoutOwnersInput = {
   vouchers?: Prisma.VoucherUpdateManyWithoutBusinessNestedInput
   special_dates?: Prisma.SpecialDateUpdateManyWithoutBusinessNestedInput
   packages?: Prisma.ServicePackageUpdateManyWithoutBusinessNestedInput
+  leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
 }
 
@@ -1075,6 +1256,7 @@ export type BusinessUncheckedUpdateWithoutOwnersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  initials?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1087,6 +1269,7 @@ export type BusinessUncheckedUpdateWithoutOwnersInput = {
   vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutBusinessNestedInput
   special_dates?: Prisma.SpecialDateUncheckedUpdateManyWithoutBusinessNestedInput
   packages?: Prisma.ServicePackageUncheckedUpdateManyWithoutBusinessNestedInput
+  leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
@@ -1094,6 +1277,7 @@ export type BusinessCreateWithoutServicesInput = {
   id?: string
   name: string
   slug: string
+  initials: string
   latitude?: number | null
   longitude?: number | null
   created_at?: Date | string
@@ -1106,6 +1290,7 @@ export type BusinessCreateWithoutServicesInput = {
   vouchers?: Prisma.VoucherCreateNestedManyWithoutBusinessInput
   special_dates?: Prisma.SpecialDateCreateNestedManyWithoutBusinessInput
   packages?: Prisma.ServicePackageCreateNestedManyWithoutBusinessInput
+  leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
 }
 
@@ -1113,6 +1298,7 @@ export type BusinessUncheckedCreateWithoutServicesInput = {
   id?: string
   name: string
   slug: string
+  initials: string
   latitude?: number | null
   longitude?: number | null
   created_at?: Date | string
@@ -1125,6 +1311,7 @@ export type BusinessUncheckedCreateWithoutServicesInput = {
   vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutBusinessInput
   special_dates?: Prisma.SpecialDateUncheckedCreateNestedManyWithoutBusinessInput
   packages?: Prisma.ServicePackageUncheckedCreateNestedManyWithoutBusinessInput
+  leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
 }
 
@@ -1148,6 +1335,7 @@ export type BusinessUpdateWithoutServicesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  initials?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1160,6 +1348,7 @@ export type BusinessUpdateWithoutServicesInput = {
   vouchers?: Prisma.VoucherUpdateManyWithoutBusinessNestedInput
   special_dates?: Prisma.SpecialDateUpdateManyWithoutBusinessNestedInput
   packages?: Prisma.ServicePackageUpdateManyWithoutBusinessNestedInput
+  leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
 }
 
@@ -1167,6 +1356,7 @@ export type BusinessUncheckedUpdateWithoutServicesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  initials?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1179,6 +1369,7 @@ export type BusinessUncheckedUpdateWithoutServicesInput = {
   vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutBusinessNestedInput
   special_dates?: Prisma.SpecialDateUncheckedUpdateManyWithoutBusinessNestedInput
   packages?: Prisma.ServicePackageUncheckedUpdateManyWithoutBusinessNestedInput
+  leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
@@ -1186,6 +1377,7 @@ export type BusinessCreateWithoutPackagesInput = {
   id?: string
   name: string
   slug: string
+  initials: string
   latitude?: number | null
   longitude?: number | null
   created_at?: Date | string
@@ -1198,6 +1390,7 @@ export type BusinessCreateWithoutPackagesInput = {
   sale_events?: Prisma.SaleEventCreateNestedManyWithoutBusinessInput
   vouchers?: Prisma.VoucherCreateNestedManyWithoutBusinessInput
   special_dates?: Prisma.SpecialDateCreateNestedManyWithoutBusinessInput
+  leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
 }
 
@@ -1205,6 +1398,7 @@ export type BusinessUncheckedCreateWithoutPackagesInput = {
   id?: string
   name: string
   slug: string
+  initials: string
   latitude?: number | null
   longitude?: number | null
   created_at?: Date | string
@@ -1217,6 +1411,7 @@ export type BusinessUncheckedCreateWithoutPackagesInput = {
   sale_events?: Prisma.SaleEventUncheckedCreateNestedManyWithoutBusinessInput
   vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutBusinessInput
   special_dates?: Prisma.SpecialDateUncheckedCreateNestedManyWithoutBusinessInput
+  leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
 }
 
@@ -1240,6 +1435,7 @@ export type BusinessUpdateWithoutPackagesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  initials?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1252,6 +1448,7 @@ export type BusinessUpdateWithoutPackagesInput = {
   sale_events?: Prisma.SaleEventUpdateManyWithoutBusinessNestedInput
   vouchers?: Prisma.VoucherUpdateManyWithoutBusinessNestedInput
   special_dates?: Prisma.SpecialDateUpdateManyWithoutBusinessNestedInput
+  leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
 }
 
@@ -1259,6 +1456,7 @@ export type BusinessUncheckedUpdateWithoutPackagesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  initials?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1271,6 +1469,7 @@ export type BusinessUncheckedUpdateWithoutPackagesInput = {
   sale_events?: Prisma.SaleEventUncheckedUpdateManyWithoutBusinessNestedInput
   vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutBusinessNestedInput
   special_dates?: Prisma.SpecialDateUncheckedUpdateManyWithoutBusinessNestedInput
+  leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
@@ -1278,6 +1477,7 @@ export type BusinessCreateWithoutCustomersInput = {
   id?: string
   name: string
   slug: string
+  initials: string
   latitude?: number | null
   longitude?: number | null
   created_at?: Date | string
@@ -1290,6 +1490,7 @@ export type BusinessCreateWithoutCustomersInput = {
   vouchers?: Prisma.VoucherCreateNestedManyWithoutBusinessInput
   special_dates?: Prisma.SpecialDateCreateNestedManyWithoutBusinessInput
   packages?: Prisma.ServicePackageCreateNestedManyWithoutBusinessInput
+  leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
 }
 
@@ -1297,6 +1498,7 @@ export type BusinessUncheckedCreateWithoutCustomersInput = {
   id?: string
   name: string
   slug: string
+  initials: string
   latitude?: number | null
   longitude?: number | null
   created_at?: Date | string
@@ -1309,6 +1511,7 @@ export type BusinessUncheckedCreateWithoutCustomersInput = {
   vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutBusinessInput
   special_dates?: Prisma.SpecialDateUncheckedCreateNestedManyWithoutBusinessInput
   packages?: Prisma.ServicePackageUncheckedCreateNestedManyWithoutBusinessInput
+  leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
 }
 
@@ -1332,6 +1535,7 @@ export type BusinessUpdateWithoutCustomersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  initials?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1344,6 +1548,7 @@ export type BusinessUpdateWithoutCustomersInput = {
   vouchers?: Prisma.VoucherUpdateManyWithoutBusinessNestedInput
   special_dates?: Prisma.SpecialDateUpdateManyWithoutBusinessNestedInput
   packages?: Prisma.ServicePackageUpdateManyWithoutBusinessNestedInput
+  leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
 }
 
@@ -1351,6 +1556,7 @@ export type BusinessUncheckedUpdateWithoutCustomersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  initials?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1363,6 +1569,7 @@ export type BusinessUncheckedUpdateWithoutCustomersInput = {
   vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutBusinessNestedInput
   special_dates?: Prisma.SpecialDateUncheckedUpdateManyWithoutBusinessNestedInput
   packages?: Prisma.ServicePackageUncheckedUpdateManyWithoutBusinessNestedInput
+  leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
@@ -1370,6 +1577,7 @@ export type BusinessCreateWithoutBookingsInput = {
   id?: string
   name: string
   slug: string
+  initials: string
   latitude?: number | null
   longitude?: number | null
   created_at?: Date | string
@@ -1382,6 +1590,7 @@ export type BusinessCreateWithoutBookingsInput = {
   vouchers?: Prisma.VoucherCreateNestedManyWithoutBusinessInput
   special_dates?: Prisma.SpecialDateCreateNestedManyWithoutBusinessInput
   packages?: Prisma.ServicePackageCreateNestedManyWithoutBusinessInput
+  leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
 }
 
@@ -1389,6 +1598,7 @@ export type BusinessUncheckedCreateWithoutBookingsInput = {
   id?: string
   name: string
   slug: string
+  initials: string
   latitude?: number | null
   longitude?: number | null
   created_at?: Date | string
@@ -1401,6 +1611,7 @@ export type BusinessUncheckedCreateWithoutBookingsInput = {
   vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutBusinessInput
   special_dates?: Prisma.SpecialDateUncheckedCreateNestedManyWithoutBusinessInput
   packages?: Prisma.ServicePackageUncheckedCreateNestedManyWithoutBusinessInput
+  leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
 }
 
@@ -1424,6 +1635,7 @@ export type BusinessUpdateWithoutBookingsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  initials?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1436,6 +1648,7 @@ export type BusinessUpdateWithoutBookingsInput = {
   vouchers?: Prisma.VoucherUpdateManyWithoutBusinessNestedInput
   special_dates?: Prisma.SpecialDateUpdateManyWithoutBusinessNestedInput
   packages?: Prisma.ServicePackageUpdateManyWithoutBusinessNestedInput
+  leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
 }
 
@@ -1443,6 +1656,7 @@ export type BusinessUncheckedUpdateWithoutBookingsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  initials?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1455,6 +1669,7 @@ export type BusinessUncheckedUpdateWithoutBookingsInput = {
   vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutBusinessNestedInput
   special_dates?: Prisma.SpecialDateUncheckedUpdateManyWithoutBusinessNestedInput
   packages?: Prisma.ServicePackageUncheckedUpdateManyWithoutBusinessNestedInput
+  leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
@@ -1462,6 +1677,7 @@ export type BusinessCreateWithoutVouchersInput = {
   id?: string
   name: string
   slug: string
+  initials: string
   latitude?: number | null
   longitude?: number | null
   created_at?: Date | string
@@ -1474,6 +1690,7 @@ export type BusinessCreateWithoutVouchersInput = {
   sale_events?: Prisma.SaleEventCreateNestedManyWithoutBusinessInput
   special_dates?: Prisma.SpecialDateCreateNestedManyWithoutBusinessInput
   packages?: Prisma.ServicePackageCreateNestedManyWithoutBusinessInput
+  leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
 }
 
@@ -1481,6 +1698,7 @@ export type BusinessUncheckedCreateWithoutVouchersInput = {
   id?: string
   name: string
   slug: string
+  initials: string
   latitude?: number | null
   longitude?: number | null
   created_at?: Date | string
@@ -1493,6 +1711,7 @@ export type BusinessUncheckedCreateWithoutVouchersInput = {
   sale_events?: Prisma.SaleEventUncheckedCreateNestedManyWithoutBusinessInput
   special_dates?: Prisma.SpecialDateUncheckedCreateNestedManyWithoutBusinessInput
   packages?: Prisma.ServicePackageUncheckedCreateNestedManyWithoutBusinessInput
+  leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
 }
 
@@ -1516,6 +1735,7 @@ export type BusinessUpdateWithoutVouchersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  initials?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1528,6 +1748,7 @@ export type BusinessUpdateWithoutVouchersInput = {
   sale_events?: Prisma.SaleEventUpdateManyWithoutBusinessNestedInput
   special_dates?: Prisma.SpecialDateUpdateManyWithoutBusinessNestedInput
   packages?: Prisma.ServicePackageUpdateManyWithoutBusinessNestedInput
+  leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
 }
 
@@ -1535,6 +1756,7 @@ export type BusinessUncheckedUpdateWithoutVouchersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  initials?: Prisma.StringFieldUpdateOperationsInput | string
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1547,6 +1769,7 @@ export type BusinessUncheckedUpdateWithoutVouchersInput = {
   sale_events?: Prisma.SaleEventUncheckedUpdateManyWithoutBusinessNestedInput
   special_dates?: Prisma.SpecialDateUncheckedUpdateManyWithoutBusinessNestedInput
   packages?: Prisma.ServicePackageUncheckedUpdateManyWithoutBusinessNestedInput
+  leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
@@ -1565,6 +1788,7 @@ export type BusinessCountOutputType = {
   vouchers: number
   special_dates: number
   packages: number
+  leave_requests: number
   business_hours: number
 }
 
@@ -1578,6 +1802,7 @@ export type BusinessCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensio
   vouchers?: boolean | BusinessCountOutputTypeCountVouchersArgs
   special_dates?: boolean | BusinessCountOutputTypeCountSpecial_datesArgs
   packages?: boolean | BusinessCountOutputTypeCountPackagesArgs
+  leave_requests?: boolean | BusinessCountOutputTypeCountLeave_requestsArgs
   business_hours?: boolean | BusinessCountOutputTypeCountBusiness_hoursArgs
 }
 
@@ -1657,6 +1882,13 @@ export type BusinessCountOutputTypeCountPackagesArgs<ExtArgs extends runtime.Typ
 /**
  * BusinessCountOutputType without action
  */
+export type BusinessCountOutputTypeCountLeave_requestsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.LeaveRequestWhereInput
+}
+
+/**
+ * BusinessCountOutputType without action
+ */
 export type BusinessCountOutputTypeCountBusiness_hoursArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.BusinessHoursWhereInput
 }
@@ -1666,6 +1898,7 @@ export type BusinessSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   id?: boolean
   name?: boolean
   slug?: boolean
+  initials?: boolean
   latitude?: boolean
   longitude?: boolean
   created_at?: boolean
@@ -1679,6 +1912,7 @@ export type BusinessSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   vouchers?: boolean | Prisma.Business$vouchersArgs<ExtArgs>
   special_dates?: boolean | Prisma.Business$special_datesArgs<ExtArgs>
   packages?: boolean | Prisma.Business$packagesArgs<ExtArgs>
+  leave_requests?: boolean | Prisma.Business$leave_requestsArgs<ExtArgs>
   business_hours?: boolean | Prisma.Business$business_hoursArgs<ExtArgs>
   _count?: boolean | Prisma.BusinessCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["business"]>
@@ -1687,6 +1921,7 @@ export type BusinessSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   id?: boolean
   name?: boolean
   slug?: boolean
+  initials?: boolean
   latitude?: boolean
   longitude?: boolean
   created_at?: boolean
@@ -1697,6 +1932,7 @@ export type BusinessSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   id?: boolean
   name?: boolean
   slug?: boolean
+  initials?: boolean
   latitude?: boolean
   longitude?: boolean
   created_at?: boolean
@@ -1707,13 +1943,14 @@ export type BusinessSelectScalar = {
   id?: boolean
   name?: boolean
   slug?: boolean
+  initials?: boolean
   latitude?: boolean
   longitude?: boolean
   created_at?: boolean
   updated_at?: boolean
 }
 
-export type BusinessOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "latitude" | "longitude" | "created_at" | "updated_at", ExtArgs["result"]["business"]>
+export type BusinessOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "initials" | "latitude" | "longitude" | "created_at" | "updated_at", ExtArgs["result"]["business"]>
 export type BusinessInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   services?: boolean | Prisma.Business$servicesArgs<ExtArgs>
   employees?: boolean | Prisma.Business$employeesArgs<ExtArgs>
@@ -1724,6 +1961,7 @@ export type BusinessInclude<ExtArgs extends runtime.Types.Extensions.InternalArg
   vouchers?: boolean | Prisma.Business$vouchersArgs<ExtArgs>
   special_dates?: boolean | Prisma.Business$special_datesArgs<ExtArgs>
   packages?: boolean | Prisma.Business$packagesArgs<ExtArgs>
+  leave_requests?: boolean | Prisma.Business$leave_requestsArgs<ExtArgs>
   business_hours?: boolean | Prisma.Business$business_hoursArgs<ExtArgs>
   _count?: boolean | Prisma.BusinessCountOutputTypeDefaultArgs<ExtArgs>
 }
@@ -1742,12 +1980,14 @@ export type $BusinessPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     vouchers: Prisma.$VoucherPayload<ExtArgs>[]
     special_dates: Prisma.$SpecialDatePayload<ExtArgs>[]
     packages: Prisma.$ServicePackagePayload<ExtArgs>[]
+    leave_requests: Prisma.$LeaveRequestPayload<ExtArgs>[]
     business_hours: Prisma.$BusinessHoursPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     name: string
     slug: string
+    initials: string
     latitude: number | null
     longitude: number | null
     created_at: Date
@@ -2155,6 +2395,7 @@ export interface Prisma__BusinessClient<T, Null = never, ExtArgs extends runtime
   vouchers<T extends Prisma.Business$vouchersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Business$vouchersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$VoucherPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   special_dates<T extends Prisma.Business$special_datesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Business$special_datesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SpecialDatePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   packages<T extends Prisma.Business$packagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Business$packagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ServicePackagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  leave_requests<T extends Prisma.Business$leave_requestsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Business$leave_requestsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LeaveRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   business_hours<T extends Prisma.Business$business_hoursArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Business$business_hoursArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BusinessHoursPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -2188,6 +2429,7 @@ export interface BusinessFieldRefs {
   readonly id: Prisma.FieldRef<"Business", 'String'>
   readonly name: Prisma.FieldRef<"Business", 'String'>
   readonly slug: Prisma.FieldRef<"Business", 'String'>
+  readonly initials: Prisma.FieldRef<"Business", 'String'>
   readonly latitude: Prisma.FieldRef<"Business", 'Float'>
   readonly longitude: Prisma.FieldRef<"Business", 'Float'>
   readonly created_at: Prisma.FieldRef<"Business", 'DateTime'>
@@ -2793,6 +3035,30 @@ export type Business$packagesArgs<ExtArgs extends runtime.Types.Extensions.Inter
   take?: number
   skip?: number
   distinct?: Prisma.ServicePackageScalarFieldEnum | Prisma.ServicePackageScalarFieldEnum[]
+}
+
+/**
+ * Business.leave_requests
+ */
+export type Business$leave_requestsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LeaveRequest
+   */
+  select?: Prisma.LeaveRequestSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the LeaveRequest
+   */
+  omit?: Prisma.LeaveRequestOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LeaveRequestInclude<ExtArgs> | null
+  where?: Prisma.LeaveRequestWhereInput
+  orderBy?: Prisma.LeaveRequestOrderByWithRelationInput | Prisma.LeaveRequestOrderByWithRelationInput[]
+  cursor?: Prisma.LeaveRequestWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.LeaveRequestScalarFieldEnum | Prisma.LeaveRequestScalarFieldEnum[]
 }
 
 /**

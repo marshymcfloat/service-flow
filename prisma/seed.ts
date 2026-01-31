@@ -34,6 +34,7 @@ async function main() {
     data: {
       name: "BeautyFeel",
       slug: "beautyfeel",
+      initials: "BF",
       owners: {
         create: {
           user_id: ownerUser.id,

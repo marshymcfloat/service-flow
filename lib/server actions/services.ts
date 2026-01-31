@@ -1,23 +1,20 @@
 "use server";
 
 import { prisma } from "@/prisma/prisma";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/next auth/options";
+import { requireAuth } from "@/lib/auth/guards";
 import { revalidatePath } from "next/cache";
 
 // Get all services for a business
 export async function getServicesAction() {
-  const session = await getServerSession(authOptions);
-
-  if (!session?.user?.businessSlug) {
-    return { success: false, error: "Unauthorized" };
-  }
+  const auth = await requireAuth();
+  if (!auth.success) return auth;
+  const { businessSlug } = auth;
 
   try {
     const services = await prisma.service.findMany({
       where: {
         business: {
-          slug: session.user.businessSlug,
+          slug: businessSlug,
         },
       },
       orderBy: [{ category: "asc" }, { name: "asc" }],
@@ -38,15 +35,13 @@ export async function createServiceAction(data: {
   duration?: number;
   category: string;
 }) {
-  const session = await getServerSession(authOptions);
-
-  if (!session?.user?.businessSlug) {
-    return { success: false, error: "Unauthorized" };
-  }
+  const auth = await requireAuth();
+  if (!auth.success) return auth;
+  const { businessSlug } = auth;
 
   try {
     const business = await prisma.business.findUnique({
-      where: { slug: session.user.businessSlug },
+      where: { slug: businessSlug },
     });
 
     if (!business) {
@@ -83,11 +78,9 @@ export async function updateServiceAction(
     category?: string;
   },
 ) {
-  const session = await getServerSession(authOptions);
-
-  if (!session?.user?.businessSlug) {
-    return { success: false, error: "Unauthorized" };
-  }
+  const auth = await requireAuth();
+  if (!auth.success) return auth;
+  const { businessSlug } = auth;
 
   try {
     const service = await prisma.service.update({
@@ -111,11 +104,9 @@ export async function updateServiceAction(
 
 // Delete a service
 export async function deleteServiceAction(serviceId: number) {
-  const session = await getServerSession(authOptions);
-
-  if (!session?.user?.businessSlug) {
-    return { success: false, error: "Unauthorized" };
-  }
+  const auth = await requireAuth();
+  if (!auth.success) return auth;
+  const { businessSlug } = auth;
 
   try {
     await prisma.service.delete({
@@ -132,17 +123,15 @@ export async function deleteServiceAction(serviceId: number) {
 
 // Get unique categories
 export async function getServiceCategoriesAction() {
-  const session = await getServerSession(authOptions);
-
-  if (!session?.user?.businessSlug) {
-    return { success: false, error: "Unauthorized" };
-  }
+  const auth = await requireAuth();
+  if (!auth.success) return auth;
+  const { businessSlug } = auth;
 
   try {
     const services = await prisma.service.findMany({
       where: {
         business: {
-          slug: session.user.businessSlug,
+          slug: businessSlug,
         },
       },
       select: { category: true },

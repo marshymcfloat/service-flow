@@ -45,6 +45,11 @@ export { Prisma }
  */
 export type Business = Prisma.BusinessModel
 /**
+ * Model LeaveRequest
+ * 
+ */
+export type LeaveRequest = Prisma.LeaveRequestModel
+/**
  * Model BusinessHours
  * 
  */

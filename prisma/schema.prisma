@@ -17,6 +17,7 @@ model Business {
   id   String @id @default(cuid())
   name String
   slug String @unique
+  initials String @db.Char(2)
 
   latitude Float?
   longitude Float?
@@ -30,10 +31,83 @@ model Business {
   vouchers Voucher[]
   special_dates SpecialDate[]
   packages ServicePackage[]
+  leave_requests LeaveRequest[]
   business_hours BusinessHours[]
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+}
+
+model LeaveRequest {
+  id Int @id @default(autoincrement())
+  
+  employee_id Int
+  employee Employee @relation(fields: [employee_id], references: [id], onDelete: Cascade)
+
+  business_id String
+  business Business @relation(fields: [business_id], references: [id], onDelete: Cascade)
+
+  start_date DateTime
+  end_date DateTime
+  reason String
+  status LeaveRequestStatus @default(PENDING)
+  admin_comment String?
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+enum Role {
+  OWNER
+  EMPLOYEE
+}
+
+enum VoucherType {
+  PERCENTAGE
+  FLAT
+}
+
+enum DiscountType {
+  PERCENTAGE
+  FLAT
+}
+enum BookingStatus {
+  ACCEPTED
+  COMPLETED
+  CANCELLED
+}
+
+enum PayslipStatus {
+  PENDING
+  PAID
+  REJECTED
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  LATE
+  OFF
+  LEAVE
+}
+
+enum PaymentMethod {
+  CASH
+  QRPH
+}
+
+enum AvailedServiceStatus {
+  PENDING     // No employee claimed yet
+  CLAIMED     // Employee claimed, not yet served
+  SERVING     // Currently being served
+  COMPLETED   // Service finished
+  CANCELLED   // Service cancelled
+}
+
+enum LeaveRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
 }
 
 model BusinessHours {
@@ -98,6 +172,7 @@ model Employee {
 
   served_services AvailedService[]
   payslips Payslip[]
+  leave_requests LeaveRequest[]
 
 
   business_id String
@@ -272,6 +347,7 @@ model Voucher{
   minimum_amount Float @default(0)
 
   expires_at DateTime
+  is_active Boolean @default(true)
 
   used_by_id Int?
   used_by Booking? @relation(fields: [used_by_id], references: [id], onDelete: Cascade)
@@ -323,50 +399,3 @@ model AvailedService {
   updated_at DateTime @updatedAt
 }
 
-
-enum Role {
-  OWNER
-  EMPLOYEE
-}
-
-enum VoucherType {
-  PERCENTAGE
-  FLAT
-}
-
-enum DiscountType {
-  PERCENTAGE
-  FLAT
-}
-enum BookingStatus {
-  ACCEPTED
-  COMPLETED
-  CANCELLED
-}
-
-enum PayslipStatus {
-  PENDING
-  PAID
-  REJECTED
-}
-
-enum AttendanceStatus {
-  PRESENT
-  ABSENT
-  LATE
-  OFF
-}
-
-
-enum PaymentMethod {
-  CASH
-  QRPH
-}
-
-enum AvailedServiceStatus {
-  PENDING     // No employee claimed yet
-  CLAIMED     // Employee claimed, not yet served
-  SERVING     // Currently being served
-  COMPLETED   // Service finished
-  CANCELLED   // Service cancelled
-}

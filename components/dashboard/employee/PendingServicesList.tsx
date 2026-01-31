@@ -55,7 +55,7 @@ export default function PendingServicesList({
 
   const { data: services } = useQuery({
     queryKey: ["pending-services", businessSlug],
-    queryFn: () => getPendingServicesAction(businessSlug),
+    queryFn: () => getPendingServicesAction(),
     initialData: initialServices,
     refetchInterval: 5000,
   });

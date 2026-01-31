@@ -37,11 +37,12 @@ async function BookingSuccessContent({
   );
 }
 
-export default function BookingSuccessPage({
+export default async function BookingSuccessPage({
   params,
 }: {
   params: Promise<{ businessSlug: string }>;
 }) {
+  await params;
   return (
     <div className="flex h-screen w-full flex-col items-center justify-center bg-background p-4">
       <Suspense fallback={<div>Loading...</div>}>

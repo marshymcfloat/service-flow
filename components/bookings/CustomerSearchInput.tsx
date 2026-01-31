@@ -7,15 +7,16 @@ import {
 import { Search } from "lucide-react";
 import { searchCustomer } from "@/lib/server actions/customer";
 import { UseFormReturn } from "react-hook-form";
-import { CreateBookingTypes } from "@/lib/zod schemas/bookings";
 import { useState, useRef, useEffect } from "react";
 import { Button } from "../ui/button";
 import { useDebounce } from "@/hooks/use-debounce";
 
 export default function CustomerSearchInput({
   form,
+  businessSlug,
 }: {
   form: UseFormReturn<any>;
+  businessSlug: string;
 }) {
   const [searchQuery, setSearchQuery] = useState("");
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
@@ -23,9 +24,9 @@ export default function CustomerSearchInput({
   const containerRef = useRef<HTMLDivElement>(null);
 
   const { data, isLoading } = useQuery({
-    queryKey: ["customer", debouncedSearchQuery],
-    queryFn: () => searchCustomer(debouncedSearchQuery),
-    enabled: debouncedSearchQuery.length > 0,
+    queryKey: ["customer", debouncedSearchQuery, businessSlug],
+    queryFn: () => searchCustomer(debouncedSearchQuery, businessSlug),
+    enabled: debouncedSearchQuery.length > 0 && !!businessSlug,
   });
 
   useEffect(() => {
@@ -44,9 +45,14 @@ export default function CustomerSearchInput({
     };
   }, []);
 
-  const handleSelectCustomer = (customer: { id: string; name: string }) => {
+  const handleSelectCustomer = (customer: {
+    id: string;
+    name: string;
+    email?: string | null;
+  }) => {
     form.setValue("customerId", customer.id);
     form.setValue("customerName", customer.name);
+    form.setValue("email", customer.email || "");
     setSearchQuery(customer.name);
     setShowResults(false);
   };

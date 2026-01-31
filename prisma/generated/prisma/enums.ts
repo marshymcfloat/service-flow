@@ -55,7 +55,8 @@ export const AttendanceStatus = {
   PRESENT: 'PRESENT',
   ABSENT: 'ABSENT',
   LATE: 'LATE',
-  OFF: 'OFF'
+  OFF: 'OFF',
+  LEAVE: 'LEAVE'
 } as const
 
 export type AttendanceStatus = (typeof AttendanceStatus)[keyof typeof AttendanceStatus]
@@ -78,3 +79,12 @@ export const AvailedServiceStatus = {
 } as const
 
 export type AvailedServiceStatus = (typeof AvailedServiceStatus)[keyof typeof AvailedServiceStatus]
+
+
+export const LeaveRequestStatus = {
+  PENDING: 'PENDING',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED'
+} as const
+
+export type LeaveRequestStatus = (typeof LeaveRequestStatus)[keyof typeof LeaveRequestStatus]

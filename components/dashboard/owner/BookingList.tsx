@@ -125,14 +125,14 @@ export function BookingList({ bookings }: { bookings: BookingWithDetails[] }) {
 
   return (
     <>
-      <Card className="h-full shadow-sm border-zinc-100 flex flex-col overflow-y-auto">
+      <Card className="h-full  shadow-sm border-zinc-100 flex flex-col overflow-y-auto">
         <CardHeader className="pb-4">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="space-y-1">
               <CardTitle className="text-xl font-semibold">Bookings</CardTitle>
               <CardDescription>Manage and view all bookings</CardDescription>
             </div>
-            <Button 
+            <Button
               variant="outline"
               size="sm"
               className="h-8 gap-2"
@@ -167,7 +167,7 @@ export function BookingList({ bookings }: { bookings: BookingWithDetails[] }) {
             </Select>
           </div>
         </CardHeader>
-        <CardContent className="flex-1 overflow-auto p-0 border-t min-h-[400px]">
+        <CardContent className="flex-1 overflow-auto p-0 border-t min-h-[350px]">
           <Table>
             <TableHeader className="bg-zinc-50/50 sticky top-0 z-10">
               <TableRow>

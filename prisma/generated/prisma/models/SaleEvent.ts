@@ -530,10 +530,6 @@ export type SaleEventUncheckedUpdateManyWithoutBusinessNestedInput = {
   deleteMany?: Prisma.SaleEventScalarWhereInput | Prisma.SaleEventScalarWhereInput[]
 }
 
-export type NullableStringFieldUpdateOperationsInput = {
-  set?: string | null
-}
-
 export type EnumDiscountTypeFieldUpdateOperationsInput = {
   set?: $Enums.DiscountType
 }

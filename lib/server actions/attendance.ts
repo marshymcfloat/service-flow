@@ -3,6 +3,8 @@
 import { prisma } from "@/prisma/prisma";
 import { revalidatePath } from "next/cache";
 import { getEndOfDayPH, getMonthRangePH, getStartOfDayPH } from "../date-utils";
+import { requireAuth } from "@/lib/auth/guards";
+import { Role } from "@/prisma/generated/prisma/enums";
 
 const MAX_DISTANCE_METERS = 100;
 
@@ -30,6 +32,35 @@ export async function checkAttendanceStatusAction(
   employeeId: number,
   date: Date = new Date(),
 ) {
+  const auth = await requireAuth();
+  if (!auth.success) return auth;
+  const { session, businessSlug } = auth;
+
+  // If user is EMPLOYEE, ensure they are checking their own attendance
+  if (session.user.role === Role.EMPLOYEE) {
+    const userEmployee = await prisma.employee.findUnique({
+      where: { user_id: session.user.id },
+    });
+
+    if (!userEmployee || userEmployee.id !== employeeId) {
+      return {
+        success: false,
+        error: "Unauthorized access to attendance record",
+      };
+    }
+  }
+  // If user is OWNER, they can check any employee in their business (implicit via businessSlug check later if we join, but simple check here is okay for now provided we trust requireAuth businessSlug context match)
+  // Actually, we should verify that `employeeId` belongs to `businessSlug` to be strictly safe cross-tenant if owner passes a random ID.
+
+  const employee = await prisma.employee.findUnique({
+    where: { id: employeeId },
+    select: { business: { select: { slug: true } } },
+  });
+
+  if (!employee || employee.business.slug !== businessSlug) {
+    return { success: false, error: "Employee not found or unauthorized" };
+  }
+
   try {
     const startOfDay = getStartOfDayPH(date);
     const endOfDay = getEndOfDayPH(date);
@@ -57,6 +88,27 @@ export async function clockInAction(
   longitude: number,
   businessSlug: string,
 ) {
+  const auth = await requireAuth();
+  if (!auth.success) return auth;
+  const { session } = auth;
+
+  // Clock in is strictly for the employee themselves
+  const userEmployee = await prisma.employee.findUnique({
+    where: { user_id: session.user.id },
+  });
+
+  if (!userEmployee || userEmployee.id !== employeeId) {
+    return {
+      success: false,
+      error: "Unauthorized: You can only clock in for yourself.",
+    };
+  }
+
+  // Ensure they are clocking into the correct business
+  if (auth.businessSlug !== businessSlug) {
+    return { success: false, error: "Unauthorized business context" };
+  }
+
   try {
     const business = await prisma.business.findUnique({
       where: { slug: businessSlug },
@@ -117,6 +169,22 @@ export async function clockInAction(
 }
 
 export async function clockOutAction(employeeId: number) {
+  const auth = await requireAuth();
+  if (!auth.success) return auth;
+  const { session } = auth;
+
+  // Clock out is strictly for the employee themselves
+  const userEmployee = await prisma.employee.findUnique({
+    where: { user_id: session.user.id },
+  });
+
+  if (!userEmployee || userEmployee.id !== employeeId) {
+    return {
+      success: false,
+      error: "Unauthorized: You can only clock out for yourself.",
+    };
+  }
+
   try {
     const now = new Date();
     const startOfDay = getStartOfDayPH(now);
@@ -161,6 +229,28 @@ export async function getMonthlyAttendanceAction(
   year: number,
   month: number,
 ) {
+  const auth = await requireAuth();
+  if (!auth.success) return auth;
+  const { session, businessSlug } = auth;
+
+  if (session.user.role === Role.EMPLOYEE) {
+    const userEmployee = await prisma.employee.findUnique({
+      where: { user_id: session.user.id },
+    });
+    if (!userEmployee || userEmployee.id !== employeeId) {
+      return { success: false, error: "Unauthorized" };
+    }
+  }
+
+  // Ensure employee belongs to business
+  const employee = await prisma.employee.findUnique({
+    where: { id: employeeId },
+    select: { business: { select: { slug: true } } },
+  });
+  if (!employee || employee.business.slug !== businessSlug) {
+    return { success: false, error: "Employee not found or unauthorized" };
+  }
+
   try {
     const { startDate, endDate } = getMonthRangePH(year, month);
 
@@ -186,6 +276,10 @@ export async function getAttendanceCountAction(
   startDate: Date,
   endDate: Date,
 ) {
+  const auth = await requireAuth();
+  if (!auth.success) return { success: false, error: "Unauthorized" };
+  // Similar checks could be applied here if needed
+
   try {
     const count = await prisma.employeeAttendance.count({
       where: {

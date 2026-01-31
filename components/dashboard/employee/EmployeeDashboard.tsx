@@ -43,19 +43,20 @@ export default function EmployeeDashboard({
 
   return (
     <main className="min-h-screen bg-background pb-20 md:pb-8">
-      <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b px-4 py-3 flex items-center justify-between md:px-8 md:py-4">
+      <header className="sticky top-0 z-50 bg-slate-900/90 backdrop-blur-md border-b border-white/10 px-4 py-3 flex items-center justify-between md:px-8 md:py-4 transition-all duration-300 shadow-sm">
         <div>
-          <h1 className="font-bold text-lg leading-tight md:text-xl text-foreground">
+          <h1 className="font-bold text-lg leading-tight md:text-xl text-white">
             {businessName}
           </h1>
-          <p className="text-xs text-muted-foreground">Employee Dashboard</p>
+          <p className="text-xs text-slate-300">Employee Dashboard</p>
         </div>
 
         <div className="flex items-center gap-2">
           <Button
             asChild
             size="sm"
-            className="rounded-full shadow-sm h-8 w-8 p-0 md:w-auto md:h-9 md:px-4 transition-all"
+            variant="secondary"
+            className="rounded-full shadow-sm h-8 w-8 p-0 md:w-auto md:h-9 md:px-4 transition-all bg-white/10 hover:bg-white/20 text-white border border-white/10"
           >
             <Link href={`/${businessSlug}/booking`}>
               <Plus className="h-4 w-4 md:mr-1.5" />
@@ -68,10 +69,10 @@ export default function EmployeeDashboard({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 rounded-full"
+                className="h-8 w-8 rounded-full text-white hover:bg-white/10 hover:text-white"
               >
-                <Avatar className="h-7 w-7 md:h-8 md:w-8">
-                  <AvatarFallback className="bg-muted text-xs">
+                <Avatar className="h-7 w-7 md:h-8 md:w-8 ring-2 ring-white/20">
+                  <AvatarFallback className="bg-slate-800 text-white text-xs">
                     <UserIcon className="h-4 w-4" />
                   </AvatarFallback>
                 </Avatar>

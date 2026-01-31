@@ -46,6 +46,7 @@ import EmployeeSelect from "./EmployeeSelect";
 import ServiceClaimSelector from "./ServiceClaimSelector";
 import { SegmentedToggle } from "../ui/segmented-toggle";
 import { Button } from "../ui/button";
+import { Input } from "../ui/input";
 
 type PackageWithItems = ServicePackage & {
   items: (PackageItem & { service: Service })[];
@@ -181,6 +182,7 @@ export default function BookingForm({
       if (checkoutUrl && checkoutUrl.startsWith("http")) {
         window.location.href = checkoutUrl;
       } else if (isEmployee) {
+        form.reset();
         toast.success("Booking successfully created");
         if (isModal) {
           router.back();
@@ -275,9 +277,30 @@ export default function BookingForm({
             render={() => (
               <FormItem>
                 <FormControl>
-                  <CustomerSearchInput form={form} />
+                  <CustomerSearchInput
+                    form={form}
+                    businessSlug={businessSlug!}
+                  />
                 </FormControl>
                 <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email (Optional)</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter email address" {...field} />
+                </FormControl>
+                <FormMessage />
+                <p className="text-[10px] text-muted-foreground mt-1">
+                  Providing an email would let us remind you about your
+                  bookings, and get updates from us like sales.
+                </p>
               </FormItem>
             )}
           />

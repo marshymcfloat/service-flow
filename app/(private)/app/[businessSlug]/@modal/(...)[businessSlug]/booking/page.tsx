@@ -78,11 +78,12 @@ async function InterceptedBookingContent({
   );
 }
 
-export default function InterceptedBookingPage({
+export default async function InterceptedBookingPage({
   params,
 }: {
   params: Promise<{ businessSlug: string }>;
 }) {
+  await params;
   return (
     <Suspense
       fallback={

@@ -6,10 +6,13 @@ import {
   BookingStatus,
 } from "@/prisma/generated/prisma/client";
 import { revalidatePath } from "next/cache";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/next auth/options";
+import { requireAuth } from "@/lib/auth/guards";
 
-export async function getPendingServicesAction(businessSlug: string) {
+export async function getPendingServicesAction() {
+  const auth = await requireAuth();
+  if (!auth.success) return [];
+  const { businessSlug } = auth;
+
   try {
     const business = await prisma.business.findUnique({
       where: { slug: businessSlug },
@@ -68,11 +71,16 @@ export async function claimServiceAction(
   serviceId: number,
   employeeId: number,
 ) {
+  const auth = await requireAuth();
+  if (!auth.success) return auth;
+  const { businessSlug } = auth;
+
   try {
     const result = await prisma.availedService.update({
       where: {
         id: serviceId,
         status: AvailedServiceStatus.PENDING,
+        booking: { business: { slug: businessSlug } },
       },
       data: {
         status: AvailedServiceStatus.CLAIMED,
@@ -81,7 +89,7 @@ export async function claimServiceAction(
       },
     });
 
-    revalidatePath("/[businessSlug]", "page");
+    revalidatePath(`/app/${businessSlug}`);
     return { success: true, data: result };
   } catch (error) {
     console.error("Error claiming service:", error);
@@ -90,9 +98,16 @@ export async function claimServiceAction(
 }
 
 export async function unclaimServiceAction(serviceId: number) {
+  const auth = await requireAuth();
+  if (!auth.success) return auth;
+  const { businessSlug } = auth;
+
   try {
     const result = await prisma.availedService.update({
-      where: { id: serviceId },
+      where: {
+        id: serviceId,
+        booking: { business: { slug: businessSlug } },
+      },
       data: {
         status: AvailedServiceStatus.PENDING,
         served_by_id: null,
@@ -100,7 +115,7 @@ export async function unclaimServiceAction(serviceId: number) {
       },
     });
 
-    revalidatePath("/[businessSlug]", "page");
+    revalidatePath(`/app/${businessSlug}`);
     return { success: true, data: result };
   } catch (error) {
     console.error("Error unclaiming service:", error);
@@ -112,10 +127,17 @@ export async function markServiceServedAction(
   serviceId: number,
   employeeId: number,
 ) {
+  const auth = await requireAuth();
+  if (!auth.success) return auth;
+  const { businessSlug } = auth;
+
   try {
     const result = await prisma.$transaction(async (tx) => {
       const service = await tx.availedService.findUnique({
-        where: { id: serviceId },
+        where: {
+          id: serviceId,
+          booking: { business: { slug: businessSlug } },
+        },
         select: {
           commission_base: true,
           price: true,
@@ -177,7 +199,7 @@ export async function markServiceServedAction(
       return updatedService;
     });
 
-    revalidatePath("/[businessSlug]", "page");
+    revalidatePath(`/app/${businessSlug}`);
     return { success: true, data: result };
   } catch (error) {
     console.error("Error marking service as served:", error);
@@ -186,10 +208,17 @@ export async function markServiceServedAction(
 }
 
 export async function unserveServiceAction(serviceId: number) {
+  const auth = await requireAuth();
+  if (!auth.success) return auth;
+  const { businessSlug } = auth;
+
   try {
     const result = await prisma.$transaction(async (tx) => {
       const service = await tx.availedService.findUnique({
-        where: { id: serviceId },
+        where: {
+          id: serviceId,
+          booking: { business: { slug: businessSlug } },
+        },
         select: {
           commission_base: true,
           price: true,
@@ -239,7 +268,7 @@ export async function unserveServiceAction(serviceId: number) {
       return updatedService;
     });
 
-    revalidatePath("/[businessSlug]", "page");
+    revalidatePath(`/app/${businessSlug}`);
     return { success: true, data: result };
   } catch (error) {
     console.error("Error unserving service:", error);
@@ -251,12 +280,19 @@ export async function updateBookingStatusAction(
   bookingId: number,
   status: BookingStatus,
 ) {
+  const auth = await requireAuth();
+  if (!auth.success) return auth;
+  const { businessSlug } = auth;
+
   try {
     await prisma.booking.update({
-      where: { id: bookingId },
+      where: {
+        id: bookingId,
+        business: { slug: businessSlug },
+      },
       data: { status },
     });
-    revalidatePath("/[businessSlug]", "page");
+    revalidatePath(`/app/${businessSlug}`);
     return { success: true };
   } catch (error) {
     return { success: false, error: "Failed to update status" };
@@ -264,16 +300,22 @@ export async function updateBookingStatusAction(
 }
 
 export async function deleteBookingAction(bookingId: number) {
-  const session = await getServerSession(authOptions);
+  const auth = await requireAuth();
+  if (!auth.success) return auth;
+  const { session } = auth;
+
   if (session?.user?.role !== "OWNER") {
     return { success: false, error: "Unauthorized" };
   }
 
   try {
     await prisma.booking.delete({
-      where: { id: bookingId },
+      where: {
+        id: bookingId,
+        business: { slug: auth.businessSlug },
+      },
     });
-    revalidatePath("/[businessSlug]", "page");
+    revalidatePath(`/app/${auth.businessSlug}`);
     return { success: true };
   } catch (error) {
     return { success: false, error: "Failed to delete" };

@@ -25,6 +25,11 @@ export const createBookingSchema = z
     employeeId: z.number().optional(),
     paymentMethod: paymentMethodEnum.default("QRPH"),
     paymentType: paymentTypeEnum.default("FULL"),
+    email: z
+      .string()
+      .email("Invalid email address")
+      .optional()
+      .or(z.literal("")),
   })
   .refine((data) => data.customerId || data.customerName, {
     message: "Please select an existing customer or enter a new customer name",

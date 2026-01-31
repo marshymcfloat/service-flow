@@ -31,6 +31,7 @@ export default async function BusinessSettingsPage({
   async function updateBusiness(formData: FormData) {
     "use server";
     const name = formData.get("name") as string;
+    const initials = formData.get("initials") as string;
 
     const latStr = formData.get("latitude") as string;
     const lngStr = formData.get("longitude") as string;
@@ -42,6 +43,7 @@ export default async function BusinessSettingsPage({
       where: { slug: businessSlug },
       data: {
         name,
+        initials: initials.toUpperCase(),
         latitude: latitude,
         longitude: longitude,
       },
@@ -76,6 +78,22 @@ export default async function BusinessSettingsPage({
                   defaultValue={business.name}
                   placeholder="e.g. BeautyFeel"
                 />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="initials">
+                  Business Initials (2 Characters)
+                </Label>
+                <Input
+                  id="initials"
+                  name="initials"
+                  defaultValue={business.initials || ""}
+                  placeholder="e.g. BF"
+                  maxLength={2}
+                  required
+                />
+                <p className="text-[0.8rem] text-muted-foreground">
+                  Used as prefix for voucher codes (e.g. BF-123456)
+                </p>
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="slug">Business Slug</Label>

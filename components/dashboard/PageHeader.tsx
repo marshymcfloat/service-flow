@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Plus, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 
@@ -75,5 +76,19 @@ export function PageHeaderAction({
     <Button onClick={onClick} variant={variant} className="shadow-sm">
       {content}
     </Button>
+  );
+}
+
+export function PageHeaderSkeleton() {
+  return (
+    <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between mb-6">
+      <div className="space-y-2">
+        <Skeleton className="h-8 w-[200px]" />
+        <Skeleton className="h-4 w-[300px]" />
+      </div>
+      <div className="flex items-center gap-2 mt-4 sm:mt-0">
+        <Skeleton className="h-9 w-[100px]" />
+      </div>
+    </div>
   );
 }
