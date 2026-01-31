@@ -4,8 +4,6 @@ import { CheckCircle2 } from "lucide-react";
 
 import { Suspense } from "react";
 
-export const dynamic = "force-dynamic";
-
 async function BookingSuccessContent({
   params,
 }: {
@@ -44,7 +42,6 @@ export default async function BookingSuccessPage({
 }: {
   params: Promise<{ businessSlug: string }>;
 }) {
-  await params;
   return (
     <div className="flex h-screen w-full flex-col items-center justify-center bg-background p-4">
       <Suspense fallback={<div>Loading...</div>}>
