@@ -1,8 +1,7 @@
 "use server";
 
 import { prisma } from "@/prisma/prisma";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/next auth/options";
+import { requireAuth } from "@/lib/auth/guards";
 import { revalidatePath } from "next/cache";
 
 export type CreateVoucherInput = {
@@ -14,14 +13,11 @@ export type CreateVoucherInput = {
 };
 
 export async function getVouchersAction(businessSlug: string) {
-  const session = await getServerSession(authOptions);
+  const auth = await requireAuth();
+  if (!auth.success) return { success: false, error: "Unauthorized" };
 
-  // Basic security check - ensure user belongs to this business slug
-  // In a real app we might want stricter checks (e.g. is Owner)
-  if (
-    !session?.user?.businessSlug ||
-    session.user.businessSlug !== businessSlug
-  ) {
+  // Ensure user authorized for this business context
+  if (auth.businessSlug !== businessSlug) {
     return { success: false, error: "Unauthorized" };
   }
 
@@ -52,15 +48,13 @@ export async function getVouchersAction(businessSlug: string) {
 }
 
 export async function createVoucherAction(data: CreateVoucherInput) {
-  const session = await getServerSession(authOptions);
-
-  if (!session?.user?.businessSlug) {
-    return { success: false, error: "Unauthorized" };
-  }
+  const auth = await requireAuth();
+  if (!auth.success) return auth;
+  const { businessSlug } = auth;
 
   try {
     const business = await prisma.business.findUnique({
-      where: { slug: session.user.businessSlug },
+      where: { slug: businessSlug },
     });
 
     if (!business) return { success: false, error: "Business not found" };
@@ -85,7 +79,7 @@ export async function createVoucherAction(data: CreateVoucherInput) {
       },
     });
 
-    revalidatePath(`/app/${session.user.businessSlug}/vouchers`);
+    revalidatePath(`/app/${businessSlug}/vouchers`);
     return { success: true, data: voucher };
   } catch (error) {
     console.error("Error creating voucher:", error);
@@ -94,22 +88,17 @@ export async function createVoucherAction(data: CreateVoucherInput) {
 }
 
 export async function deleteVoucherAction(id: number) {
-  const session = await getServerSession(authOptions);
-
-  if (!session?.user?.businessSlug) {
-    return { success: false, error: "Unauthorized" };
-  }
+  const auth = await requireAuth();
+  if (!auth.success) return auth;
+  const { businessSlug } = auth;
 
   try {
-    // Verify ownership indirectly by checking if voucher belongs to business of user
-    // Or just let the delete fail if ID doesn't exist.
-    // Ideally we check if the voucher belongs to the session business.
     const voucher = await prisma.voucher.findUnique({
       where: { id },
       include: { business: true },
     });
 
-    if (!voucher || voucher.business.slug !== session.user.businessSlug) {
+    if (!voucher || voucher.business.slug !== businessSlug) {
       return { success: false, error: "Voucher not found or unauthorized" };
     }
 
@@ -117,7 +106,7 @@ export async function deleteVoucherAction(id: number) {
       where: { id },
     });
 
-    revalidatePath(`/app/${session.user.businessSlug}/vouchers`);
+    revalidatePath(`/app/${businessSlug}/vouchers`);
     return { success: true };
   } catch (error) {
     console.error("Error deleting voucher:", error);
@@ -126,29 +115,26 @@ export async function deleteVoucherAction(id: number) {
 }
 
 export async function generateVoucherCodeAction() {
-  const session = await getServerSession(authOptions);
-
-  if (!session?.user?.businessSlug) {
-    return { success: false, error: "Unauthorized" };
-  }
+  const auth = await requireAuth();
+  if (!auth.success) return auth;
+  const { businessSlug } = auth;
 
   try {
     const business = await prisma.business.findUnique({
-      where: { slug: session.user.businessSlug },
+      where: { slug: businessSlug },
       select: { name: true, initials: true },
     });
 
     if (!business) return { success: false, error: "Business not found" };
 
-    const prefix = business.initials || "VO"; // Fallback just in case
+    const prefix = business.initials || "VO";
 
     const randomChars = Math.random()
       .toString(36)
-      .substring(2, 8) // 6 characters (2 to 8)
+      .substring(2, 8)
       .toUpperCase();
     const code = `${prefix}-${randomChars}`;
 
-    // Check uniqueness just in case
     const existing = await prisma.voucher.findUnique({
       where: { code },
     });

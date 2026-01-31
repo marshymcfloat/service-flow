@@ -59,7 +59,7 @@ export async function createServiceAction(data: {
       },
     });
 
-    revalidatePath(`/app/${session.user.businessSlug}/services`);
+    revalidatePath(`/app/${businessSlug}/services`);
     return { success: true, data: service };
   } catch (error) {
     console.error("Failed to create service:", error);
@@ -94,7 +94,7 @@ export async function updateServiceAction(
       },
     });
 
-    revalidatePath(`/app/${session.user.businessSlug}/services`);
+    revalidatePath(`/app/${businessSlug}/services`);
     return { success: true, data: service };
   } catch (error) {
     console.error("Failed to update service:", error);
@@ -113,7 +113,7 @@ export async function deleteServiceAction(serviceId: number) {
       where: { id: serviceId },
     });
 
-    revalidatePath(`/app/${session.user.businessSlug}/services`);
+    revalidatePath(`/app/${businessSlug}/services`);
     return { success: true };
   } catch (error) {
     console.error("Failed to delete service:", error);
