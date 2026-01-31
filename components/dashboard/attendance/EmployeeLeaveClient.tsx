@@ -1,6 +1,6 @@
 "use client";
 
-import { LeaveRequest } from "@prisma/client";
+import { LeaveRequest } from "@/prisma/generated/prisma/client";
 import { RequestLeaveDialog } from "./RequestLeaveDialog";
 import {
   Card,
