@@ -2,9 +2,8 @@ import { prisma } from "@/prisma/prisma";
 import { Resend } from "resend";
 import { formatPH } from "@/lib/date-utils";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 export async function sendBookingReminders() {
+  const resend = new Resend(process.env.RESEND_API_KEY);
   try {
     const now = new Date();
     const fortyFiveMinutesFromNow = new Date(now.getTime() + 45 * 60 * 1000);
