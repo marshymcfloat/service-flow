@@ -14,7 +14,7 @@ export async function sendBookingReminders() {
         reminder_sent: false,
         scheduled_at: {
           gt: now,
-          lt: fortyFiveMinutesFromNow,
+          lte: fortyFiveMinutesFromNow,
         },
         customer: {
           email: {
@@ -33,7 +33,34 @@ export async function sendBookingReminders() {
       },
     });
 
-    console.log(`Found ${bookings.length} bookings to remind.`);
+    console.log(
+      `[Reminders] Checking window: ${now.toISOString()} - ${fortyFiveMinutesFromNow.toISOString()}`,
+    );
+    console.log(`[Reminders] Found ${bookings.length} bookings to remind.`);
+
+    // DEBUG: Check for bookings that SHOULD have been found but weren't
+    if (bookings.length === 0) {
+      const debugBookings = await prisma.booking.findMany({
+        where: {
+          status: "ACCEPTED",
+          scheduled_at: {
+            gte: new Date(now.getTime() - 24 * 60 * 60 * 1000), // Last 24 hours
+            lte: new Date(now.getTime() + 24 * 60 * 60 * 1000), // Next 24 hours
+          },
+        },
+        select: {
+          id: true,
+          scheduled_at: true,
+          reminder_sent: true,
+          customer: { select: { name: true, email: true } },
+        },
+        take: 5,
+      });
+      console.log(
+        "[Reminders DEBUG] Recent/Upcoming bookings in DB:",
+        JSON.stringify(debugBookings, null, 2),
+      );
+    }
 
     const results = await Promise.all(
       bookings.map(async (booking) => {
