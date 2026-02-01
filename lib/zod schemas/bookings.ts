@@ -27,9 +27,11 @@ export const createBookingSchema = z
     paymentType: paymentTypeEnum.default("FULL"),
     email: z
       .string()
-      .email("Invalid email address")
       .optional()
-      .or(z.literal("")),
+      .refine(
+        (val) => !val || val === "" || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val),
+        { message: "Invalid email address" },
+      ),
   })
   .refine((data) => data.customerId || data.customerName, {
     message: "Please select an existing customer or enter a new customer name",
