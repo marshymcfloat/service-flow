@@ -1,6 +1,23 @@
 import crypto from "crypto";
 import { createBookingInDb } from "@/lib/services/booking";
 
+// Handle preflight requests (CORS)
+export async function OPTIONS() {
+  return new Response(null, {
+    status: 200,
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, paymongo-signature",
+    },
+  });
+}
+
+// Health check endpoint
+export async function GET() {
+  return new Response("PayMongo webhook endpoint is active", { status: 200 });
+}
+
 /**
  * Verify the PayMongo webhook signature
  * @see https://developers.paymongo.com/docs/creating-webhook#3-securing-a-webhook
