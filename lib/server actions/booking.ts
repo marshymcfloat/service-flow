@@ -93,6 +93,7 @@ export async function createBooking({
       businessSlug,
       customerId,
       customerName,
+      email,
       scheduledAt: scheduledAt.toISOString(),
       estimatedEnd: estimatedEnd.toISOString(),
       employeeId: employeeId?.toString(),
@@ -102,6 +103,7 @@ export async function createBooking({
       services: JSON.stringify(
         services.map((s) => ({
           id: s.id,
+          name: s.name,
           price: s.price,
           quantity: s.quantity,
           duration: s.duration || 30,
@@ -129,23 +131,8 @@ export async function createBooking({
           : ["qrph", "gcash", "card"],
     });
 
-    if (process.env.NODE_ENV === "development") {
-      console.log("DEV MODE: Simulating webhook booking creation...");
-      await createBookingInDb({
-        businessSlug,
-        customerId: customerId,
-        customerName,
-        services,
-        scheduledAt,
-        estimatedEnd,
-        employeeId,
-        currentEmployeeId,
-        paymentMethod,
-        paymentType,
-        email,
-      });
-      revalidatePath(`/app/${businessSlug}`);
-    }
+    // Note: In production, the webhook will create the booking after payment confirmation.
+    // For local development, use ngrok or Vercel preview deployments to test webhooks.
 
     return checkoutUrl;
   } catch (err) {

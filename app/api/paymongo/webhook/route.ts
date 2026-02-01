@@ -1,9 +1,85 @@
-import { prisma } from "@/prisma/prisma";
+import crypto from "crypto";
 import { createBookingInDb } from "@/lib/services/booking";
+
+/**
+ * Verify the PayMongo webhook signature
+ * @see https://developers.paymongo.com/docs/creating-webhook#3-securing-a-webhook
+ */
+function verifyPayMongoSignature(
+  rawBody: string,
+  signatureHeader: string | null,
+): boolean {
+  if (!signatureHeader) {
+    console.error("No Paymongo-Signature header present");
+    return false;
+  }
+
+  const webhookSecret = process.env.PAYMONGO_WEBHOOK_SECRET;
+  if (!webhookSecret) {
+    console.error("PAYMONGO_WEBHOOK_SECRET not configured");
+    return false;
+  }
+
+  // Parse the signature header: t=timestamp,te=testsig,li=livesig
+  const parts = signatureHeader.split(",");
+  const signatureParts: Record<string, string> = {};
+  for (const part of parts) {
+    const [key, value] = part.split("=");
+    if (key && value) {
+      signatureParts[key] = value;
+    }
+  }
+
+  const timestamp = signatureParts["t"];
+  const testSignature = signatureParts["te"];
+  const liveSignature = signatureParts["li"];
+
+  if (!timestamp) {
+    console.error("No timestamp in signature header");
+    return false;
+  }
+
+  // Create the signature string: timestamp.rawBody
+  const signatureString = `${timestamp}.${rawBody}`;
+
+  // Generate HMAC-SHA256
+  const expectedSignature = crypto
+    .createHmac("sha256", webhookSecret)
+    .update(signatureString)
+    .digest("hex");
+
+  // Check against test or live signature based on which is present
+  const providedSignature = liveSignature || testSignature;
+
+  if (!providedSignature) {
+    console.error("No signature found in header");
+    return false;
+  }
+
+  // Use timing-safe comparison
+  try {
+    return crypto.timingSafeEqual(
+      Buffer.from(expectedSignature),
+      Buffer.from(providedSignature),
+    );
+  } catch {
+    return false;
+  }
+}
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
+    // Get raw body for signature verification
+    const rawBody = await req.text();
+    const signatureHeader = req.headers.get("paymongo-signature");
+
+    // Verify signature
+    if (!verifyPayMongoSignature(rawBody, signatureHeader)) {
+      console.error("Invalid webhook signature");
+      return new Response("Invalid signature", { status: 401 });
+    }
+
+    const body = JSON.parse(rawBody);
 
     const eventType = body.data.attributes.type;
     if (eventType !== "checkout_session.payment.paid") {
@@ -22,6 +98,7 @@ export async function POST(req: Request) {
       businessSlug,
       customerName,
       customerId,
+      email,
       services: servicesJson,
       scheduledAt: scheduledAtStr,
       estimatedEnd: estimatedEndStr,
@@ -50,6 +127,7 @@ export async function POST(req: Request) {
       businessSlug,
       customerId,
       customerName,
+      email,
       services,
       scheduledAt,
       estimatedEnd,
