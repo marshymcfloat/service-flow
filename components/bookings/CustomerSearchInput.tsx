@@ -7,11 +7,11 @@ import {
 import { Search } from "lucide-react";
 import { searchCustomer } from "@/lib/server actions/customer";
 import { UseFormReturn } from "react-hook-form";
-import { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Button } from "../ui/button";
 import { useDebounce } from "@/hooks/use-debounce";
 
-export default function CustomerSearchInput({
+const CustomerSearchInput = React.memo(function CustomerSearchInput({
   form,
   businessSlug,
   onCustomerSelect,
@@ -30,6 +30,13 @@ export default function CustomerSearchInput({
     queryFn: () => searchCustomer(debouncedSearchQuery, businessSlug),
     enabled: debouncedSearchQuery.length > 0 && !!businessSlug,
   });
+
+  const customerName = form.watch("customerName");
+  useEffect(() => {
+    if (!customerName) {
+      setSearchQuery("");
+    }
+  }, [customerName]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -107,4 +114,6 @@ export default function CustomerSearchInput({
       )}
     </div>
   );
-}
+});
+
+export default CustomerSearchInput;

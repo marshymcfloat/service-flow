@@ -25,7 +25,7 @@ type PackageWithItems = ServicePackage & {
   items: (PackageItem & { service: Service })[];
 };
 
-export default function ServiceSelect({
+const ServiceSelect = React.memo(function ServiceSelect({
   services,
   packages = [],
   categories,
@@ -268,4 +268,6 @@ export default function ServiceSelect({
       </PopoverContent>
     </Popover>
   );
-}
+});
+
+export default ServiceSelect;

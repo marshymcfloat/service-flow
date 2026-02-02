@@ -9,7 +9,7 @@ export type PendingFlow = {
   suggestedServiceName: string;
   suggestedServicePrice: number;
   suggestedServiceDuration: number | null;
-  suggestedServiceIdString: string; // for easier comparisons
+  suggestedServiceIdString: string;
   dueDate: Date;
   flowType: "REQUIRED" | "SUGGESTED";
   delayDuration: number;
@@ -23,7 +23,6 @@ export async function getCustomerPendingFlows(
   if (!customerId) return [];
 
   try {
-    // 1. Get the customer's last completed bookings/services
     const lastAvailedServices = await prisma.availedService.findMany({
       where: {
         booking: {
@@ -32,9 +31,9 @@ export async function getCustomerPendingFlows(
         },
       },
       orderBy: {
-        created_at: "desc", // Most recent first
+        created_at: "desc",
       },
-      take: 5, // Check the last few services
+      take: 5,
       include: {
         service: {
           include: {
@@ -50,7 +49,6 @@ export async function getCustomerPendingFlows(
 
     const pendingFlows: PendingFlow[] = [];
 
-    // 2. Iterate through services and check for active flows
     for (const availed of lastAvailedServices) {
       if (
         !availed.service.flow_triggers ||
@@ -60,7 +58,6 @@ export async function getCustomerPendingFlows(
       }
 
       for (const flow of availed.service.flow_triggers) {
-        // Calculate when the next service should be
         const lastDate = availed.served_at || availed.created_at;
         const dueDate = new Date(lastDate);
 
@@ -72,15 +69,15 @@ export async function getCustomerPendingFlows(
           dueDate.setMonth(dueDate.getMonth() + flow.delay_duration);
         }
 
-        // Check if the customer has ALREADY booked this suggested service AFTER the trigger service
         const alreadyBooked = await prisma.availedService.findFirst({
           where: {
             booking: {
               customer_id: customerId,
+              status: { not: "CANCELLED" },
             },
             service_id: flow.suggested_service_id,
             created_at: {
-              gte: lastDate, // Must be booked AFTER the trigger service
+              gte: lastDate,
             },
           },
         });

@@ -18,7 +18,7 @@ interface EmployeeSelectProps {
   isLoading?: boolean;
 }
 
-export default function EmployeeSelect({
+const EmployeeSelect = React.memo(function EmployeeSelect({
   employees,
   value,
   onChange,
@@ -108,4 +108,6 @@ export default function EmployeeSelect({
       )}
     </div>
   );
-}
+});
+
+export default EmployeeSelect;

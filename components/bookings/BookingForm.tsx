@@ -19,7 +19,7 @@ import {
   PaymentType,
 } from "@/lib/zod schemas/bookings";
 import { toast } from "sonner";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
 const capitalizeWords = (str: string) => {
@@ -137,14 +137,34 @@ export default function BookingForm({
   }, [customerId]);
 
   // Callback when a customer is selected from the search input
-  const handleCustomerSelect = (customer: any) => {
+  const handleCustomerSelect = useCallback((customer: any) => {
     // If customer has an email, set it to state
     if (customer && customer.email) {
       setExistingCustomerEmail(customer.email);
     } else {
       setExistingCustomerEmail(null);
     }
-  };
+  }, []);
+
+  const [isWalkIn, setIsWalkIn] = useState(false);
+
+  // Memoize the toggle handler
+  const handleWalkInToggle = useCallback(() => {
+    setIsWalkIn((prev) => {
+      const newState = !prev;
+      if (newState) {
+        const now = new Date();
+        form.setValue("scheduledAt", now, { shouldValidate: true });
+        form.setValue("selectedTime", now, {
+          shouldValidate: true,
+        });
+      } else {
+        form.setValue("scheduledAt", undefined);
+        form.setValue("selectedTime", undefined);
+      }
+      return newState;
+    });
+  }, [form]);
 
   const { total, amountToPay } = useMemo(() => {
     const total = selectedServices.reduce((sum, s) => {
@@ -169,7 +189,12 @@ export default function BookingForm({
       totalDuration,
     ],
     queryFn: async () => {
-      if (!selectedDate || !businessSlug || selectedServices.length === 0) {
+      if (
+        !selectedDate ||
+        !businessSlug ||
+        selectedServices.length === 0 ||
+        isWalkIn // Skip fetching slots for walk-ins
+      ) {
         return [];
       }
       return getAvailableSlots({
@@ -178,7 +203,11 @@ export default function BookingForm({
         serviceDurationMinutes: totalDuration,
       });
     },
-    enabled: !!selectedDate && !!businessSlug && selectedServices.length > 0,
+    enabled:
+      !!selectedDate &&
+      !!businessSlug &&
+      selectedServices.length > 0 &&
+      !isWalkIn,
   });
 
   const { data: employees = [], isLoading: isLoadingEmployees } = useQuery({
@@ -206,24 +235,26 @@ export default function BookingForm({
 
   useEffect(() => {
     if (selectedServices.length === 0) {
-      form.setValue("scheduledAt", undefined);
+      if (!isWalkIn) {
+        form.setValue("scheduledAt", undefined);
+        form.setValue("selectedTime", undefined);
+      }
+      form.setValue("employeeId", undefined);
+    }
+  }, [selectedServices.length, form, isWalkIn]);
+
+  useEffect(() => {
+    if (!selectedDate && !isWalkIn) {
       form.setValue("selectedTime", undefined);
       form.setValue("employeeId", undefined);
     }
-  }, [selectedServices.length, form]);
+  }, [selectedDate, form, isWalkIn]);
 
   useEffect(() => {
-    if (!selectedDate) {
-      form.setValue("selectedTime", undefined);
+    if (!selectedTime && !isWalkIn) {
       form.setValue("employeeId", undefined);
     }
-  }, [selectedDate, form]);
-
-  useEffect(() => {
-    if (!selectedTime) {
-      form.setValue("employeeId", undefined);
-    }
-  }, [selectedTime, form]);
+  }, [selectedTime, form, isWalkIn]);
 
   const { mutate: createBookingAction, isPending } = useMutation({
     mutationFn: createBooking,
@@ -232,12 +263,13 @@ export default function BookingForm({
         window.location.href = checkoutUrl;
       } else if (isEmployee) {
         form.reset();
+        setIsWalkIn(false); // Reset walk-in toggle
+        setClaimedUniqueIds([]);
+        setPendingFlows([]);
+        setExistingCustomerEmail(null);
         toast.success("Booking successfully created");
-        if (isModal) {
-          router.back();
-        } else {
-          router.push(`/app/${businessSlug}`);
-        }
+
+        router.back();
       }
     },
     onError: (error) => {
@@ -246,46 +278,59 @@ export default function BookingForm({
     },
   });
 
-  const onSubmit = (data: any) => {
-    if (!businessSlug) {
-      console.error("Business slug not found in URL");
-      toast.error("Business info missing. Please refresh the page.");
-      return;
-    }
+  const onSubmit = useCallback(
+    (data: any) => {
+      if (!businessSlug) {
+        console.error("Business slug not found in URL");
+        toast.error("Business info missing. Please refresh the page.");
+        return;
+      }
 
-    console.log("Submitting booking:", data);
+      console.log("Submitting booking:", data);
 
-    const scheduledAt = data.selectedTime || data.scheduledAt;
+      // For walk-in, force current time if not correctly set for some reason
+      const scheduledAt = isWalkIn
+        ? new Date()
+        : data.selectedTime || data.scheduledAt;
 
-    const flatServicesPayload = data.services.flatMap((s: any) =>
-      Array.from({ length: s.quantity || 1 }).map((_, i) => {
-        const uniqueId = `${s.id}-${i}`;
-        return {
-          id: s.id,
-          name: s.name,
-          price: s.price,
-          quantity: 1,
-          duration: s.duration || 30,
-          claimedByCurrentEmployee:
-            isEmployee && claimedUniqueIds.includes(uniqueId),
-        };
-      }),
-    );
+      const flatServicesPayload = data.services.flatMap((s: any) =>
+        Array.from({ length: s.quantity || 1 }).map((_, i) => {
+          const uniqueId = `${s.id}-${i}`;
+          return {
+            id: s.id,
+            name: s.name,
+            price: s.price,
+            quantity: 1,
+            duration: s.duration || 30,
+            claimedByCurrentEmployee:
+              isEmployee && claimedUniqueIds.includes(uniqueId),
+          };
+        }),
+      );
 
-    const capitalizedCustomerName = capitalizeWords(data.customerName || "");
+      const capitalizedCustomerName = capitalizeWords(data.customerName || "");
 
-    createBookingAction({
-      customerId: data.customerId || undefined,
-      customerName: capitalizedCustomerName,
+      createBookingAction({
+        customerId: data.customerId || undefined,
+        customerName: capitalizedCustomerName,
+        businessSlug,
+        scheduledAt,
+        currentEmployeeId: isEmployee ? currentEmployeeId : undefined,
+        paymentMethod: data.paymentMethod,
+        paymentType: data.paymentType,
+        services: flatServicesPayload,
+        email: data.email,
+      });
+    },
+    [
       businessSlug,
-      scheduledAt,
-      currentEmployeeId: isEmployee ? currentEmployeeId : undefined,
-      paymentMethod: data.paymentMethod,
-      paymentType: data.paymentType,
-      services: flatServicesPayload,
-      email: data.email,
-    });
-  };
+      isWalkIn,
+      isEmployee,
+      claimedUniqueIds,
+      currentEmployeeId,
+      createBookingAction,
+    ],
+  );
 
   const paymentMethodOptions = isEmployee
     ? [
@@ -303,7 +348,10 @@ export default function BookingForm({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit, (errors) => {
-          console.error("Form Validation Errors:", errors);
+          console.error(
+            "Form Validation Errors:",
+            JSON.stringify(errors, null, 2),
+          );
           toast.error("Please fill in all required fields correctly.");
         })}
         className="flex flex-col h-full"
@@ -324,14 +372,19 @@ export default function BookingForm({
           <FormField
             control={form.control}
             name="customerName"
-            render={() => (
+            render={({ field }) => (
               <FormItem>
+                <FormLabel>Name</FormLabel>
                 <FormControl>
-                  <CustomerSearchInput
-                    form={form}
-                    businessSlug={businessSlug!}
-                    onCustomerSelect={handleCustomerSelect}
-                  />
+                  {isEmployee ? (
+                    <CustomerSearchInput
+                      form={form}
+                      businessSlug={businessSlug!}
+                      onCustomerSelect={handleCustomerSelect}
+                    />
+                  ) : (
+                    <Input placeholder="Enter your full name" {...field} />
+                  )}
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -345,7 +398,7 @@ export default function BookingForm({
               return (
                 <FormItem>
                   <FormLabel>Email (Optional)</FormLabel>
-                  {existingCustomerEmail ? (
+                  {isEmployee && existingCustomerEmail ? (
                     <div className="text-sm bg-yellow-50 text-yellow-800 p-2 rounded-md border border-yellow-200 mb-2">
                       This customer already has an email linked (
                       {maskEmail(existingCustomerEmail)}).
@@ -419,10 +472,33 @@ export default function BookingForm({
                     </div>
 
                     <div className="flex items-center justify-between">
-                      <div className="text-xs text-indigo-600">
-                        <Calendar className="w-3 h-3 inline mr-1" />
-                        Due around{" "}
-                        {format(new Date(flow.dueDate), "MMM d, yyyy")}
+                      <div className="text-xs">
+                        {(() => {
+                          const today = new Date();
+                          const dueDate = new Date(flow.dueDate);
+                          // Reset times for accurate day comparison
+                          today.setHours(0, 0, 0, 0);
+                          dueDate.setHours(0, 0, 0, 0);
+
+                          const diffDays = Math.floor(
+                            (today.getTime() - dueDate.getTime()) /
+                              (1000 * 60 * 60 * 24),
+                          );
+                          const isOverdue = diffDays > 0;
+
+                          return isOverdue ? (
+                            <span className="text-orange-600 font-semibold flex items-center gap-1 bg-orange-50 px-2 py-1 rounded-md border border-orange-100">
+                              <Calendar className="w-3 h-3" />
+                              Overdue by {diffDays}{" "}
+                              {diffDays === 1 ? "day" : "days"}
+                            </span>
+                          ) : (
+                            <span className="text-indigo-600 flex items-center gap-1">
+                              <Calendar className="w-3 h-3" />
+                              Due {format(dueDate, "MMM d, yyyy")}
+                            </span>
+                          );
+                        })()}
                       </div>
 
                       <Button
@@ -491,7 +567,26 @@ export default function BookingForm({
           />
           <SelectedServiceList form={form} />
 
-          {selectedServices.length > 0 && (
+          {isEmployee && (
+            <div className="flex items-center space-x-2 bg-muted/30 p-3 rounded-lg border border-border/50">
+              <div className="flex-1">
+                <p className="text-sm font-medium">Walk-in / Immediate</p>
+                <p className="text-xs text-muted-foreground">
+                  Booking starts now. Skip scheduling.
+                </p>
+              </div>
+              <div
+                className={`w-10 h-6 flex items-center rounded-full p-1 cursor-pointer transition-colors ${isWalkIn ? "bg-primary" : "bg-gray-300"}`}
+                onClick={handleWalkInToggle}
+              >
+                <div
+                  className={`bg-white w-4 h-4 rounded-full shadow-md transform duration-300 ease-in-out ${isWalkIn ? "translate-x-4" : ""}`}
+                ></div>
+              </div>
+            </div>
+          )}
+
+          {!isWalkIn && selectedServices.length > 0 && (
             <FormField
               control={form.control}
               name="scheduledAt"
@@ -514,7 +609,7 @@ export default function BookingForm({
             />
           )}
 
-          {selectedDate && selectedServices.length > 0 && (
+          {!isWalkIn && selectedDate && selectedServices.length > 0 && (
             <FormField
               control={form.control}
               name="selectedTime"
@@ -535,7 +630,7 @@ export default function BookingForm({
             />
           )}
 
-          {selectedTime && !isEmployee && (
+          {(isWalkIn || selectedTime) && !isEmployee && (
             <FormField
               control={form.control}
               name="employeeId"
@@ -556,33 +651,35 @@ export default function BookingForm({
             />
           )}
 
-          {selectedTime && isEmployee && selectedServices.length > 0 && (
-            <Card>
-              <CardHeader className=" border-b  ">
-                <CardTitle className="text-base flex items-center gap-2">
-                  <User className="size-4 text-primary" /> Claim Services
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="">
-                <ServiceClaimSelector
-                  services={selectedServices.flatMap((s) =>
-                    Array.from({ length: s.quantity || 1 }).map((_, i) => ({
-                      id: s.id,
-                      uniqueId: `${s.id}-${i}`,
-                      name: s.name,
-                      price: s.price,
-                      duration: s.duration,
-                      quantity: 1,
-                    })),
-                  )}
-                  claimedUniqueIds={claimedUniqueIds}
-                  onChange={setClaimedUniqueIds}
-                />
-              </CardContent>
-            </Card>
-          )}
+          {(isWalkIn || selectedTime) &&
+            isEmployee &&
+            selectedServices.length > 0 && (
+              <Card>
+                <CardHeader className=" border-b  ">
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <User className="size-4 text-primary" /> Claim Services
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="">
+                  <ServiceClaimSelector
+                    services={selectedServices.flatMap((s) =>
+                      Array.from({ length: s.quantity || 1 }).map((_, i) => ({
+                        id: s.id,
+                        uniqueId: `${s.id}-${i}`,
+                        name: s.name,
+                        price: s.price,
+                        duration: s.duration,
+                        quantity: 1,
+                      })),
+                    )}
+                    claimedUniqueIds={claimedUniqueIds}
+                    onChange={setClaimedUniqueIds}
+                  />
+                </CardContent>
+              </Card>
+            )}
 
-          {selectedTime && selectedServices.length > 0 && (
+          {(isWalkIn || selectedTime) && selectedServices.length > 0 && (
             <Card className="border-primary/20 shadow-sm overflow-hidden">
               <CardHeader className=" flex flex-row items-center border-b space-y-0">
                 <CardTitle className="text-sm font-medium flex items-center gap-2 text-foreground">
@@ -688,7 +785,10 @@ export default function BookingForm({
         </div>
 
         <div className="flex justify-end pt-4 border-t mt-4">
-          <Button disabled={isPending || !selectedTime} type="submit">
+          <Button
+            disabled={isPending || (!selectedTime && !isWalkIn)}
+            type="submit"
+          >
             {isPending
               ? "Processing..."
               : paymentMethod === "CASH"

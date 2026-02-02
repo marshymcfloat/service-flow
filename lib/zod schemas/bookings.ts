@@ -22,7 +22,9 @@ export const createBookingSchema = z
   .object({
     customerId: z.string().optional(),
     customerName: z.string().min(1, "Customer name is required").optional(),
-    services: z.array(serviceSchema),
+    services: z
+      .array(serviceSchema)
+      .min(1, "Please select at least one service"),
     scheduledAt: z.coerce.date({ message: "Please select a date and time" }),
     selectedTime: z.date().optional(),
     employeeId: z.number().optional(),

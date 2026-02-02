@@ -1,10 +1,10 @@
-import { useMemo } from "react";
+import React, { useMemo } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { Button } from "../ui/button";
 import { Minus, Plus, X, Package, Sparkles, ArrowRight } from "lucide-react";
 import { Badge } from "../ui/badge";
 
-export default function SelectedServiceList({
+const SelectedServiceList = React.memo(function SelectedServiceList({
   form,
 }: {
   form: UseFormReturn<any>;
@@ -218,4 +218,6 @@ export default function SelectedServiceList({
       </div>
     </div>
   );
-}
+});
+
+export default SelectedServiceList;

@@ -12,9 +12,15 @@ export async function sendBookingReminders() {
       where: {
         status: "ACCEPTED",
         reminder_sent: false,
+        // Appointment is coming up soon (next 45 mins)
         scheduled_at: {
           gt: now,
           lte: fortyFiveMinutesFromNow,
+        },
+        // Exclude bookings made just now (walk-ins / immediate appointments)
+        // Only remind if the booking was made at least 30 mins ago
+        created_at: {
+          lte: new Date(now.getTime() - 30 * 60 * 1000),
         },
         customer: {
           email: {
