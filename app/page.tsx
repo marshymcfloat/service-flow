@@ -19,8 +19,8 @@ export default function Home() {
               {
                 "@type": "Organization",
                 name: "Service Flow",
-                url: "https://service-flow.vercel.app",
-                logo: "https://service-flow.vercel.app/logo.png",
+                url: "https://www.serviceflow.store",
+                logo: "https://www.serviceflow.store/logo.png",
                 sameAs: [
                   "https://twitter.com/serviceflow",
                   "https://facebook.com/serviceflow",

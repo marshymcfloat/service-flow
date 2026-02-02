@@ -81,13 +81,13 @@ async function BusinessContent({
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
     name: business.name,
-    url: `${process.env.NEXT_PUBLIC_APP_URL || "https://service-flow.vercel.app"}/${business.slug}`,
-    telephone: "", // Add if available in schema
+    url: `${process.env.NEXT_PUBLIC_APP_URL || "https://www.serviceflow.store"}/${business.slug}`,
+    telephone: "",
     address: {
       "@type": "PostalAddress",
-      streetAddress: "", // Add if available
-      addressLocality: "", // Add if available
-      addressRegion: "", // Add if available
+      streetAddress: "",
+      addressLocality: "",
+      addressRegion: "",
       addressCountry: "PH",
     },
     geo:

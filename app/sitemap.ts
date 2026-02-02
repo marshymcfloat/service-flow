@@ -3,27 +3,14 @@ import { MetadataRoute } from "next";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl =
-    process.env.NEXT_PUBLIC_APP_URL || "https://service-flow.vercel.app";
+    process.env.NEXT_PUBLIC_APP_URL || "https://www.serviceflow.store";
 
-  // 1. Static Routes
   const staticRoutes: MetadataRoute.Sitemap = [
     {
       url: baseUrl,
       lastModified: new Date(),
       changeFrequency: "monthly",
       priority: 1,
-    },
-    {
-      url: `${baseUrl}/auth/login`,
-      lastModified: new Date(),
-      changeFrequency: "yearly",
-      priority: 0.5,
-    },
-    {
-      url: `${baseUrl}/auth/register`,
-      lastModified: new Date(),
-      changeFrequency: "yearly",
-      priority: 0.5,
     },
     {
       url: `${baseUrl}/explore`,
@@ -33,8 +20,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
-  // 2. Dynamic Routes: Business Pages
-  // Fetch all businesses with their slugs
   const businesses = await prisma.business.findMany({
     select: {
       slug: true,
