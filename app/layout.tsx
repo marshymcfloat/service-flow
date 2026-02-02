@@ -22,10 +22,17 @@ const jetbrainsMono = JetBrains_Mono({
   weight: ["400", "500"],
 });
 
+const getBaseUrl = () => {
+  const url =
+    process.env.NEXT_PUBLIC_APP_URL || "https://www.serviceflow.store";
+  if (url.startsWith("http://") || url.startsWith("https://")) {
+    return url;
+  }
+  return `https://${url}`;
+};
+
 export const metadata: Metadata = {
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_APP_URL || "https://www.serviceflow.store",
-  ),
+  metadataBase: new URL(getBaseUrl()),
   title: {
     default: "Service Flow | Manage Your Service Business",
     template: "%s | Service Flow",
