@@ -124,3 +124,8 @@ export type Voucher = Prisma.VoucherModel
  * 
  */
 export type AvailedService = Prisma.AvailedServiceModel
+/**
+ * Model ServiceFlow
+ * 
+ */
+export type ServiceFlow = Prisma.ServiceFlowModel

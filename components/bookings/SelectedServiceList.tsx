@@ -1,7 +1,8 @@
 import { useMemo } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { Button } from "../ui/button";
-import { Minus, Plus, X, Package } from "lucide-react";
+import { Minus, Plus, X, Package, Sparkles, ArrowRight } from "lucide-react";
+import { Badge } from "../ui/badge";
 
 export default function SelectedServiceList({
   form,
@@ -126,18 +127,50 @@ export default function SelectedServiceList({
         {groupedServices.standalone.map((service) => (
           <div
             key={`standalone-${service.id}`}
-            className="flex items-center justify-between rounded-md border p-2"
+            className="flex items-center justify-between rounded-md border p-2 relative overflow-hidden"
           >
-            <div className="flex items-center gap-2">
+            {/* Flow Trigger Indicator */}
+            {(service as any).flow_triggers &&
+              (service as any).flow_triggers.length > 0 && (
+                <div className="absolute top-0 right-0 p-1 opacity-10 pointer-events-none">
+                  <Sparkles className="w-12 h-12 text-indigo-500" />
+                </div>
+              )}
+
+            <div className="flex items-center gap-2 relative z-10">
               <div className="flex flex-col">
-                <span className="font-medium text-sm">{service.name}</span>
+                <span className="font-medium text-sm flex items-center gap-2">
+                  {service.name}
+                  {(service as any).flow_triggers &&
+                    (service as any).flow_triggers.length > 0 && (
+                      <Badge
+                        variant="outline"
+                        className="text-[10px] h-4 px-1 bg-indigo-50 text-indigo-700 border-indigo-200"
+                      >
+                        <Sparkles className="w-2 h-2 mr-1" />
+                        Journey Starter
+                      </Badge>
+                    )}
+                </span>
                 <span className="text-xs text-muted-foreground">
                   ₱{service.price.toFixed(2)}
                 </span>
+                {/* Show flow details if available */}
+                {(service as any).flow_triggers &&
+                  (service as any).flow_triggers.length > 0 && (
+                    <div className="text-[10px] text-indigo-600 flex items-center gap-1 mt-0.5">
+                      <ArrowRight className="w-3 h-3" />
+                      <span>
+                        Leads to{" "}
+                        {(service as any).flow_triggers[0].suggested_service
+                          ?.name || "Next Step"}
+                      </span>
+                    </div>
+                  )}
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 relative z-10">
               <div className="flex items-center gap-1">
                 <Button
                   variant="outline"

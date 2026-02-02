@@ -105,24 +105,24 @@ export default function AttendanceCard({
     <motion.div
       layout="position"
       transition={{ type: "spring", stiffness: 300, damping: 30 }}
-      className={`p-4 rounded-2xl flex flex-col justify-between  bg-card text-card-foreground border shadow-sm relative overflow-hidden transition-all duration-300 ${
-        showCalendar ? "row-span-2" : "min-h-[140px]"
+      className={`p-6 rounded-2xl flex flex-col justify-between bg-white text-slate-900 relative overflow-hidden transition-all duration-300 ${
+        showCalendar ? "row-span-2" : "min-h-[160px]"
       } ${className}`}
     >
-      <div className="flex justify-between items-start w-full relative z-10 mb-4">
+      <div className="flex justify-between items-start w-full relative z-10 mb-6">
         <div>
-          <h3 className="font-medium text-sm text-muted-foreground uppercase tracking-wider">
-            Attendance
+          <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">
+            Today's Attendance
           </h3>
-          <p className="text-xl font-bold mt-1">
+          <p className="text-2xl font-bold tracking-tight text-slate-900">
             {new Date().toLocaleDateString("en-US", {
               weekday: "long",
             })}
           </p>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-sm text-slate-500 font-medium">
             {new Date().toLocaleDateString("en-US", {
               day: "numeric",
-              month: "short",
+              month: "long",
               year: "numeric",
             })}
           </p>
@@ -130,36 +130,54 @@ export default function AttendanceCard({
         <motion.button
           layout="position"
           onClick={() => setShowCalendar(!showCalendar)}
-          className="size-8 rounded-full flex items-center justify-center border bg-background hover:bg-muted transition-colors"
+          className={`h-10 w-10 rounded-full flex items-center justify-center transition-all ${
+            showCalendar
+              ? "bg-slate-900 text-white shadow-lg"
+              : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+          }`}
         >
-          {showCalendar ? <MapPin size={16} /> : <CalendarDays size={16} />}
+          {showCalendar ? <MapPin size={18} /> : <CalendarDays size={18} />}
         </motion.button>
       </div>
 
       <div className="flex flex-col gap-6 relative z-10 h-full">
-        <div className="w-full space-y-4">
-          <div className="flex items-center gap-2">
+        <div className="w-full space-y-5">
+          <div className="flex items-center gap-3 bg-slate-50 p-3 rounded-xl border border-slate-100">
             {isClockedOut ? (
-              <div className="text-zinc-500 font-medium flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-zinc-400"></div>
-                Done for today
-              </div>
+              <>
+                <div className="h-2.5 w-2.5 rounded-full bg-slate-400"></div>
+                <span className="text-sm font-semibold text-slate-600">
+                  Shift Completed
+                </span>
+              </>
             ) : isClockedIn ? (
-              <div className="text-green-600 font-medium flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-green-600 animate-pulse"></div>
-                Clocked In –{" "}
-                {todayAttendance?.time_in
-                  ? new Date(todayAttendance.time_in).toLocaleTimeString(
-                      "en-US",
-                      { hour: "2-digit", minute: "2-digit" },
-                    )
-                  : ""}
-              </div>
+              <>
+                <div className="relative flex h-2.5 w-2.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-sm font-bold text-green-700">
+                    Clocked In
+                  </span>
+                  {todayAttendance?.time_in && (
+                    <span className="text-xs text-green-600/80 font-medium">
+                      Since{" "}
+                      {new Date(todayAttendance.time_in).toLocaleTimeString(
+                        "en-US",
+                        { hour: "2-digit", minute: "2-digit" },
+                      )}
+                    </span>
+                  )}
+                </div>
+              </>
             ) : (
-              <div className="flex items-center gap-2 text-zinc-500 font-medium">
-                <div className="w-2 h-2 rounded-full bg-orange-400"></div>
-                Not started
-              </div>
+              <>
+                <div className="h-2.5 w-2.5 rounded-full bg-orange-400"></div>
+                <span className="text-sm font-semibold text-slate-600">
+                  Not Started
+                </span>
+              </>
             )}
           </div>
 
@@ -168,24 +186,24 @@ export default function AttendanceCard({
               <Button
                 onClick={isClockedIn ? handleClockOut : handleClockIn}
                 disabled={loading}
-                className={`w-full py-2 px-4 h-auto text-sm font-medium transition-all rounded-xl ${
+                className={`w-full py-6 h-[50px]  text-base font-bold transition-all rounded-xl shadow-lg active:scale-[0.98] ${
                   isClockedIn
-                    ? "bg-red-50 text-red-600 hover:bg-red-100 border border-red-200 shadow-sm"
-                    : "bg-zinc-900 text-white hover:bg-zinc-800 shadow-md hover:shadow-lg"
+                    ? "bg-white text-red-600 hover:bg-red-50 border-2 border-red-100 shadow-red-100/50"
+                    : "bg-slate-900 text-white hover:bg-slate-800 shadow-slate-900/20"
                 }`}
               >
                 {loading ? (
-                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                  <Loader2 className="w-5 h-5 animate-spin mr-3" />
                 ) : isClockedIn ? (
-                  <StopCircle className="w-4 h-4 mr-2" />
+                  <StopCircle className="w-5 h-5 mr-3" />
                 ) : (
-                  <PlayCircle className="w-4 h-4 mr-2" />
+                  <PlayCircle className="w-5 h-5 mr-3" />
                 )}
                 {loading
                   ? "Processing..."
                   : isClockedIn
-                    ? "Clock Out"
-                    : "Clock In"}
+                    ? "End Shift"
+                    : "Start Shift"}
               </Button>
             </div>
           )}
@@ -198,7 +216,7 @@ export default function AttendanceCard({
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.3, ease: "easeInOut" }}
-              className="w-full shrink-0 border-t border-zinc-100 pt-6 overflow-hidden"
+              className="w-full shrink-0 border-t border-slate-100 pt-6 overflow-hidden"
             >
               <AttendanceCalendar
                 attendanceRecords={monthlyAttendance}

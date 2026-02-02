@@ -426,6 +426,40 @@ export type EnumAvailedServiceStatusWithAggregatesFilter<$PrismaModel = never> =
   _max?: Prisma.NestedEnumAvailedServiceStatusFilter<$PrismaModel>
 }
 
+export type EnumFlowDelayUnitFilter<$PrismaModel = never> = {
+  equals?: $Enums.FlowDelayUnit | Prisma.EnumFlowDelayUnitFieldRefInput<$PrismaModel>
+  in?: $Enums.FlowDelayUnit[] | Prisma.ListEnumFlowDelayUnitFieldRefInput<$PrismaModel>
+  notIn?: $Enums.FlowDelayUnit[] | Prisma.ListEnumFlowDelayUnitFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumFlowDelayUnitFilter<$PrismaModel> | $Enums.FlowDelayUnit
+}
+
+export type EnumFlowTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.FlowType | Prisma.EnumFlowTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.FlowType[] | Prisma.ListEnumFlowTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.FlowType[] | Prisma.ListEnumFlowTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumFlowTypeFilter<$PrismaModel> | $Enums.FlowType
+}
+
+export type EnumFlowDelayUnitWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.FlowDelayUnit | Prisma.EnumFlowDelayUnitFieldRefInput<$PrismaModel>
+  in?: $Enums.FlowDelayUnit[] | Prisma.ListEnumFlowDelayUnitFieldRefInput<$PrismaModel>
+  notIn?: $Enums.FlowDelayUnit[] | Prisma.ListEnumFlowDelayUnitFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumFlowDelayUnitWithAggregatesFilter<$PrismaModel> | $Enums.FlowDelayUnit
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumFlowDelayUnitFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumFlowDelayUnitFilter<$PrismaModel>
+}
+
+export type EnumFlowTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.FlowType | Prisma.EnumFlowTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.FlowType[] | Prisma.ListEnumFlowTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.FlowType[] | Prisma.ListEnumFlowTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumFlowTypeWithAggregatesFilter<$PrismaModel> | $Enums.FlowType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumFlowTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumFlowTypeFilter<$PrismaModel>
+}
+
 export type NestedStringFilter<$PrismaModel = never> = {
   equals?: string | Prisma.StringFieldRefInput<$PrismaModel>
   in?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
@@ -827,6 +861,40 @@ export type NestedEnumAvailedServiceStatusWithAggregatesFilter<$PrismaModel = ne
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumAvailedServiceStatusFilter<$PrismaModel>
   _max?: Prisma.NestedEnumAvailedServiceStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumFlowDelayUnitFilter<$PrismaModel = never> = {
+  equals?: $Enums.FlowDelayUnit | Prisma.EnumFlowDelayUnitFieldRefInput<$PrismaModel>
+  in?: $Enums.FlowDelayUnit[] | Prisma.ListEnumFlowDelayUnitFieldRefInput<$PrismaModel>
+  notIn?: $Enums.FlowDelayUnit[] | Prisma.ListEnumFlowDelayUnitFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumFlowDelayUnitFilter<$PrismaModel> | $Enums.FlowDelayUnit
+}
+
+export type NestedEnumFlowTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.FlowType | Prisma.EnumFlowTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.FlowType[] | Prisma.ListEnumFlowTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.FlowType[] | Prisma.ListEnumFlowTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumFlowTypeFilter<$PrismaModel> | $Enums.FlowType
+}
+
+export type NestedEnumFlowDelayUnitWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.FlowDelayUnit | Prisma.EnumFlowDelayUnitFieldRefInput<$PrismaModel>
+  in?: $Enums.FlowDelayUnit[] | Prisma.ListEnumFlowDelayUnitFieldRefInput<$PrismaModel>
+  notIn?: $Enums.FlowDelayUnit[] | Prisma.ListEnumFlowDelayUnitFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumFlowDelayUnitWithAggregatesFilter<$PrismaModel> | $Enums.FlowDelayUnit
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumFlowDelayUnitFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumFlowDelayUnitFilter<$PrismaModel>
+}
+
+export type NestedEnumFlowTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.FlowType | Prisma.EnumFlowTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.FlowType[] | Prisma.ListEnumFlowTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.FlowType[] | Prisma.ListEnumFlowTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumFlowTypeWithAggregatesFilter<$PrismaModel> | $Enums.FlowType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumFlowTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumFlowTypeFilter<$PrismaModel>
 }
 
 

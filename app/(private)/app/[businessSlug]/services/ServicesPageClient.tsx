@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useOptimistic, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { addDays, addWeeks, addMonths, format } from "date-fns";
 import { Service } from "@/prisma/generated/prisma/client";
 import {
   PageHeader,
@@ -70,6 +71,9 @@ import {
   Clock,
   Package,
   Filter,
+  Calendar,
+  ArrowRight,
+  Sparkles,
 } from "lucide-react";
 import {
   createServiceAction,
@@ -84,12 +88,20 @@ interface ServicesPageClientProps {
   businessSlug: string;
 }
 
+interface ServiceFlowData {
+  suggested_service_id: string; // use string for select value
+  delay_duration: string;
+  delay_unit: "DAYS" | "WEEKS" | "MONTHS";
+  type: "REQUIRED" | "SUGGESTED";
+}
+
 interface ServiceFormData {
   name: string;
   description: string;
   price: string;
   duration: string;
   category: string;
+  flows: ServiceFlowData[];
 }
 
 const initialFormData: ServiceFormData = {
@@ -98,6 +110,7 @@ const initialFormData: ServiceFormData = {
   price: "",
   duration: "",
   category: "",
+  flows: [],
 };
 
 type OptimisticAction =
@@ -194,6 +207,14 @@ export function ServicesPageClient({
       price: parseFloat(formData.price),
       duration: formData.duration ? parseInt(formData.duration) : undefined,
       category: newCategory || formData.category,
+      flows: formData.flows
+        .filter((f) => f.suggested_service_id)
+        .map((f) => ({
+          suggested_service_id: parseInt(f.suggested_service_id),
+          delay_duration: parseInt(f.delay_duration),
+          delay_unit: f.delay_unit,
+          type: f.type,
+        })),
     });
 
     setIsLoading(false);
@@ -220,6 +241,14 @@ export function ServicesPageClient({
       price: parseFloat(formData.price),
       duration: formData.duration ? parseInt(formData.duration) : undefined,
       category: newCategory || formData.category,
+      flows: formData.flows
+        .filter((f) => f.suggested_service_id)
+        .map((f) => ({
+          suggested_service_id: parseInt(f.suggested_service_id),
+          delay_duration: parseInt(f.delay_duration),
+          delay_unit: f.delay_unit,
+          type: f.type,
+        })),
     };
 
     // Close dialog immediately for better UX
@@ -280,6 +309,13 @@ export function ServicesPageClient({
       price: service.price.toString(),
       duration: service.duration?.toString() || "",
       category: service.category,
+      flows:
+        (service as any).flow_triggers?.map((f: any) => ({
+          suggested_service_id: f.suggested_service_id.toString(),
+          delay_duration: f.delay_duration.toString(),
+          delay_unit: f.delay_unit,
+          type: f.type,
+        })) || [],
     });
     setIsEditDialogOpen(true);
   };
@@ -326,6 +362,7 @@ export function ServicesPageClient({
                 categories={categories}
                 newCategory={newCategory}
                 setNewCategory={setNewCategory}
+                services={services}
               />
               <DialogFooter>
                 <Button
@@ -519,6 +556,7 @@ export function ServicesPageClient({
               categories={categories}
               newCategory={newCategory}
               setNewCategory={setNewCategory}
+              services={services}
             />
             <DialogFooter>
               <Button
@@ -545,17 +583,60 @@ function ServiceForm({
   categories,
   newCategory,
   setNewCategory,
+  services,
 }: {
   formData: ServiceFormData;
   setFormData: (data: ServiceFormData) => void;
   categories: string[];
   newCategory: string;
   setNewCategory: (value: string) => void;
+  services: Service[];
 }) {
   const [showNewCategory, setShowNewCategory] = useState(false);
 
+  const getEstimatedDate = (
+    duration: string,
+    unit: "DAYS" | "WEEKS" | "MONTHS",
+  ) => {
+    const num = parseInt(duration);
+    if (isNaN(num)) return "";
+    const today = new Date();
+    let futureDate = today;
+    if (unit === "DAYS") futureDate = addDays(today, num);
+    if (unit === "WEEKS") futureDate = addWeeks(today, num);
+    if (unit === "MONTHS") futureDate = addMonths(today, num);
+    return format(futureDate, "MMM dd, yyyy");
+  };
+
+  const addFlow = () => {
+    setFormData({
+      ...formData,
+      flows: [
+        ...formData.flows,
+        {
+          suggested_service_id: "",
+          delay_duration: "1",
+          delay_unit: "WEEKS",
+          type: "SUGGESTED",
+        },
+      ],
+    });
+  };
+
+  const removeFlow = (index: number) => {
+    const newFlows = [...formData.flows];
+    newFlows.splice(index, 1);
+    setFormData({ ...formData, flows: newFlows });
+  };
+
+  const updateFlow = (index: number, field: string, value: any) => {
+    const newFlows = [...formData.flows];
+    newFlows[index] = { ...newFlows[index], [field]: value };
+    setFormData({ ...formData, flows: newFlows });
+  };
+
   return (
-    <div className="grid gap-4 py-4">
+    <div className="grid gap-4 py-4 max-h-[60vh] overflow-y-auto px-1">
       <div className="grid gap-2">
         <Label htmlFor="name">
           Service Name <span className="text-destructive">*</span>
@@ -664,6 +745,130 @@ function ServiceForm({
             >
               <Plus className="h-4 w-4" />
             </Button>
+          </div>
+        )}
+      </div>
+
+      <div className="border-t pt-4 mt-2">
+        <div className="flex items-center justify-between mb-4">
+          <Label className="text-base font-semibold">
+            Service Flows / Automation
+          </Label>
+          <Button type="button" variant="outline" size="sm" onClick={addFlow}>
+            <Plus className="h-3 w-3 mr-2" />
+            Add Step
+          </Button>
+        </div>
+
+        {formData.flows.length === 0 ? (
+          <div className="text-sm text-muted-foreground text-center py-8 bg-zinc-50 rounded-xl border border-dashed border-zinc-200">
+            <div className="flex justify-center mb-3">
+              <Sparkles className="h-8 w-8 text-zinc-300" />
+            </div>
+            <p className="font-medium text-zinc-900">No automation flows</p>
+            <p className="text-zinc-500 text-xs mt-1 max-w-[200px] mx-auto">
+              Add a subsequent service to suggest or require after this one
+              completes.
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-6 pl-2">
+            {formData.flows.map((flow, index) => (
+              <div key={index} className="relative pl-8 pb-2">
+                {/* Timeline Line */}
+                <div className="absolute left-[11px] top-6 bottom-0 w-px bg-zinc-200 last:bottom-auto last:h-full" />
+
+                {/* Timeline Dot */}
+                <div className="absolute left-0 top-1.5 h-6 w-6 rounded-full bg-indigo-50 border border-indigo-200 flex items-center justify-center text-indigo-600 z-10">
+                  <Clock className="h-3.5 w-3.5" />
+                </div>
+
+                <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-4 relative group hover:border-indigo-200 transition-colors">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="absolute top-2 right-2 h-7 w-7 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
+                    onClick={() => removeFlow(index)}
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </Button>
+
+                  <div className="flex flex-wrap items-center gap-2 text-sm">
+                    <span className="text-zinc-500 font-medium">Wait</span>
+                    <Input
+                      type="number"
+                      min="0"
+                      value={flow.delay_duration}
+                      onChange={(e) =>
+                        updateFlow(index, "delay_duration", e.target.value)
+                      }
+                      className="h-7 w-14 text-center px-1"
+                    />
+                    <Select
+                      value={flow.delay_unit}
+                      onValueChange={(val) =>
+                        updateFlow(index, "delay_unit", val)
+                      }
+                    >
+                      <SelectTrigger className="h-7 w-24">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="DAYS">Days</SelectItem>
+                        <SelectItem value="WEEKS">Weeks</SelectItem>
+                        <SelectItem value="MONTHS">Months</SelectItem>
+                      </SelectContent>
+                    </Select>
+
+                    <span className="text-zinc-400 mx-1">→</span>
+
+                    <span className="text-zinc-500 font-medium">Then</span>
+
+                    <Select
+                      value={flow.type}
+                      onValueChange={(val) => updateFlow(index, "type", val)}
+                    >
+                      <SelectTrigger
+                        className={`h-7 w-28 border-0 ring-1 ring-inset ${
+                          flow.type === "REQUIRED"
+                            ? "bg-amber-50 text-amber-700 ring-amber-200"
+                            : "bg-indigo-50 text-indigo-700 ring-indigo-200"
+                        }`}
+                      >
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="SUGGESTED">Suggest</SelectItem>
+                        <SelectItem value="REQUIRED">Require</SelectItem>
+                      </SelectContent>
+                    </Select>
+
+                    <Select
+                      value={flow.suggested_service_id}
+                      onValueChange={(val) =>
+                        updateFlow(index, "suggested_service_id", val)
+                      }
+                    >
+                      <SelectTrigger className="h-7 flex-1 min-w-[160px]">
+                        <SelectValue placeholder="Select service..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {services.map((s) => (
+                          <SelectItem key={s.id} value={s.id.toString()}>
+                            {s.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="text-[10px] text-zinc-400 mt-1 pl-1">
+                    Estimated:{" "}
+                    {getEstimatedDate(flow.delay_duration, flow.delay_unit)}
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </div>

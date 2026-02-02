@@ -400,7 +400,8 @@ export const ModelName = {
   Customer: 'Customer',
   Booking: 'Booking',
   Voucher: 'Voucher',
-  AvailedService: 'AvailedService'
+  AvailedService: 'AvailedService',
+  ServiceFlow: 'ServiceFlow'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -416,7 +417,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "business" | "leaveRequest" | "businessHours" | "saleEvent" | "user" | "employee" | "employeeAttendance" | "payslip" | "specialDate" | "owner" | "service" | "servicePackage" | "packageItem" | "customer" | "booking" | "voucher" | "availedService"
+    modelProps: "business" | "leaveRequest" | "businessHours" | "saleEvent" | "user" | "employee" | "employeeAttendance" | "payslip" | "specialDate" | "owner" | "service" | "servicePackage" | "packageItem" | "customer" | "booking" | "voucher" | "availedService" | "serviceFlow"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1678,6 +1679,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ServiceFlow: {
+      payload: Prisma.$ServiceFlowPayload<ExtArgs>
+      fields: Prisma.ServiceFlowFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ServiceFlowFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceFlowPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ServiceFlowFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceFlowPayload>
+        }
+        findFirst: {
+          args: Prisma.ServiceFlowFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceFlowPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ServiceFlowFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceFlowPayload>
+        }
+        findMany: {
+          args: Prisma.ServiceFlowFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceFlowPayload>[]
+        }
+        create: {
+          args: Prisma.ServiceFlowCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceFlowPayload>
+        }
+        createMany: {
+          args: Prisma.ServiceFlowCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ServiceFlowCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceFlowPayload>[]
+        }
+        delete: {
+          args: Prisma.ServiceFlowDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceFlowPayload>
+        }
+        update: {
+          args: Prisma.ServiceFlowUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceFlowPayload>
+        }
+        deleteMany: {
+          args: Prisma.ServiceFlowDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ServiceFlowUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ServiceFlowUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceFlowPayload>[]
+        }
+        upsert: {
+          args: Prisma.ServiceFlowUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceFlowPayload>
+        }
+        aggregate: {
+          args: Prisma.ServiceFlowAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateServiceFlow>
+        }
+        groupBy: {
+          args: Prisma.ServiceFlowGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ServiceFlowGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ServiceFlowCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ServiceFlowCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1969,6 +2044,21 @@ export const AvailedServiceScalarFieldEnum = {
 export type AvailedServiceScalarFieldEnum = (typeof AvailedServiceScalarFieldEnum)[keyof typeof AvailedServiceScalarFieldEnum]
 
 
+export const ServiceFlowScalarFieldEnum = {
+  id: 'id',
+  trigger_service_id: 'trigger_service_id',
+  suggested_service_id: 'suggested_service_id',
+  delay_duration: 'delay_duration',
+  delay_unit: 'delay_unit',
+  type: 'type',
+  business_id: 'business_id',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type ServiceFlowScalarFieldEnum = (typeof ServiceFlowScalarFieldEnum)[keyof typeof ServiceFlowScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -2187,6 +2277,34 @@ export type EnumAvailedServiceStatusFieldRefInput<$PrismaModel> = FieldRefInputT
 export type ListEnumAvailedServiceStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AvailedServiceStatus[]'>
     
 
+
+/**
+ * Reference to a field of type 'FlowDelayUnit'
+ */
+export type EnumFlowDelayUnitFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'FlowDelayUnit'>
+    
+
+
+/**
+ * Reference to a field of type 'FlowDelayUnit[]'
+ */
+export type ListEnumFlowDelayUnitFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'FlowDelayUnit[]'>
+    
+
+
+/**
+ * Reference to a field of type 'FlowType'
+ */
+export type EnumFlowTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'FlowType'>
+    
+
+
+/**
+ * Reference to a field of type 'FlowType[]'
+ */
+export type ListEnumFlowTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'FlowType[]'>
+    
+
 /**
  * Batch Payload for updateMany & deleteMany & createMany
  */
@@ -2299,6 +2417,7 @@ export type GlobalOmitConfig = {
   booking?: Prisma.BookingOmit
   voucher?: Prisma.VoucherOmit
   availedService?: Prisma.AvailedServiceOmit
+  serviceFlow?: Prisma.ServiceFlowOmit
 }
 
 /* Types for Logging */

@@ -147,15 +147,17 @@ export default function EmployeeServedHistory({
   return (
     <>
       <div className="h-full flex flex-col">
-        <div className="space-y-3">
+        <div className="space-y-3 p-4 lg:p-0">
           {services.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 text-center space-y-3 opacity-60 bg-muted/30 rounded-2xl border border-dashed">
-              <div className="bg-muted p-4 rounded-full">
-                <History className="w-8 h-8 text-muted-foreground" />
+            <div className="flex flex-col items-center justify-center py-12 text-center space-y-3 opacity-60 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-100">
+              <div className="bg-white p-4 rounded-full shadow-sm">
+                <History className="w-6 h-6 text-slate-400" />
               </div>
               <div>
-                <h3 className="font-semibold text-lg">No served history</h3>
-                <p className="text-sm text-muted-foreground">
+                <h3 className="font-semibold text-base text-slate-800">
+                  No served history
+                </h3>
+                <p className="text-xs text-slate-500">
                   Completed services will appear here.
                 </p>
               </div>
@@ -172,61 +174,44 @@ export default function EmployeeServedHistory({
               return (
                 <div
                   key={item.id}
-                  className="flex items-center justify-between p-4 m-2 bg-card border rounded-2xl shadow-sm hover:shadow-md transition-all cursor-pointer group active:scale-[0.98]"
+                  className="flex items-center justify-between p-4 bg-white border border-slate-100 rounded-xl shadow-sm hover:shadow-md hover:border-slate-200 transition-all cursor-pointer group active:scale-[0.98]"
                   onClick={() => setSelectedService(item)}
                 >
-                  <div className="flex items-center gap-4 ">
-                    <Avatar className="h-10 w-10 border border-border">
-                      <AvatarFallback className="bg-primary/5 text-primary/80 font-medium">
-                        {customerInitials}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="space-y-1">
-                      <div className="font-semibold text-base flex items-center gap-2">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-xs font-bold text-slate-600">
+                      {customerInitials}
+                    </div>
+
+                    <div className="space-y-0.5">
+                      <div className="font-semibold text-sm text-slate-900 flex items-center gap-2">
                         {item.service.name}
                         {item.package && (
-                          <Badge
-                            variant="secondary"
-                            className="bg-indigo-50 text-indigo-700 hover:bg-indigo-50 border-indigo-200 text-[10px] h-5 px-1.5"
-                          >
+                          <span className="bg-slate-100 text-slate-600 border border-slate-200 text-[9px] px-1.5 py-0.5 rounded-full font-medium">
                             {item.package.name}
-                          </Badge>
+                          </span>
                         )}
                       </div>
-                      <div className="text-sm text-muted-foreground flex items-center gap-2 flex-wrap">
-                        <span className="flex items-center gap-1 font-medium text-foreground/80">
-                          {item.booking.customer.name}
-                        </span>
-                        <span className="text-xs text-muted-foreground/30 hidden md:inline">
-                          •
-                        </span>
-                        <span className="flex items-center gap-1 text-xs bg-muted px-1.5 py-0.5 rounded-md">
-                          <Calendar className="w-3 h-3" />
-                          {item.scheduled_at
-                            ? formatPH(item.scheduled_at, "MMM d, h:mm a")
-                            : "Unscheduled"}
-                        </span>
+                      <div className="text-xs text-slate-500 font-medium">
+                        {item.booking.customer.name}
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex flex-col items-end gap-2">
-                    <span className="font-bold text-sm">
+                  <div className="flex flex-col items-end gap-1.5">
+                    <span className="font-bold text-sm text-slate-700">
                       ₱{item.price.toLocaleString()}
                     </span>
                     {item.status === "CLAIMED" ? (
-                      <div className="flex items-center gap-2">
-                        <Badge
-                          variant="outline"
-                          className="bg-blue-50 text-blue-700 border-blue-200"
-                        >
-                          Serving
-                        </Badge>
-                      </div>
+                      <Badge
+                        variant="outline"
+                        className="bg-blue-50 text-blue-700 border-blue-200 text-[10px] py-0 h-5"
+                      >
+                        Serving
+                      </Badge>
                     ) : (
                       <Badge
                         variant="secondary"
-                        className="bg-green-50 text-green-700 border-green-200"
+                        className="bg-green-50 text-green-700 border-green-200 text-[10px] py-0 h-5"
                       >
                         {item.status}
                       </Badge>

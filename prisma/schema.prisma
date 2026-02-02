@@ -33,6 +33,7 @@ model Business {
   packages ServicePackage[]
   leave_requests LeaveRequest[]
   business_hours BusinessHours[]
+  service_flows ServiceFlow[]
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -253,6 +254,9 @@ model Service {
   sale_events SaleEvent[]
   package_items PackageItem[]
 
+  flow_triggers ServiceFlow[] @relation("FlowTrigger")
+  flow_suggestions ServiceFlow[] @relation("FlowSuggestion")
+
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 }
@@ -399,3 +403,40 @@ model AvailedService {
   updated_at DateTime @updatedAt
 }
 
+
+
+model ServiceFlow {
+  id String @id @default(cuid())
+
+  // The service that triggers this flow
+  trigger_service_id Int
+  trigger_service    Service @relation("FlowTrigger", fields: [trigger_service_id], references: [id], onDelete: Cascade)
+
+  // The service being suggested/required next
+  suggested_service_id Int
+  suggested_service    Service @relation("FlowSuggestion", fields: [suggested_service_id], references: [id], onDelete: Cascade)
+
+  // Timing
+  delay_duration Int            // e.g., 2
+  delay_unit     FlowDelayUnit  // e.g., DAYS
+
+  // Logic
+  type FlowType @default(SUGGESTED) 
+
+  business_id String
+  business    Business @relation(fields: [business_id], references: [id], onDelete: Cascade)
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+enum FlowDelayUnit {
+  DAYS
+  WEEKS
+  MONTHS
+}
+
+enum FlowType {
+  REQUIRED   // "Part of a process" - User expects this to happen
+  SUGGESTED  // "Recommendation" - User might want this
+}

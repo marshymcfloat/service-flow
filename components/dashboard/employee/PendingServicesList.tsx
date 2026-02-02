@@ -79,16 +79,18 @@ export default function PendingServicesList({
   return (
     <>
       <div className="h-full flex flex-col">
-        <div className="space-y-3">
+        <div className="space-y-4 p-4 lg:p-0">
           {services.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 text-center space-y-3 opacity-60 bg-muted/30 rounded-2xl border border-dashed">
-              <div className="bg-background p-4 rounded-full shadow-sm">
-                <Inbox className="w-8 h-8 text-muted-foreground" />
+            <div className="flex flex-col items-center justify-center py-16 text-center space-y-4 opacity-70 border-2 border-dashed border-slate-200 rounded-3xl">
+              <div className="bg-slate-50 p-6 rounded-full">
+                <Inbox className="w-10 h-10 text-slate-300" />
               </div>
-              <div>
-                <h3 className="font-semibold text-lg">No pending services</h3>
-                <p className="text-sm text-muted-foreground">
-                  New bookings will appear here automatically.
+              <div className="max-w-xs mx-auto">
+                <h3 className="font-bold text-lg text-slate-900">
+                  All caught up!
+                </h3>
+                <p className="text-sm text-slate-500 mt-1">
+                  There are no pending services in the queue right now.
                 </p>
               </div>
             </div>
@@ -104,54 +106,57 @@ export default function PendingServicesList({
               return (
                 <div
                   key={item.id}
-                  className="flex items-center justify-between p-4  m-2 bg-card border rounded-2xl shadow-sm hover:shadow-md transition-all cursor-pointer group active:scale-[0.98]"
+                  className="bg-white rounded-xl p-3 shadow-sm border border-slate-100 hover:border-indigo-200 hover:shadow-md transition-all cursor-pointer group active:scale-[0.99] relative overflow-hidden"
                   onClick={() => setSelectedService(item)}
                 >
-                  <div className="flex items-center gap-4">
-                    <Avatar className="h-12 w-12 border-2 border-background shadow-sm">
-                      <AvatarFallback className="bg-primary/10 text-primary font-bold">
+                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-indigo-500"></div>
+
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-start gap-3">
+                      <div className="h-10 w-10 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center text-xs font-bold border border-slate-200 shadow-inner shrink-0">
                         {customerInitials}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="space-y-1">
-                      <div className="font-semibold text-base mr-2 flex items-center gap-2">
-                        {item.service.name}
-                        {item.package && (
-                          <Badge
-                            variant="secondary"
-                            className="bg-indigo-50 text-indigo-700 hover:bg-indigo-50 border-indigo-200 text-[10px] h-5 px-1.5"
-                          >
-                            {item.package.name}
-                          </Badge>
-                        )}
                       </div>
-                      <div className="text-sm text-muted-foreground flex items-center gap-2 flex-wrap">
-                        <span className="font-medium text-foreground/80">
+
+                      <div className="space-y-0.5">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h4 className="font-bold text-slate-900 text-sm leading-tight group-hover:text-indigo-600 transition-colors">
+                            {item.service.name}
+                          </h4>
+                          {item.package && (
+                            <Badge
+                              variant="secondary"
+                              className="bg-indigo-50 text-indigo-700 border border-indigo-100 text-[9px] font-semibold h-4 px-1"
+                            >
+                              {item.package.name}
+                            </Badge>
+                          )}
+                        </div>
+
+                        <p className="text-xs font-medium text-slate-500">
                           {item.booking.customer.name}
-                        </span>
-                        <span className="text-xs text-muted-foreground/30 hidden md:inline">
-                          •
-                        </span>
-                        <span className="flex items-center gap-1 text-xs bg-muted px-1.5 py-0.5 rounded-md">
-                          <ClockIcon className="w-3 h-3" />
-                          {item.scheduled_at
-                            ? formatPH(item.scheduled_at, "h:mm a")
-                            : "Unscheduled"}
-                        </span>
+                        </p>
+
+                        <div className="flex items-center gap-3 pt-1">
+                          <span className="flex items-center gap-1 text-[10px] font-semibold text-slate-400 bg-slate-50 px-2 py-0.5 rounded-md">
+                            <ClockIcon className="w-3 h-3" />
+                            {item.scheduled_at
+                              ? formatPH(item.scheduled_at, "h:mm a")
+                              : "Walk-in"}
+                          </span>
+                          {item.service.duration && (
+                            <span className="text-[10px] text-slate-400 font-medium">
+                              {item.service.duration} mins
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  <div className="flex flex-col items-end gap-1">
-                    <span className="font-bold text-base">
-                      ₱{item.price.toLocaleString()}
-                    </span>
-                    {item.service.duration && (
-                      <span className="text-xs text-muted-foreground font-medium">
-                        {item.service.duration}m
+                    <div className="flex flex-col items-end pl-2">
+                      <span className="text-sm font-bold text-slate-900 bg-slate-50 px-2 py-0.5 rounded-md border border-slate-100">
+                        ₱{item.price.toLocaleString()}
                       </span>
-                    )}
-                    {/* Badge can be removed or simplified for mobile */}
+                    </div>
                   </div>
                 </div>
               );

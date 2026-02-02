@@ -42,25 +42,26 @@ export default function EmployeeDashboard({
   };
 
   return (
-    <main className="min-h-screen bg-background pb-20 md:pb-8">
-      <header className="sticky top-0 z-50 bg-slate-900/90 backdrop-blur-md border-b border-white/10 px-4 py-3 flex items-center justify-between md:px-8 md:py-4 transition-all duration-300 shadow-sm">
-        <div>
-          <h1 className="font-bold text-lg leading-tight md:text-xl text-white">
+    <main className="min-h-screen bg-slate-50/50 pb-24 md:pb-12 font-sans">
+      <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-slate-200/60 px-4 py-3 flex items-center justify-between md:px-8 md:py-4 shadow-[0_2px_20px_-12px_rgba(0,0,0,0.1)] transition-all duration-300">
+        <div className="flex flex-col">
+          <h1 className="font-bold text-lg leading-none md:text-xl text-slate-900 tracking-tight">
             {businessName}
           </h1>
-          <p className="text-xs text-slate-300">Employee Dashboard</p>
+          <p className="text-[10px] uppercase tracking-widest font-semibold text-indigo-500 mt-1">
+            Employee Portal
+          </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <Button
             asChild
             size="sm"
-            variant="secondary"
-            className="rounded-full shadow-sm h-8 w-8 p-0 md:w-auto md:h-9 md:px-4 transition-all bg-white/10 hover:bg-white/20 text-white border border-white/10"
+            className="hidden md:flex rounded-full shadow-lg shadow-indigo-500/20 bg-indigo-600 hover:bg-indigo-700 text-white border-0 transition-transform active:scale-95"
           >
             <Link href={`/${businessSlug}/booking`}>
-              <Plus className="h-4 w-4 md:mr-1.5" />
-              <span className="hidden md:inline font-medium">Add Booking</span>
+              <Plus className="h-4 w-4 mr-2" />
+              <span className="font-medium">New Booking</span>
             </Link>
           </Button>
 
@@ -69,21 +70,24 @@ export default function EmployeeDashboard({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 rounded-full text-white hover:bg-white/10 hover:text-white"
+                className="h-9 w-9 rounded-full ring-2 ring-slate-100 hover:bg-slate-100 transition-all"
               >
-                <Avatar className="h-7 w-7 md:h-8 md:w-8 ring-2 ring-white/20">
-                  <AvatarFallback className="bg-slate-800 text-white text-xs">
+                <Avatar className="h-9 w-9">
+                  <AvatarFallback className="bg-slate-900 text-white text-xs font-medium">
                     <UserIcon className="h-4 w-4" />
                   </AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent
+              align="end"
+              className="w-56 rounded-xl shadow-xl border-slate-100"
+            >
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={handleSignOut}
-                className="text-red-600 focus:text-red-600 focus:bg-red-50"
+                className="text-red-600 focus:text-red-700 focus:bg-red-50 cursor-pointer rounded-lg"
               >
                 <LogOut className="mr-2 h-4 w-4" />
                 Log out
@@ -93,62 +97,111 @@ export default function EmployeeDashboard({
         </div>
       </header>
 
-      <div className="px-4 py-6 md:px-8 max-w-5xl mx-auto space-y-8">
-        <section className="grid grid-cols-2 md:grid-cols-5 gap-3 md:gap-4">
-          <AttendanceCard
-            employeeId={currentEmployeeId}
-            businessSlug={businessSlug}
-            todayAttendance={todayAttendance}
-            className="col-span-2 md:col-span-2"
-          />
+      <div className="md:hidden fixed bottom-6 right-6 z-50">
+        <Button
+          asChild
+          size="icon"
+          className="h-14 w-14 rounded-full shadow-xl shadow-indigo-600/30 bg-indigo-600 hover:bg-indigo-700 text-white transition-transform active:scale-90"
+        >
+          <Link href={`/${businessSlug}/booking`}>
+            <Plus className="h-7 w-7" />
+            <span className="sr-only">Add Booking</span>
+          </Link>
+        </Button>
+      </div>
 
-          <div className="bg-card border rounded-2xl p-4 flex flex-col justify-center shadow-sm col-span-1">
-            <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
-              Estimated Salary
-            </span>
-            <span className="text-xl md:text-2xl font-bold mt-1">
-              ₱{currentEmployeeSalary.toLocaleString()}
-            </span>
+      <div className="px-4 py-6 md:px-8 max-w-7xl mx-auto space-y-8">
+        <section className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6">
+          <div className="md:col-span-5 lg:col-span-4 order-1">
+            <AttendanceCard
+              employeeId={currentEmployeeId}
+              businessSlug={businessSlug}
+              todayAttendance={todayAttendance}
+              className="h-full shadow-lg shadow-slate-200/50 border-0"
+            />
           </div>
 
-          <div className="bg-card border rounded-2xl p-4 flex flex-col justify-center shadow-sm col-span-1">
-            <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
-              Served today
-            </span>
-            <span className="text-xl md:text-2xl font-bold mt-1 text-green-600">
-              {
-                servedHistory.filter((s) => {
-                  const today = new Date();
-                  const date = new Date(s.updated_at);
-                  return (
-                    date.getDate() === today.getDate() &&
-                    date.getMonth() === today.getMonth() &&
-                    date.getFullYear() === today.getFullYear()
-                  );
-                }).length
-              }
-            </span>
-          </div>
+          <div className="md:col-span-7 lg:col-span-8 order-2 grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
+            <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm flex flex-col justify-between group hover:border-indigo-100 transition-colors">
+              <div className="flex items-start justify-between">
+                <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">
+                  Est. Salary
+                </span>
+                <div className="h-8 w-8 rounded-full bg-green-50 flex items-center justify-center text-green-600 group-hover:scale-110 transition-transform">
+                  <span className="text-xs font-bold">₱</span>
+                </div>
+              </div>
+              <div className="mt-4">
+                <span className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight block">
+                  ₱{currentEmployeeSalary.toLocaleString()}
+                </span>
+                <span className="text-xs text-slate-400 mt-1 block font-medium">
+                  This Month
+                </span>
+              </div>
+            </div>
 
-          <div className="bg-card border rounded-2xl p-4 flex flex-col justify-center shadow-sm col-span-2 md:col-span-1">
-            <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
-              Queue
-            </span>
-            <span className="text-xl md:text-2xl font-bold mt-1 text-blue-600">
-              {pendingServices.length}
-            </span>
+            <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm flex flex-col justify-between group hover:border-blue-100 transition-colors">
+              <div className="flex items-start justify-between">
+                <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">
+                  Served
+                </span>
+                <div className="h-8 w-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 group-hover:scale-110 transition-transform">
+                  <UserIcon className="h-4 w-4" />
+                </div>
+              </div>
+              <div className="mt-4">
+                <span className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight block">
+                  {
+                    servedHistory.filter((s) => {
+                      const today = new Date();
+                      const date = new Date(s.updated_at);
+                      return (
+                        date.getDate() === today.getDate() &&
+                        date.getMonth() === today.getMonth() &&
+                        date.getFullYear() === today.getFullYear()
+                      );
+                    }).length
+                  }
+                </span>
+                <span className="text-xs text-slate-400 mt-1 block font-medium">
+                  Clients Today
+                </span>
+              </div>
+            </div>
+
+            <div className="col-span-2 lg:col-span-1 bg-white rounded-2xl p-5 border border-slate-100 shadow-sm flex flex-col justify-between group hover:border-orange-100 transition-colors">
+              <div className="flex items-start justify-between">
+                <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">
+                  Queue
+                </span>
+                <div className="h-8 w-8 rounded-full bg-orange-50 flex items-center justify-center text-orange-600 group-hover:scale-110 transition-transform">
+                  <span className="text-xs font-bold font-mono">Q</span>
+                </div>
+              </div>
+              <div className="mt-4">
+                <span className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight block">
+                  {pendingServices.length}
+                </span>
+                <span className="text-xs text-slate-400 mt-1 block font-medium">
+                  Waiting
+                </span>
+              </div>
+            </div>
           </div>
         </section>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          <section className="lg:col-span-7 space-y-4">
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 md:gap-10">
+          <section className="xl:col-span-7 space-y-5">
             <div className="flex items-center justify-between">
-              <h2 className="text-base font-semibold text-foreground">
-                Queue / Pending
-              </h2>
-              <span className="text-xs bg-muted px-2 py-1 rounded-full text-muted-foreground">
-                {pendingServices.length} waiting
-              </span>
+              <div className="flex items-center gap-3">
+                <h2 className="text-lg font-bold text-slate-900">
+                  Current Queue
+                </h2>
+                <span className="hidden md:inline-flex h-6 items-center rounded-full bg-slate-100 px-2.5 text-xs font-bold text-slate-600">
+                  {pendingServices.length}
+                </span>
+              </div>
             </div>
 
             <div className="-mx-4 md:mx-0">
@@ -160,10 +213,12 @@ export default function EmployeeDashboard({
             </div>
           </section>
 
-          <section className="lg:col-span-5 space-y-4">
-            <h2 className="text-base font-semibold text-foreground">
-              Recent Activity
-            </h2>
+          <section className="xl:col-span-5 space-y-5">
+            <div className="flex items-center gap-3">
+              <h2 className="text-lg font-bold text-slate-900">
+                Served History
+              </h2>
+            </div>
             <div className="-mx-4 md:mx-0">
               <EmployeeServedHistory
                 services={servedHistory}

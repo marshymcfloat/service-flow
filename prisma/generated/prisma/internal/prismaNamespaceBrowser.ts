@@ -67,7 +67,8 @@ export const ModelName = {
   Customer: 'Customer',
   Booking: 'Booking',
   Voucher: 'Voucher',
-  AvailedService: 'AvailedService'
+  AvailedService: 'AvailedService',
+  ServiceFlow: 'ServiceFlow'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -336,6 +337,21 @@ export const AvailedServiceScalarFieldEnum = {
 } as const
 
 export type AvailedServiceScalarFieldEnum = (typeof AvailedServiceScalarFieldEnum)[keyof typeof AvailedServiceScalarFieldEnum]
+
+
+export const ServiceFlowScalarFieldEnum = {
+  id: 'id',
+  trigger_service_id: 'trigger_service_id',
+  suggested_service_id: 'suggested_service_id',
+  delay_duration: 'delay_duration',
+  delay_unit: 'delay_unit',
+  type: 'type',
+  business_id: 'business_id',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type ServiceFlowScalarFieldEnum = (typeof ServiceFlowScalarFieldEnum)[keyof typeof ServiceFlowScalarFieldEnum]
 
 
 export const SortOrder = {

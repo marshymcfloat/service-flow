@@ -23,6 +23,9 @@ export async function ServicesContent({ businessSlug }: ServicesContentProps) {
       },
     },
     orderBy: [{ category: "asc" }, { name: "asc" }],
+    include: {
+      flow_triggers: true,
+    },
   });
 
   // Get unique categories

@@ -18,6 +18,13 @@ export async function getServicesAction() {
         },
       },
       orderBy: [{ category: "asc" }, { name: "asc" }],
+      include: {
+        flow_triggers: {
+          include: {
+            suggested_service: true,
+          },
+        },
+      },
     });
 
     return { success: true, data: services };
@@ -27,13 +34,18 @@ export async function getServicesAction() {
   }
 }
 
-// Create a new service
 export async function createServiceAction(data: {
   name: string;
   description?: string;
   price: number;
   duration?: number;
   category: string;
+  flows?: {
+    suggested_service_id: number;
+    delay_duration: number;
+    delay_unit: "DAYS" | "WEEKS" | "MONTHS";
+    type: "REQUIRED" | "SUGGESTED";
+  }[];
 }) {
   const auth = await requireAuth();
   if (!auth.success) return auth;
@@ -56,6 +68,18 @@ export async function createServiceAction(data: {
         duration: data.duration || null,
         category: data.category,
         business_id: business.id,
+        flow_triggers: {
+          createMany: {
+            data:
+              data.flows?.map((flow) => ({
+                suggested_service_id: flow.suggested_service_id,
+                delay_duration: flow.delay_duration,
+                delay_unit: flow.delay_unit,
+                type: flow.type,
+                business_id: business.id,
+              })) || [],
+          },
+        },
       },
     });
 
@@ -76,6 +100,12 @@ export async function updateServiceAction(
     price?: number;
     duration?: number;
     category?: string;
+    flows?: {
+      suggested_service_id: number;
+      delay_duration: number;
+      delay_unit: "DAYS" | "WEEKS" | "MONTHS";
+      type: "REQUIRED" | "SUGGESTED";
+    }[];
   },
 ) {
   const auth = await requireAuth();
@@ -83,15 +113,45 @@ export async function updateServiceAction(
   const { businessSlug } = auth;
 
   try {
-    const service = await prisma.service.update({
-      where: { id: serviceId },
-      data: {
-        name: data.name,
-        description: data.description,
-        price: data.price,
-        duration: data.duration,
-        category: data.category,
-      },
+    const business = await prisma.business.findUnique({
+      where: { slug: businessSlug },
+    }); // Need business ID for flow creation
+
+    // Transaction to handle flow updates (delete all existing for this trigger and re-create)
+    // This is simplest for now.
+    const service = await prisma.$transaction(async (tx) => {
+      const updatedService = await tx.service.update({
+        where: { id: serviceId },
+        data: {
+          name: data.name,
+          description: data.description,
+          price: data.price,
+          duration: data.duration,
+          category: data.category,
+        },
+      });
+
+      if (data.flows && business) {
+        // Delete existing flows triggered by this service
+        await tx.serviceFlow.deleteMany({
+          where: { trigger_service_id: serviceId },
+        });
+
+        // Create new ones
+        if (data.flows.length > 0) {
+          await tx.serviceFlow.createMany({
+            data: data.flows.map((flow) => ({
+              trigger_service_id: serviceId,
+              suggested_service_id: flow.suggested_service_id,
+              delay_duration: flow.delay_duration,
+              delay_unit: flow.delay_unit,
+              type: flow.type,
+              business_id: business.id,
+            })),
+          });
+        }
+      }
+      return updatedService;
     });
 
     revalidatePath(`/app/${businessSlug}/services`);

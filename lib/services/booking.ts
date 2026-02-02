@@ -47,7 +47,23 @@ export async function createBookingInDb({
   }
 
   let finalCustomerId = customerId;
-  if (!finalCustomerId) {
+
+  // Logic to handle existing customer update or lookup
+  if (finalCustomerId) {
+    const existingCustomer = await prisma.customer.findUnique({
+      where: { id: finalCustomerId },
+    });
+
+    if (existingCustomer) {
+      // Update email if provided and not set
+      if (email && !existingCustomer.email) {
+        await prisma.customer.update({
+          where: { id: existingCustomer.id },
+          data: { email },
+        });
+      }
+    }
+  } else {
     const existingCustomer = await prisma.customer.findFirst({
       where: {
         AND: [

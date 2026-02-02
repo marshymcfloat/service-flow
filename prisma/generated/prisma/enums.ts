@@ -88,3 +88,20 @@ export const LeaveRequestStatus = {
 } as const
 
 export type LeaveRequestStatus = (typeof LeaveRequestStatus)[keyof typeof LeaveRequestStatus]
+
+
+export const FlowDelayUnit = {
+  DAYS: 'DAYS',
+  WEEKS: 'WEEKS',
+  MONTHS: 'MONTHS'
+} as const
+
+export type FlowDelayUnit = (typeof FlowDelayUnit)[keyof typeof FlowDelayUnit]
+
+
+export const FlowType = {
+  REQUIRED: 'REQUIRED',
+  SUGGESTED: 'SUGGESTED'
+} as const
+
+export type FlowType = (typeof FlowType)[keyof typeof FlowType]

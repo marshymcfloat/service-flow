@@ -83,62 +83,66 @@ export async function sendBookingReminders() {
   <title>Appointment Reminder</title>
   <style>
     /* Reset & Base */
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; line-height: 1.6; margin: 0; padding: 0; background-color: #f3f4f6; color: #1f2937; -webkit-font-smoothing: antialiased; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; line-height: 1.6; margin: 0; padding: 0; background-color: #ffffff; color: #1f2937; -webkit-font-smoothing: antialiased; }
     
     /* Layout */
-    .wrapper { width: 100%; table-layout: fixed; background-color: #f3f4f6; padding-bottom: 60px; }
-    .main-table { margin: 0 auto; max-width: 600px; width: 100%; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025); margin-top: 40px; }
+    .wrapper { width: 100%; table-layout: fixed; background-color: #ffffff; padding-bottom: 60px; }
+    .main-table { margin: 0 auto; max-width: 600px; width: 100%; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); border: 1px solid #f3f4f6; margin-top: 40px; }
+    
+    /* Brand Colors */
+    .brand-color-mint { color: #10b981; }
+    .brand-bg-mint-light { background-color: #ecfdf5; }
+    .brand-border-mint { border-color: #d1fae5; }
+    .brand-color-dark { color: #111827; }
     
     /* Header */
     .header { background-color: #111827; padding: 40px 40px; text-align: center; }
-    .header-title { margin: 0; color: #ffffff; font-size: 24px; font-weight: 700; letter-spacing: -0.025em; }
+    .header-title { margin: 0; color: #ffffff; font-size: 26px; font-weight: 800; letter-spacing: -0.025em; }
     
     /* Content */
     .content { padding: 40px; }
-    .greeting { font-size: 18px; color: #374151; margin-bottom: 24px; }
-    .text-body { color: #6b7280; font-size: 16px; margin-bottom: 32px; }
+    .greeting { font-size: 20px; color: #111827; margin-bottom: 24px; font-weight: 600; }
+    .greeting strong { color: #10b981; } /* Highlight Name in Brand Color */
+    .text-body { color: #4b5563; font-size: 16px; margin-bottom: 32px; }
     
     /* Highlight Card */
-    .highlight-card { background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px; padding: 24px; text-align: center; margin-bottom: 32px; }
-    .highlight-label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; color: #9ca3af; font-weight: 600; margin-bottom: 8px; }
-    .highlight-time { font-size: 36px; font-weight: 800; color: #111827; line-height: 1; letter-spacing: -0.05em; margin: 0; }
-    .highlight-date { font-size: 18px; font-weight: 500; color: #4b5563; margin-top: 8px; }
+    .highlight-card { background-color: #ecfdf5; border: 1px solid #d1fae5; border-radius: 16px; padding: 32px 24px; text-align: center; margin-bottom: 32px; }
+    .highlight-label { font-size: 13px; text-transform: uppercase; letter-spacing: 0.1em; color: #059669; font-weight: 700; margin-bottom: 12px; }
+    .highlight-time { font-size: 42px; font-weight: 800; color: #111827; line-height: 1; letter-spacing: -0.05em; margin: 0; }
+    .highlight-date { font-size: 18px; font-weight: 600; color: #059669; margin-top: 12px; }
     
     /* Services List */
     .services-section { margin-top: 0; border-top: 1px dashed #e5e7eb; padding-top: 24px; }
-    .services-header { font-size: 14px; font-weight: 600; color: #374151; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 16px; }
+    .services-header { font-size: 14px; font-weight: 700; color: #374151; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 16px; }
     .service-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f3f4f6; }
     .service-row:last-child { border-bottom: none; }
-    .service-name { font-weight: 500; color: #1f2937; }
-    .service-icon { display: inline-block; width: 6px; height: 6px; background-color: #10b981; border-radius: 50%; margin-right: 8px; vertical-align: middle; }
+    .service-name { font-weight: 600; color: #111827; font-size: 16px;}
+    .service-icon { display: inline-block; width: 8px; height: 8px; background-color: #10b981; border-radius: 50%; margin-right: 12px; vertical-align: middle; box-shadow: 0 0 0 2px #d1fae5; }
 
     /* Footer */
     .footer { background-color: #f9fafb; padding: 32px; text-align: center; border-top: 1px solid #e5e7eb; }
-    .footer-text { font-size: 13px; color: #9ca3af; margin: 4px 0; }
-    .brand-link { color: #6b7280; text-decoration: none; font-weight: 500; }
+    .footer-text { font-size: 13px; color: #9ca3af; margin: 8px 0; }
+    .brand-link { color: #10b981; text-decoration: none; font-weight: 700; transition: color 0.2s; }
+    .brand-link:hover { color: #059669; text-decoration: underline; }
   </style>
 </head>
 <body>
   <div class="wrapper">
     <div class="main-table">
-      <!-- Header -->
       <div class="header">
         <h1 class="header-title">${businessName}</h1>
       </div>
       
-      <!-- Body -->
       <div class="content">
         <p class="greeting">Hello, <strong>${customerName}</strong></p>
         <p class="text-body">This is a friendly reminder that your appointment is coming up soon. We're getting everything ready for you!</p>
         
-        <!-- Time Card -->
         <div class="highlight-card">
           <div class="highlight-label">Scheduled Time</div>
           <div class="highlight-time">${scheduledTime}</div>
           <div class="highlight-date">${scheduledDate}</div>
         </div>
         
-        <!-- Services -->
         <div class="services-section">
           <div class="services-header">Services Booked</div>
           ${booking.availed_services
@@ -152,16 +156,15 @@ export async function sendBookingReminders() {
         </div>
       </div>
       
-      <!-- Footer -->
       <div class="footer">
         <p class="footer-text">Need to make changes? Contact ${businessName} directly.</p>
-        <p class="footer-text">&copy; ${new Date().getFullYear()} ${businessName} &middot; Powered by <a href="#" class="brand-link">ServiceFlow</a></p>
+        <p class="footer-text">&copy; ${new Date().getFullYear()} ${businessName} &middot; Powered by <a href="https://serviceflow.com" target="_blank" class="brand-link">ServiceFlow</a></p>
       </div>
     </div>
   </div>
 </body>
 </html>
-        `;
+      `;
 
         const { data, error } = await resend.emails.send({
           from: "ServiceFlow <reminders@serviceflow.store>",

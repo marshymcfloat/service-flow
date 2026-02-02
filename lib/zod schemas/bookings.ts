@@ -1,16 +1,19 @@
 import { z } from "zod";
 
-const serviceSchema = z.object({
-  id: z.number(),
-  name: z.string(),
-  description: z.string().nullable(),
-  price: z.number(),
-  duration: z.number().nullable(),
-  business_id: z.string(),
-  created_at: z.coerce.date(),
-  updated_at: z.coerce.date(),
-  quantity: z.number().min(1).default(1),
-});
+const serviceSchema = z
+  .object({
+    id: z.number(),
+    name: z.string(),
+    description: z.string().nullable().optional(),
+    price: z.number(),
+    duration: z.number().nullable().optional(),
+    business_id: z.string().optional(),
+    created_at: z.coerce.date().optional(),
+    updated_at: z.coerce.date().optional(),
+    quantity: z.number().min(1).default(1),
+    // Allow extra fields like packageId, originalPrice
+  })
+  .passthrough();
 
 export const paymentMethodEnum = z.enum(["CASH", "QRPH"]);
 export const paymentTypeEnum = z.enum(["FULL", "DOWNPAYMENT"]);

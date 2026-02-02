@@ -255,6 +255,7 @@ export type BusinessWhereInput = {
   packages?: Prisma.ServicePackageListRelationFilter
   leave_requests?: Prisma.LeaveRequestListRelationFilter
   business_hours?: Prisma.BusinessHoursListRelationFilter
+  service_flows?: Prisma.ServiceFlowListRelationFilter
 }
 
 export type BusinessOrderByWithRelationInput = {
@@ -277,6 +278,7 @@ export type BusinessOrderByWithRelationInput = {
   packages?: Prisma.ServicePackageOrderByRelationAggregateInput
   leave_requests?: Prisma.LeaveRequestOrderByRelationAggregateInput
   business_hours?: Prisma.BusinessHoursOrderByRelationAggregateInput
+  service_flows?: Prisma.ServiceFlowOrderByRelationAggregateInput
 }
 
 export type BusinessWhereUniqueInput = Prisma.AtLeast<{
@@ -302,6 +304,7 @@ export type BusinessWhereUniqueInput = Prisma.AtLeast<{
   packages?: Prisma.ServicePackageListRelationFilter
   leave_requests?: Prisma.LeaveRequestListRelationFilter
   business_hours?: Prisma.BusinessHoursListRelationFilter
+  service_flows?: Prisma.ServiceFlowListRelationFilter
 }, "id" | "slug">
 
 export type BusinessOrderByWithAggregationInput = {
@@ -354,6 +357,7 @@ export type BusinessCreateInput = {
   packages?: Prisma.ServicePackageCreateNestedManyWithoutBusinessInput
   leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
+  service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateInput = {
@@ -376,6 +380,7 @@ export type BusinessUncheckedCreateInput = {
   packages?: Prisma.ServicePackageUncheckedCreateNestedManyWithoutBusinessInput
   leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
+  service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUpdateInput = {
@@ -398,6 +403,7 @@ export type BusinessUpdateInput = {
   packages?: Prisma.ServicePackageUpdateManyWithoutBusinessNestedInput
   leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
+  service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateInput = {
@@ -420,6 +426,7 @@ export type BusinessUncheckedUpdateInput = {
   packages?: Prisma.ServicePackageUncheckedUpdateManyWithoutBusinessNestedInput
   leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
+  service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessCreateManyInput = {
@@ -673,6 +680,20 @@ export type BusinessUpdateOneRequiredWithoutVouchersNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.BusinessUpdateToOneWithWhereWithoutVouchersInput, Prisma.BusinessUpdateWithoutVouchersInput>, Prisma.BusinessUncheckedUpdateWithoutVouchersInput>
 }
 
+export type BusinessCreateNestedOneWithoutService_flowsInput = {
+  create?: Prisma.XOR<Prisma.BusinessCreateWithoutService_flowsInput, Prisma.BusinessUncheckedCreateWithoutService_flowsInput>
+  connectOrCreate?: Prisma.BusinessCreateOrConnectWithoutService_flowsInput
+  connect?: Prisma.BusinessWhereUniqueInput
+}
+
+export type BusinessUpdateOneRequiredWithoutService_flowsNestedInput = {
+  create?: Prisma.XOR<Prisma.BusinessCreateWithoutService_flowsInput, Prisma.BusinessUncheckedCreateWithoutService_flowsInput>
+  connectOrCreate?: Prisma.BusinessCreateOrConnectWithoutService_flowsInput
+  upsert?: Prisma.BusinessUpsertWithoutService_flowsInput
+  connect?: Prisma.BusinessWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.BusinessUpdateToOneWithWhereWithoutService_flowsInput, Prisma.BusinessUpdateWithoutService_flowsInput>, Prisma.BusinessUncheckedUpdateWithoutService_flowsInput>
+}
+
 export type BusinessCreateWithoutLeave_requestsInput = {
   id?: string
   name: string
@@ -692,6 +713,7 @@ export type BusinessCreateWithoutLeave_requestsInput = {
   special_dates?: Prisma.SpecialDateCreateNestedManyWithoutBusinessInput
   packages?: Prisma.ServicePackageCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
+  service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateWithoutLeave_requestsInput = {
@@ -713,6 +735,7 @@ export type BusinessUncheckedCreateWithoutLeave_requestsInput = {
   special_dates?: Prisma.SpecialDateUncheckedCreateNestedManyWithoutBusinessInput
   packages?: Prisma.ServicePackageUncheckedCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
+  service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessCreateOrConnectWithoutLeave_requestsInput = {
@@ -750,6 +773,7 @@ export type BusinessUpdateWithoutLeave_requestsInput = {
   special_dates?: Prisma.SpecialDateUpdateManyWithoutBusinessNestedInput
   packages?: Prisma.ServicePackageUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
+  service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateWithoutLeave_requestsInput = {
@@ -771,6 +795,7 @@ export type BusinessUncheckedUpdateWithoutLeave_requestsInput = {
   special_dates?: Prisma.SpecialDateUncheckedUpdateManyWithoutBusinessNestedInput
   packages?: Prisma.ServicePackageUncheckedUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
+  service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessCreateWithoutBusiness_hoursInput = {
@@ -792,6 +817,7 @@ export type BusinessCreateWithoutBusiness_hoursInput = {
   special_dates?: Prisma.SpecialDateCreateNestedManyWithoutBusinessInput
   packages?: Prisma.ServicePackageCreateNestedManyWithoutBusinessInput
   leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
+  service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateWithoutBusiness_hoursInput = {
@@ -813,6 +839,7 @@ export type BusinessUncheckedCreateWithoutBusiness_hoursInput = {
   special_dates?: Prisma.SpecialDateUncheckedCreateNestedManyWithoutBusinessInput
   packages?: Prisma.ServicePackageUncheckedCreateNestedManyWithoutBusinessInput
   leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
+  service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessCreateOrConnectWithoutBusiness_hoursInput = {
@@ -850,6 +877,7 @@ export type BusinessUpdateWithoutBusiness_hoursInput = {
   special_dates?: Prisma.SpecialDateUpdateManyWithoutBusinessNestedInput
   packages?: Prisma.ServicePackageUpdateManyWithoutBusinessNestedInput
   leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
+  service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateWithoutBusiness_hoursInput = {
@@ -871,6 +899,7 @@ export type BusinessUncheckedUpdateWithoutBusiness_hoursInput = {
   special_dates?: Prisma.SpecialDateUncheckedUpdateManyWithoutBusinessNestedInput
   packages?: Prisma.ServicePackageUncheckedUpdateManyWithoutBusinessNestedInput
   leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
+  service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessCreateWithoutSale_eventsInput = {
@@ -892,6 +921,7 @@ export type BusinessCreateWithoutSale_eventsInput = {
   packages?: Prisma.ServicePackageCreateNestedManyWithoutBusinessInput
   leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
+  service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateWithoutSale_eventsInput = {
@@ -913,6 +943,7 @@ export type BusinessUncheckedCreateWithoutSale_eventsInput = {
   packages?: Prisma.ServicePackageUncheckedCreateNestedManyWithoutBusinessInput
   leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
+  service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessCreateOrConnectWithoutSale_eventsInput = {
@@ -950,6 +981,7 @@ export type BusinessUpdateWithoutSale_eventsInput = {
   packages?: Prisma.ServicePackageUpdateManyWithoutBusinessNestedInput
   leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
+  service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateWithoutSale_eventsInput = {
@@ -971,6 +1003,7 @@ export type BusinessUncheckedUpdateWithoutSale_eventsInput = {
   packages?: Prisma.ServicePackageUncheckedUpdateManyWithoutBusinessNestedInput
   leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
+  service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessCreateWithoutEmployeesInput = {
@@ -992,6 +1025,7 @@ export type BusinessCreateWithoutEmployeesInput = {
   packages?: Prisma.ServicePackageCreateNestedManyWithoutBusinessInput
   leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
+  service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateWithoutEmployeesInput = {
@@ -1013,6 +1047,7 @@ export type BusinessUncheckedCreateWithoutEmployeesInput = {
   packages?: Prisma.ServicePackageUncheckedCreateNestedManyWithoutBusinessInput
   leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
+  service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessCreateOrConnectWithoutEmployeesInput = {
@@ -1050,6 +1085,7 @@ export type BusinessUpdateWithoutEmployeesInput = {
   packages?: Prisma.ServicePackageUpdateManyWithoutBusinessNestedInput
   leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
+  service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateWithoutEmployeesInput = {
@@ -1071,6 +1107,7 @@ export type BusinessUncheckedUpdateWithoutEmployeesInput = {
   packages?: Prisma.ServicePackageUncheckedUpdateManyWithoutBusinessNestedInput
   leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
+  service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessCreateWithoutSpecial_datesInput = {
@@ -1092,6 +1129,7 @@ export type BusinessCreateWithoutSpecial_datesInput = {
   packages?: Prisma.ServicePackageCreateNestedManyWithoutBusinessInput
   leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
+  service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateWithoutSpecial_datesInput = {
@@ -1113,6 +1151,7 @@ export type BusinessUncheckedCreateWithoutSpecial_datesInput = {
   packages?: Prisma.ServicePackageUncheckedCreateNestedManyWithoutBusinessInput
   leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
+  service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessCreateOrConnectWithoutSpecial_datesInput = {
@@ -1150,6 +1189,7 @@ export type BusinessUpdateWithoutSpecial_datesInput = {
   packages?: Prisma.ServicePackageUpdateManyWithoutBusinessNestedInput
   leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
+  service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateWithoutSpecial_datesInput = {
@@ -1171,6 +1211,7 @@ export type BusinessUncheckedUpdateWithoutSpecial_datesInput = {
   packages?: Prisma.ServicePackageUncheckedUpdateManyWithoutBusinessNestedInput
   leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
+  service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessCreateWithoutOwnersInput = {
@@ -1192,6 +1233,7 @@ export type BusinessCreateWithoutOwnersInput = {
   packages?: Prisma.ServicePackageCreateNestedManyWithoutBusinessInput
   leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
+  service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateWithoutOwnersInput = {
@@ -1213,6 +1255,7 @@ export type BusinessUncheckedCreateWithoutOwnersInput = {
   packages?: Prisma.ServicePackageUncheckedCreateNestedManyWithoutBusinessInput
   leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
+  service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessCreateOrConnectWithoutOwnersInput = {
@@ -1250,6 +1293,7 @@ export type BusinessUpdateWithoutOwnersInput = {
   packages?: Prisma.ServicePackageUpdateManyWithoutBusinessNestedInput
   leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
+  service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateWithoutOwnersInput = {
@@ -1271,6 +1315,7 @@ export type BusinessUncheckedUpdateWithoutOwnersInput = {
   packages?: Prisma.ServicePackageUncheckedUpdateManyWithoutBusinessNestedInput
   leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
+  service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessCreateWithoutServicesInput = {
@@ -1292,6 +1337,7 @@ export type BusinessCreateWithoutServicesInput = {
   packages?: Prisma.ServicePackageCreateNestedManyWithoutBusinessInput
   leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
+  service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateWithoutServicesInput = {
@@ -1313,6 +1359,7 @@ export type BusinessUncheckedCreateWithoutServicesInput = {
   packages?: Prisma.ServicePackageUncheckedCreateNestedManyWithoutBusinessInput
   leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
+  service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessCreateOrConnectWithoutServicesInput = {
@@ -1350,6 +1397,7 @@ export type BusinessUpdateWithoutServicesInput = {
   packages?: Prisma.ServicePackageUpdateManyWithoutBusinessNestedInput
   leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
+  service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateWithoutServicesInput = {
@@ -1371,6 +1419,7 @@ export type BusinessUncheckedUpdateWithoutServicesInput = {
   packages?: Prisma.ServicePackageUncheckedUpdateManyWithoutBusinessNestedInput
   leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
+  service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessCreateWithoutPackagesInput = {
@@ -1392,6 +1441,7 @@ export type BusinessCreateWithoutPackagesInput = {
   special_dates?: Prisma.SpecialDateCreateNestedManyWithoutBusinessInput
   leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
+  service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateWithoutPackagesInput = {
@@ -1413,6 +1463,7 @@ export type BusinessUncheckedCreateWithoutPackagesInput = {
   special_dates?: Prisma.SpecialDateUncheckedCreateNestedManyWithoutBusinessInput
   leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
+  service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessCreateOrConnectWithoutPackagesInput = {
@@ -1450,6 +1501,7 @@ export type BusinessUpdateWithoutPackagesInput = {
   special_dates?: Prisma.SpecialDateUpdateManyWithoutBusinessNestedInput
   leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
+  service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateWithoutPackagesInput = {
@@ -1471,6 +1523,7 @@ export type BusinessUncheckedUpdateWithoutPackagesInput = {
   special_dates?: Prisma.SpecialDateUncheckedUpdateManyWithoutBusinessNestedInput
   leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
+  service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessCreateWithoutCustomersInput = {
@@ -1492,6 +1545,7 @@ export type BusinessCreateWithoutCustomersInput = {
   packages?: Prisma.ServicePackageCreateNestedManyWithoutBusinessInput
   leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
+  service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateWithoutCustomersInput = {
@@ -1513,6 +1567,7 @@ export type BusinessUncheckedCreateWithoutCustomersInput = {
   packages?: Prisma.ServicePackageUncheckedCreateNestedManyWithoutBusinessInput
   leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
+  service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessCreateOrConnectWithoutCustomersInput = {
@@ -1550,6 +1605,7 @@ export type BusinessUpdateWithoutCustomersInput = {
   packages?: Prisma.ServicePackageUpdateManyWithoutBusinessNestedInput
   leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
+  service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateWithoutCustomersInput = {
@@ -1571,6 +1627,7 @@ export type BusinessUncheckedUpdateWithoutCustomersInput = {
   packages?: Prisma.ServicePackageUncheckedUpdateManyWithoutBusinessNestedInput
   leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
+  service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessCreateWithoutBookingsInput = {
@@ -1592,6 +1649,7 @@ export type BusinessCreateWithoutBookingsInput = {
   packages?: Prisma.ServicePackageCreateNestedManyWithoutBusinessInput
   leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
+  service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateWithoutBookingsInput = {
@@ -1613,6 +1671,7 @@ export type BusinessUncheckedCreateWithoutBookingsInput = {
   packages?: Prisma.ServicePackageUncheckedCreateNestedManyWithoutBusinessInput
   leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
+  service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessCreateOrConnectWithoutBookingsInput = {
@@ -1650,6 +1709,7 @@ export type BusinessUpdateWithoutBookingsInput = {
   packages?: Prisma.ServicePackageUpdateManyWithoutBusinessNestedInput
   leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
+  service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateWithoutBookingsInput = {
@@ -1671,6 +1731,7 @@ export type BusinessUncheckedUpdateWithoutBookingsInput = {
   packages?: Prisma.ServicePackageUncheckedUpdateManyWithoutBusinessNestedInput
   leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
+  service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessCreateWithoutVouchersInput = {
@@ -1692,6 +1753,7 @@ export type BusinessCreateWithoutVouchersInput = {
   packages?: Prisma.ServicePackageCreateNestedManyWithoutBusinessInput
   leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
+  service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateWithoutVouchersInput = {
@@ -1713,6 +1775,7 @@ export type BusinessUncheckedCreateWithoutVouchersInput = {
   packages?: Prisma.ServicePackageUncheckedCreateNestedManyWithoutBusinessInput
   leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
+  service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessCreateOrConnectWithoutVouchersInput = {
@@ -1750,6 +1813,7 @@ export type BusinessUpdateWithoutVouchersInput = {
   packages?: Prisma.ServicePackageUpdateManyWithoutBusinessNestedInput
   leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
+  service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateWithoutVouchersInput = {
@@ -1767,6 +1831,111 @@ export type BusinessUncheckedUpdateWithoutVouchersInput = {
   customers?: Prisma.CustomerUncheckedUpdateManyWithoutBusinessNestedInput
   bookings?: Prisma.BookingUncheckedUpdateManyWithoutBusinessNestedInput
   sale_events?: Prisma.SaleEventUncheckedUpdateManyWithoutBusinessNestedInput
+  special_dates?: Prisma.SpecialDateUncheckedUpdateManyWithoutBusinessNestedInput
+  packages?: Prisma.ServicePackageUncheckedUpdateManyWithoutBusinessNestedInput
+  leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
+  business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
+  service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
+}
+
+export type BusinessCreateWithoutService_flowsInput = {
+  id?: string
+  name: string
+  slug: string
+  initials: string
+  latitude?: number | null
+  longitude?: number | null
+  created_at?: Date | string
+  updated_at?: Date | string
+  services?: Prisma.ServiceCreateNestedManyWithoutBusinessInput
+  employees?: Prisma.EmployeeCreateNestedManyWithoutBusinessInput
+  owners?: Prisma.OwnerCreateNestedManyWithoutBusinessInput
+  customers?: Prisma.CustomerCreateNestedManyWithoutBusinessInput
+  bookings?: Prisma.BookingCreateNestedManyWithoutBusinessInput
+  sale_events?: Prisma.SaleEventCreateNestedManyWithoutBusinessInput
+  vouchers?: Prisma.VoucherCreateNestedManyWithoutBusinessInput
+  special_dates?: Prisma.SpecialDateCreateNestedManyWithoutBusinessInput
+  packages?: Prisma.ServicePackageCreateNestedManyWithoutBusinessInput
+  leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
+  business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
+}
+
+export type BusinessUncheckedCreateWithoutService_flowsInput = {
+  id?: string
+  name: string
+  slug: string
+  initials: string
+  latitude?: number | null
+  longitude?: number | null
+  created_at?: Date | string
+  updated_at?: Date | string
+  services?: Prisma.ServiceUncheckedCreateNestedManyWithoutBusinessInput
+  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutBusinessInput
+  owners?: Prisma.OwnerUncheckedCreateNestedManyWithoutBusinessInput
+  customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutBusinessInput
+  bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutBusinessInput
+  sale_events?: Prisma.SaleEventUncheckedCreateNestedManyWithoutBusinessInput
+  vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutBusinessInput
+  special_dates?: Prisma.SpecialDateUncheckedCreateNestedManyWithoutBusinessInput
+  packages?: Prisma.ServicePackageUncheckedCreateNestedManyWithoutBusinessInput
+  leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
+  business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
+}
+
+export type BusinessCreateOrConnectWithoutService_flowsInput = {
+  where: Prisma.BusinessWhereUniqueInput
+  create: Prisma.XOR<Prisma.BusinessCreateWithoutService_flowsInput, Prisma.BusinessUncheckedCreateWithoutService_flowsInput>
+}
+
+export type BusinessUpsertWithoutService_flowsInput = {
+  update: Prisma.XOR<Prisma.BusinessUpdateWithoutService_flowsInput, Prisma.BusinessUncheckedUpdateWithoutService_flowsInput>
+  create: Prisma.XOR<Prisma.BusinessCreateWithoutService_flowsInput, Prisma.BusinessUncheckedCreateWithoutService_flowsInput>
+  where?: Prisma.BusinessWhereInput
+}
+
+export type BusinessUpdateToOneWithWhereWithoutService_flowsInput = {
+  where?: Prisma.BusinessWhereInput
+  data: Prisma.XOR<Prisma.BusinessUpdateWithoutService_flowsInput, Prisma.BusinessUncheckedUpdateWithoutService_flowsInput>
+}
+
+export type BusinessUpdateWithoutService_flowsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  initials?: Prisma.StringFieldUpdateOperationsInput | string
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  services?: Prisma.ServiceUpdateManyWithoutBusinessNestedInput
+  employees?: Prisma.EmployeeUpdateManyWithoutBusinessNestedInput
+  owners?: Prisma.OwnerUpdateManyWithoutBusinessNestedInput
+  customers?: Prisma.CustomerUpdateManyWithoutBusinessNestedInput
+  bookings?: Prisma.BookingUpdateManyWithoutBusinessNestedInput
+  sale_events?: Prisma.SaleEventUpdateManyWithoutBusinessNestedInput
+  vouchers?: Prisma.VoucherUpdateManyWithoutBusinessNestedInput
+  special_dates?: Prisma.SpecialDateUpdateManyWithoutBusinessNestedInput
+  packages?: Prisma.ServicePackageUpdateManyWithoutBusinessNestedInput
+  leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
+  business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
+}
+
+export type BusinessUncheckedUpdateWithoutService_flowsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  initials?: Prisma.StringFieldUpdateOperationsInput | string
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  services?: Prisma.ServiceUncheckedUpdateManyWithoutBusinessNestedInput
+  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutBusinessNestedInput
+  owners?: Prisma.OwnerUncheckedUpdateManyWithoutBusinessNestedInput
+  customers?: Prisma.CustomerUncheckedUpdateManyWithoutBusinessNestedInput
+  bookings?: Prisma.BookingUncheckedUpdateManyWithoutBusinessNestedInput
+  sale_events?: Prisma.SaleEventUncheckedUpdateManyWithoutBusinessNestedInput
+  vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutBusinessNestedInput
   special_dates?: Prisma.SpecialDateUncheckedUpdateManyWithoutBusinessNestedInput
   packages?: Prisma.ServicePackageUncheckedUpdateManyWithoutBusinessNestedInput
   leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
@@ -1790,6 +1959,7 @@ export type BusinessCountOutputType = {
   packages: number
   leave_requests: number
   business_hours: number
+  service_flows: number
 }
 
 export type BusinessCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1804,6 +1974,7 @@ export type BusinessCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensio
   packages?: boolean | BusinessCountOutputTypeCountPackagesArgs
   leave_requests?: boolean | BusinessCountOutputTypeCountLeave_requestsArgs
   business_hours?: boolean | BusinessCountOutputTypeCountBusiness_hoursArgs
+  service_flows?: boolean | BusinessCountOutputTypeCountService_flowsArgs
 }
 
 /**
@@ -1893,6 +2064,13 @@ export type BusinessCountOutputTypeCountBusiness_hoursArgs<ExtArgs extends runti
   where?: Prisma.BusinessHoursWhereInput
 }
 
+/**
+ * BusinessCountOutputType without action
+ */
+export type BusinessCountOutputTypeCountService_flowsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ServiceFlowWhereInput
+}
+
 
 export type BusinessSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1914,6 +2092,7 @@ export type BusinessSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   packages?: boolean | Prisma.Business$packagesArgs<ExtArgs>
   leave_requests?: boolean | Prisma.Business$leave_requestsArgs<ExtArgs>
   business_hours?: boolean | Prisma.Business$business_hoursArgs<ExtArgs>
+  service_flows?: boolean | Prisma.Business$service_flowsArgs<ExtArgs>
   _count?: boolean | Prisma.BusinessCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["business"]>
 
@@ -1963,6 +2142,7 @@ export type BusinessInclude<ExtArgs extends runtime.Types.Extensions.InternalArg
   packages?: boolean | Prisma.Business$packagesArgs<ExtArgs>
   leave_requests?: boolean | Prisma.Business$leave_requestsArgs<ExtArgs>
   business_hours?: boolean | Prisma.Business$business_hoursArgs<ExtArgs>
+  service_flows?: boolean | Prisma.Business$service_flowsArgs<ExtArgs>
   _count?: boolean | Prisma.BusinessCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type BusinessIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1982,6 +2162,7 @@ export type $BusinessPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     packages: Prisma.$ServicePackagePayload<ExtArgs>[]
     leave_requests: Prisma.$LeaveRequestPayload<ExtArgs>[]
     business_hours: Prisma.$BusinessHoursPayload<ExtArgs>[]
+    service_flows: Prisma.$ServiceFlowPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -2397,6 +2578,7 @@ export interface Prisma__BusinessClient<T, Null = never, ExtArgs extends runtime
   packages<T extends Prisma.Business$packagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Business$packagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ServicePackagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   leave_requests<T extends Prisma.Business$leave_requestsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Business$leave_requestsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LeaveRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   business_hours<T extends Prisma.Business$business_hoursArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Business$business_hoursArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BusinessHoursPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  service_flows<T extends Prisma.Business$service_flowsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Business$service_flowsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ServiceFlowPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3083,6 +3265,30 @@ export type Business$business_hoursArgs<ExtArgs extends runtime.Types.Extensions
   take?: number
   skip?: number
   distinct?: Prisma.BusinessHoursScalarFieldEnum | Prisma.BusinessHoursScalarFieldEnum[]
+}
+
+/**
+ * Business.service_flows
+ */
+export type Business$service_flowsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ServiceFlow
+   */
+  select?: Prisma.ServiceFlowSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ServiceFlow
+   */
+  omit?: Prisma.ServiceFlowOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ServiceFlowInclude<ExtArgs> | null
+  where?: Prisma.ServiceFlowWhereInput
+  orderBy?: Prisma.ServiceFlowOrderByWithRelationInput | Prisma.ServiceFlowOrderByWithRelationInput[]
+  cursor?: Prisma.ServiceFlowWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ServiceFlowScalarFieldEnum | Prisma.ServiceFlowScalarFieldEnum[]
 }
 
 /**

@@ -14,9 +14,11 @@ import { useDebounce } from "@/hooks/use-debounce";
 export default function CustomerSearchInput({
   form,
   businessSlug,
+  onCustomerSelect,
 }: {
   form: UseFormReturn<any>;
   businessSlug: string;
+  onCustomerSelect?: (customer: any) => void;
 }) {
   const [searchQuery, setSearchQuery] = useState("");
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
@@ -55,6 +57,9 @@ export default function CustomerSearchInput({
     form.setValue("email", customer.email || "");
     setSearchQuery(customer.name);
     setShowResults(false);
+    if (onCustomerSelect) {
+      onCustomerSelect(customer);
+    }
   };
 
   return (

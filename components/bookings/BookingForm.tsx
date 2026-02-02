@@ -25,6 +25,17 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 const capitalizeWords = (str: string) => {
   return str.replace(/\b\w/g, (char) => char.toUpperCase());
 };
+
+const maskEmail = (email: string) => {
+  if (!email) return "";
+  const [user, domain] = email.split("@");
+  if (!user || !domain) return email;
+  const maskedUser =
+    user.length > 2
+      ? `${user.substring(0, 2)}***${user.substring(user.length - 1)}`
+      : `${user}***`;
+  return `${maskedUser}@${domain}`;
+};
 import {
   Form,
   FormControl,
@@ -61,6 +72,13 @@ interface BookingFormProps {
   isModal?: boolean;
 }
 
+import {
+  getCustomerPendingFlows,
+  PendingFlow,
+} from "@/lib/server actions/flow-actions";
+import { format } from "date-fns";
+import { Sparkles, Calendar, ArrowRight } from "lucide-react";
+
 export default function BookingForm({
   services,
   packages = [],
@@ -94,8 +112,39 @@ export default function BookingForm({
   const selectedTime = form.watch("selectedTime") as Date | undefined;
   const paymentMethod = form.watch("paymentMethod") as PaymentMethod;
   const paymentType = form.watch("paymentType") as PaymentType;
+  const customerId = form.watch("customerId");
 
+  const [existingCustomerEmail, setExistingCustomerEmail] = useState<
+    string | null
+  >(null);
+  const [pendingFlows, setPendingFlows] = useState<PendingFlow[]>([]);
+  const [isLoadingFlows, setIsLoadingFlows] = useState(false);
   const [claimedUniqueIds, setClaimedUniqueIds] = useState<string[]>([]);
+
+  // Fetch pending flows when customer is selected
+  useEffect(() => {
+    async function fetchFlows() {
+      if (!customerId) {
+        setPendingFlows([]);
+        return;
+      }
+      setIsLoadingFlows(true);
+      const flows = await getCustomerPendingFlows(customerId);
+      setPendingFlows(flows);
+      setIsLoadingFlows(false);
+    }
+    fetchFlows();
+  }, [customerId]);
+
+  // Callback when a customer is selected from the search input
+  const handleCustomerSelect = (customer: any) => {
+    // If customer has an email, set it to state
+    if (customer && customer.email) {
+      setExistingCustomerEmail(customer.email);
+    } else {
+      setExistingCustomerEmail(null);
+    }
+  };
 
   const { total, amountToPay } = useMemo(() => {
     const total = selectedServices.reduce((sum, s) => {
@@ -234,6 +283,7 @@ export default function BookingForm({
       paymentMethod: data.paymentMethod,
       paymentType: data.paymentType,
       services: flatServicesPayload,
+      email: data.email,
     });
   };
 
@@ -280,6 +330,7 @@ export default function BookingForm({
                   <CustomerSearchInput
                     form={form}
                     businessSlug={businessSlug!}
+                    onCustomerSelect={handleCustomerSelect}
                   />
                 </FormControl>
                 <FormMessage />
@@ -290,20 +341,135 @@ export default function BookingForm({
           <FormField
             control={form.control}
             name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email (Optional)</FormLabel>
-                <FormControl>
-                  <Input placeholder="Enter email address" {...field} />
-                </FormControl>
-                <FormMessage />
-                <p className="text-[10px] text-muted-foreground mt-1">
-                  Providing an email would let us remind you about your
-                  bookings, and get updates from us like sales.
-                </p>
-              </FormItem>
-            )}
+            render={({ field }) => {
+              return (
+                <FormItem>
+                  <FormLabel>Email (Optional)</FormLabel>
+                  {existingCustomerEmail ? (
+                    <div className="text-sm bg-yellow-50 text-yellow-800 p-2 rounded-md border border-yellow-200 mb-2">
+                      This customer already has an email linked (
+                      {maskEmail(existingCustomerEmail)}).
+                      <br />
+                      <span className="text-xs opacity-80">
+                        To change it, please update their profile separately.
+                      </span>
+                    </div>
+                  ) : (
+                    <>
+                      <FormControl>
+                        <Input placeholder="Enter email address" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                      <p className="text-[10px] text-muted-foreground mt-1">
+                        Providing an email would let us remind you about your
+                        bookings, and get updates from us like sales.
+                      </p>
+                    </>
+                  )}
+                </FormItem>
+              );
+            }}
           />
+
+          {pendingFlows.length > 0 && (
+            <div className="space-y-3 animate-in fade-in slide-in-from-top-4 duration-500">
+              {pendingFlows.map((flow, idx) => (
+                <div
+                  key={idx}
+                  className="bg-indigo-50/80 border border-indigo-200 rounded-xl p-4 relative overflow-hidden"
+                >
+                  <div className="absolute top-0 right-0 p-3 opacity-10">
+                    <Sparkles className="w-16 h-16 text-indigo-900" />
+                  </div>
+
+                  <div className="relative z-10">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Badge
+                        variant="outline"
+                        className="bg-white text-indigo-700 border-indigo-200 shadow-sm"
+                      >
+                        Authentication Journey
+                      </Badge>
+                      <span className="text-xs text-indigo-600 font-medium">
+                        Based on their visit on{" "}
+                        {format(new Date(flow.lastServiceDate), "MMM d")}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-3 text-sm mb-3">
+                      <div className="flex flex-col opacity-60">
+                        <span className="text-[10px] uppercase tracking-wider font-semibold">
+                          Previous
+                        </span>
+                        <span className="font-medium line-through decoration-indigo-300">
+                          {flow.triggerServiceName}
+                        </span>
+                      </div>
+
+                      <ArrowRight className="w-4 h-4 text-indigo-400" />
+
+                      <div className="flex flex-col">
+                        <span className="text-[10px] uppercase tracking-wider font-semibold text-indigo-700">
+                          Recommended Next
+                        </span>
+                        <span className="font-bold text-indigo-900 text-base">
+                          {flow.suggestedServiceName}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <div className="text-xs text-indigo-600">
+                        <Calendar className="w-3 h-3 inline mr-1" />
+                        Due around{" "}
+                        {format(new Date(flow.dueDate), "MMM d, yyyy")}
+                      </div>
+
+                      <Button
+                        type="button"
+                        size="sm"
+                        className="bg-indigo-600 hover:bg-indigo-700 text-white border-0 h-8 text-xs shadow-indigo-200 shadow-md"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          const currentServices =
+                            form.getValues("services") || [];
+                          const serviceToAdd = {
+                            id: flow.suggestedServiceId,
+                            name: flow.suggestedServiceName,
+                            price: flow.suggestedServicePrice,
+                            duration: flow.suggestedServiceDuration,
+                            quantity: 1,
+                          };
+
+                          if (
+                            !currentServices.some(
+                              (s: any) => s.id === serviceToAdd.id,
+                            )
+                          ) {
+                            form.setValue("services", [
+                              ...currentServices,
+                              serviceToAdd,
+                            ]);
+                            toast.success(
+                              `Added ${flow.suggestedServiceName} to booking`,
+                            );
+                          } else {
+                            toast.info(
+                              "This service is already in the booking",
+                            );
+                          }
+                        }}
+                      >
+                        <Sparkles className="w-3 h-3 mr-1.5" />
+                        Add to Booking
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
 
           <FormField
             control={form.control}
