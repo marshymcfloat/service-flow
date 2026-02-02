@@ -29,6 +29,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   return {
     title: business?.name || "Dashboard",
+    robots: {
+      index: false,
+      follow: false,
+    },
   };
 }
 

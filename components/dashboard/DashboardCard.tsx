@@ -20,61 +20,57 @@ export default function DashboardCard({
   return (
     <div
       className={cn(
-        "min-w-[300px] p-6 rounded-[30px] flex flex-col justify-between h-[180px] transition-all duration-300 hover:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.1)]",
+        "relative overflow-hidden rounded-[24px] p-6 transition-all duration-300",
         variant === "filled"
-          ? "bg-gradient-to-br from-emerald-800 to-emerald-950 text-white shadow-[0_20px_40px_-12px_rgba(6,95,70,0.3)]"
-          : "bg-white text-zinc-900 border border-zinc-50 shadow-[0_20px_40px_-12px_rgba(0,0,0,0.05)]",
+          ? "bg-gradient-to-br from-emerald-900 to-emerald-950 text-white shadow-xl shadow-emerald-900/20"
+          : "bg-white text-zinc-900 shadow-lg shadow-zinc-200/50 hover:shadow-xl hover:shadow-zinc-200/60 border border-zinc-100",
       )}
     >
-      <div className="flex justify-between items-start w-full">
-        <h3
-          className={cn(
-            "font-medium text-lg leading-tight",
-            variant === "filled" ? "text-emerald-50" : "text-zinc-700",
-          )}
-        >
-          {title}
-        </h3>
-        <div
-          className={cn(
-            "size-10 rounded-full flex items-center justify-center transition-transform hover:-translate-y-1 hover:translate-x-1",
-            variant === "filled"
-              ? "bg-white/10 text-white backdrop-blur-sm"
-              : "border border-zinc-200 text-zinc-900 bg-white",
-          )}
-        >
-          {Icon ? <Icon size={20} /> : <ArrowUpRight size={20} />}
-        </div>
-      </div>
+      {/* Decorative background for filled variant */}
+      {variant === "filled" && (
+        <div className="absolute -right-10 -top-10 h-64 w-64 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none" />
+      )}
 
-      <div className="space-y-1">
-        <div className="text-5xl font-semibold tracking-tight">
-          {typeof count === "number" ? count.toLocaleString() : count}
-        </div>
-        <div
-          className={cn(
-            "flex items-center gap-2 text-sm font-medium",
-            variant === "filled" ? "text-emerald-200" : "text-emerald-600",
-          )}
-        >
-          <span
+      <div className="relative z-10 flex flex-col justify-between h-full min-h-[140px]">
+        <div className="flex justify-between items-start">
+          <div
             className={cn(
-              "flex items-center gap-1 rounded-full px-1.5 py-0.5 text-xs",
+              "p-2.5 rounded-2xl transition-transform hover:scale-110",
               variant === "filled"
                 ? "bg-emerald-500/20 text-emerald-100"
-                : "bg-emerald-100 text-emerald-700",
+                : "bg-zinc-50 text-zinc-600 border border-zinc-100",
             )}
           >
-            <ArrowUpRight size={12} />
-            5%
-          </span>
-          <span
+            {Icon ? (
+              <Icon size={20} strokeWidth={2} />
+            ) : (
+              <ArrowUpRight size={20} />
+            )}
+          </div>
+        </div>
+
+        <div className="space-y-1 mt-4">
+          <h3
             className={cn(
+              "text-sm font-medium tracking-wide",
               variant === "filled" ? "text-emerald-200/80" : "text-zinc-500",
             )}
           >
+            {title}
+          </h3>
+          <div className="flex items-baseline gap-2">
+            <span className="text-4xl font-bold tracking-tight">
+              {typeof count === "number" ? count.toLocaleString() : count}
+            </span>
+          </div>
+          <p
+            className={cn(
+              "text-xs font-medium pt-1 flex items-center gap-1",
+              variant === "filled" ? "text-emerald-400" : "text-emerald-600",
+            )}
+          >
             {description}
-          </span>
+          </p>
         </div>
       </div>
     </div>

@@ -141,7 +141,7 @@ export function VoucherForm({ onSuccess, initials }: VoucherFormProps) {
                     <Input
                       placeholder="SUMMER2026"
                       {...field}
-                      className="pl-10" // Add padding to make room for prefix
+                      className="pl-10 h-10 rounded-xl" // Add padding to make room for prefix
                       style={{ paddingLeft: `${initials.length + 3}ch` }} // dynamic padding roughly
                     />
                   </FormControl>
@@ -150,6 +150,7 @@ export function VoucherForm({ onSuccess, initials }: VoucherFormProps) {
                   type="button"
                   variant="outline"
                   size="icon"
+                  className="rounded-xl border-dashed"
                   onClick={handleGenerateCode}
                   disabled={isGenerating}
                 >
@@ -180,11 +181,11 @@ export function VoucherForm({ onSuccess, initials }: VoucherFormProps) {
                   defaultValue={field.value}
                 >
                   <FormControl>
-                    <SelectTrigger>
+                    <SelectTrigger className="h-10 rounded-xl">
                       <SelectValue placeholder="Select type" />
                     </SelectTrigger>
                   </FormControl>
-                  <SelectContent>
+                  <SelectContent className="rounded-xl">
                     <SelectItem value="PERCENTAGE">Percentage (%)</SelectItem>
                     <SelectItem value="FLAT">Flat Amount (₱)</SelectItem>
                   </SelectContent>
@@ -201,7 +202,12 @@ export function VoucherForm({ onSuccess, initials }: VoucherFormProps) {
               <FormItem>
                 <FormLabel>Value</FormLabel>
                 <FormControl>
-                  <Input type="number" step="0.01" {...field} />
+                  <Input
+                    type="number"
+                    step="0.01"
+                    {...field}
+                    className="h-10 rounded-xl"
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -216,7 +222,12 @@ export function VoucherForm({ onSuccess, initials }: VoucherFormProps) {
             <FormItem>
               <FormLabel>Minimum Spend (Optional)</FormLabel>
               <FormControl>
-                <Input type="number" step="0.01" {...field} />
+                <Input
+                  type="number"
+                  step="0.01"
+                  {...field}
+                  className="h-10 rounded-xl"
+                />
               </FormControl>
               <FormDescription>
                 Minimum booking amount required.
@@ -238,7 +249,7 @@ export function VoucherForm({ onSuccess, initials }: VoucherFormProps) {
                     <Button
                       variant={"outline"}
                       className={cn(
-                        "w-full pl-3 text-left font-normal",
+                        "w-full pl-3 text-left font-normal h-10 rounded-xl",
                         !field.value && "text-muted-foreground",
                       )}
                     >
@@ -250,7 +261,7 @@ export function VoucherForm({ onSuccess, initials }: VoucherFormProps) {
                     </Button>
                   </FormControl>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
+                <PopoverContent className="w-auto p-0 rounded-xl" align="start">
                   <Calendar
                     mode="single"
                     selected={field.value}
@@ -267,7 +278,11 @@ export function VoucherForm({ onSuccess, initials }: VoucherFormProps) {
           )}
         />
 
-        <Button type="submit" className="w-full" disabled={isPending}>
+        <Button
+          type="submit"
+          className="w-full h-11 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-500/20 font-semibold"
+          disabled={isPending}
+        >
           {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           Create Voucher
         </Button>

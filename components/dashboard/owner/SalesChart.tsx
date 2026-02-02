@@ -8,6 +8,7 @@ import {
   XAxis,
   YAxis,
   Tooltip,
+  CartesianGrid,
 } from "recharts";
 import {
   Card,
@@ -97,19 +98,7 @@ export function SalesChart({
       });
       chartData = buckets;
     } else if (range === "weekly") {
-      const startOfWindow = new Date(now.getTime() - 6 * 24 * 60 * 60 * 1000);
-
-      const last7Days = Array.from({ length: 7 }, (_, i) => {
-        const d = new Date(now);
-        d.setDate(d.getDate() - (6 - i));
-        return d;
-      });
-
-      const dayNames = last7Days.map((d) => formatPH(d, "EEE"));
-      chartData = dayNames.map((name) => ({ name, total: 0 }));
-      const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-      chartData = days.map((d) => ({ name: d, total: 0 }));
-
+      // Logic for weekly can be refined, but sticking to existing logic for now
       filteredBookings = bookings.filter((b) => {
         const diffTime = Math.abs(
           now.getTime() - new Date(b.created_at).getTime(),
@@ -118,9 +107,21 @@ export function SalesChart({
         return diffDays <= 7;
       });
 
+      const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+      // Reorder days to start 6 days ago
+      const todayIndex = now.getDay();
+      let orderedDays: string[] = [];
+      for (let i = 0; i < 7; i++) {
+        const d = new Date(now);
+        d.setDate(d.getDate() - (6 - i));
+        orderedDays.push(days[d.getDay()]);
+      }
+
+      chartData = orderedDays.map((d) => ({ name: d, total: 0 }));
+
       filteredBookings.forEach((b) => {
-        const name = formatPH(b.created_at, "EEE");
-        const bucket = chartData.find((d) => d.name === name);
+        const dayName = days[new Date(b.created_at).getDay()];
+        const bucket = chartData.find((d) => d.name === dayName);
         if (bucket) bucket.total += b.grand_total;
       });
     } else if (range === "monthly") {
@@ -190,124 +191,119 @@ export function SalesChart({
   return (
     <Card
       className={cn(
-        "h-full shadow-sm   border-zinc-100 flex flex-col",
+        "rounded-[32px] border-none shadow-lg shadow-zinc-200/50 bg-white flex flex-col overflow-hidden",
         className,
       )}
     >
-      <CardHeader>
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <CardHeader className="md:px-8 md:pt-8 pb-0">
+        <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
           <div className="space-y-1">
-            <CardTitle className="text-xl font-semibold">
+            <CardTitle className="text-2xl font-bold tracking-tight text-zinc-900">
               Revenue Analytics
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-base text-zinc-500 font-medium">
               Overview of your business performance
             </CardDescription>
           </div>
           <Select value={range} onValueChange={setRange}>
-            <SelectTrigger className="w-[160px] rounded-lg">
+            <SelectTrigger className="w-full sm:w-[160px] rounded-2xl h-11 border-zinc-200 bg-zinc-50 font-medium">
               <SelectValue placeholder="Select range" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="rounded-xl">
               <SelectItem value="daily">Today</SelectItem>
+              <SelectItem value="weekly">Last 7 Days</SelectItem>
               <SelectItem value="monthly">This Month</SelectItem>
               <SelectItem value="yearly">This Year</SelectItem>
             </SelectContent>
           </Select>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-6 pt-4">
-          <div>
-            <div className="text-sm text-muted-foreground font-medium">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-6 pt-6">
+          <div className="space-y-1">
+            <div className="text-xs text-zinc-500 font-bold uppercase tracking-wider">
               Total Revenue
             </div>
-            <div className="text-2xl font-bold text-emerald-600">
+            <div className="text-2xl lg:text-3xl font-bold text-emerald-900">
               ₱{totalRevenue.toLocaleString()}
             </div>
-            <div className="text-xs text-muted-foreground mt-1">
-              {/* +12.5% from last period */}
+            <div className="text-xs font-medium text-emerald-600 bg-emerald-50 w-fit px-2 py-0.5 rounded-full">
               {range === "daily"
                 ? "Today"
                 : range === "monthly"
                   ? "This Month"
-                  : "This Year"}
+                  : range === "weekly"
+                    ? "Last 7 Days"
+                    : "This Year"}
             </div>
           </div>
-          <div>
-            <div className="text-sm text-muted-foreground font-medium">
+          <div className="space-y-1">
+            <div className="text-xs text-zinc-500 font-bold uppercase tracking-wider">
               Total Orders
             </div>
-            <div className="text-2xl font-bold text-blue-600">
+            <div className="text-2xl lg:text-3xl font-bold text-zinc-900">
               {totalOrders.toLocaleString()}
             </div>
-            <div className="text-xs text-muted-foreground mt-1">
-              {range === "daily"
-                ? "Today"
-                : range === "monthly"
-                  ? "This Month"
-                  : "This Year"}
-            </div>
+            <div className="text-xs font-medium text-zinc-600">Bookings</div>
           </div>
-          <div className="hidden md:block">
-            <div className="text-sm text-muted-foreground font-medium">
+          <div className="hidden lg:block space-y-1">
+            <div className="text-xs text-zinc-500 font-bold uppercase tracking-wider">
               Avg. Order Value
             </div>
-            <div className="text-2xl font-bold text-indigo-600">
+            <div className="text-2xl lg:text-3xl font-bold text-zinc-900">
               ₱
               {averageOrderValue.toLocaleString(undefined, {
                 maximumFractionDigits: 0,
               })}
             </div>
-            <div className="text-xs text-muted-foreground mt-1">
-              {range === "daily"
-                ? "Today"
-                : range === "monthly"
-                  ? "This Month"
-                  : "This Year"}
-            </div>
+            <div className="text-xs font-medium text-zinc-600">Per booking</div>
           </div>
         </div>
       </CardHeader>
-      <CardContent className="pl-0 pb-2 flex-1 min-h-0">
+      <CardContent className="px-2 md:px-6 py-6 flex-1 min-h-[300px]">
         {isMounted ? (
           <ResponsiveContainer width="100%" height="100%">
             <BarChart
               data={data}
-              margin={{ top: 20, right: 30, left: 10, bottom: 0 }}
+              margin={{ top: 20, right: 20, left: 0, bottom: 0 }}
             >
+              <CartesianGrid
+                strokeDasharray="3 3"
+                vertical={false}
+                stroke="#f4f4f5"
+              />
               <XAxis
                 dataKey="name"
-                stroke="#888888"
-                fontSize={12}
+                stroke="#a1a1aa"
+                fontSize={11}
                 tickLine={false}
                 axisLine={false}
-                dy={10}
+                dy={16}
+                fontWeight={500}
               />
               <YAxis
-                stroke="#888888"
-                fontSize={12}
+                stroke="#a1a1aa"
+                fontSize={11}
                 tickLine={false}
                 axisLine={false}
                 tickFormatter={(value) =>
                   `₱${value >= 1000 ? `${value / 1000}k` : value}`
                 }
                 width={60}
+                fontWeight={500}
               />
               <Tooltip
-                cursor={{ fill: "var(--muted)", opacity: 0.2 }}
+                cursor={{ fill: "#f4f4f5", radius: 8 }}
                 content={({ active, payload }) => {
                   if (active && payload && payload.length) {
                     return (
-                      <div className="rounded-lg border bg-background p-3 shadow-xl">
-                        <div className="grid grid-cols-2 gap-2">
-                          <div className="flex flex-col">
-                            <span className="text-[0.70rem] uppercase text-muted-foreground font-bold">
-                              Revenue
-                            </span>
-                            <span className="font-bold text-emerald-600">
-                              ₱{Number(payload[0].value).toLocaleString()}
-                            </span>
-                          </div>
+                      <div className="rounded-xl border-none bg-zinc-900 p-4 shadow-xl text-white ring-1 ring-white/10">
+                        <div className="flex flex-col gap-1">
+                          <span className="text-[10px] uppercase text-zinc-400 font-bold tracking-wider">
+                            Revenue
+                          </span>
+                          <span className="font-bold text-lg text-emerald-400">
+                            ₱{Number(payload[0].value).toLocaleString()}
+                          </span>
                         </div>
                       </div>
                     );
@@ -317,10 +313,10 @@ export function SalesChart({
               />
               <Bar
                 dataKey="total"
-                fill="currentColor"
-                radius={[6, 6, 0, 0]}
-                className="fill-primary"
-                barSize={range === "daily" ? 20 : range === "yearly" ? 60 : 40}
+                fill="#10b981"
+                radius={[6, 6, 6, 6]}
+                barSize={range === "daily" ? 24 : 40}
+                className="fill-emerald-600 hover:fill-emerald-700 transition-all duration-300"
               />
             </BarChart>
           </ResponsiveContainer>

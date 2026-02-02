@@ -381,7 +381,11 @@ export function PackageForm({
         >
           Cancel
         </Button>
-        <Button type="submit" disabled={isLoading}>
+        <Button
+          type="submit"
+          disabled={isLoading}
+          className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-500/20"
+        >
           {isLoading
             ? "Saving..."
             : initialData

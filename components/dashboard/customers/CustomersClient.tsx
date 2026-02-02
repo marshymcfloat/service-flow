@@ -255,89 +255,211 @@ export function CustomersClient({
   };
 
   return (
-    <div className="h-screen flex flex-col p-4 md:p-8 bg-zinc-50/50">
-      <section className="flex-1 flex flex-col bg-white overflow-hidden rounded-xl md:rounded-3xl border border-gray-200 shadow-xl p-4 md:p-6">
-        <PageHeader
-          title="Customers"
-          description="Manage your customer database"
-          className="mb-6"
-        >
-          <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-            <DialogTrigger asChild>
-              <Button className="shadow-lg shadow-primary/20">
-                <Plus className="h-4 w-4 mr-2" />
-                <span className="hidden sm:inline">Add Customer</span>
-                <span className="sm:hidden">Add</span>
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[500px]">
-              <DialogHeader>
-                <DialogTitle>Add New Customer</DialogTitle>
-                <DialogDescription>
-                  Create a new customer profile.
-                </DialogDescription>
-              </DialogHeader>
-              <CustomerForm formData={formData} setFormData={setFormData} />
-              <DialogFooter>
-                <Button
-                  variant="outline"
-                  onClick={() => setIsAddDialogOpen(false)}
-                >
-                  Cancel
+    <div className="flex flex-col p-4 md:p-8 bg-zinc-50/50 min-h-screen">
+      <section className="flex-1 flex flex-col w-full max-w-7xl mx-auto space-y-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-zinc-900 tracking-tight">
+              Customers
+            </h1>
+            <p className="text-sm text-zinc-500 mt-1">
+              Manage your customer database
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+              <DialogTrigger asChild>
+                <Button className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm shadow-emerald-200 w-full md:w-auto">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Customer
                 </Button>
-                <Button onClick={handleAddCustomer} disabled={isLoading}>
-                  {isLoading ? "Creating..." : "Create Customer"}
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        </PageHeader>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[500px]">
+                <DialogHeader>
+                  <DialogTitle>Add New Customer</DialogTitle>
+                  <DialogDescription>
+                    Create a new customer profile.
+                  </DialogDescription>
+                </DialogHeader>
+                <CustomerForm formData={formData} setFormData={setFormData} />
+                <DialogFooter>
+                  <Button
+                    variant="outline"
+                    onClick={() => setIsAddDialogOpen(false)}
+                    className="border-zinc-200 hover:bg-zinc-50 hover:text-zinc-900"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={handleAddCustomer}
+                    disabled={isLoading}
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                  >
+                    {isLoading ? "Creating..." : "Create Customer"}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </div>
+        </div>
 
-        <div className="flex flex-col sm:flex-row gap-3 mb-6">
+        <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
             <Input
               placeholder="Search customers..."
-              className="pl-10"
+              className="pl-10 bg-white border-zinc-200 focus-visible:ring-emerald-500"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
         </div>
 
-        {/* Content */}
-        <div className="flex-1 overflow-auto">
+        <div className="flex-1">
           {filteredCustomers.length === 0 ? (
-            <Empty className="h-full border-2">
-              <EmptyMedia variant="icon">
-                <Users className="h-6 w-6" />
-              </EmptyMedia>
-              <EmptyHeader>
-                <EmptyTitle>No customers found</EmptyTitle>
-                <EmptyDescription>
-                  {customers.length === 0
-                    ? "Get started by adding your first customer."
-                    : "Try adjusting your search."}
-                </EmptyDescription>
-              </EmptyHeader>
+            <div className="text-center py-12 bg-white rounded-2xl border border-zinc-100 shadow-sm">
+              <div className="bg-zinc-50 h-16 w-16 mobile-center rounded-full flex items-center justify-center mx-auto mb-4">
+                <Users className="h-8 w-8 text-zinc-400" />
+              </div>
+              <h3 className="text-lg font-medium text-zinc-900">
+                No customers found
+              </h3>
+              <p className="text-zinc-500 max-w-sm mx-auto mt-1 mb-6">
+                {customers.length === 0
+                  ? "Get started by adding your first customer."
+                  : "Try adjusting your search terms."}
+              </p>
               {customers.length === 0 && (
-                <EmptyContent>
-                  <Button onClick={() => setIsAddDialogOpen(true)}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Your First Customer
-                  </Button>
-                </EmptyContent>
+                <Button
+                  onClick={() => setIsAddDialogOpen(true)}
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Your First Customer
+                </Button>
               )}
-            </Empty>
+            </div>
           ) : (
-            <Card className="shadow-sm border-zinc-100">
-              <CardContent className="p-0">
+            <div className="space-y-6">
+              {/* Mobile Card View */}
+              <div className="md:hidden grid grid-cols-1 gap-4">
+                {filteredCustomers.map((customer) => (
+                  <div
+                    key={customer.id}
+                    className="bg-white rounded-2xl p-4 shadow-sm border border-zinc-100 flex flex-col gap-4"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <Avatar
+                          className={`${getAvatarColor(customer.name)} h-12 w-12 text-white shadow-sm ring-2 ring-white`}
+                        >
+                          <AvatarFallback className="bg-transparent font-medium text-lg">
+                            {getInitials(customer.name)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex flex-col">
+                          <span className="font-bold text-zinc-900 text-lg">
+                            {customer.name}
+                          </span>
+                          {customer.email && (
+                            <span className="text-sm text-zinc-500 flex items-center gap-1.5">
+                              <Mail className="h-3.5 w-3.5" />
+                              {customer.email}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-zinc-400"
+                          >
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            onClick={() => openEditDialog(customer)}
+                          >
+                            <Pencil className="h-4 w-4 mr-2" />
+                            Edit Details
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <DropdownMenuItem
+                                onSelect={(e) => e.preventDefault()}
+                                className="text-red-600 focus:text-red-600 focus:bg-red-50"
+                              >
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                Delete Customer
+                              </DropdownMenuItem>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>
+                                  Delete Customer
+                                </AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Are you sure you want to delete "
+                                  {customer.name}"? This action cannot be
+                                  undone.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction
+                                  className="bg-red-600 hover:bg-red-700 text-white"
+                                  onClick={() =>
+                                    handleDeleteCustomer(customer.id)
+                                  }
+                                >
+                                  Delete
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-3 pt-2 border-t border-zinc-50">
+                      <div className="flex items-center justify-between p-2.5 bg-zinc-50 rounded-xl border border-zinc-100">
+                        <span className="text-xs text-zinc-400 font-medium uppercase">
+                          Contact Info
+                        </span>
+                        {customer.phone ? (
+                          <div className="flex items-center gap-2 text-sm text-zinc-900 font-medium">
+                            <Phone className="h-3.5 w-3.5 text-zinc-400" />
+                            {customer.phone}
+                          </div>
+                        ) : (
+                          <span className="text-sm text-zinc-400 italic">
+                            No phone number
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Desktop Table View */}
+              <div className="hidden md:block rounded-3xl border border-zinc-100 overflow-hidden shadow-sm bg-white">
                 <Table>
-                  <TableHeader className="bg-zinc-50/50">
-                    <TableRow>
-                      <TableHead className="w-[300px] pl-6">Customer</TableHead>
-                      <TableHead>Phone</TableHead>
-                      <TableHead className="text-right w-[80px]">
+                  <TableHeader className="bg-zinc-50/80 sticky top-0 z-10 backdrop-blur-sm">
+                    <TableRow className="hover:bg-transparent border-zinc-100">
+                      <TableHead className="pl-6 h-12 font-semibold text-zinc-500 w-[300px]">
+                        Customer
+                      </TableHead>
+                      <TableHead className="h-12 font-semibold text-zinc-500">
+                        Phone
+                      </TableHead>
+                      <TableHead className="text-right pr-6 h-12 font-semibold text-zinc-500 w-[80px]">
                         Actions
                       </TableHead>
                     </TableRow>
@@ -346,49 +468,49 @@ export function CustomersClient({
                     {filteredCustomers.map((customer) => (
                       <TableRow
                         key={customer.id}
-                        className="hover:bg-zinc-50/50 transition-colors"
+                        className="hover:bg-zinc-50/50 transition-colors border-zinc-100"
                       >
-                        <TableCell className="pl-6">
+                        <TableCell className="pl-6 py-4">
                           <div className="flex items-center gap-3">
                             <Avatar
-                              className={`${getAvatarColor(customer.name)} text-white`}
+                              className={`${getAvatarColor(customer.name)} h-10 w-10 text-white shadow-sm ring-2 ring-white`}
                             >
-                              <AvatarFallback className="bg-transparent">
+                              <AvatarFallback className="bg-transparent font-medium">
                                 {getInitials(customer.name)}
                               </AvatarFallback>
                             </Avatar>
                             <div className="flex flex-col">
-                              <span className="font-medium">
+                              <span className="font-semibold text-zinc-900">
                                 {customer.name}
                               </span>
                               {customer.email && (
-                                <span className="text-xs text-muted-foreground flex items-center gap-1">
-                                  <Mail className="h-3 w-3" />
+                                <span className="text-xs text-zinc-500 flex items-center gap-1.5">
+                                  <Mail className="h-3 w-3 text-zinc-400" />
                                   {customer.email}
                                 </span>
                               )}
                             </div>
                           </div>
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="py-4">
                           {customer.phone ? (
                             <div className="flex items-center gap-2 text-sm text-zinc-600">
-                              <Phone className="h-3 w-3" />
+                              <Phone className="h-3 w-3 text-zinc-400" />
                               {customer.phone}
                             </div>
                           ) : (
-                            <span className="text-muted-foreground text-sm">
+                            <span className="text-zinc-400 text-sm italic">
                               -
                             </span>
                           )}
                         </TableCell>
-                        <TableCell className="text-right">
+                        <TableCell className="text-right pr-6 py-4">
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                className="h-8 w-8"
+                                className="h-8 w-8 text-zinc-400 hover:text-zinc-900"
                               >
                                 <MoreHorizontal className="h-4 w-4" />
                               </Button>
@@ -407,7 +529,7 @@ export function CustomersClient({
                                 <AlertDialogTrigger asChild>
                                   <DropdownMenuItem
                                     onSelect={(e) => e.preventDefault()}
-                                    className="text-destructive focus:text-destructive"
+                                    className="text-red-600 focus:text-red-600 focus:bg-red-50"
                                   >
                                     <Trash2 className="h-4 w-4 mr-2" />
                                     Delete Customer
@@ -429,7 +551,7 @@ export function CustomersClient({
                                       Cancel
                                     </AlertDialogCancel>
                                     <AlertDialogAction
-                                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                      className="bg-red-600 hover:bg-red-700 text-white"
                                       onClick={() =>
                                         handleDeleteCustomer(customer.id)
                                       }
@@ -446,8 +568,8 @@ export function CustomersClient({
                     ))}
                   </TableBody>
                 </Table>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           )}
         </div>
 
@@ -465,10 +587,15 @@ export function CustomersClient({
               <Button
                 variant="outline"
                 onClick={() => setIsEditDialogOpen(false)}
+                className="border-zinc-200 hover:bg-zinc-50 hover:text-zinc-900"
               >
                 Cancel
               </Button>
-              <Button onClick={handleEditCustomer} disabled={isLoading}>
+              <Button
+                onClick={handleEditCustomer}
+                disabled={isLoading}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white"
+              >
                 {isLoading ? "Saving..." : "Save Changes"}
               </Button>
             </DialogFooter>

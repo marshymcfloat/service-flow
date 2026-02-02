@@ -3,25 +3,15 @@
 import { useState, useMemo, useOptimistic, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Service, ServicePackage } from "@/prisma/generated/prisma/client";
-import {
-  PageHeader,
-  PageHeaderAction,
-} from "@/components/dashboard/PageHeader";
-import { Card, CardContent } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { PageHeader } from "@/components/dashboard/PageHeader";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import {
   AlertDialog,
@@ -36,7 +26,6 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   Empty,
   EmptyHeader,
@@ -44,18 +33,18 @@ import {
   EmptyTitle,
   EmptyDescription,
 } from "@/components/ui/empty";
-import {
-  Search,
-  Plus,
-  Pencil,
-  Trash2,
-  Package,
-  Clock,
-  Tag,
-} from "lucide-react";
+import { Search, Plus, Package, RefreshCcw, Filter } from "lucide-react";
 import { deletePackageAction } from "@/lib/server actions/packages";
 import { toast } from "sonner";
 import { PackageForm } from "./PackageForm";
+import { PackageList } from "./PackageList";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 type ServicePackageWithItems = ServicePackage & {
   items: {
@@ -85,9 +74,11 @@ export function PackagesPageClient({
 }: PackagesPageClientProps) {
   const router = useRouter();
   const [search, setSearch] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("ALL");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingPackage, setEditingPackage] =
     useState<ServicePackageWithItems | null>(null);
+  const [packageToDelete, setPackageToDelete] = useState<number | null>(null);
   const [isPending, startTransition] = useTransition();
 
   const [optimisticPackages, addOptimisticUpdate] = useOptimistic(
@@ -109,10 +100,16 @@ export function PackagesPageClient({
   );
 
   const filteredPackages = useMemo(() => {
-    return optimisticPackages.filter((pkg) =>
-      pkg.name.toLowerCase().includes(search.toLowerCase()),
-    );
-  }, [optimisticPackages, search]);
+    return optimisticPackages.filter((pkg) => {
+      const matchesSearch = pkg.name
+        .toLowerCase()
+        .includes(search.toLowerCase());
+      const matchesCategory =
+        categoryFilter === "ALL" || pkg.category === categoryFilter;
+
+      return matchesSearch && matchesCategory;
+    });
+  }, [optimisticPackages, search, categoryFilter]);
 
   const handleDeletePackage = async (packageId: number) => {
     startTransition(async () => {
@@ -136,213 +133,191 @@ export function PackagesPageClient({
   };
 
   return (
-    <div className="h-full flex flex-col p-4 md:p-8 bg-zinc-50/50">
-      <section className="flex-1 flex flex-col bg-white overflow-hidden rounded-xl md:rounded-3xl border border-gray-200 shadow-xl p-4 md:p-6">
+    <div className="flex flex-col p-4 md:p-8 bg-zinc-50/50 min-h-screen">
+      <section className="flex-1 flex flex-col max-w-7xl mx-auto w-full">
         <PageHeader
           title="Packages"
           description="Bundle services together for special pricing"
+          className="mb-8"
         >
-          <Button
-            className="shadow-lg shadow-primary/20"
-            onClick={() => setIsAddDialogOpen(true)}
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            <span className="hidden sm:inline">Add Package</span>
-            <span className="sm:hidden">Add</span>
-          </Button>
+          <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="shadow-lg shadow-emerald-500/20 bg-emerald-600 hover:bg-emerald-700 text-white transition-all active:scale-95 rounded-full px-6">
+                <Plus className="h-4 w-4 mr-2" strokeWidth={2.5} />
+                <span className="font-semibold">Add Package</span>
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-[95%] md:max-w-[800px] max-h-[90vh] flex flex-col overflow-hidden p-0 rounded-3xl">
+              <DialogHeader className="p-6 pb-2">
+                <DialogTitle className="text-xl font-bold text-zinc-900">
+                  Create New Package
+                </DialogTitle>
+                <DialogDescription className="text-zinc-500">
+                  Bundle multiple services together for a special price.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="flex-1 overflow-y-auto p-6 pt-0">
+                <PackageForm
+                  services={services}
+                  categories={categories}
+                  businessSlug={businessSlug}
+                  onSuccess={() => {
+                    setIsAddDialogOpen(false);
+                    router.refresh();
+                  }}
+                />
+              </div>
+            </DialogContent>
+          </Dialog>
         </PageHeader>
 
-        <div className="flex flex-col sm:flex-row gap-3 mb-6">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search packages..."
-              className="pl-10"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </div>
-        </div>
-
-        <div className="flex-1 overflow-auto">
-          {filteredPackages.length === 0 ? (
-            <Empty className="h-full border-2">
-              <EmptyMedia variant="icon">
-                <Package className="h-6 w-6" />
-              </EmptyMedia>
-              <EmptyHeader>
-                <EmptyTitle>No packages found</EmptyTitle>
-                <EmptyDescription>
-                  {packages.length === 0
-                    ? "Create your first service package to generate more revenue."
-                    : "Try adjusting your search."}
-                </EmptyDescription>
-              </EmptyHeader>
-            </Empty>
-          ) : (
-            <Card className="shadow-sm border-zinc-100">
-              <CardContent className="p-0">
-                <Table>
-                  <TableHeader className="bg-zinc-50/50">
-                    <TableRow>
-                      <TableHead>Package Name</TableHead>
-                      <TableHead>Services</TableHead>
-                      <TableHead>Category</TableHead>
-                      <TableHead>Price</TableHead>
-                      <TableHead>Duration</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredPackages.map((pkg) => (
-                      <TableRow key={pkg.id} className="hover:bg-zinc-50/50">
-                        <TableCell>
-                          <div className="flex flex-col">
-                            <span className="font-medium">{pkg.name}</span>
-                            {pkg.description && (
-                              <span className="text-xs text-muted-foreground line-clamp-1">
-                                {pkg.description}
-                              </span>
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex flex-wrap gap-1">
-                            {pkg.items.slice(0, 3).map((item) => (
-                              <Badge
-                                key={item.service_id}
-                                variant="outline"
-                                className="text-[10px] h-5 font-normal"
-                              >
-                                {item.service.name}
-                              </Badge>
-                            ))}
-                            {pkg.items.length > 3 && (
-                              <Badge
-                                variant="outline"
-                                className="text-[10px] h-5 font-normal"
-                              >
-                                +{pkg.items.length - 3} more
-                              </Badge>
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge
-                            variant="secondary"
-                            className="font-normal text-xs"
-                          >
-                            {pkg.category}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="font-medium">
-                          ₱{pkg.price.toLocaleString()}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center text-sm text-muted-foreground">
-                            <Clock className="h-3 w-3 mr-1" />
-                            {pkg.duration}m
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex justify-end gap-2">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 text-muted-foreground hover:text-foreground"
-                              onClick={() => handleEditClick(pkg)}
-                            >
-                              <Pencil className="h-4 w-4" />
-                            </Button>
-                            <AlertDialog>
-                              <AlertDialogTrigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
-                              </AlertDialogTrigger>
-                              <AlertDialogContent>
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle>
-                                    Delete Package?
-                                  </AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                    This will permanently delete the "{pkg.name}
-                                    " package. This action cannot be undone.
-                                  </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                  <AlertDialogAction
-                                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                                    onClick={() => handleDeletePackage(pkg.id)}
-                                  >
-                                    Delete
-                                  </AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
-          )}
-        </div>
-      </section>
-
-      <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-        <DialogContent className="max-w-[95%] md:max-w-[800px] max-h-[90vh] flex flex-col overflow-hidden p-0">
-          <DialogHeader className="p-6 pb-2">
-            <DialogTitle>Create New Package</DialogTitle>
-            <DialogDescription>
-              Bundle multiple services together for a special price.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex-1 overflow-y-auto p-6 pt-0">
-            <PackageForm
-              services={services}
-              categories={categories}
-              businessSlug={businessSlug}
-              onSuccess={() => {
-                setIsAddDialogOpen(false);
-                router.refresh();
-              }}
-            />
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={!!editingPackage} onOpenChange={closeEditDialog}>
-        <DialogContent className="max-w-[95%] md:max-w-[800px] max-h-[90vh] flex flex-col overflow-hidden p-0">
-          <DialogHeader className="p-6 pb-2">
-            <DialogTitle>Edit Package</DialogTitle>
-            <DialogDescription>
-              Update package details and included services.
-            </DialogDescription>
-          </DialogHeader>
-          {editingPackage && (
-            <div className="flex-1 overflow-y-auto p-6 pt-0">
-              <PackageForm
-                services={services}
-                categories={categories}
-                businessSlug={businessSlug}
-                initialData={editingPackage}
-                onSuccess={() => {
-                  closeEditDialog();
-                  router.refresh();
-                }}
+        <div className="flex flex-col sm:flex-row gap-4 mb-8 items-start sm:items-center justify-between">
+          <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto flex-1 max-w-2xl">
+            <div className="relative flex-1">
+              <Search className="absolute left-3.5 top-3 h-4 w-4 text-zinc-400" />
+              <Input
+                placeholder="Search packages..."
+                className="pl-10 h-10 rounded-xl border-zinc-200 bg-white shadow-sm focus-visible:ring-emerald-500"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
               />
             </div>
+            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+              <SelectTrigger className="w-full sm:w-[180px] h-10 rounded-xl border-zinc-200 bg-white shadow-sm">
+                <div className="flex items-center gap-2 text-zinc-600">
+                  <Filter className="h-4 w-4 opacity-50" />
+                  <span className="truncate">
+                    {categoryFilter === "ALL"
+                      ? "All Categories"
+                      : categoryFilter}
+                  </span>
+                </div>
+              </SelectTrigger>
+              <SelectContent className="rounded-xl">
+                <SelectItem value="ALL">All Categories</SelectItem>
+                {categories.map((cat) => (
+                  <SelectItem key={cat} value={cat}>
+                    {cat}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-10 gap-2 rounded-xl border-zinc-200 bg-white text-zinc-600 hidden md:flex"
+            onClick={() => router.refresh()}
+          >
+            <RefreshCcw className="h-4 w-4" />
+            <span>Refresh</span>
+          </Button>
+        </div>
+
+        <div className="flex-1">
+          {filteredPackages.length === 0 ? (
+            <div className="bg-white rounded-3xl border border-zinc-200/60 shadow-sm p-12 flex flex-col items-center justify-center text-center">
+              <div className="h-12 w-12 bg-zinc-50 rounded-full flex items-center justify-center mb-4">
+                <Package className="h-6 w-6 text-zinc-300" />
+              </div>
+              <h3 className="text-lg font-semibold text-zinc-900 mb-1">
+                No packages found
+              </h3>
+              <p className="text-zinc-500 max-w-sm mb-6">
+                {packages.length === 0
+                  ? "Create your first service package to generate more revenue."
+                  : "Try adjusting your search or filters."}
+              </p>
+              {packages.length === 0 && (
+                <Button
+                  onClick={() => setIsAddDialogOpen(true)}
+                  className="rounded-full bg-emerald-600 hover:bg-emerald-700"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Package
+                </Button>
+              )}
+            </div>
+          ) : (
+            <PackageList
+              packages={filteredPackages}
+              onEdit={handleEditClick}
+              onDelete={(id) => {
+                // Using AlertDialog in PackageList would require passing specific handler or UI
+                // Ideally we want the deletion confirmation inside the list or handle it here with a state
+                // For now, let's keep it simple and just set a state to show confirmation dialog if needed,
+                // or better yet, move the specific logic to the list item if complex.
+                // Actually, let's re-use the delete logic but we need to know WHICH one to delete.
+                // The PackageList calls this with an ID.
+                // We can show a confirmation dialog here or trust the user clicked delete.
+                // Since the previous implementation had a dialog inside the row,
+                // and I haven't moved the dialog logic to PackageList fully (just the trigger),
+                // let's wrap the logic or component.
+                // WAIT: PackageList impl has ONCLICK handler for delete.
+                // It's better to manage the deletion state here to keep PackageList pure if possible,
+                // OR put the AlertDialog inside PackageList.
+                // Current PackageList has a simple onClick.
+                // Let's create a state for delete confirmation here.
+                setPackageToDelete(id);
+              }}
+            />
           )}
-        </DialogContent>
-      </Dialog>
+        </div>
+
+        <Dialog open={!!editingPackage} onOpenChange={closeEditDialog}>
+          <DialogContent className="max-w-[95%] md:max-w-[800px] max-h-[90vh] flex flex-col overflow-hidden p-0 rounded-3xl">
+            <DialogHeader className="p-6 pb-2">
+              <DialogTitle className="text-xl font-bold text-zinc-900">
+                Edit Package
+              </DialogTitle>
+              <DialogDescription className="text-zinc-500">
+                Update package details and included services.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex-1 overflow-y-auto p-6 pt-0">
+              {editingPackage && (
+                <PackageForm
+                  services={services}
+                  categories={categories}
+                  businessSlug={businessSlug}
+                  initialData={editingPackage}
+                  onSuccess={() => {
+                    closeEditDialog();
+                    router.refresh();
+                  }}
+                />
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        <AlertDialog
+          open={!!packageToDelete}
+          onOpenChange={(open) => !open && setPackageToDelete(null)}
+        >
+          <AlertDialogContent className="rounded-2xl">
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete Package?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This will permanently delete this package. This action cannot be
+                undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-lg"
+                onClick={() =>
+                  packageToDelete && handleDeletePackage(packageToDelete)
+                }
+              >
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </section>
     </div>
   );
 }

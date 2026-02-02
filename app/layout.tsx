@@ -23,11 +23,61 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_APP_URL || "https://www.serviceflow.store",
+  ),
   title: {
-    default: "Service Flow",
+    default: "Service Flow | Manage Your Service Business",
     template: "%s | Service Flow",
   },
-  description: "Manage your service business with ease.",
+  description:
+    "The all-in-one platform for salons, barbershops, and spas. Manage appointments, staff, and payments with ease.",
+  keywords: [
+    "service business",
+    "salon management",
+    "barbershop software",
+    "appointment scheduling",
+    "pos system",
+    "philippines",
+  ],
+  authors: [{ name: "Service Flow Team" }],
+  creator: "Service Flow",
+  openGraph: {
+    type: "website",
+    locale: "en_PH",
+    url: "/",
+    title: "Service Flow | Manage Your Service Business",
+    description:
+      "Streamline appointments, manage staff attendance, and track payments all in one unified platform.",
+    siteName: "Service Flow",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Service Flow Dashboard",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Service Flow | Manage Your Service Business",
+    description:
+      "Streamline appointments, manage staff attendance, and track payments all in one unified platform.",
+    creator: "@serviceflow",
+    images: ["/og-image.png"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
 };
 
 export default function RootLayout({

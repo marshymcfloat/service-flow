@@ -26,6 +26,12 @@ export default async function LandingFooter() {
         </p>
         <div className="flex gap-6">
           <Link
+            href="/explore"
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Explore
+          </Link>
+          <Link
             href="#"
             className="text-sm text-muted-foreground hover:text-foreground transition-colors"
           >

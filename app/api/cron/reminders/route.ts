@@ -1,7 +1,8 @@
-import { NextResponse } from "next/server";
+import { NextResponse, connection } from "next/server";
 import { sendBookingReminders } from "@/lib/services/reminders";
 
 export async function GET(request: Request) {
+  await connection();
   try {
     const authHeader = request.headers.get("authorization");
 

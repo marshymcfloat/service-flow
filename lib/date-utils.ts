@@ -50,7 +50,8 @@ export function formatPH(
     | "PPP p"
     | "EEE"
     | "MMMM d, yyyy"
-    | "MMM d, yyyy",
+    | "MMM d, yyyy"
+    | "MMM d, yyyy • h:mm a",
 ): string {
   if (!date) return "Unscheduled";
   const d = new Date(date);
@@ -109,6 +110,17 @@ export function formatPH(
         year: "numeric",
         month: "short",
         day: "numeric",
+      };
+      break;
+    case "MMM d, yyyy • h:mm a":
+      options = {
+        ...options,
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "numeric",
+        minute: "numeric",
+        hour12: true,
       };
       break;
   }

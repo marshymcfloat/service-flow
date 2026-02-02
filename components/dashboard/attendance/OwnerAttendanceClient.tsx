@@ -38,8 +38,8 @@ export function OwnerAttendanceClient({
   currentDate,
 }: OwnerAttendanceClientProps) {
   return (
-    <div className="h-full flex flex-col p-4 md:p-8 bg-zinc-50/50">
-      <section className="flex-1 flex flex-col bg-white overflow-hidden rounded-xl md:rounded-3xl border border-gray-200 shadow-xl p-4 md:p-6">
+    <div className="flex flex-col p-4 md:p-8 bg-zinc-50/50 min-h-screen">
+      <section className="flex-1 flex flex-col w-full max-w-7xl mx-auto space-y-6">
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <div>

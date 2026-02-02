@@ -37,7 +37,7 @@ export default async function BookingsPage({
   });
 
   return (
-    <div className="h-screen flex flex-col p-4 md:p-8 bg-zinc-50/50">
+    <div className="min-h-screen flex flex-col p-4 md:p-8 bg-zinc-50/50">
       <section className="flex-1 flex flex-col bg-white overflow-hidden rounded-xl md:rounded-3xl border border-gray-200 shadow-xl p-4 md:p-6">
         <PageHeader
           title="Bookings"

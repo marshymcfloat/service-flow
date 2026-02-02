@@ -36,7 +36,16 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { formatPH } from "@/lib/date-utils";
-import { Search, Check, X, Trash2, RefreshCcw } from "lucide-react";
+import {
+  Search,
+  Check,
+  X,
+  Trash2,
+  RefreshCcw,
+  MoreHorizontal,
+  Calendar,
+  ArrowRight,
+} from "lucide-react";
 import {
   deleteBookingAction,
   updateBookingStatusAction,
@@ -55,6 +64,15 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { BookingDetailsDialog } from "./BookingDetailsDialog";
+import { cn } from "@/lib/utils";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 type BookingWithDetails = Booking & {
   customer: Customer;
@@ -93,13 +111,13 @@ export function BookingList({ bookings }: { bookings: BookingWithDetails[] }) {
   const getStatusColor = (status: BookingStatus) => {
     switch (status) {
       case "ACCEPTED":
-        return "bg-blue-100 text-blue-800 hover:bg-blue-100/80";
+        return "bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100";
       case "COMPLETED":
-        return "bg-green-100 text-green-800 hover:bg-green-100/80";
+        return "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100";
       case "CANCELLED":
-        return "bg-red-100 text-red-800 hover:bg-red-100/80";
+        return "bg-red-50 text-red-700 border-red-200 hover:bg-red-100";
       default:
-        return "bg-gray-100 text-gray-800 hover:bg-gray-100/80";
+        return "bg-zinc-100 text-zinc-700 border-zinc-200 hover:bg-zinc-100";
     }
   };
 
@@ -125,40 +143,44 @@ export function BookingList({ bookings }: { bookings: BookingWithDetails[] }) {
 
   return (
     <>
-      <Card className="h-full  shadow-sm border-zinc-100 flex flex-col overflow-y-auto">
-        <CardHeader className="pb-4">
+      <Card className="h-full shadow-xl shadow-zinc-200/50 border-none bg-white flex flex-col overflow-hidden rounded-[32px]">
+        <CardHeader className="pb-6 space-y-6 md:px-8 md:pt-8 bg-zinc-50/50 border-b border-zinc-100">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="space-y-1">
-              <CardTitle className="text-xl font-semibold">Bookings</CardTitle>
-              <CardDescription>Manage and view all bookings</CardDescription>
+              <CardTitle className="text-2xl font-bold tracking-tight text-zinc-900">
+                Bookings
+              </CardTitle>
+              <CardDescription className="text-base font-medium text-zinc-500">
+                Manage and track all customer appointments
+              </CardDescription>
             </div>
             <Button
               variant="outline"
               size="sm"
-              className="h-8 gap-2"
+              className="h-10 gap-2 rounded-xl border-zinc-200 bg-white hover:bg-zinc-50 hover:text-zinc-900 transition-colors"
               onClick={() => router.refresh()}
             >
-              <RefreshCcw className="h-3.5 w-3.5" />
-              <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+              <RefreshCcw className="h-4 w-4" />
+              <span className="sr-only sm:not-sr-only sm:whitespace-nowrap font-medium">
                 Refresh
               </span>
             </Button>
           </div>
-          <div className="flex flex-col sm:flex-row gap-3 mt-4">
+          <div className="flex flex-col sm:flex-row gap-3">
             <div className="relative flex-1">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-3.5 top-3 h-4 w-4 text-zinc-400" />
               <Input
-                placeholder="Search customer or ID..."
-                className="pl-9"
+                placeholder="Search by customer name or ID..."
+                className="pl-10 h-10 rounded-xl border-zinc-200 bg-white focus-visible:ring-emerald-500 placeholder:text-zinc-400"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
             </div>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full sm:w-[150px]">
+              <SelectTrigger className="w-full sm:w-[150px] h-10 rounded-xl border-zinc-200 bg-white focus:ring-emerald-500">
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="rounded-xl">
                 <SelectItem value="ALL">All Status</SelectItem>
                 <SelectItem value="ACCEPTED">Accepted</SelectItem>
                 <SelectItem value="COMPLETED">Completed</SelectItem>
@@ -167,139 +189,300 @@ export function BookingList({ bookings }: { bookings: BookingWithDetails[] }) {
             </Select>
           </div>
         </CardHeader>
-        <CardContent className="flex-1 overflow-auto p-0 border-t min-h-[350px]">
-          <Table>
-            <TableHeader className="bg-zinc-50/50 sticky top-0 z-10">
-              <TableRow>
-                <TableHead className="w-[80px]">ID</TableHead>
-                <TableHead>Customer</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Total</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredBookings.length > 0 ? (
-                filteredBookings.map((booking) => (
-                  <TableRow
-                    key={booking.id}
-                    className="hover:bg-zinc-50/50 cursor-pointer transition-colors"
-                    onClick={() => {
-                      setSelectedBooking(booking);
-                      setIsDialogOpen(true);
-                    }}
-                  >
-                    <TableCell className="font-medium">#{booking.id}</TableCell>
-                    <TableCell>
+
+        <CardContent className="flex-1 overflow-auto p-0 min-h-[400px] bg-white">
+          {/* Mobile Card View */}
+          <div className="md:hidden flex flex-col p-4 space-y-4">
+            {filteredBookings.length > 0 ? (
+              filteredBookings.map((booking) => (
+                <div
+                  key={booking.id}
+                  className="p-5 bg-white border border-zinc-100 rounded-2xl shadow-sm hover:shadow-md transition-shadow active:scale-[0.98] active:transition-transform"
+                  onClick={() => {
+                    setSelectedBooking(booking);
+                    setIsDialogOpen(true);
+                  }}
+                >
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 font-bold text-sm">
+                        {booking.customer.name.charAt(0)}
+                      </div>
                       <div className="flex flex-col">
-                        <span className="font-medium text-sm">
+                        <span className="font-semibold text-zinc-900 line-clamp-1">
                           {booking.customer.name}
                         </span>
-                        {booking.customer.phone && (
-                          <span className="text-xs text-muted-foreground">
-                            {booking.customer.phone}
-                          </span>
-                        )}
+                        <span className="text-xs text-zinc-500 font-medium">
+                          #{booking.id}
+                        </span>
                       </div>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground text-sm">
-                      {formatPH(booking.created_at, "MMM d, h:mm a")}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Badge
-                          variant="secondary"
-                          className={getStatusColor(booking.status)}
-                        >
-                          {booking.status.replace("_", " ")}
-                        </Badge>
-                        {booking.status === "ACCEPTED" &&
-                          (booking.downpayment || 0) > 0 &&
-                          booking.grand_total > (booking.downpayment || 0) && (
-                            <Badge
-                              variant="outline"
-                              className="border-orange-200 text-orange-700 bg-orange-50 text-[10px] px-1.5 h-5"
-                            >
-                              Bal: ₱
-                              {(
-                                booking.grand_total - (booking.downpayment || 0)
-                              ).toLocaleString()}
-                            </Badge>
-                          )}
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right font-medium">
-                      ₱{booking.grand_total.toLocaleString()}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div
-                        className="flex justify-end gap-2"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        {booking.status === "ACCEPTED" && (
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleStatusUpdate(booking.id, "CANCELLED");
-                            }}
-                            title="Cancel Booking"
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
-                        )}
+                    </div>
+                    <Badge
+                      variant="secondary"
+                      className={cn(
+                        "text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 rounded-lg border",
+                        getStatusColor(booking.status),
+                      )}
+                    >
+                      {booking.status}
+                    </Badge>
+                  </div>
 
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button
-                              size="icon"
-                              variant="ghost"
-                              className="h-8 w-8 text-muted-foreground hover:text-red-600 hover:bg-red-50"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent
-                            onClick={(e) => e.stopPropagation()}
+                  <div className="grid grid-cols-2 gap-4 mb-4">
+                    <div className="flex flex-col gap-1">
+                      <span className="text-[10px] text-zinc-400 uppercase tracking-wider font-semibold">
+                        Date
+                      </span>
+                      <div className="flex items-center gap-1.5 text-sm font-medium text-zinc-700">
+                        <Calendar className="w-3.5 h-3.5 text-zinc-400" />
+                        {formatPH(booking.created_at, "MMM d, h:mm a")}
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <span className="text-[10px] text-zinc-400 uppercase tracking-wider font-semibold">
+                        Total
+                      </span>
+                      <span className="text-sm font-bold text-zinc-900">
+                        ₱{booking.grand_total.toLocaleString()}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-4 border-t border-zinc-50">
+                    <span className="text-xs text-zinc-400">
+                      Tap to view details
+                    </span>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-8 gap-1 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 -mr-2"
+                    >
+                      View Details
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </Button>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="flex flex-col items-center justify-center h-64 text-center p-8 space-y-3">
+                <div className="h-12 w-12 rounded-full bg-zinc-50 flex items-center justify-center">
+                  <Calendar className="h-6 w-6 text-zinc-300" />
+                </div>
+                <div className="space-y-1">
+                  <p className="text-base font-semibold text-zinc-900">
+                    No bookings found
+                  </p>
+                  <p className="text-sm text-zinc-500">
+                    Try adjusting your search or filters.
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Desktop Table View */}
+          <div className="hidden md:block">
+            <Table>
+              <TableHeader className="bg-zinc-50/80 sticky top-0 z-10 backdrop-blur-sm">
+                <TableRow className="hover:bg-transparent border-zinc-100">
+                  <TableHead className="w-[100px] font-semibold text-zinc-500 pl-8 h-12">
+                    ID
+                  </TableHead>
+                  <TableHead className="font-semibold text-zinc-500 h-12">
+                    Customer
+                  </TableHead>
+                  <TableHead className="font-semibold text-zinc-500 h-12">
+                    Date & Time
+                  </TableHead>
+                  <TableHead className="font-semibold text-zinc-500 h-12">
+                    Status
+                  </TableHead>
+                  <TableHead className="text-right font-semibold text-zinc-500 h-12">
+                    Total
+                  </TableHead>
+                  <TableHead className="text-right font-semibold text-zinc-500 pr-8 h-12">
+                    Actions
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredBookings.length > 0 ? (
+                  filteredBookings.map((booking) => (
+                    <TableRow
+                      key={booking.id}
+                      className="hover:bg-emerald-50/30 cursor-pointer transition-colors border-zinc-100 group"
+                      onClick={() => {
+                        setSelectedBooking(booking);
+                        setIsDialogOpen(true);
+                      }}
+                    >
+                      <TableCell className="font-medium text-zinc-500 pl-8 py-4">
+                        <span className="bg-zinc-100/80 text-zinc-600 px-2 py-1 rounded-md text-xs font-semibold">
+                          #{booking.id}
+                        </span>
+                      </TableCell>
+                      <TableCell className="py-4">
+                        <div className="flex items-center gap-3">
+                          <div className="h-9 w-9 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs font-bold ring-2 ring-white shadow-sm">
+                            {booking.customer.name.charAt(0)}
+                          </div>
+                          <div className="flex flex-col">
+                            <span className="font-semibold text-zinc-900 group-hover:text-emerald-700 transition-colors">
+                              {booking.customer.name}
+                            </span>
+                            {booking.customer.phone && (
+                              <span className="text-xs text-zinc-500">
+                                {booking.customer.phone}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-zinc-600 font-medium py-4">
+                        <div className="flex items-center gap-2">
+                          <Calendar className="w-4 h-4 text-zinc-400" />
+                          {formatPH(booking.created_at, "MMM d, yyyy • h:mm a")}
+                        </div>
+                      </TableCell>
+                      <TableCell className="py-4">
+                        <div className="flex items-center gap-2">
+                          <Badge
+                            variant="secondary"
+                            className={cn(
+                              "text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 rounded-lg border shadow-sm",
+                              getStatusColor(booking.status),
+                            )}
                           >
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                This action cannot be undone. This will
-                                permanently delete the booking.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction
-                                className="bg-red-600 hover:bg-red-700"
-                                onClick={() => handleDelete(booking.id)}
+                            {booking.status}
+                          </Badge>
+                          {booking.status === "ACCEPTED" &&
+                            (booking.downpayment || 0) > 0 &&
+                            booking.grand_total >
+                              (booking.downpayment || 0) && (
+                              <Badge
+                                variant="outline"
+                                className="border-orange-200 text-orange-700 bg-orange-50 text-[10px] px-2 py-0.5 font-medium rounded-md"
                               >
-                                Delete
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
+                                Bal: ₱
+                                {(
+                                  booking.grand_total -
+                                  (booking.downpayment || 0)
+                                ).toLocaleString()}
+                              </Badge>
+                            )}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right font-bold text-zinc-900 text-base py-4">
+                        ₱{booking.grand_total.toLocaleString()}
+                      </TableCell>
+                      <TableCell className="text-right pr-8 py-4">
+                        <div
+                          className="flex justify-end gap-1"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 rounded-lg"
+                              >
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent
+                              align="end"
+                              className="w-[180px] rounded-xl border-zinc-100 shadow-xl p-1"
+                            >
+                              <DropdownMenuLabel className="px-2 py-1.5 text-xs font-semibold text-zinc-500 uppercase tracking-wider">
+                                Actions
+                              </DropdownMenuLabel>
+                              <DropdownMenuSeparator className="-mx-1 my-1 bg-zinc-100" />
+                              <DropdownMenuItem
+                                className="rounded-lg cursor-pointer focus:bg-emerald-50 focus:text-emerald-700"
+                                onClick={() => {
+                                  setSelectedBooking(booking);
+                                  setIsDialogOpen(true);
+                                }}
+                              >
+                                View Details
+                              </DropdownMenuItem>
+                              {booking.status === "ACCEPTED" && (
+                                <DropdownMenuItem
+                                  className="text-red-600 focus:text-red-700 focus:bg-red-50 rounded-lg cursor-pointer"
+                                  onClick={() =>
+                                    handleStatusUpdate(booking.id, "CANCELLED")
+                                  }
+                                >
+                                  Cancel Booking
+                                </DropdownMenuItem>
+                              )}
+                              <DropdownMenuSeparator className="-mx-1 my-1 bg-zinc-100" />
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <div className="relative flex select-none items-center rounded-lg px-2 py-1.5 text-sm outline-none transition-colors data-[disabled]:pointer-events-none data-[disabled]:opacity-50 hover:bg-red-50 text-red-600 focus:bg-red-50 cursor-pointer w-full group">
+                                    <Trash2 className="w-3.5 h-3.5 mr-2 group-hover:text-red-700" />
+                                    Delete
+                                  </div>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent
+                                  onClick={(e) => e.stopPropagation()}
+                                  className="rounded-3xl border-0 shadow-2xl"
+                                >
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle className="text-xl">
+                                      Delete Booking?
+                                    </AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      This action cannot be undone. This will
+                                      permanently delete the booking for{" "}
+                                      <span className="font-semibold text-zinc-900">
+                                        {booking.customer.name}
+                                      </span>
+                                      .
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel className="rounded-xl border-0 bg-zinc-100 hover:bg-zinc-200 text-zinc-700">
+                                      Cancel
+                                    </AlertDialogCancel>
+                                    <AlertDialogAction
+                                      className="bg-red-600 hover:bg-red-700 rounded-xl text-white shadow-md shadow-red-200"
+                                      onClick={() => handleDelete(booking.id)}
+                                    >
+                                      Delete Booking
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={6} className="h-96">
+                      <div className="flex flex-col items-center justify-center text-center space-y-3">
+                        <div className="h-12 w-12 rounded-full bg-zinc-50 flex items-center justify-center">
+                          <Calendar className="h-6 w-6 text-zinc-300" />
+                        </div>
+                        <div className="space-y-1">
+                          <p className="text-base font-semibold text-zinc-900">
+                            No bookings found
+                          </p>
+                          <p className="text-sm text-zinc-500">
+                            Try adjusting your search or filters.
+                          </p>
+                        </div>
                       </div>
                     </TableCell>
                   </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell
-                    colSpan={6}
-                    className="h-24 text-center text-muted-foreground"
-                  >
-                    No bookings found.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
+                )}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
 

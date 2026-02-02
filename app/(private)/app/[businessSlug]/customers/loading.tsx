@@ -3,34 +3,80 @@ import { PageHeaderSkeleton } from "@/components/dashboard/PageHeader";
 
 export default function Loading() {
   return (
-    <div className="h-screen flex flex-col p-4 md:p-8 bg-zinc-50/50">
-      <section className="flex-1 flex flex-col bg-white overflow-hidden rounded-xl md:rounded-3xl border border-gray-200 shadow-xl p-4 md:p-6">
-        <PageHeaderSkeleton />
-
-        <div className="flex flex-col sm:flex-row gap-3 mb-6">
-          <Skeleton className="h-10 w-full sm:w-[300px]" />
+    <div className="flex flex-col p-4 md:p-8 bg-zinc-50/50 min-h-screen">
+      <section className="flex-1 flex flex-col w-full max-w-7xl mx-auto space-y-6">
+        {/* Header Skeleton */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <Skeleton className="h-8 w-48 mb-2 rounded-lg" />
+            <Skeleton className="h-4 w-64 rounded-lg" />
+          </div>
+          <div className="flex items-center gap-2">
+            <Skeleton className="h-10 w-32 rounded-lg" />
+          </div>
         </div>
 
-        <div className="space-y-4">
-          <div className="border rounded-lg p-4">
-            <div className="flex items-center justify-between mb-4">
-              <Skeleton className="h-4 w-[100px]" />
-              <Skeleton className="h-4 w-[100px]" />
-            </div>
-            <div className="space-y-2">
-              {[1, 2, 3, 4, 5].map((i) => (
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="relative flex-1">
+            <Skeleton className="h-10 w-full rounded-lg" />
+          </div>
+        </div>
+
+        <div className="flex-1">
+          <div className="space-y-6">
+            {/* Mobile Card Skeleton */}
+            <div className="md:hidden grid grid-cols-1 gap-4">
+              {Array.from({ length: 3 }).map((_, i) => (
                 <div
                   key={i}
-                  className="flex items-center gap-4 py-3 border-b last:border-0"
+                  className="bg-white rounded-2xl p-4 shadow-sm border border-zinc-100 flex flex-col gap-4"
                 >
-                  <Skeleton className="h-10 w-10 rounded-full" />
-                  <div className="space-y-2 flex-1">
-                    <Skeleton className="h-4 w-[200px]" />
-                    <Skeleton className="h-3 w-[150px]" />
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <Skeleton className="h-12 w-12 rounded-full" />
+                      <div className="flex flex-col gap-2">
+                        <Skeleton className="h-5 w-32 rounded-md" />
+                        <Skeleton className="h-3 w-40 rounded-md" />
+                      </div>
+                    </div>
+                    <Skeleton className="h-8 w-8 rounded-md" />
                   </div>
-                  <Skeleton className="h-8 w-8 rounded-md" />
+                  <div className="grid grid-cols-1 gap-3 pt-2 border-t border-zinc-50">
+                    <Skeleton className="h-10 w-full rounded-xl" />
+                  </div>
                 </div>
               ))}
+            </div>
+
+            {/* Desktop Table Skeleton */}
+            <div className="hidden md:block rounded-3xl border border-zinc-100 overflow-hidden shadow-sm bg-white">
+              <div className="p-0">
+                <div className="bg-zinc-50/80 border-b border-zinc-100 flex items-center h-12 px-6">
+                  <Skeleton className="h-4 w-24 mr-auto" />
+                  <Skeleton className="h-4 w-20 ml-auto mr-12" />
+                  <Skeleton className="h-4 w-16 ml-auto" />
+                </div>
+                <div className="divide-y divide-zinc-100">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <div key={i} className="flex items-center py-4 px-6">
+                      <div className="flex items-center gap-3 mr-auto min-w-[300px]">
+                        <Skeleton className="h-10 w-10 rounded-full" />
+                        <div className="flex flex-col gap-1.5">
+                          <Skeleton className="h-4 w-32" />
+                          <Skeleton className="h-3 w-40" />
+                        </div>
+                      </div>
+                      <div className="ml-auto flex items-center gap-2">
+                        <Skeleton className="h-3 w-3" />
+                        <Skeleton className="h-4 w-24" />
+                      </div>
+                      <div className="ml-auto w-[80px] flex justify-end">
+                        <Skeleton className="h-8 w-8 rounded-md" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </div>

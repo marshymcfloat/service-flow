@@ -1,7 +1,8 @@
-import { NextResponse } from "next/server";
+import { NextResponse, connection } from "next/server";
 import { sendFlowReminders } from "@/lib/services/flow-reminders";
 
 export async function GET(request: Request) {
+  await connection();
   try {
     const authHeader = request.headers.get("authorization");
 

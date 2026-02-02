@@ -10,6 +10,37 @@ import { Suspense } from "react";
 export default function Home() {
   return (
     <main className="min-h-screen w-full bg-background flex flex-col">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@graph": [
+              {
+                "@type": "Organization",
+                name: "Service Flow",
+                url: "https://service-flow.vercel.app",
+                logo: "https://service-flow.vercel.app/logo.png",
+                sameAs: [
+                  "https://twitter.com/serviceflow",
+                  "https://facebook.com/serviceflow",
+                ],
+              },
+              {
+                "@type": "SoftwareApplication",
+                name: "Service Flow",
+                applicationCategory: "BusinessApplication",
+                operatingSystem: "Web",
+                offers: {
+                  "@type": "Offer",
+                  price: "0",
+                  priceCurrency: "USD",
+                },
+              },
+            ],
+          }),
+        }}
+      />
       <LandingHeader />
       <HeroSection />
       <FeaturesSection />
