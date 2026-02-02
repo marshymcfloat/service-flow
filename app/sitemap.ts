@@ -1,20 +1,29 @@
 import { prisma } from "@/prisma/prisma";
 import { MetadataRoute } from "next";
 
+const getBaseUrl = () => {
+  const url = process.env.NEXT_PUBLIC_APP_URL;
+  if (!url) return "https://www.serviceflow.store";
+
+  return url.startsWith("http")
+    ? url.replace(/\/$/, "")
+    : `https://${url.replace(/\/$/, "")}`;
+};
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl =
-    process.env.NEXT_PUBLIC_APP_URL || "https://www.serviceflow.store";
+  const baseUrl = getBaseUrl();
+  const lastModified = new Date();
 
   const staticRoutes: MetadataRoute.Sitemap = [
     {
       url: baseUrl,
-      lastModified: new Date(),
+      lastModified,
       changeFrequency: "monthly",
       priority: 1,
     },
     {
       url: `${baseUrl}/explore`,
-      lastModified: new Date(),
+      lastModified,
       changeFrequency: "daily",
       priority: 0.9,
     },
