@@ -32,13 +32,13 @@ export default async function LandingFooter() {
             Explore
           </Link>
           <Link
-            href="#"
+            href={`/privacy`}
             className="text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
             Privacy Policy
           </Link>
           <Link
-            href="#"
+            href={`/terms`}
             className="text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
             Terms of Service

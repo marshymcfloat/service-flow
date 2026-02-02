@@ -65,14 +65,12 @@ export function AppSidebarClient({ businessSlug, user }: SidebarProps) {
   const pathname = usePathname();
   const slug = businessSlug || "demo";
 
-  // Main dashboard item
   const dashboardItem: NavItem = {
     title: "Dashboard",
     url: `/app/${slug}`,
     icon: Home,
   };
 
-  // Grouped navigation items with color schemes
   const navGroups: NavGroup[] = [
     {
       title: "Business",
@@ -112,7 +110,6 @@ export function AppSidebarClient({ businessSlug, user }: SidebarProps) {
     },
   ];
 
-  // Settings item
   const settingsItem: NavItem = {
     title: "Settings",
     url: `/app/${slug}/business`,
@@ -128,8 +125,7 @@ export function AppSidebarClient({ businessSlug, user }: SidebarProps) {
     items.some((item) => isActive(item.url));
 
   return (
-    <Sidebar className="overflow-x-hidden">
-      {/* Sidebar Header with Branding */}
+    <Sidebar className="overflow-x-hidden z-30">
       <SidebarHeader className="border-b border-border/40 px-4 py-4">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10">

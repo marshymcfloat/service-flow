@@ -3,6 +3,7 @@ import { PhilippinePeso, Plus, Calendar, Users } from "lucide-react";
 import Link from "next/link";
 import DashboardCard from "../DashboardCard";
 import { SalesChart } from "./SalesChart";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 import {
   Booking,
   Customer,
@@ -12,7 +13,6 @@ import {
   User,
 } from "@/prisma/generated/prisma/client";
 import { BookingList } from "./BookingList";
-import { cn } from "@/lib/utils";
 
 type BookingWithDetails = Booking & {
   customer: Customer;
@@ -40,16 +40,18 @@ export default function OwnerDashboard({
   allBookings: BookingWithDetails[];
 }) {
   return (
-    <div className="min-h-screen bg-zinc-50/50 pb-8">
-      {/* Header Section */}
-      <header className="bg-white border-b border-zinc-100 sticky top-0 z-20">
+    <div className="min-h-screen bg-zinc-50/50 pb-8 relative">
+      <header className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-md border-b border-zinc-100 z-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <h1 className="font-bold text-xl md:text-2xl text-zinc-900 tracking-tight">
-            {businessName}
-            <span className="text-zinc-400 font-normal ml-2 text-lg">
-              Dashboard
-            </span>
-          </h1>
+          <div className="flex items-center gap-3">
+            <SidebarTrigger className="h-9 w-9 rounded-lg border border-zinc-200 hover:bg-zinc-100/80 transition-colors" />
+            <h1 className="font-bold text-xl md:text-2xl text-zinc-900 tracking-tight">
+              {businessName}
+              <span className="hidden sm:inline text-zinc-400 font-normal ml-2 text-lg">
+                Dashboard
+              </span>
+            </h1>
+          </div>
 
           <Button
             asChild
@@ -65,8 +67,7 @@ export default function OwnerDashboard({
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-        {/* Stats Grid */}
+      <main className="max-w-400 mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-8 space-y-8">
         <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <DashboardCard
             variant="filled"
@@ -91,7 +92,6 @@ export default function OwnerDashboard({
           />
         </section>
 
-        {/* Charts & Lists Grid */}
         <section className="grid grid-cols-1 xl:grid-cols-2 gap-8 min-h-[500px]">
           <div className="h-[450px] xl:h-auto">
             <SalesChart bookings={bookings} className="h-full" />

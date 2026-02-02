@@ -41,7 +41,6 @@ export function ServiceList({ services, onEdit, onDelete }: ServiceListProps) {
 
   return (
     <>
-      {/* Mobile Card View */}
       <div className="md:hidden grid grid-cols-1 gap-4">
         {services.map((service) => (
           <ServiceCard
@@ -54,7 +53,6 @@ export function ServiceList({ services, onEdit, onDelete }: ServiceListProps) {
         ))}
       </div>
 
-      {/* Desktop Table View */}
       <div className="hidden md:block rounded-3xl border border-zinc-100 overflow-hidden shadow-sm bg-white">
         <Table>
           <TableHeader className="bg-zinc-50/80 sticky top-0 z-10 backdrop-blur-sm">

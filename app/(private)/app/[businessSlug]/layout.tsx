@@ -64,7 +64,7 @@ async function AppLayoutContent({
         </React.Suspense>
         <SidebarInset>
           <header className="flex h-14 items-center gap-2 border-b bg-white px-4 lg:hidden">
-            <SidebarTrigger />
+            <SidebarTrigger className="h-8 w-8" />
             <span className="font-semibold">Menu</span>
           </header>
           <div className="flex-1 min-h-0 overflow-hidden">
