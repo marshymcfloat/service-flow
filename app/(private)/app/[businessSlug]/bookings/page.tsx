@@ -90,6 +90,7 @@ async function BookingsContent({
           },
         },
       },
+      vouchers: true,
     },
     orderBy: {
       created_at: "desc",
