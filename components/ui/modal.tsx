@@ -10,14 +10,18 @@ import {
 import { useRouter } from "next/navigation";
 import { ReactNode } from "react";
 
+import { cn } from "@/lib/utils";
+
 export function Modal({
   children,
   title,
   description,
+  className,
 }: {
   children: ReactNode;
   title?: string;
   description?: string;
+  className?: string;
 }) {
   const router = useRouter();
 
@@ -27,7 +31,12 @@ export function Modal({
 
   return (
     <Dialog open={true} onOpenChange={(open) => !open && onDismiss()}>
-      <DialogContent className="sm:max-w-[600px] overflow-y-auto max-h-[90vh]">
+      <DialogContent
+        className={cn(
+          "sm:max-w-[600px] overflow-y-auto max-h-[90vh]",
+          className,
+        )}
+      >
         <DialogHeader>
           {title && <DialogTitle>{title}</DialogTitle>}
           {description && <DialogDescription>{description}</DialogDescription>}

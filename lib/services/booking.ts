@@ -13,6 +13,9 @@ export type BookingServiceParams = {
     claimedByCurrentEmployee?: boolean;
     packageId?: number;
     originalPrice?: number;
+    discount?: number;
+    discountReason?: string | null;
+    commissionBase?: number;
   }[];
   scheduledAt: Date;
   estimatedEnd: Date;
@@ -22,6 +25,8 @@ export type BookingServiceParams = {
 
   paymentType: "FULL" | "DOWNPAYMENT";
   email?: string;
+  voucherCode?: string;
+  totalDiscount?: number;
 };
 
 export async function createBookingInDb({
@@ -37,125 +42,273 @@ export async function createBookingInDb({
 
   paymentType,
   email,
+  voucherCode,
+  totalDiscount = 0,
 }: BookingServiceParams) {
-  const business = await prisma.business.findUnique({
-    where: { slug: businessSlug },
-  });
-
-  if (!business) {
-    throw new Error(`Business with slug ${businessSlug} not found`);
-  }
-
-  let finalCustomerId = customerId;
-
-  // Logic to handle existing customer update or lookup
-  if (finalCustomerId) {
-    const existingCustomer = await prisma.customer.findUnique({
-      where: { id: finalCustomerId },
+  return await prisma.$transaction(async (tx) => {
+    const business = await tx.business.findUnique({
+      where: { slug: businessSlug },
     });
 
-    if (existingCustomer) {
-      // Update email if provided and not set
-      if (email && !existingCustomer.email) {
-        await prisma.customer.update({
-          where: { id: existingCustomer.id },
-          data: { email },
-        });
-      }
+    if (!business) {
+      throw new Error(`Business with slug ${businessSlug} not found`);
     }
-  } else {
-    const existingCustomer = await prisma.customer.findFirst({
-      where: {
-        AND: [
-          { business_id: business.id },
-          { name: { equals: customerName, mode: "insensitive" } },
-        ],
-      },
-    });
 
-    if (existingCustomer) {
-      finalCustomerId = existingCustomer.id;
-      // Update email if provided and not set
-      if (email && !existingCustomer.email) {
-        await prisma.customer.update({
-          where: { id: existingCustomer.id },
-          data: { email },
-        });
+    let finalCustomerId = customerId;
+
+    // Logic to handle existing customer update or lookup
+    if (finalCustomerId) {
+      const existingCustomer = await tx.customer.findUnique({
+        where: { id: finalCustomerId },
+      });
+
+      if (existingCustomer) {
+        // Update email if provided and not set
+        if (email && !existingCustomer.email) {
+          await prisma.customer.update({
+            where: { id: existingCustomer.id },
+            data: { email },
+          });
+        }
       }
     } else {
-      const newCustomer = await prisma.customer.create({
-        data: {
-          name: customerName,
-          email: email,
-          business_id: business.id,
+      const existingCustomer = await tx.customer.findFirst({
+        where: {
+          AND: [
+            { business_id: business.id },
+            { name: { equals: customerName, mode: "insensitive" } },
+          ],
         },
       });
-      finalCustomerId = newCustomer.id;
+
+      if (existingCustomer) {
+        finalCustomerId = existingCustomer.id;
+        // Update email if provided and not set
+        if (email && !existingCustomer.email) {
+          await tx.customer.update({
+            where: { id: existingCustomer.id },
+            data: { email },
+          });
+        }
+      } else {
+        const newCustomer = await tx.customer.create({
+          data: {
+            name: customerName,
+            email: email,
+            business_id: business.id,
+          },
+        });
+        finalCustomerId = newCustomer.id;
+      }
     }
-  }
 
-  const total = services.reduce((acc, s) => acc + s.price * s.quantity, 0);
+    // Fetch active sale events for validation
+    const now = new Date();
+    const activeSaleEvents = await tx.saleEvent.findMany({
+      where: {
+        business: { slug: businessSlug },
+        start_date: { lte: now },
+        end_date: { gte: now },
+      },
+      include: {
+        applicable_services: { select: { id: true } },
+        applicable_packages: { select: { id: true } },
+      },
+    });
 
-  const isDownpayment = paymentType === "DOWNPAYMENT";
-  const bookingStatus: "ACCEPTED" | "COMPLETED" = "ACCEPTED";
+    // Recalculate prices and validate
+    const validatedServices = services.map((service) => {
+      let finalPrice = service.price;
+      let discountAmount = 0;
+      let discountReason = service.discountReason;
 
-  const downpaymentAmount = isDownpayment ? total * 0.5 : null;
+      // Check for applicable sale events
+      const applicableEvent = activeSaleEvents
+        .filter((event) => {
+          if (service.packageId) {
+            return event.applicable_packages.some(
+              (p) => p.id === service.packageId,
+            );
+          }
+          return event.applicable_services.some((s) => s.id === service.id);
+        })
+        .sort((a, b) => {
+          // Sort by highest discount value (approximation for mixed types)
+          const valA =
+            a.discount_type === "PERCENTAGE"
+              ? (service.price * a.discount_value) / 100
+              : a.discount_value;
+          const valB =
+            b.discount_type === "PERCENTAGE"
+              ? (service.price * b.discount_value) / 100
+              : b.discount_value;
+          return valB - valA;
+        })[0];
 
-  const booking = await prisma.booking.create({
-    data: {
-      business_id: business.id,
-      customer_id: finalCustomerId,
-      grand_total: total,
-      total_discount: 0,
-      payment_method: paymentMethod,
-      status: bookingStatus,
-      scheduled_at: scheduledAt,
-      estimated_end: estimatedEnd,
-      downpayment: downpaymentAmount,
-      availed_services: {
-        create: services.map((s, index) => {
-          const serviceDuration = s.duration || 30;
-          const previousDurations = services
-            .slice(0, index)
-            .reduce(
-              (sum, prev) => sum + (prev.duration || 30) * prev.quantity,
-              0,
+      if (applicableEvent) {
+        let eventDiscount = 0;
+        if (applicableEvent.discount_type === "PERCENTAGE") {
+          eventDiscount =
+            (service.price * applicableEvent.discount_value) / 100;
+        } else {
+          eventDiscount = applicableEvent.discount_value;
+        }
+
+        // Ensure we don't discount more than the price
+        eventDiscount = Math.min(eventDiscount, service.price);
+
+        if (eventDiscount > 0) {
+          finalPrice = service.price - eventDiscount;
+          discountAmount = eventDiscount;
+          discountReason = applicableEvent.title;
+        }
+      }
+
+      return {
+        ...service,
+        price: finalPrice, // Override with server-calculated price
+        originalPrice: service.price,
+        discount: discountAmount,
+        discountReason,
+      };
+    });
+
+    // Use validated services (server-calculated prices) for the total
+    const total = validatedServices.reduce(
+      (acc, s) => acc + s.price * s.quantity,
+      0,
+    );
+
+    let voucherId: number | undefined;
+    let discountAmount = 0;
+
+    // Check voucher against the VALIDATED total (already sale-discounted)
+    const totalToCheck = total;
+
+    if (voucherCode) {
+      const voucher = await tx.voucher.findUnique({
+        where: { code: voucherCode },
+        include: { business: true },
+      });
+
+      if (!voucher) {
+        throw new Error(`Voucher code ${voucherCode} not found`);
+      }
+
+      if (voucher.business.slug !== businessSlug) {
+        throw new Error("Voucher not valid for this business");
+      }
+
+      if (!voucher.is_active) {
+        throw new Error("Voucher is not active");
+      }
+
+      if (new Date() > voucher.expires_at) {
+        throw new Error("Voucher has expired");
+      }
+
+      if (voucher.used_by_id) {
+        throw new Error("Voucher has already been used");
+      }
+
+      if (total < voucher.minimum_amount) {
+        throw new Error(
+          `Minimum spend of ${voucher.minimum_amount} required to use this voucher`,
+        );
+      }
+
+      if (voucher.type === "PERCENTAGE") {
+        discountAmount = (total * voucher.value) / 100;
+      } else {
+        discountAmount = voucher.value;
+      }
+
+      // Ensure discount doesn't exceed total
+      discountAmount = Math.min(discountAmount, total);
+      voucherId = voucher.id;
+    } else if (totalDiscount > 0) {
+      // Logic for pre-calculated voucher discount
+    }
+
+    const isDownpayment = paymentType === "DOWNPAYMENT";
+    const bookingStatus: "ACCEPTED" | "COMPLETED" = "ACCEPTED";
+
+    // Use calculated discountAmount if this function calculated it, otherwise use passed totalDiscount
+    const finalVoucherDiscount =
+      discountAmount > 0 ? discountAmount : totalDiscount;
+
+    const grandTotal = Math.max(0, total - finalVoucherDiscount);
+    const downpaymentAmount = isDownpayment ? grandTotal * 0.5 : null;
+
+    const booking = await tx.booking.create({
+      data: {
+        business_id: business.id,
+        customer_id: finalCustomerId,
+        grand_total: grandTotal,
+        total_discount: finalVoucherDiscount, // Store total discount (voucher only?)
+        payment_method: paymentMethod,
+        status: bookingStatus,
+        scheduled_at: scheduledAt,
+        estimated_end: estimatedEnd,
+        downpayment: downpaymentAmount,
+        availed_services: {
+          create: validatedServices.map((s, index) => {
+            const serviceDuration = s.duration || 30;
+            const previousDurations = validatedServices
+              .slice(0, index)
+              .reduce(
+                (sum, prev) => sum + (prev.duration || 30) * prev.quantity,
+                0,
+              );
+
+            const serviceStart = new Date(
+              scheduledAt.getTime() + previousDurations * 60 * 1000,
+            );
+            const serviceEnd = new Date(
+              serviceStart.getTime() + serviceDuration * s.quantity * 60 * 1000,
             );
 
-          const serviceStart = new Date(
-            scheduledAt.getTime() + previousDurations * 60 * 1000,
-          );
-          const serviceEnd = new Date(
-            serviceStart.getTime() + serviceDuration * s.quantity * 60 * 1000,
-          );
+            const isClaimed = s.claimedByCurrentEmployee && !!currentEmployeeId;
+            const serverId = isClaimed ? currentEmployeeId : employeeId;
+            const status = isClaimed ? "CLAIMED" : "PENDING";
+            const claimedAt = isClaimed ? new Date() : null;
 
-          const isClaimed = s.claimedByCurrentEmployee && !!currentEmployeeId;
-          const serverId = isClaimed ? currentEmployeeId : employeeId;
-          const status = isClaimed ? "CLAIMED" : "PENDING";
-          const claimedAt = isClaimed ? new Date() : null;
+            // Logic for packages
+            const originalPrice = s.originalPrice || s.price;
+            const finalPrice = s.price;
+            const discount = s.discount || originalPrice - finalPrice;
+            const discountReason =
+              s.discountReason || (discount > 0 ? "PACKAGE_OR_MANUAL" : null);
 
-          // Logic for packages
-          const originalPrice = s.originalPrice || s.price;
-          const finalPrice = s.price;
-          const discount = originalPrice - finalPrice;
-
-          return {
-            service_id: s.id,
-            price: originalPrice,
-            discount: discount,
-            final_price: finalPrice,
-            commission_base: finalPrice,
-            served_by_id: serverId,
-            status: status,
-            claimed_at: claimedAt,
-            scheduled_at: serviceStart,
-            estimated_end: serviceEnd,
-            package_id: s.packageId,
-          };
-        }),
+            return {
+              service_id: s.id,
+              price: originalPrice,
+              discount: discount,
+              discount_reason: discountReason,
+              final_price: finalPrice,
+              commission_base: s.commissionBase || finalPrice,
+              served_by_id: serverId,
+              status: status,
+              claimed_at: claimedAt,
+              scheduled_at: serviceStart,
+              estimated_end: serviceEnd,
+              package_id: s.packageId,
+            };
+          }),
+        },
       },
-    },
-  });
+    });
 
-  return booking;
+    if (voucherId) {
+      await tx.voucher.update({
+        where: { id: voucherId },
+        data: {
+          used_by: { connect: { id: booking.id } },
+          is_active: false, // Mark as inactive after use
+        },
+      });
+    }
+
+    return booking;
+  });
 }

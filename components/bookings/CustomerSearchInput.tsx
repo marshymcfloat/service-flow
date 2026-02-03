@@ -15,13 +15,17 @@ const CustomerSearchInput = React.memo(function CustomerSearchInput({
   form,
   businessSlug,
   onCustomerSelect,
+  ...props
 }: {
   form: UseFormReturn<any>;
   businessSlug: string;
   onCustomerSelect?: (customer: any) => void;
+  value?: string;
+  onChange?: (value: string) => void;
+  onBlur?: () => void;
 }) {
-  const [searchQuery, setSearchQuery] = useState("");
-  const debouncedSearchQuery = useDebounce(searchQuery, 300);
+  const inputValue = props.value || "";
+  const debouncedSearchQuery = useDebounce(inputValue, 300);
   const [showResults, setShowResults] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -30,13 +34,6 @@ const CustomerSearchInput = React.memo(function CustomerSearchInput({
     queryFn: () => searchCustomer(debouncedSearchQuery, businessSlug),
     enabled: debouncedSearchQuery.length > 0 && !!businessSlug,
   });
-
-  const customerName = form.watch("customerName");
-  useEffect(() => {
-    if (!customerName) {
-      setSearchQuery("");
-    }
-  }, [customerName]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -60,9 +57,13 @@ const CustomerSearchInput = React.memo(function CustomerSearchInput({
     email?: string | null;
   }) => {
     form.setValue("customerId", customer.id);
-    form.setValue("customerName", customer.name);
+    // Call parent onChange to update customerName
+    if (props.onChange) {
+      props.onChange(customer.name);
+    } else {
+      form.setValue("customerName", customer.name);
+    }
     form.setValue("email", customer.email || "");
-    setSearchQuery(customer.name);
     setShowResults(false);
     if (onCustomerSelect) {
       onCustomerSelect(customer);
@@ -74,20 +75,26 @@ const CustomerSearchInput = React.memo(function CustomerSearchInput({
       <InputGroup>
         <InputGroupInput
           placeholder="Search customer"
-          value={searchQuery}
+          value={inputValue}
           onChange={(e) => {
-            setSearchQuery(e.target.value);
+            const newValue = e.target.value;
+            if (props.onChange) {
+              props.onChange(newValue);
+            } else {
+              // Fallback if no onChange prop
+              form.setValue("customerName", newValue);
+            }
             setShowResults(true);
-            form.setValue("customerName", e.target.value);
             form.setValue("customerId", "");
           }}
+          onBlur={props.onBlur}
           onFocus={() => setShowResults(true)}
         />
         <InputGroupAddon>
           <Search />
         </InputGroupAddon>
       </InputGroup>
-      {showResults && searchQuery.length > 0 && (
+      {showResults && inputValue.length > 0 && (
         <div className="absolute top-full z-10 mt-1 w-full rounded-md border bg-background shadow-lg">
           {isLoading ? (
             <div className="p-2 text-sm text-muted-foreground">Loading...</div>

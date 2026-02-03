@@ -6,13 +6,22 @@ import { Badge } from "../ui/badge";
 
 const SelectedServiceList = React.memo(function SelectedServiceList({
   form,
+  saleEvents,
+  services: selectedServices,
 }: {
   form: UseFormReturn<any>;
+  saleEvents?: any[];
+  services: any[];
 }) {
-  const selectedServices = (form.watch("services") as any[]) || [];
-
   if (!selectedServices || selectedServices.length === 0) {
-    return null;
+    return (
+      <div className="text-center p-8 border-2 border-dashed border-muted-foreground/10 rounded-xl bg-muted/20">
+        <Package className="w-10 h-10 mx-auto text-muted-foreground/30 mb-2" />
+        <p className="text-sm text-muted-foreground font-medium">
+          No services selected
+        </p>
+      </div>
+    );
   }
 
   const updateQuantity = (
@@ -42,11 +51,6 @@ const SelectedServiceList = React.memo(function SelectedServiceList({
     form.setValue("services", newServices);
   };
 
-  const totalPrice = selectedServices.reduce(
-    (sum, s) => sum + s.price * (s.quantity || 1),
-    0,
-  );
-
   const groupedServices = useMemo(() => {
     const groups: { [key: string]: any[] } = {};
     const standalone: any[] = [];
@@ -66,9 +70,9 @@ const SelectedServiceList = React.memo(function SelectedServiceList({
   }, [selectedServices]);
 
   return (
-    <div className="mt-4 rounded-lg border bg-card p-4 shadow-sm">
-      <h3 className="mb-3 text-sm font-medium">Selected Services</h3>
-      <div className="flex flex-col gap-2">
+    <div className="space-y-4">
+      <div className="space-y-3">
+        {/* Packages */}
         {Object.entries(groupedServices.groups).map(([pkgId, services]) => {
           const packageName = services[0]?.packageName || "Package";
           const pkgPrice = services.reduce(
@@ -79,142 +83,223 @@ const SelectedServiceList = React.memo(function SelectedServiceList({
           return (
             <div
               key={`pkg-${pkgId}`}
-              className="rounded-md border border-primary/20 bg-primary/5 p-3 space-y-2 relative overflow-hidden"
+              className="bg-primary/5 border border-primary/20 rounded-lg overflow-hidden"
             >
-              <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary/50" />
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 pl-2">
-                  <Package className="h-4 w-4 text-primary" />
-                  <span className="font-semibold text-sm text-primary">
+              {/* Package Header */}
+              <div className="bg-primary/10 px-3 py-2 flex items-center justify-between border-b border-primary/10">
+                <div className="flex items-center gap-2">
+                  <Package className="h-3.5 w-3.5 text-primary" />
+                  <span className="font-semibold text-xs text-primary uppercase tracking-wide">
                     {packageName}
                   </span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium">
-                    ₱{pkgPrice.toFixed(2)}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-5 w-5 hover:bg-destructive/10 hover:text-destructive text-primary/60 -mr-1"
+                  onClick={() => removeService(services[0].id, Number(pkgId))}
+                  type="button"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </Button>
+              </div>
+
+              {/* Package Content */}
+              <div className="p-2 space-y-1">
+                {services.map((service, idx) => (
+                  <div
+                    key={`${service.id}-${service.packageId}-${idx}`}
+                    className="flex justify-between items-center text-xs pl-2 border-l-2 border-primary/20 ml-1"
+                  >
+                    <span className="text-muted-foreground">
+                      {service.quantity > 1 && (
+                        <span className="font-medium text-foreground mr-1">
+                          {service.quantity}x
+                        </span>
+                      )}
+                      {service.name}
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Package Footer */}
+              <div className="bg-background/40 px-3 py-2 flex justify-between items-center text-xs border-t border-primary/10">
+                <div className="flex items-center gap-1 bg-background rounded-md border shadow-sm h-6">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-full w-6 rounded-none rounded-l-md hover:bg-muted"
+                    onClick={() => {
+                      const currentQty = services[0].quantity || 1;
+                      if (currentQty > 1) {
+                        const newServices = selectedServices.map((s) => {
+                          if (s.packageId === Number(pkgId)) {
+                            return { ...s, quantity: (s.quantity || 1) - 1 };
+                          }
+                          return s;
+                        });
+                        form.setValue("services", newServices);
+                      }
+                    }}
+                    type="button"
+                  >
+                    <Minus className="h-2.5 w-2.5" />
+                  </Button>
+                  <span className="w-6 text-center font-medium">
+                    {services[0].quantity || 1}
                   </span>
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-6 w-6 text-muted-foreground hover:text-destructive"
-                    onClick={() => removeService(services[0].id, Number(pkgId))}
+                    className="h-full w-6 rounded-none rounded-r-md hover:bg-muted"
+                    onClick={() => {
+                      const newServices = selectedServices.map((s) => {
+                        if (s.packageId === Number(pkgId)) {
+                          return { ...s, quantity: (s.quantity || 1) + 1 };
+                        }
+                        return s;
+                      });
+                      form.setValue("services", newServices);
+                    }}
                     type="button"
-                    title="Remove Package"
                   >
-                    <X className="h-4 w-4" />
+                    <Plus className="h-2.5 w-2.5" />
                   </Button>
                 </div>
-              </div>
-
-              <div className="pl-2 space-y-1">
-                {services.map((service, idx) => (
-                  <div
-                    key={`${service.id}-${service.packageId}-${idx}`}
-                    className="flex items-center justify-between text-xs text-muted-foreground"
-                  >
-                    <span>
-                      {service.quantity > 1 ? `${service.quantity}x ` : ""}
-                      {service.name}
-                    </span>
-                    <span>₱{service.price.toFixed(2)}</span>
-                  </div>
-                ))}
+                <div className="font-semibold text-primary">
+                  ₱
+                  {pkgPrice.toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}
+                </div>
               </div>
             </div>
           );
         })}
 
+        {/* Standalone Services */}
         {groupedServices.standalone.map((service) => (
           <div
             key={`standalone-${service.id}`}
-            className="flex items-center justify-between rounded-md border p-2 relative overflow-hidden"
+            className="flex flex-col gap-2 p-3 rounded-lg border bg-card/50 hover:bg-card transition-colors relative group"
           >
-            {/* Flow Trigger Indicator */}
-            {(service as any).flow_triggers &&
-              (service as any).flow_triggers.length > 0 && (
-                <div className="absolute top-0 right-0 p-1 opacity-10 pointer-events-none">
-                  <Sparkles className="w-12 h-12 text-indigo-500" />
-                </div>
-              )}
-
-            <div className="flex items-center gap-2 relative z-10">
-              <div className="flex flex-col">
-                <span className="font-medium text-sm flex items-center gap-2">
-                  {service.name}
+            <div className="flex justify-between items-start gap-2">
+              <div className="flex flex-col gap-0.5">
+                <div className="flex items-center gap-2">
+                  <span className="font-medium text-sm text-foreground/90">
+                    {service.name}
+                  </span>
                   {(service as any).flow_triggers &&
                     (service as any).flow_triggers.length > 0 && (
                       <Badge
-                        variant="outline"
-                        className="text-[10px] h-4 px-1 bg-indigo-50 text-indigo-700 border-indigo-200"
+                        variant="secondary"
+                        className="text-[10px] h-4 px-1 bg-indigo-50/50 text-indigo-600 border-indigo-100"
                       >
                         <Sparkles className="w-2 h-2 mr-1" />
-                        Journey Starter
+                        Flow
                       </Badge>
                     )}
-                </span>
-                <span className="text-xs text-muted-foreground">
-                  ₱{service.price.toFixed(2)}
-                </span>
-                {/* Show flow details if available */}
-                {(service as any).flow_triggers &&
-                  (service as any).flow_triggers.length > 0 && (
-                    <div className="text-[10px] text-indigo-600 flex items-center gap-1 mt-0.5">
-                      <ArrowRight className="w-3 h-3" />
-                      <span>
-                        Leads to{" "}
-                        {(service as any).flow_triggers[0].suggested_service
-                          ?.name || "Next Step"}
+                </div>
+
+                {service.discountReason ? (
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs font-semibold text-destructive">
+                      ₱
+                      {service.price.toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
+                    </span>
+                    {service.originalPrice > service.price && (
+                      <span className="text-[10px] text-muted-foreground line-through decoration-muted-foreground/50">
+                        ₱
+                        {service.originalPrice.toLocaleString(undefined, {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
                       </span>
-                    </div>
+                    )}
+                  </div>
+                ) : (
+                  <span className="text-xs text-muted-foreground font-medium">
+                    ₱
+                    {service.price.toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </span>
+                )}
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className="font-semibold text-sm">
+                  ₱
+                  {(service.price * (service.quantity || 1)).toLocaleString(
+                    undefined,
+                    { minimumFractionDigits: 2, maximumFractionDigits: 2 },
                   )}
+                </span>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6 text-muted-foreground/50 hover:text-destructive hover:bg-destructive/10 -mr-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                  onClick={() => removeService(service.id)}
+                  type="button"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </Button>
               </div>
             </div>
 
-            <div className="flex items-center gap-3 relative z-10">
-              <div className="flex items-center gap-1">
+            <div className="flex items-center justify-between">
+              {/* Controls */}
+              <div className="flex items-center gap-1 bg-muted/40 rounded-md border h-7 self-start">
                 <Button
-                  variant="outline"
+                  variant="ghost"
                   size="icon"
-                  className="h-6 w-6"
+                  className="h-full w-7 rounded-none rounded-l-md hover:bg-background hover:text-foreground"
                   onClick={() => updateQuantity(service.id, -1)}
                   type="button"
                 >
                   <Minus className="h-3 w-3" />
                 </Button>
-                <span className="w-4 text-center text-sm font-medium">
+                <span className="min-w-[1.5rem] text-center text-xs font-medium tabular-nums">
                   {service.quantity || 1}
                 </span>
                 <Button
-                  variant="outline"
+                  variant="ghost"
                   size="icon"
-                  className="h-6 w-6"
-                  onClick={() => updateQuantity(service.id, 1)}
+                  className="h-full w-7 rounded-none rounded-r-md hover:bg-background hover:text-foreground"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    updateQuantity(service.id, 1);
+                  }}
                   type="button"
                 >
                   <Plus className="h-3 w-3" />
                 </Button>
               </div>
 
-              <div className="text-sm font-medium w-16 text-right">
-                ₱{(service.price * (service.quantity || 1)).toFixed(2)}
-              </div>
-
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6 text-muted-foreground hover:text-destructive"
-                onClick={() => removeService(service.id)}
-                type="button"
-              >
-                <X className="h-4 w-4" />
-              </Button>
+              {service.discountReason && (
+                <Badge
+                  variant="destructive"
+                  className="h-5 px-1.5 text-[10px] font-medium"
+                >
+                  {service.discountReason}
+                </Badge>
+              )}
             </div>
+
+            {(service as any).flow_triggers &&
+              (service as any).flow_triggers.length > 0 && (
+                <div className="absolute right-3 bottom-3 opacity-5 pointer-events-none">
+                  <Sparkles className="w-8 h-8 text-indigo-500" />
+                </div>
+              )}
           </div>
         ))}
-      </div>
-      <div className="mt-4 flex justify-between border-t pt-2 font-medium">
-        <span>Total</span>
-        <span>₱{totalPrice.toFixed(2)}</span>
       </div>
     </div>
   );

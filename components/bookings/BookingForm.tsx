@@ -21,6 +21,11 @@ import {
 import { toast } from "sonner";
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { verifyVoucherAction } from "@/lib/server actions/vouchers";
+
+// [NEW] Import sale events action
+import { getActiveSaleEvents } from "@/lib/server actions/sale-event";
+import { getApplicableDiscount } from "@/lib/utils/pricing";
 
 const capitalizeWords = (str: string) => {
   return str.replace(/\b\w/g, (char) => char.toUpperCase());
@@ -77,7 +82,8 @@ import {
   PendingFlow,
 } from "@/lib/server actions/flow-actions";
 import { format } from "date-fns";
-import { Sparkles, Calendar, ArrowRight } from "lucide-react";
+import { Sparkles, Calendar, ArrowRight, Ticket, X } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export default function BookingForm({
   services,
@@ -106,6 +112,14 @@ export default function BookingForm({
 
   const params = useParams<{ businessSlug: string }>();
   const businessSlug = params.businessSlug;
+
+  // [NEW] Fetch active sale events
+  const { data: saleEventsResult } = useQuery({
+    queryKey: ["activeSaleEvents", businessSlug],
+    queryFn: () => getActiveSaleEvents(businessSlug),
+    enabled: !!businessSlug,
+  });
+  const saleEvents = (saleEventsResult?.success && saleEventsResult.data) || [];
 
   const selectedServices = (form.watch("services") as any[]) || [];
   const selectedDate = form.watch("scheduledAt") as Date | undefined;
@@ -136,6 +150,44 @@ export default function BookingForm({
     fetchFlows();
   }, [customerId]);
 
+  // [NEW] Re-calculate prices when sale events change
+  useEffect(() => {
+    if (saleEvents.length > 0 && selectedServices.length > 0) {
+      const updatedServices = selectedServices.map((service) => {
+        // Recalculate discount
+        const discountInfo = getApplicableDiscount(
+          service.id,
+          service.packageId ? Number(service.packageId) : undefined,
+          service.originalPrice || service.price,
+          saleEvents,
+        );
+
+        if (discountInfo) {
+          // Only update if differ to avoid infinite loop
+          if (service.price !== discountInfo.finalPrice) {
+            return {
+              ...service,
+              price: discountInfo.finalPrice,
+              originalPrice: service.originalPrice || service.price,
+              discount: discountInfo.discount,
+              discountReason: discountInfo.reason,
+            };
+          }
+        }
+        return service;
+      });
+
+      // Check if any changed
+      const hasChanges = updatedServices.some(
+        (s, i) => s.price !== selectedServices[i].price,
+      );
+      if (hasChanges) {
+        console.log("Updating services with sale prices", updatedServices);
+        form.setValue("services", updatedServices);
+      }
+    }
+  }, [saleEvents]); // Run only when saleEvents loaded/changed
+
   // Callback when a customer is selected from the search input
   const handleCustomerSelect = useCallback((customer: any) => {
     // If customer has an email, set it to state
@@ -150,29 +202,109 @@ export default function BookingForm({
 
   // Memoize the toggle handler
   const handleWalkInToggle = useCallback(() => {
-    setIsWalkIn((prev) => {
-      const newState = !prev;
-      if (newState) {
-        const now = new Date();
-        form.setValue("scheduledAt", now, { shouldValidate: true });
-        form.setValue("selectedTime", now, {
-          shouldValidate: true,
-        });
-      } else {
-        form.setValue("scheduledAt", undefined);
-        form.setValue("selectedTime", undefined);
-      }
-      return newState;
-    });
-  }, [form]);
+    const newState = !isWalkIn;
+    setIsWalkIn(newState);
 
-  const { total, amountToPay } = useMemo(() => {
+    if (newState) {
+      const now = new Date();
+      form.setValue("scheduledAt", now, { shouldValidate: true });
+      form.setValue("selectedTime", now, {
+        shouldValidate: true,
+      });
+    } else {
+      form.setValue("scheduledAt", undefined);
+      form.setValue("selectedTime", undefined);
+    }
+  }, [isWalkIn, form]);
+
+  const { total } = useMemo(() => {
     const total = selectedServices.reduce((sum, s) => {
       return sum + s.price * (s.quantity || 1);
     }, 0);
-    const amountToPay = paymentType === "DOWNPAYMENT" ? total * 0.5 : total;
-    return { total, amountToPay };
-  }, [selectedServices, paymentType]);
+    return { total };
+  }, [selectedServices]);
+
+  // Voucher State
+  const [voucherCode, setVoucherCode] = useState("");
+  const [appliedVoucher, setAppliedVoucher] = useState<{
+    code: string;
+    discountAmount: number;
+    type: "PERCENTAGE" | "FLAT";
+    value: number;
+  } | null>(null);
+  const [voucherError, setVoucherError] = useState<string | null>(null);
+  const [isVerifyingVoucher, setIsVerifyingVoucher] = useState(false);
+
+  const handleVerifyVoucher = async () => {
+    if (!voucherCode.trim()) return;
+    setIsVerifyingVoucher(true);
+    setVoucherError(null);
+
+    const result = await verifyVoucherAction(voucherCode, businessSlug!, total);
+
+    setIsVerifyingVoucher(false);
+
+    if (result.success && result.data) {
+      setAppliedVoucher({
+        code: result.data.code,
+        discountAmount: result.data.discountAmount,
+        type: result.data.type,
+        value: result.data.value,
+      });
+      toast.success("Voucher applied successfully!");
+    } else {
+      setAppliedVoucher(null);
+      setVoucherError(result.error || "Invalid voucher code");
+      toast.error(result.error || "Invalid voucher code");
+    }
+  };
+
+  const clearVoucher = () => {
+    setVoucherCode("");
+    setAppliedVoucher(null);
+    setVoucherError(null);
+  };
+
+  // Re-verify voucher if total changes (e.g. added/removed services)
+  useEffect(() => {
+    if (appliedVoucher) {
+      const revalidate = async () => {
+        const result = await verifyVoucherAction(
+          appliedVoucher.code,
+          businessSlug!,
+          total,
+        );
+        if (!result.success) {
+          setAppliedVoucher(null);
+          setVoucherError("Voucher removed: requirements no longer met");
+          toast.error("Voucher removed: requirements no longer met");
+        } else if (result.data) {
+          // Update discount amount as it might have changed (percentage)
+          setAppliedVoucher({
+            code: result.data.code,
+            discountAmount: result.data.discountAmount,
+            type: result.data.type,
+            value: result.data.value,
+          });
+        }
+      };
+      // Only run if total > 0
+      if (total > 0) revalidate();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [total, businessSlug]);
+
+  const finalTotal = useMemo(() => {
+    if (appliedVoucher) {
+      return Math.max(0, total - appliedVoucher.discountAmount);
+    }
+    return total;
+  }, [total, appliedVoucher]);
+
+  const finalAmountToPay = useMemo(() => {
+    const base = paymentType === "DOWNPAYMENT" ? finalTotal * 0.5 : finalTotal;
+    return base;
+  }, [finalTotal, paymentType]);
 
   const totalDuration = useMemo(() => {
     return selectedServices.reduce((total, s) => {
@@ -320,6 +452,7 @@ export default function BookingForm({
         paymentType: data.paymentType,
         services: flatServicesPayload,
         email: data.email,
+        voucherCode: appliedVoucher?.code,
       });
     },
     [
@@ -329,6 +462,7 @@ export default function BookingForm({
       claimedUniqueIds,
       currentEmployeeId,
       createBookingAction,
+      appliedVoucher,
     ],
   );
 
@@ -354,14 +488,11 @@ export default function BookingForm({
           );
           toast.error("Please fill in all required fields correctly.");
         })}
-        className="flex flex-col h-full"
+        className="flex flex-col lg:flex-row h-full gap-6 lg:gap-8 relative isolate"
       >
-        <div className="text-xs text-red-500 p-2 border border-red-200 bg-red-50 mb-2 hidden">
-          isEmployee: {String(isEmployee)}, isModal: {String(isModal)},
-          selectedTime: {String(selectedTime)}, services:{" "}
-          {selectedServices.length}
-        </div>
-        <div className="flex flex-1 flex-col gap-4 overflow-y-auto">
+        {/* Left Column: Inputs */}
+        <div className="flex-1 space-y-6 overflow-y-auto pb-4 lg:pb-0 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+          {/* Hidden Fields & Identification */}
           <FormField
             control={form.control}
             name="customerId"
@@ -369,114 +500,117 @@ export default function BookingForm({
               <input type="hidden" {...field} value={field.value || ""} />
             )}
           />
-          <FormField
-            control={form.control}
-            name="customerName"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Name</FormLabel>
-                <FormControl>
-                  {isEmployee ? (
-                    <CustomerSearchInput
-                      form={form}
-                      businessSlug={businessSlug!}
-                      onCustomerSelect={handleCustomerSelect}
-                    />
-                  ) : (
-                    <Input placeholder="Enter your full name" {...field} />
-                  )}
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
 
-          <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => {
-              return (
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold">
+                1
+              </span>
+              <h3 className="font-semibold text-lg tracking-tight">
+                Customer Details
+              </h3>
+            </div>
+
+            <FormField
+              control={form.control}
+              name="customerName"
+              render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email (Optional)</FormLabel>
-                  {isEmployee && existingCustomerEmail ? (
-                    <div className="text-sm bg-yellow-50 text-yellow-800 p-2 rounded-md border border-yellow-200 mb-2">
-                      This customer already has an email linked (
-                      {maskEmail(existingCustomerEmail)}).
-                      <br />
-                      <span className="text-xs opacity-80">
-                        To change it, please update their profile separately.
-                      </span>
-                    </div>
-                  ) : (
-                    <>
-                      <FormControl>
-                        <Input placeholder="Enter email address" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                      <p className="text-[10px] text-muted-foreground mt-1">
-                        Providing an email would let us remind you about your
-                        bookings, and get updates from us like sales.
-                      </p>
-                    </>
-                  )}
+                  <FormLabel>Name</FormLabel>
+                  <FormControl>
+                    {isEmployee ? (
+                      <CustomerSearchInput
+                        form={form}
+                        businessSlug={businessSlug!}
+                        onCustomerSelect={handleCustomerSelect}
+                        {...field}
+                      />
+                    ) : (
+                      <Input placeholder="Enter your full name" {...field} />
+                    )}
+                  </FormControl>
+                  <FormMessage />
                 </FormItem>
-              );
-            }}
-          />
+              )}
+            />
 
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => {
+                return (
+                  <FormItem>
+                    <FormLabel>Email (Optional)</FormLabel>
+                    {isEmployee && existingCustomerEmail ? (
+                      <div className="text-sm bg-yellow-50 text-yellow-800 p-3 rounded-md border border-yellow-200">
+                        This customer already has an email linked (
+                        <span className="font-mono">
+                          {maskEmail(existingCustomerEmail)}
+                        </span>
+                        ).
+                        <br />
+                        <span className="text-xs opacity-80">
+                          To change it, update their profile separately.
+                        </span>
+                      </div>
+                    ) : (
+                      <>
+                        <FormControl>
+                          <Input placeholder="email@example.com" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </>
+                    )}
+                  </FormItem>
+                );
+              }}
+            />
+          </div>
+
+          <Separator className="bg-border/40" />
+
+          {/* Pending Flows / Upsells */}
           {pendingFlows.length > 0 && (
             <div className="space-y-3 animate-in fade-in slide-in-from-top-4 duration-500">
               {pendingFlows.map((flow, idx) => (
                 <div
                   key={idx}
-                  className="bg-indigo-50/80 border border-indigo-200 rounded-xl p-4 relative overflow-hidden"
+                  className="bg-indigo-50/50 hover:bg-indigo-50/80 transition-colors border border-indigo-200/60 rounded-xl p-4 relative overflow-hidden group"
                 >
-                  <div className="absolute top-0 right-0 p-3 opacity-10">
-                    <Sparkles className="w-16 h-16 text-indigo-900" />
+                  <div className="absolute top-0 right-0 p-3 opacity-5 group-hover:opacity-10 transition-opacity">
+                    <Sparkles className="w-20 h-20 text-indigo-900" />
                   </div>
 
                   <div className="relative z-10">
-                    <div className="flex items-center gap-2 mb-2">
+                    <div className="flex items-center gap-2 mb-3">
                       <Badge
                         variant="outline"
-                        className="bg-white text-indigo-700 border-indigo-200 shadow-sm"
+                        className="bg-white/80 text-indigo-700 border-indigo-200 shadow-sm backdrop-blur-sm"
                       >
-                        Authentication Journey
+                        Recommendation
                       </Badge>
-                      <span className="text-xs text-indigo-600 font-medium">
-                        Based on their visit on{" "}
+                      <span className="text-xs text-indigo-600/80 font-medium">
+                        Based on visit{" "}
                         {format(new Date(flow.lastServiceDate), "MMM d")}
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-3 text-sm mb-3">
-                      <div className="flex flex-col opacity-60">
-                        <span className="text-[10px] uppercase tracking-wider font-semibold">
-                          Previous
-                        </span>
-                        <span className="font-medium line-through decoration-indigo-300">
-                          {flow.triggerServiceName}
-                        </span>
-                      </div>
-
-                      <ArrowRight className="w-4 h-4 text-indigo-400" />
-
+                    <div className="flex items-center gap-4 text-sm mb-4">
                       <div className="flex flex-col">
-                        <span className="text-[10px] uppercase tracking-wider font-semibold text-indigo-700">
-                          Recommended Next
+                        <span className="text-[10px] uppercase tracking-wider font-semibold text-indigo-700/70 mb-0.5">
+                          Suggested Service
                         </span>
-                        <span className="font-bold text-indigo-900 text-base">
+                        <span className="font-bold text-indigo-950 text-lg leading-tight">
                           {flow.suggestedServiceName}
                         </span>
                       </div>
                     </div>
 
                     <div className="flex items-center justify-between">
-                      <div className="text-xs">
+                      <div className="text-xs font-medium">
                         {(() => {
                           const today = new Date();
                           const dueDate = new Date(flow.dueDate);
-                          // Reset times for accurate day comparison
                           today.setHours(0, 0, 0, 0);
                           dueDate.setHours(0, 0, 0, 0);
 
@@ -487,15 +621,15 @@ export default function BookingForm({
                           const isOverdue = diffDays > 0;
 
                           return isOverdue ? (
-                            <span className="text-orange-600 font-semibold flex items-center gap-1 bg-orange-50 px-2 py-1 rounded-md border border-orange-100">
-                              <Calendar className="w-3 h-3" />
+                            <span className="text-orange-600 flex items-center gap-1.5 bg-orange-50 px-2.5 py-1.5 rounded-md border border-orange-100/50">
+                              <Calendar className="w-3.5 h-3.5" />
                               Overdue by {diffDays}{" "}
                               {diffDays === 1 ? "day" : "days"}
                             </span>
                           ) : (
-                            <span className="text-indigo-600 flex items-center gap-1">
-                              <Calendar className="w-3 h-3" />
-                              Due {format(dueDate, "MMM d, yyyy")}
+                            <span className="text-indigo-600 flex items-center gap-1.5 bg-indigo-100/50 px-2.5 py-1.5 rounded-md">
+                              <Calendar className="w-3.5 h-3.5" />
+                              Due {format(dueDate, "MMMM d")}
                             </span>
                           );
                         })()}
@@ -504,7 +638,7 @@ export default function BookingForm({
                       <Button
                         type="button"
                         size="sm"
-                        className="bg-indigo-600 hover:bg-indigo-700 text-white border-0 h-8 text-xs shadow-indigo-200 shadow-md"
+                        className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-200/50 shadow-lg transition-all active:scale-95"
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
@@ -528,16 +662,14 @@ export default function BookingForm({
                               serviceToAdd,
                             ]);
                             toast.success(
-                              `Added ${flow.suggestedServiceName} to booking`,
+                              `Added ${flow.suggestedServiceName}`,
+                              { icon: "✨" },
                             );
                           } else {
-                            toast.info(
-                              "This service is already in the booking",
-                            );
+                            toast.info("Already selected");
                           }
                         }}
                       >
-                        <Sparkles className="w-3 h-3 mr-1.5" />
                         Add to Booking
                       </Button>
                     </div>
@@ -547,254 +679,411 @@ export default function BookingForm({
             </div>
           )}
 
-          <FormField
-            control={form.control}
-            name="services"
-            render={() => (
-              <FormItem>
-                <FormLabel>Services</FormLabel>
-                <FormControl>
-                  <ServiceSelect
-                    form={form}
-                    services={services}
-                    packages={packages}
-                    categories={categories}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <SelectedServiceList form={form} />
+          {/* Service Selection */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold">
+                2
+              </span>
+              <h3 className="font-semibold text-lg tracking-tight">
+                Select Services
+              </h3>
+            </div>
+
+            <FormField
+              control={form.control}
+              name="services"
+              render={() => (
+                <FormItem>
+                  <FormControl>
+                    <ServiceSelect
+                      form={form}
+                      services={services}
+                      packages={packages}
+                      categories={categories}
+                      saleEvents={saleEvents}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <Separator className="bg-border/40" />
 
           {isEmployee && (
-            <div className="flex items-center space-x-2 bg-muted/30 p-3 rounded-lg border border-border/50">
-              <div className="flex-1">
-                <p className="text-sm font-medium">Walk-in / Immediate</p>
-                <p className="text-xs text-muted-foreground">
-                  Booking starts now. Skip scheduling.
+            <div className="flex items-center justify-between bg-secondary/30 p-4 rounded-xl border border-secondary">
+              <div className="flex-1 mr-4">
+                <p className="text-sm font-semibold text-foreground">
+                  Walk-in / Immediate
+                </p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Start booking immediately without scheduling
                 </p>
               </div>
               <div
-                className={`w-10 h-6 flex items-center rounded-full p-1 cursor-pointer transition-colors ${isWalkIn ? "bg-primary" : "bg-gray-300"}`}
+                className={cn(
+                  "w-12 h-7 flex items-center rounded-full p-1 cursor-pointer transition-colors duration-300",
+                  isWalkIn ? "bg-primary" : "bg-muted-foreground/30",
+                )}
                 onClick={handleWalkInToggle}
               >
                 <div
-                  className={`bg-white w-4 h-4 rounded-full shadow-md transform duration-300 ease-in-out ${isWalkIn ? "translate-x-4" : ""}`}
-                ></div>
+                  className={cn(
+                    "bg-white w-5 h-5 rounded-full shadow-sm transform duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]",
+                    isWalkIn ? "translate-x-5" : "translate-x-0",
+                  )}
+                />
               </div>
             </div>
           )}
 
-          {!isWalkIn && selectedServices.length > 0 && (
-            <FormField
-              control={form.control}
-              name="scheduledAt"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Select Date</FormLabel>
-                  <FormControl>
-                    <DatePicker
-                      value={field.value}
-                      onChange={(date) => {
-                        field.onChange(date);
-                        form.setValue("selectedTime", undefined);
-                      }}
-                      placeholder="Choose a date for your booking"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          )}
+          <div
+            className={cn(
+              "space-y-6 transition-all duration-300",
+              isWalkIn || selectedServices.length === 0
+                ? "opacity-50 grayscale pointer-events-none hidden"
+                : "opacity-100",
+            )}
+          >
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold">
+                  3
+                </span>
+                <h3 className="font-semibold text-lg tracking-tight">
+                  Date & Time
+                </h3>
+              </div>
 
-          {!isWalkIn && selectedDate && selectedServices.length > 0 && (
-            <FormField
-              control={form.control}
-              name="selectedTime"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Select Time</FormLabel>
-                  <FormControl>
-                    <TimeSlotPicker
-                      slots={timeSlots}
-                      value={field.value}
-                      onChange={field.onChange}
-                      isLoading={isLoadingSlots}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
+              <FormField
+                control={form.control}
+                name="scheduledAt"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mb-1">
+                      Date
+                    </FormLabel>
+                    <FormControl>
+                      <DatePicker
+                        value={field.value}
+                        onChange={(date) => {
+                          field.onChange(date);
+                          form.setValue("selectedTime", undefined);
+                        }}
+                        placeholder="Pick a date"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {selectedDate && (
+                <FormField
+                  control={form.control}
+                  name="selectedTime"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mb-1">
+                        Available Slots
+                      </FormLabel>
+                      <FormControl>
+                        <TimeSlotPicker
+                          slots={timeSlots}
+                          value={field.value}
+                          onChange={field.onChange}
+                          isLoading={isLoadingSlots}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               )}
-            />
-          )}
+            </div>
+          </div>
 
           {(isWalkIn || selectedTime) && !isEmployee && (
-            <FormField
-              control={form.control}
-              name="employeeId"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Preferred Staff (Optional)</FormLabel>
-                  <FormControl>
-                    <EmployeeSelect
-                      employees={employees}
-                      value={field.value}
-                      onChange={field.onChange}
-                      isLoading={isLoadingEmployees}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="space-y-4 animate-in fade-in slide-in-from-left-4 duration-500">
+              <Separator className="bg-border/40" />
+              <div className="flex items-center gap-2 mb-2">
+                <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold">
+                  4
+                </span>
+                <h3 className="font-semibold text-lg tracking-tight">
+                  Preferred Staff
+                </h3>
+              </div>
+
+              <FormField
+                control={form.control}
+                name="employeeId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <EmployeeSelect
+                        employees={employees}
+                        value={field.value}
+                        onChange={field.onChange}
+                        isLoading={isLoadingEmployees}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
           )}
 
           {(isWalkIn || selectedTime) &&
             isEmployee &&
             selectedServices.length > 0 && (
-              <Card>
-                <CardHeader className=" border-b  ">
-                  <CardTitle className="text-base flex items-center gap-2">
-                    <User className="size-4 text-primary" /> Claim Services
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="">
-                  <ServiceClaimSelector
-                    services={selectedServices.flatMap((s) =>
-                      Array.from({ length: s.quantity || 1 }).map((_, i) => ({
-                        id: s.id,
-                        uniqueId: `${s.id}-${i}`,
-                        name: s.name,
-                        price: s.price,
-                        duration: s.duration,
-                        quantity: 1,
-                      })),
-                    )}
-                    claimedUniqueIds={claimedUniqueIds}
-                    onChange={setClaimedUniqueIds}
-                  />
-                </CardContent>
-              </Card>
-            )}
-
-          {(isWalkIn || selectedTime) && selectedServices.length > 0 && (
-            <Card className="border-primary/20 shadow-sm overflow-hidden">
-              <CardHeader className=" flex flex-row items-center border-b space-y-0">
-                <CardTitle className="text-sm font-medium flex items-center gap-2 text-foreground">
-                  <Wallet className="size-4 text-primary" /> Payment Details
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6 pt-6 px-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <FormField
-                    control={form.control}
-                    name="paymentMethod"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
-                          Payment Method
-                        </FormLabel>
-                        <FormControl>
-                          <SegmentedToggle
-                            options={paymentMethodOptions}
-                            value={field.value}
-                            onChange={field.onChange}
-                            className="w-full"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="paymentType"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
-                          Payment Type
-                        </FormLabel>
-                        <FormControl>
-                          <SegmentedToggle
-                            options={paymentTypeOptions}
-                            value={field.value}
-                            onChange={field.onChange}
-                            className="w-full"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+              <div className="space-y-4 animate-in fade-in slide-in-from-left-4 duration-500">
+                <Separator className="bg-border/40" />
+                <div className="flex items-center gap-2 mb-2">
+                  <User className="size-5 text-primary" />
+                  <h3 className="font-semibold text-lg tracking-tight">
+                    Claim Services
+                  </h3>
                 </div>
 
-                <div className="bg-muted/30 rounded-xl p-4 border border-border/50 space-y-3">
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-muted-foreground">Subtotal</span>
-                    <span className="font-medium">
-                      ₱{total.toLocaleString()}
-                    </span>
-                  </div>
-
-                  {paymentType === "DOWNPAYMENT" && (
-                    <>
-                      <div className="flex justify-between items-center text-sm text-green-600">
-                        <span className="flex items-center gap-1.5">
-                          <Badge
-                            variant="outline"
-                            className="text-[10px] px-1.5 py-0 h-4 border-green-200 bg-green-50 text-green-700"
-                          >
-                            50% OFF FRONT
-                          </Badge>
-                          Downpayment
-                        </span>
-                        <span>- ₱{(total - amountToPay).toLocaleString()}</span>
-                      </div>
-                      <Separator className="my-2 bg-border/60" />
-                      <div className="flex justify-between items-center text-sm text-muted-foreground">
-                        <span>Remaining Balance (Pay at Store)</span>
-                        <span>₱{(total - amountToPay).toLocaleString()}</span>
-                      </div>
-                    </>
-                  )}
-
-                  <Separator className="my-2" />
-
-                  <div className="flex justify-between items-end pt-1">
-                    <div>
-                      <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold mb-0.5">
-                        Total Amount Due
-                      </p>
-                      {paymentType === "DOWNPAYMENT" && (
-                        <p className="text-[10px] text-muted-foreground">
-                          Initial payment required
-                        </p>
+                <Card className="bg-card/50">
+                  <CardContent className="pt-6">
+                    <ServiceClaimSelector
+                      services={selectedServices.flatMap((s) =>
+                        Array.from({
+                          length: Math.floor(Number(s.quantity) || 1),
+                        }).map((_, i) => ({
+                          id: s.id,
+                          uniqueId: `${s.id}-${s.packageId ? `pkg${s.packageId}` : "std"}-${i}`,
+                          name: s.name,
+                          price: s.price,
+                          duration: s.duration,
+                          quantity: 1,
+                        })),
                       )}
-                    </div>
-                    <div className="text-2xl font-bold text-primary">
-                      ₱{amountToPay.toLocaleString()}
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          )}
+                      claimedUniqueIds={claimedUniqueIds}
+                      onChange={setClaimedUniqueIds}
+                    />
+                  </CardContent>
+                </Card>
+              </div>
+            )}
         </div>
 
-        <div className="flex justify-end pt-4 border-t mt-4">
-          <Button
-            disabled={isPending || (!selectedTime && !isWalkIn)}
-            type="submit"
-          >
-            {isPending
-              ? "Processing..."
-              : paymentMethod === "CASH"
-                ? "Confirm Booking"
-                : "Reserve & Pay"}
-          </Button>
+        <div className="w-full lg:w-[380px] xl:w-[420px] shrink-0">
+          <div className="lg:sticky lg:top-8 space-y-4">
+            <Card className="border shadow-lg shadow-black/5 overflow-hidden">
+              <CardHeader className="bg-muted/30 pb-4 border-b">
+                <CardTitle className="flex items-center justify-between text-base">
+                  <span>Booking Summary</span>
+                  {selectedServices.length > 0 && (
+                    <Badge variant="secondary" className="font-normal text-xs">
+                      {selectedServices.length} items
+                    </Badge>
+                  )}
+                </CardTitle>
+              </CardHeader>
+
+              <CardContent className="space-y-6 pt-6">
+                <div className="max-h-[300px] overflow-y-auto pr-1 -mr-2">
+                  <SelectedServiceList
+                    form={form}
+                    saleEvents={saleEvents}
+                    services={selectedServices}
+                  />
+                </div>
+
+                {selectedServices.length > 0 && (
+                  <div className="space-y-6 animate-in fade-in zoom-in-95 duration-300">
+                    <Separator />
+
+                    {(isWalkIn || selectedTime) && (
+                      <div className="space-y-4">
+                        <FormField
+                          control={form.control}
+                          name="paymentMethod"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
+                                Payment Method
+                              </FormLabel>
+                              <FormControl>
+                                <SegmentedToggle
+                                  options={paymentMethodOptions}
+                                  value={field.value}
+                                  onChange={field.onChange}
+                                  className="w-full"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="paymentType"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
+                                Payment Type
+                              </FormLabel>
+                              <FormControl>
+                                <SegmentedToggle
+                                  options={paymentTypeOptions}
+                                  value={field.value}
+                                  onChange={field.onChange}
+                                  className="w-full"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <div className="pt-2">
+                          <div className="flex gap-2">
+                            <Input
+                              placeholder="VOUCHER CODE"
+                              className="uppercase font-mono text-sm tracking-widest placeholder:tracking-normal placeholder:font-sans placeholder:capitalize"
+                              value={voucherCode}
+                              onChange={(e) => setVoucherCode(e.target.value)}
+                              disabled={!!appliedVoucher}
+                            />
+                            {appliedVoucher ? (
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="icon"
+                                onClick={clearVoucher}
+                                className="shrink-0 text-red-500 border-red-200 hover:bg-red-50 hover:text-red-600 transition-colors"
+                              >
+                                <X className="size-4" />
+                              </Button>
+                            ) : (
+                              <Button
+                                type="button"
+                                variant="secondary"
+                                onClick={handleVerifyVoucher}
+                                disabled={
+                                  isVerifyingVoucher || !voucherCode.trim()
+                                }
+                                className="shrink-0 font-medium"
+                              >
+                                {isVerifyingVoucher ? "..." : "Apply"}
+                              </Button>
+                            )}
+                          </div>
+
+                          {voucherError && (
+                            <p className="text-xs text-red-500 font-medium mt-1.5 animate-in slide-in-from-left-1">
+                              {voucherError}
+                            </p>
+                          )}
+
+                          {appliedVoucher && (
+                            <div className="flex items-center gap-2 text-xs text-green-700 bg-green-50 px-3 py-2 rounded-md border border-green-200 mt-2">
+                              <Ticket className="size-3.5" />
+                              <span className="font-semibold">
+                                {appliedVoucher.code}
+                              </span>
+                              <span className="ml-auto font-bold tabular-nums">
+                                -₱
+                                {appliedVoucher.discountAmount.toLocaleString()}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="bg-muted/40 -mx-6 -mb-6 px-6 py-4 border-t space-y-3">
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="text-muted-foreground">Subtotal</span>
+                        <span className="font-medium tabular-nums">
+                          ₱{total.toLocaleString()}
+                        </span>
+                      </div>
+
+                      {appliedVoucher && (
+                        <div className="flex justify-between items-center text-sm text-green-600">
+                          <span className="flex items-center gap-1.5">
+                            <Ticket className="w-3.5 h-3.5" /> Voucher Discount
+                          </span>
+                          <span className="font-medium tabular-nums">
+                            - ₱{appliedVoucher.discountAmount.toLocaleString()}
+                          </span>
+                        </div>
+                      )}
+
+                      {paymentType === "DOWNPAYMENT" &&
+                        (isWalkIn || selectedTime) && (
+                          <>
+                            <div className="flex justify-between items-center text-sm text-emerald-600">
+                              <span className="flex items-center gap-1.5">
+                                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                                Downpayment (50%)
+                              </span>
+                              <span className="font-medium tabular-nums">
+                                - ₱
+                                {(
+                                  finalTotal - finalAmountToPay
+                                ).toLocaleString()}
+                              </span>
+                            </div>
+                            <Separator className="my-1 border-dashed" />
+                            <div className="flex justify-between items-center text-xs text-muted-foreground opacity-80">
+                              <span>Balance (Pay later)</span>
+                              <span className="tabular-nums">
+                                ₱
+                                {(
+                                  finalTotal - finalAmountToPay
+                                ).toLocaleString()}
+                              </span>
+                            </div>
+                          </>
+                        )}
+
+                      <Separator className="bg-border/60" />
+
+                      <div className="flex justify-between items-end">
+                        <div>
+                          <p className="text-xs text-muted-foreground uppercase tracking-wider font-bold mb-0.5">
+                            {paymentType === "DOWNPAYMENT"
+                              ? "Due Now"
+                              : "Total Amount"}
+                          </p>
+                        </div>
+                        <div className="text-2xl font-bold text-primary tabular-nums tracking-tight">
+                          ₱{finalAmountToPay.toLocaleString()}
+                        </div>
+                      </div>
+
+                      <Button
+                        disabled={
+                          isPending ||
+                          (!selectedTime && !isWalkIn) ||
+                          selectedServices.length === 0
+                        }
+                        type="submit"
+                        size="lg"
+                        className="w-full font-semibold shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all active:scale-[0.98]"
+                      >
+                        {isPending
+                          ? "Processing..."
+                          : paymentMethod === "CASH"
+                            ? "Confirm Booking"
+                            : "Reserve & Pay"}
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </form>
     </Form>

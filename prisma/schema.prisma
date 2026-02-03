@@ -34,6 +34,7 @@ model Business {
   leave_requests LeaveRequest[]
   business_hours BusinessHours[]
   service_flows ServiceFlow[]
+  commission_calculation_basis CommissionCalculationBasis @default(ORIGINAL_PRICE)
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -439,4 +440,9 @@ enum FlowDelayUnit {
 enum FlowType {
   REQUIRED   // "Part of a process" - User expects this to happen
   SUGGESTED  // "Recommendation" - User might want this
+}
+
+enum CommissionCalculationBasis {
+  ORIGINAL_PRICE
+  DISCOUNTED_PRICE
 }

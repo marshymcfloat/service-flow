@@ -1799,6 +1799,7 @@ export const BusinessScalarFieldEnum = {
   initials: 'initials',
   latitude: 'latitude',
   longitude: 'longitude',
+  commission_calculation_basis: 'commission_calculation_basis',
   created_at: 'created_at',
   updated_at: 'updated_at'
 } as const
@@ -2114,6 +2115,20 @@ export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, '
  * Reference to a field of type 'Float[]'
  */
 export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
+    
+
+
+/**
+ * Reference to a field of type 'CommissionCalculationBasis'
+ */
+export type EnumCommissionCalculationBasisFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CommissionCalculationBasis'>
+    
+
+
+/**
+ * Reference to a field of type 'CommissionCalculationBasis[]'
+ */
+export type ListEnumCommissionCalculationBasisFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CommissionCalculationBasis[]'>
     
 
 

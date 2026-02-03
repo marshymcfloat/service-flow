@@ -25,16 +25,20 @@ type PackageWithItems = ServicePackage & {
   items: (PackageItem & { service: Service })[];
 };
 
+import { getApplicableDiscount } from "@/lib/utils/pricing";
+
 const ServiceSelect = React.memo(function ServiceSelect({
   services,
   packages = [],
   categories,
   form,
+  saleEvents = [],
 }: {
   services: Service[];
   packages?: PackageWithItems[];
   categories: string[];
   form: UseFormReturn<any>;
+  saleEvents?: any[];
 }) {
   const [open, setOpen] = React.useState(false);
   const [selectedCategory, setSelectedCategory] = React.useState<string>("all");
@@ -59,7 +63,23 @@ const ServiceSelect = React.memo(function ServiceSelect({
         (s) => s.id !== service.id || s.packageId,
       );
     } else {
-      newServices = [...selectedServices, { ...service, quantity: 1 }];
+      const discountInfo = getApplicableDiscount(
+        service.id,
+        undefined,
+        service.price,
+        saleEvents,
+      );
+      newServices = [
+        ...selectedServices,
+        {
+          ...service,
+          quantity: 1,
+          price: discountInfo ? discountInfo.finalPrice : service.price,
+          originalPrice: service.price,
+          discount: discountInfo ? discountInfo.discount : 0,
+          discountReason: discountInfo ? discountInfo.reason : null,
+        },
+      ];
     }
     form.setValue("services", newServices);
   };
@@ -77,14 +97,37 @@ const ServiceSelect = React.memo(function ServiceSelect({
     if (isPackageSelected) {
       newServices = newServices.filter((s) => s.packageId !== pkg.id);
     } else {
+      // Check if package itself has a discount (based on pkg.id)
+      const pkgDiscountInfo = getApplicableDiscount(
+        0, // serviceId irrelevant
+        pkg.id,
+        pkg.price,
+        saleEvents,
+      );
+
+      // Calculate per-item discount proportional to item price
+      // OR just apply discount logic per item if event applies to items?
+      // Requirement: Sale event applies to SERVICE or PACKAGE.
+      // If applies to PACKAGE, the total package price is discounted.
+      // We need to distribute this discount across items or just flag entries?
+      // Best approach: If package is discounted, scale down item prices.
+
+      const ratio = pkgDiscountInfo
+        ? pkgDiscountInfo.finalPrice / pkg.price
+        : 1;
+
       pkg.items.forEach((item) => {
         newServices.push({
           ...item.service,
-          price: item.custom_price,
-          originalPrice: item.service.price,
+          price: item.custom_price * ratio,
+          originalPrice: item.service.price, // Or item.custom_price? Usually custom_price is the package rate.
           quantity: 1,
           packageId: pkg.id,
           packageName: pkg.name,
+          discount: pkgDiscountInfo
+            ? item.custom_price - item.custom_price * ratio
+            : 0,
+          discountReason: pkgDiscountInfo ? pkgDiscountInfo.reason : null,
         });
       });
     }
@@ -174,27 +217,83 @@ const ServiceSelect = React.memo(function ServiceSelect({
                     const isSelected = selectedServices.some(
                       (s) => s.id === service.id && !s.packageId,
                     );
+                    const discountInfo = getApplicableDiscount(
+                      service.id,
+                      undefined,
+                      service.price,
+                      saleEvents,
+                    );
+
                     return (
                       <CommandItem
                         key={service.id}
                         value={service.name}
                         onSelect={() => toggleService(service)}
+                        className="cursor-pointer aria-selected:bg-primary/5"
                       >
-                        <Check
-                          className={cn(
-                            "mr-2 h-4 w-4",
-                            isSelected ? "opacity-100" : "opacity-0",
-                          )}
-                        />
-                        <div className="flex flex-col">
-                          <span>{service.name}</span>
-                          <span className="text-xs text-muted-foreground capitalize">
-                            {service.category}
-                          </span>
+                        <div className="flex items-start gap-3 w-full">
+                          <div
+                            className={cn(
+                              "flex items-center justify-center w-4 h-4 mt-1 rounded-sm border transition-colors",
+                              isSelected
+                                ? "bg-primary border-primary text-primary-foreground"
+                                : "border-muted-foreground/30",
+                            )}
+                          >
+                            <Check
+                              className={cn(
+                                "h-3 w-3",
+                                isSelected ? "opacity-100" : "opacity-0",
+                              )}
+                            />
+                          </div>
+
+                          <div className="flex flex-col flex-1 gap-1">
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium text-foreground">
+                                {service.name}
+                              </span>
+                              {discountInfo && (
+                                <Badge
+                                  variant="secondary"
+                                  className="h-4 px-1 text-[10px] bg-destructive/10 text-destructive border-destructive/20 shadow-none"
+                                >
+                                  sale
+                                </Badge>
+                              )}
+                            </div>
+                            <span className="text-xs text-muted-foreground capitalize">
+                              {service.category}
+                            </span>
+                          </div>
+
+                          <div className="flex flex-col items-end gap-0.5">
+                            {discountInfo ? (
+                              <>
+                                <span className="text-sm font-semibold text-destructive tabular-nums">
+                                  ₱
+                                  {discountInfo.finalPrice.toLocaleString(
+                                    undefined,
+                                    { minimumFractionDigits: 2 },
+                                  )}
+                                </span>
+                                <span className="text-[10px] text-muted-foreground line-through tabular-nums">
+                                  ₱
+                                  {service.price.toLocaleString(undefined, {
+                                    minimumFractionDigits: 2,
+                                  })}
+                                </span>
+                              </>
+                            ) : (
+                              <span className="text-sm font-medium text-foreground/80 tabular-nums">
+                                ₱
+                                {service.price.toLocaleString(undefined, {
+                                  minimumFractionDigits: 2,
+                                })}
+                              </span>
+                            )}
+                          </div>
                         </div>
-                        <span className="ml-auto text-muted-foreground text-xs">
-                          ₱{service.price.toFixed(2)}
-                        </span>
                       </CommandItem>
                     );
                   })
@@ -205,59 +304,115 @@ const ServiceSelect = React.memo(function ServiceSelect({
                           s.id === item.service.id && s.packageId === pkg.id,
                       ),
                     );
+
+                    const discountInfo = getApplicableDiscount(
+                      0,
+                      pkg.id,
+                      pkg.price,
+                      saleEvents,
+                    );
+
                     return (
                       <CommandItem
                         key={pkg.id}
                         value={pkg.name}
                         onSelect={() => togglePackage(pkg)}
+                        className="cursor-pointer aria-selected:bg-primary/5"
                       >
-                        <Check
-                          className={cn(
-                            "mr-2 h-4 w-4",
-                            isSelected ? "opacity-100" : "opacity-0",
-                          )}
-                        />
-                        <div className="flex flex-col flex-1">
-                          <div className="flex items-center gap-2">
-                            <PackageIcon className="h-3 w-3 text-primary" />
-                            <span>{pkg.name}</span>
+                        <div className="flex items-start gap-3 w-full">
+                          <div
+                            className={cn(
+                              "flex items-center justify-center w-4 h-4 mt-1 rounded-sm border transition-colors",
+                              isSelected
+                                ? "bg-primary border-primary text-primary-foreground"
+                                : "border-muted-foreground/30",
+                            )}
+                          >
+                            <Check
+                              className={cn(
+                                "h-3 w-3",
+                                isSelected ? "opacity-100" : "opacity-0",
+                              )}
+                            />
                           </div>
 
-                          <div className="flex flex-wrap gap-1 mt-1">
-                            {pkg.items.slice(0, 2).map((item) => (
-                              <Badge
-                                key={item.service_id}
-                                variant="secondary"
-                                className="text-[10px] px-1 py-0 h-4 font-normal"
-                              >
-                                {item.service.name}
-                              </Badge>
-                            ))}
-                            {pkg.items.length > 2 && (
-                              <span className="text-[10px] text-muted-foreground">
-                                +{pkg.items.length - 2} more
+                          <div className="flex flex-col flex-1 gap-1.5">
+                            <div className="flex items-center gap-2">
+                              <div className="flex items-center justify-center w-5 h-5 rounded-full bg-primary/10 text-primary">
+                                <PackageIcon className="h-3 w-3" />
+                              </div>
+                              <span className="font-semibold text-foreground">
+                                {pkg.name}
+                              </span>
+                              {discountInfo && (
+                                <Badge
+                                  variant="secondary"
+                                  className="h-4 px-1 text-[10px] bg-destructive/10 text-destructive border-destructive/20 shadow-none"
+                                >
+                                  sale
+                                </Badge>
+                              )}
+                            </div>
+
+                            <div className="flex flex-wrap gap-1">
+                              {pkg.items.slice(0, 3).map((item) => (
+                                <span
+                                  key={item.service_id}
+                                  className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] bg-muted text-muted-foreground border border-border"
+                                >
+                                  {item.service.name}
+                                </span>
+                              ))}
+                              {pkg.items.length > 3 && (
+                                <span className="text-[10px] text-muted-foreground self-center">
+                                  +{pkg.items.length - 3} more
+                                </span>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="flex flex-col items-end gap-0.5">
+                            {discountInfo ? (
+                              <>
+                                <span className="text-sm font-semibold text-destructive tabular-nums">
+                                  ₱
+                                  {discountInfo.finalPrice.toLocaleString(
+                                    undefined,
+                                    { minimumFractionDigits: 2 },
+                                  )}
+                                </span>
+                                <span className="text-[10px] text-muted-foreground line-through tabular-nums">
+                                  ₱
+                                  {pkg.price.toLocaleString(undefined, {
+                                    minimumFractionDigits: 2,
+                                  })}
+                                </span>
+                              </>
+                            ) : (
+                              <span className="text-sm font-medium text-foreground/80 tabular-nums">
+                                ₱
+                                {pkg.price.toLocaleString(undefined, {
+                                  minimumFractionDigits: 2,
+                                })}
                               </span>
                             )}
-                          </div>
-                        </div>
-                        <div className="ml-auto flex flex-col items-end">
-                          <span className="font-medium text-xs">
-                            ₱{pkg.price.toLocaleString()}
-                          </span>
-                          {(() => {
-                            const original = pkg.items.reduce(
-                              (sum, item) => sum + item.service.price,
-                              0,
-                            );
-                            if (original > pkg.price) {
-                              return (
-                                <span className="text-[10px] text-muted-foreground line-through">
-                                  ₱{original.toLocaleString()}
-                                </span>
+                            {(() => {
+                              if (discountInfo) return null;
+                              const original = pkg.items.reduce(
+                                (sum, item) => sum + item.service.price,
+                                0,
                               );
-                            }
-                            return null;
-                          })()}
+                              if (original > pkg.price) {
+                                return (
+                                  <span className="text-[10px] text-green-600 font-medium bg-green-50 px-1 rounded-sm">
+                                    Save ₱
+                                    {(original - pkg.price).toLocaleString()}
+                                  </span>
+                                );
+                              }
+                              return null;
+                            })()}
+                          </div>
                         </div>
                       </CommandItem>
                     );

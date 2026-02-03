@@ -123,6 +123,7 @@ export async function POST(req: Request) {
       currentEmployeeId: currentEmployeeIdStr,
       paymentMethod,
       paymentType,
+      voucherCode,
     } = metadata;
 
     if (!businessSlug) {
@@ -152,6 +153,7 @@ export async function POST(req: Request) {
       currentEmployeeId,
       paymentMethod: paymentMethod as "QRPH",
       paymentType: paymentType as "FULL" | "DOWNPAYMENT",
+      voucherCode,
     });
 
     console.log(

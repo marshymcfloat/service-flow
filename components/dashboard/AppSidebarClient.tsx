@@ -13,6 +13,7 @@ import {
   Calendar,
   ChevronRight,
   Sparkles,
+  Percent,
   type LucideIcon,
 } from "lucide-react";
 import Link from "next/link";
@@ -81,6 +82,11 @@ export function AppSidebarClient({ businessSlug, user }: SidebarProps) {
         { title: "Services", url: `/app/${slug}/services`, icon: Box },
         { title: "Packages", url: `/app/${slug}/packages`, icon: Package },
         { title: "Vouchers", url: `/app/${slug}/vouchers`, icon: Ticket },
+        {
+          title: "Sale Events",
+          url: `/app/${slug}/sale-events`,
+          icon: Percent,
+        },
       ],
     },
     {

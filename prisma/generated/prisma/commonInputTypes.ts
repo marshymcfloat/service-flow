@@ -40,6 +40,13 @@ export type FloatNullableFilter<$PrismaModel = never> = {
   not?: Prisma.NestedFloatNullableFilter<$PrismaModel> | number | null
 }
 
+export type EnumCommissionCalculationBasisFilter<$PrismaModel = never> = {
+  equals?: $Enums.CommissionCalculationBasis | Prisma.EnumCommissionCalculationBasisFieldRefInput<$PrismaModel>
+  in?: $Enums.CommissionCalculationBasis[] | Prisma.ListEnumCommissionCalculationBasisFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CommissionCalculationBasis[] | Prisma.ListEnumCommissionCalculationBasisFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCommissionCalculationBasisFilter<$PrismaModel> | $Enums.CommissionCalculationBasis
+}
+
 export type DateTimeFilter<$PrismaModel = never> = {
   equals?: Date | string | Prisma.DateTimeFieldRefInput<$PrismaModel>
   in?: Date[] | string[] | Prisma.ListDateTimeFieldRefInput<$PrismaModel>
@@ -88,6 +95,16 @@ export type FloatNullableWithAggregatesFilter<$PrismaModel = never> = {
   _sum?: Prisma.NestedFloatNullableFilter<$PrismaModel>
   _min?: Prisma.NestedFloatNullableFilter<$PrismaModel>
   _max?: Prisma.NestedFloatNullableFilter<$PrismaModel>
+}
+
+export type EnumCommissionCalculationBasisWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CommissionCalculationBasis | Prisma.EnumCommissionCalculationBasisFieldRefInput<$PrismaModel>
+  in?: $Enums.CommissionCalculationBasis[] | Prisma.ListEnumCommissionCalculationBasisFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CommissionCalculationBasis[] | Prisma.ListEnumCommissionCalculationBasisFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCommissionCalculationBasisWithAggregatesFilter<$PrismaModel> | $Enums.CommissionCalculationBasis
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCommissionCalculationBasisFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCommissionCalculationBasisFilter<$PrismaModel>
 }
 
 export type DateTimeWithAggregatesFilter<$PrismaModel = never> = {
@@ -485,6 +502,13 @@ export type NestedFloatNullableFilter<$PrismaModel = never> = {
   not?: Prisma.NestedFloatNullableFilter<$PrismaModel> | number | null
 }
 
+export type NestedEnumCommissionCalculationBasisFilter<$PrismaModel = never> = {
+  equals?: $Enums.CommissionCalculationBasis | Prisma.EnumCommissionCalculationBasisFieldRefInput<$PrismaModel>
+  in?: $Enums.CommissionCalculationBasis[] | Prisma.ListEnumCommissionCalculationBasisFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CommissionCalculationBasis[] | Prisma.ListEnumCommissionCalculationBasisFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCommissionCalculationBasisFilter<$PrismaModel> | $Enums.CommissionCalculationBasis
+}
+
 export type NestedDateTimeFilter<$PrismaModel = never> = {
   equals?: Date | string | Prisma.DateTimeFieldRefInput<$PrismaModel>
   in?: Date[] | string[] | Prisma.ListDateTimeFieldRefInput<$PrismaModel>
@@ -549,6 +573,16 @@ export type NestedIntNullableFilter<$PrismaModel = never> = {
   gt?: number | Prisma.IntFieldRefInput<$PrismaModel>
   gte?: number | Prisma.IntFieldRefInput<$PrismaModel>
   not?: Prisma.NestedIntNullableFilter<$PrismaModel> | number | null
+}
+
+export type NestedEnumCommissionCalculationBasisWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CommissionCalculationBasis | Prisma.EnumCommissionCalculationBasisFieldRefInput<$PrismaModel>
+  in?: $Enums.CommissionCalculationBasis[] | Prisma.ListEnumCommissionCalculationBasisFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CommissionCalculationBasis[] | Prisma.ListEnumCommissionCalculationBasisFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCommissionCalculationBasisWithAggregatesFilter<$PrismaModel> | $Enums.CommissionCalculationBasis
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCommissionCalculationBasisFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCommissionCalculationBasisFilter<$PrismaModel>
 }
 
 export type NestedDateTimeWithAggregatesFilter<$PrismaModel = never> = {

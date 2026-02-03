@@ -11,11 +11,13 @@ import {
   Service,
   Employee,
   User,
+  Voucher,
 } from "@/prisma/generated/prisma/client";
 import { BookingList } from "./BookingList";
 
 type BookingWithDetails = Booking & {
   customer: Customer;
+  vouchers: Voucher[];
   availed_services: (AvailedService & {
     service: Service;
     served_by: (Employee & { user: User }) | null;
@@ -67,7 +69,7 @@ export default function OwnerDashboard({
         </div>
       </header>
 
-      <main className="max-w-400 mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-8 space-y-8">
+      <main className="max-w-400 mx-auto px-4 sm:px-6 lg:px-8 pt-12 md:pt-24 pb-8 space-y-8">
         <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <DashboardCard
             variant="filled"

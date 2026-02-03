@@ -37,6 +37,7 @@ export const createBookingSchema = z
         (val) => !val || val === "" || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val),
         { message: "Invalid email address" },
       ),
+    voucherCode: z.string().optional(),
   })
   .refine((data) => data.customerId || data.customerName, {
     message: "Please select an existing customer or enter a new customer name",

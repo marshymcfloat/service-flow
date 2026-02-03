@@ -41,7 +41,7 @@ export default function TimeSlotPicker({
   }
 
   return (
-    <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 max-h-[300px] overflow-y-auto p-1">
+    <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 max-h-[300px] overflow-y-auto p-1">
       {slots.map((slot) => {
         const isSelected =
           value && slot.startTime.getTime() === value.getTime();
@@ -60,18 +60,22 @@ export default function TimeSlotPicker({
             disabled={!slot.available}
             onClick={() => onChange(slot.startTime)}
             className={cn(
-              "h-auto py-2 px-3 flex flex-col items-center gap-1",
-              !slot.available && "opacity-50 cursor-not-allowed",
-              isSelected && "ring-2 ring-primary ring-offset-2",
+              "h-auto py-3 px-2 flex flex-col items-center gap-1.5 transition-all duration-200",
+              !slot.available && "opacity-40 cursor-not-allowed bg-muted/50",
+              isSelected
+                ? "shadow-md ring-2 ring-primary/20 ring-offset-1 scale-[1.02]"
+                : "hover:border-primary/50 hover:bg-primary/5 bg-card",
               availabilityLevel === "high" &&
                 !isSelected &&
-                "border-green-500/50 hover:border-green-500",
-              availabilityLevel === "medium" &&
-                !isSelected &&
-                "border-yellow-500/50 hover:border-yellow-500",
+                "border-green-500/30 hover:border-green-500/60 hover:bg-green-50/10",
             )}
           >
-            <span className="font-semibold text-sm">
+            <span
+              className={cn(
+                "font-bold text-sm tracking-tight",
+                isSelected ? "text-primary-foreground" : "text-foreground",
+              )}
+            >
               {new Date(slot.startTime).toLocaleTimeString("en-US", {
                 timeZone: "Asia/Manila",
                 hour: "numeric",
@@ -81,14 +85,16 @@ export default function TimeSlotPicker({
             </span>
             <span
               className={cn(
-                "text-xs flex items-center gap-1",
+                "text-[10px] uppercase tracking-wider font-medium flex items-center gap-1",
                 isSelected
-                  ? "text-primary-foreground/70"
-                  : "text-muted-foreground",
+                  ? "text-primary-foreground/80"
+                  : availabilityLevel === "high"
+                    ? "text-green-600"
+                    : "text-muted-foreground",
               )}
             >
-              <Users className="h-3 w-3" />
-              {slot.availableEmployeeCount}
+              {slot.availableEmployeeCount}{" "}
+              {slot.availableEmployeeCount === 1 ? "Staff" : "Staffs"}
             </span>
           </Button>
         );

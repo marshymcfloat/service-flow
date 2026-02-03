@@ -94,6 +94,7 @@ export const BusinessScalarFieldEnum = {
   initials: 'initials',
   latitude: 'latitude',
   longitude: 'longitude',
+  commission_calculation_basis: 'commission_calculation_basis',
   created_at: 'created_at',
   updated_at: 'updated_at'
 } as const

@@ -153,3 +153,87 @@ export async function generateVoucherCodeAction() {
     return { success: false, error: "Failed to generate code" };
   }
 }
+
+export type VerifyVoucherResult = {
+  success: boolean;
+  error?: string;
+  data?: {
+    id: number;
+    code: string;
+    type: "PERCENTAGE" | "FLAT";
+    value: number;
+    discountAmount: number;
+    finalPrice: number;
+    minAmount: number;
+  };
+};
+
+export async function verifyVoucherAction(
+  code: string,
+  businessSlug: string,
+  currentTotal: number,
+): Promise<VerifyVoucherResult> {
+  try {
+    const voucher = await prisma.voucher.findUnique({
+      where: { code },
+      include: {
+        business: true,
+        used_by: true,
+      },
+    });
+
+    if (!voucher) {
+      return { success: false, error: "Voucher code not found" };
+    }
+
+    if (voucher.business.slug !== businessSlug) {
+      return { success: false, error: "Invalid voucher for this business" };
+    }
+
+    if (!voucher.is_active) {
+      return { success: false, error: "Voucher is inactive" };
+    }
+
+    if (new Date() > voucher.expires_at) {
+      return { success: false, error: "Voucher has expired" };
+    }
+
+    if (voucher.used_by) {
+      return { success: false, error: "Voucher has already been used" };
+    }
+
+    if (currentTotal < voucher.minimum_amount) {
+      return {
+        success: false,
+        error: `Minimum spend of ${voucher.minimum_amount} required`,
+      };
+    }
+
+    let discountAmount = 0;
+    if (voucher.type === "PERCENTAGE") {
+      discountAmount = (currentTotal * voucher.value) / 100;
+    } else {
+      discountAmount = voucher.value;
+    }
+
+    // Ensure discount doesn't exceed total
+    discountAmount = Math.min(discountAmount, currentTotal);
+    const finalPrice = currentTotal - discountAmount;
+
+    return {
+      success: true,
+      data: {
+        id: voucher.id,
+        code: voucher.code,
+        type: voucher.type,
+        value: voucher.value,
+        discountAmount,
+        finalPrice,
+        minAmount: voucher.minimum_amount,
+      },
+    };
+  } catch (error) {
+    console.error("Error verifying voucher:", error);
+    return { success: false, error: "Failed to verify voucher" };
+  }
+}

@@ -16,6 +16,7 @@ import {
   Employee,
   BookingStatus,
   User,
+  Voucher,
 } from "@/prisma/generated/prisma/client";
 import {
   Calendar,
@@ -32,6 +33,7 @@ import { cn } from "@/lib/utils";
 
 type BookingWithDetails = Booking & {
   customer: Customer;
+  vouchers: Voucher[];
   availed_services: (AvailedService & {
     service: Service;
     served_by: (Employee & { user: User }) | null;
@@ -210,9 +212,25 @@ export function BookingDetailsDialog({
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-zinc-500 font-medium">Subtotal</span>
                   <span className="font-semibold text-zinc-900">
-                    ₱{booking.grand_total.toLocaleString()}
+                    ₱
+                    {(
+                      booking.grand_total + booking.total_discount
+                    ).toLocaleString()}
                   </span>
                 </div>
+                {booking.total_discount > 0 && (
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-emerald-600 font-medium flex items-center gap-1.5">
+                      Discount{" "}
+                      {booking.vouchers.length > 0
+                        ? `(${booking.vouchers[0].code})`
+                        : ""}
+                    </span>
+                    <span className="font-semibold text-emerald-700">
+                      -₱{booking.total_discount.toLocaleString()}
+                    </span>
+                  </div>
+                )}
                 {booking.downpayment && booking.downpayment > 0 && (
                   <div className="flex justify-between items-center text-sm">
                     <span className="text-emerald-600 font-medium flex items-center gap-1.5">

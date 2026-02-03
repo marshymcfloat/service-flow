@@ -76,6 +76,7 @@ export default async function OwnerDashboardDataContainer({
           },
         },
       },
+      vouchers: true,
     },
     orderBy: {
       created_at: "desc",

@@ -105,3 +105,11 @@ export const FlowType = {
 } as const
 
 export type FlowType = (typeof FlowType)[keyof typeof FlowType]
+
+
+export const CommissionCalculationBasis = {
+  ORIGINAL_PRICE: 'ORIGINAL_PRICE',
+  DISCOUNTED_PRICE: 'DISCOUNTED_PRICE'
+} as const
+
+export type CommissionCalculationBasis = (typeof CommissionCalculationBasis)[keyof typeof CommissionCalculationBasis]

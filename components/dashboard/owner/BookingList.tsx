@@ -10,6 +10,7 @@ import {
   Service,
   Employee,
   User,
+  Voucher,
 } from "@/prisma/generated/prisma/client";
 import {
   Card,
@@ -76,6 +77,7 @@ import {
 
 type BookingWithDetails = Booking & {
   customer: Customer;
+  vouchers: Voucher[];
   availed_services: (AvailedService & {
     service: Service;
     served_by: (Employee & { user: User }) | null;
@@ -242,9 +244,31 @@ export function BookingList({ bookings }: { bookings: BookingWithDetails[] }) {
                       <span className="text-[10px] text-zinc-400 uppercase tracking-wider font-semibold">
                         Total
                       </span>
-                      <span className="text-sm font-bold text-zinc-900">
-                        ₱{booking.grand_total.toLocaleString()}
-                      </span>
+                      <div className="flex flex-col items-start gap-0.5">
+                        {booking.total_discount > 0 && (
+                          <span className="text-xs text-zinc-400 line-through">
+                            ₱
+                            {(
+                              booking.grand_total + booking.total_discount
+                            ).toLocaleString()}
+                          </span>
+                        )}
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-sm font-bold text-zinc-900">
+                            ₱{booking.grand_total.toLocaleString()}
+                          </span>
+                          {booking.total_discount > 0 && (
+                            <Badge
+                              variant="outline"
+                              className="text-[10px] px-1.5 py-0.5 bg-emerald-50 text-emerald-700 border-emerald-200"
+                            >
+                              -{booking.total_discount.toLocaleString()}
+                              {booking.vouchers.length > 0 &&
+                                ` (${booking.vouchers[0].code})`}
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   </div>
 
@@ -372,8 +396,32 @@ export function BookingList({ bookings }: { bookings: BookingWithDetails[] }) {
                             )}
                         </div>
                       </TableCell>
-                      <TableCell className="text-right font-bold text-zinc-900 text-base py-4">
-                        ₱{booking.grand_total.toLocaleString()}
+                      <TableCell className="text-right py-4">
+                        <div className="flex items-center justify-end gap-2">
+                          {booking.total_discount > 0 && (
+                            <Badge
+                              variant="outline"
+                              className="text-[10px] px-1.5 py-0.5 bg-emerald-50 text-emerald-700 border-emerald-200 hidden xl:inline-flex"
+                            >
+                              -{booking.total_discount.toLocaleString()}
+                              {booking.vouchers.length > 0 &&
+                                ` (${booking.vouchers[0].code})`}
+                            </Badge>
+                          )}
+                          <div className="flex flex-col items-end gap-0.5">
+                            {booking.total_discount > 0 && (
+                              <span className="text-xs text-zinc-400 line-through">
+                                ₱
+                                {(
+                                  booking.grand_total + booking.total_discount
+                                ).toLocaleString()}
+                              </span>
+                            )}
+                            <span className="font-bold text-zinc-900 text-base">
+                              ₱{booking.grand_total.toLocaleString()}
+                            </span>
+                          </div>
+                        </div>
                       </TableCell>
                       <TableCell className="text-right pr-8 py-4">
                         <div
