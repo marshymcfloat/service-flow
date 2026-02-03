@@ -31,32 +31,63 @@ export default async function BookingDataContainer({
   const categories = Array.from(new Set(services.map((s) => s.category)));
 
   return (
-    <Card className="w-full max-w-2xl shadow-lg border-border/50 bg-background/95 backdrop-blur-sm supports-backdrop-filter:bg-background/60">
-      <CardHeader className="text-center space-y-4 pb-6 border-b">
-        <div className="flex justify-center">
-          <Avatar className="h-20 w-20 border-4 border-background shadow-sm">
-            <AvatarImage src="" alt={business.name} />
-            <AvatarFallback className="text-2xl font-bold bg-primary text-primary-foreground">
-              {business.name.slice(0, 2).toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
-        </div>
-        <div className="space-y-2">
-          <CardTitle className="text-3xl font-bold tracking-tight">
-            {business.name}
-          </CardTitle>
-          <CardDescription className="text-base text-muted-foreground max-w-sm mx-auto">
-            Book your next appointment with us easily online.
-          </CardDescription>
-        </div>
-      </CardHeader>
-      <CardContent className="p-6 md:p-8">
-        <BookingForm
-          services={services}
-          packages={packages}
-          categories={categories}
+    <div className="flex flex-col lg:flex-row min-h-screen w-full">
+      <div className="relative w-full lg:w-[45%] lg:min-h-screen bg-muted/30 border-b lg:border-b-0 lg:border-r border-border p-8 lg:p-12 flex flex-col justify-between overflow-hidden">
+        <div
+          className="absolute inset-0 -z-10 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] opacity-[0.4] dark:bg-[radial-gradient(#1f2937_1px,transparent_1px)]"
+          style={{
+            backgroundSize: "16px 16px",
+            maskImage:
+              "radial-gradient(ellipse 50% 50% at 50% 50%, #000 70%, transparent 100%)",
+            WebkitMaskImage:
+              "radial-gradient(ellipse 50% 50% at 50% 50%, #000 70%, transparent 100%)",
+          }}
         />
-      </CardContent>
-    </Card>
+
+        <div className="space-y-8 relative z-10">
+          <div className="flex items-start gap-4">
+            <Avatar className="h-16 w-16 lg:h-20 lg:w-20 border-2 border-primary/10 shadow-sm shrink-0">
+              <AvatarImage src="" alt={business.name} />
+              <AvatarFallback className="text-xl lg:text-2xl font-bold bg-primary text-primary-foreground">
+                {business.name.slice(0, 2).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <div className="space-y-2">
+              <h1 className="text-3xl lg:text-4xl font-bold tracking-tight text-foreground font-display">
+                {business.name}
+              </h1>
+              <p className="text-muted-foreground text-base max-w-sm">
+                Book your next appointment with us easily online.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="hidden lg:block mt-auto pt-12 relative z-10">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <div className="h-1 w-1 rounded-full bg-primary/50" />
+            <span>Powered by Service Flow</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex-1 w-full bg-background relative flex flex-col items-center justify-center  p-4 md:p-8 lg:p-12 overflow-y-auto">
+        <div className="w-full  space-y-8">
+          <div className="space-y-2 lg:hidden">
+            <h2 className="text-xl font-semibold">Complete your booking</h2>
+            <p className="text-sm text-muted-foreground">
+              Fill in the details below to schedule your service.
+            </p>
+          </div>
+          <div className=" w-full">
+            <BookingForm
+              services={services}
+              packages={packages}
+              categories={categories}
+            />
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }

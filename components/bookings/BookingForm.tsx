@@ -488,10 +488,9 @@ export default function BookingForm({
           );
           toast.error("Please fill in all required fields correctly.");
         })}
-        className="flex flex-col lg:flex-row h-full gap-6 lg:gap-8 relative isolate"
+        className="flex flex-col 2xl:flex-row h-full gap-6 2xl:gap-8 relative isolate"
       >
-        {/* Left Column: Inputs */}
-        <div className="flex-1 space-y-6 overflow-y-auto pb-4 lg:pb-0 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+        <div className="flex-1 space-y-6 overflow-y-auto pb-4 2xl:pb-0 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
           {/* Hidden Fields & Identification */}
           <FormField
             control={form.control}
@@ -873,8 +872,8 @@ export default function BookingForm({
             )}
         </div>
 
-        <div className="w-full lg:w-[380px] xl:w-[420px] shrink-0">
-          <div className="lg:sticky lg:top-8 space-y-4">
+        <div className="w-full 2xl:w-[380px] shrink-0">
+          <div className="2xl:sticky 2xl:top-8 space-y-4">
             <Card className="border shadow-lg shadow-black/5 overflow-hidden">
               <CardHeader className="bg-muted/30 pb-4 border-b">
                 <CardTitle className="flex items-center justify-between text-base">
