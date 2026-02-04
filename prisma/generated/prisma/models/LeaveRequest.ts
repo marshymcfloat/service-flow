@@ -522,10 +522,6 @@ export type EnumLeaveRequestStatusFieldUpdateOperationsInput = {
   set?: $Enums.LeaveRequestStatus
 }
 
-export type NullableStringFieldUpdateOperationsInput = {
-  set?: string | null
-}
-
 export type IntFieldUpdateOperationsInput = {
   set?: number
   increment?: number

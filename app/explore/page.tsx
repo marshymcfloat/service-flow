@@ -55,6 +55,8 @@ async function BusinessList() {
       name: true,
       slug: true,
       initials: true,
+      imageUrl: true,
+      description: true,
     },
     orderBy: {
       name: "asc",
@@ -94,10 +96,18 @@ async function BusinessList() {
           <div className="px-6 pb-6 flex-1 flex flex-col relative">
             {/* Floating Avatar */}
             <div className="-mt-10 mb-4 inline-flex">
-              <div className="h-20 w-20 rounded-2xl bg-white p-1.5 shadow-md shadow-slate-200 ring-1 ring-slate-100">
-                <div className="h-full w-full rounded-xl bg-linear-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-2xl font-bold text-white shadow-inner">
-                  {business.initials}
-                </div>
+              <div className="h-20 w-20 rounded-2xl bg-white p-1.5 shadow-md shadow-slate-200 ring-1 ring-slate-100 overflow-hidden relative">
+                {business.imageUrl ? (
+                  <img
+                    src={business.imageUrl}
+                    alt={business.name}
+                    className="h-full w-full rounded-xl object-cover"
+                  />
+                ) : (
+                  <div className="h-full w-full rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-2xl font-bold text-white shadow-inner">
+                    {business.initials}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -110,6 +120,11 @@ async function BusinessList() {
                   <MapPin className="w-3.5 h-3.5 mr-1.5 text-emerald-500/80" />
                   Philippines
                 </div>
+                {business.description && (
+                  <p className="text-sm text-slate-500 mt-3 line-clamp-2 leading-relaxed">
+                    {business.description}
+                  </p>
+                )}
               </div>
 
               {/* Tags / Placeholders to fill space */}

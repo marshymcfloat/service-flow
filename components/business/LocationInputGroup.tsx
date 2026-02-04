@@ -1,8 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { toast } from "sonner";
-import { updateBusinessLocation } from "@/app/actions/business";
+import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -20,18 +18,24 @@ const LocationPicker = dynamic(
   },
 );
 
+interface LocationInputGroupProps {
+  initialLat: number | null;
+  initialLng: number | null;
+  // Make businessSlug optional as we might not need it if we aren't auto-saving
+  businessSlug?: string;
+}
+
 export default function LocationInputGroup({
   initialLat,
   initialLng,
-  businessSlug,
-}: {
-  initialLat: number | null;
-  initialLng: number | null;
-  businessSlug: string;
-}) {
+}: LocationInputGroupProps) {
   const [lat, setLat] = useState<number | null>(initialLat);
   const [lng, setLng] = useState<number | null>(initialLng);
-  const [isPending, startTransition] = useTransition();
+
+  useEffect(() => {
+    setLat(initialLat);
+    setLng(initialLng);
+  }, [initialLat, initialLng]);
 
   return (
     <div className="space-y-4">
@@ -64,23 +68,6 @@ export default function LocationInputGroup({
         onLocationSelect={(newLat, newLng) => {
           setLat(newLat);
           setLng(newLng);
-
-          startTransition(async () => {
-            const result = await updateBusinessLocation(
-              businessSlug,
-              newLat,
-              newLng,
-            );
-            if (result.success) {
-              toast.success("Location updated successfully");
-            } else {
-              toast.error("Failed to update location");
-              // Revert optimistic update if needed, but since it's just local state for now, maybe okay.
-              // Ideally re-fetch or revert lat/lng.
-              setLat(initialLat);
-              setLng(initialLng);
-            }
-          });
         }}
       />
     </div>

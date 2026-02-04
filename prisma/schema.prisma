@@ -18,6 +18,9 @@ model Business {
   name String
   slug String @unique
   initials String @db.Char(2)
+  description String?
+
+  imageUrl String?
 
   latitude Float?
   longitude Float?

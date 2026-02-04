@@ -25,7 +25,7 @@ async function main() {
   const employeePassword = await hash("employee123", 12);
 
   // ============================================
-  // 1. BUSINESS: BEAUTY FEEL (Spa/Nails/Lashes)
+  // 1. BUSINESS: BEAUTY FEEL
   // ============================================
   console.log(" Creating BeautyFeel...");
 
@@ -42,50 +42,405 @@ async function main() {
     data: {
       name: "BeautyFeel",
       slug: "beautyfeel",
+
       initials: "BF",
+      description:
+        "Experience premium beauty and wellness services in a relaxing environment. From rejuvenating facials to expert nail care and soothing massages, BeautyFeel is your sanctuary for self-care.",
+
       owners: { create: { user_id: bfOwnerUser.id } },
       latitude: 9.682940016270514,
       longitude: 118.75246245092016,
     } as any,
   });
 
-  // BF Business Hours
   const days = Array.from({ length: 7 }, (_, i) => i);
-  // General Hours (10-6)
+
   for (const d of days) {
     await prisma.businessHours.create({
       data: {
         business_id: beautyFeel.id,
         day_of_week: d,
-        open_time: "10:00",
-        close_time: "18:00",
-        is_closed: d === 0, // Closed Sundays
-        category: "GENERAL",
+        open_time: "00:00",
+        close_time: "24:00",
+        is_closed: false,
+        category: "Spa",
       },
     });
 
-    // Special Spa Hours (Late night Fridays)
     await prisma.businessHours.create({
       data: {
         business_id: beautyFeel.id,
         day_of_week: d,
-        open_time: "12:00",
-        close_time: d === 5 ? "22:00" : "20:00", // Late on Friday
-        is_closed: d === 0,
-        category: "Spa",
+        open_time: "10:00",
+        close_time: "20:00",
+        is_closed: false,
+        category: "Nails",
+      },
+    });
+
+    // 3. Skin Category: 10am to 8pm
+    await prisma.businessHours.create({
+      data: {
+        business_id: beautyFeel.id,
+        day_of_week: d,
+        open_time: "10:00",
+        close_time: "20:00",
+        is_closed: false,
+        category: "Skin",
+      },
+    });
+
+    // 4. Eyelash Category: 10am to 8pm
+    await prisma.businessHours.create({
+      data: {
+        business_id: beautyFeel.id,
+        day_of_week: d,
+        open_time: "10:00",
+        close_time: "20:00",
+        is_closed: false,
+        category: "Eyelash",
+      },
+    });
+
+    // 5. General fallback (if needed)
+    await prisma.businessHours.create({
+      data: {
+        business_id: beautyFeel.id,
+        day_of_week: d,
+        open_time: "10:00",
+        close_time: "20:00",
+        is_closed: false,
+        category: "GENERAL",
       },
     });
   }
 
   // BF Services
   const bfServices = [
-    { name: "Classic Manicure", price: 350, duration: 45, category: "Nails" },
-    { name: "Gel Manicure", price: 550, duration: 60, category: "Nails" },
-    { name: "Classic Pedicure", price: 450, duration: 60, category: "Nails" },
-    { name: "Full Body Massage", price: 800, duration: 60, category: "Spa" },
-    { name: "Deep Tissue", price: 1000, duration: 60, category: "Spa" },
-    { name: "Classic Lashes", price: 1500, duration: 90, category: "Lashes" },
-    { name: "Volume Lashes", price: 2000, duration: 120, category: "Lashes" },
+    // --- Nail Care ---
+    {
+      name: "Manicure gel",
+      price: 280,
+      duration: 60,
+      category: "Nails",
+      description: "Long-lasting gel polish application for hands.",
+    },
+    {
+      name: "Pedicure gel",
+      price: 300,
+      duration: 60,
+      category: "Nails",
+      description: "Long-lasting gel polish application for feet.",
+    },
+    {
+      name: "Foot spa",
+      price: 250,
+      duration: 45,
+      category: "Nails",
+      description: "Relaxing foot soak and scrub.",
+    },
+    {
+      name: "Foot spa with regular gel",
+      price: 430,
+      duration: 75,
+      category: "Nails",
+      description: "Complete foot spa treatment with gel polish.",
+    },
+    {
+      name: "Soft gel nail extensions",
+      price: 699,
+      duration: 120,
+      category: "Nails",
+      description: "Natural-looking soft gel extensions.",
+    },
+    {
+      name: "Regular manicure",
+      price: 150,
+      duration: 45,
+      category: "Nails",
+      description: "Classic nail cleaning and polish.",
+    },
+
+    // --- Eyelash/Eyebrow Services ---
+    {
+      name: "Classic eyelash extensions",
+      price: 399,
+      duration: 90,
+      category: "Eyelash",
+      description: "Natural looking individual lash extensions.",
+    },
+    {
+      name: "Wispy",
+      price: 450,
+      duration: 90,
+      category: "Eyelash",
+      description: "Textured, fluttery lash look.",
+    },
+    {
+      name: "Doll eye",
+      price: 450,
+      duration: 90,
+      category: "Eyelash",
+      description: "Open-eye effect with longer lashes in the middle.",
+    },
+    {
+      name: "Cat eye",
+      price: 450,
+      duration: 90,
+      category: "Eyelash",
+      description: "Elongated look with longer lashes at the corners.",
+    },
+    {
+      name: "Volume",
+      price: 500,
+      duration: 120,
+      category: "Eyelash",
+      description: "Fuller, denser lash extensions.",
+    },
+    {
+      name: "Eyelash Perming",
+      price: 399,
+      duration: 60,
+      category: "Eyelash",
+      description: "Semi-permanent lash curling.",
+    },
+    {
+      name: "Eyelash Perm with tint",
+      price: 450,
+      duration: 75,
+      category: "Eyelash",
+      description: "Lash lift combined with darkening tint.",
+    },
+    {
+      name: "Eyebrow lamination",
+      price: 450,
+      duration: 60,
+      category: "Eyelash",
+      description: "Brow smoothing and shaping treatment.",
+    },
+
+    // --- Waxing/Body Services (Category: Spa) ---
+    {
+      name: "Underarm wax",
+      price: 350,
+      duration: 30,
+      category: "Spa",
+      description: "Smooth underarm hair removal.",
+    },
+    {
+      name: "Whole Arm",
+      price: 350,
+      duration: 45,
+      category: "Spa",
+      description: "Full arm hair removal.",
+    },
+    {
+      name: "Half legs",
+      price: 350,
+      duration: 45,
+      category: "Spa",
+      description: "Lower leg hair removal.",
+    },
+    {
+      name: "Whole legs",
+      price: 450,
+      duration: 60,
+      category: "Spa",
+      description: "Full leg hair removal.",
+    },
+    {
+      name: "Brazilian",
+      price: 800,
+      duration: 60,
+      category: "Spa",
+      description: "Complete intimate waxing.",
+    },
+    {
+      name: "Whole body scrub",
+      price: 750,
+      duration: 60,
+      category: "Spa",
+      description: "Exfoliating full body treatment.",
+    },
+
+    // --- Skin Care Treatment ---
+    {
+      name: "Deep cleaning facial",
+      price: 800,
+      duration: 60,
+      category: "Skin",
+      description: "Thorough cleansing and extraction.",
+    },
+    {
+      name: "Lightening facial",
+      price: 1200,
+      duration: 60,
+      category: "Skin",
+      description: "Brightening treatment for uneven skin tone.",
+    },
+    {
+      name: "Hydraderma facial",
+      price: 1500,
+      duration: 75,
+      category: "Skin",
+      description: "Intense hydration treatment.",
+    },
+    {
+      name: "Wart treatment (minimum)",
+      price: 800,
+      duration: 30,
+      category: "Skin",
+      description: "Removal of skin warts.",
+    },
+    {
+      name: "Acne facial",
+      price: 999,
+      duration: 75,
+      category: "Skin",
+      description: "Targeted treatment for acne-prone skin.",
+    },
+    {
+      name: "BB glow with cheek blush",
+      price: 2300,
+      duration: 90,
+      category: "Skin",
+      description: "Semi-permanent foundation effect.",
+    },
+    {
+      name: "Carbon laser deluxe",
+      price: 1900,
+      duration: 60,
+      category: "Skin",
+      description: "Laser treatment for pore reduction and glow.",
+    },
+    {
+      name: "CO2 fractional laser",
+      price: 5000,
+      duration: 60,
+      category: "Skin",
+      description: "Advanced skin resurfacing.",
+    },
+    {
+      name: "Microneedling",
+      price: 3500,
+      duration: 90,
+      category: "Skin",
+      description: "Collagen induction therapy.",
+    },
+    {
+      name: "IPL (Hair growth treatment)",
+      price: 500,
+      duration: 45,
+      category: "Skin",
+      description: "Intense Pulsed Light for hair reduction.",
+    },
+    {
+      name: "Exilift (price starts at)",
+      price: 899,
+      duration: 60,
+      category: "Skin",
+      description: "Non-surgical skin tightening.",
+    },
+    {
+      name: "Glutathione drip and push(price starts at)",
+      price: 800,
+      duration: 45,
+      category: "Skin",
+      description: "IV therapy for skin brightening.",
+    },
+
+    // --- Massage Therapy (Category: Spa) ---
+    {
+      name: "60mins Swedish massage",
+      price: 500,
+      duration: 60,
+      category: "Spa",
+      description: "Relaxing full body massage.",
+    },
+    {
+      name: "60mins Combination massage",
+      price: 600,
+      duration: 60,
+      category: "Spa",
+      description: "Mix of Swedish and Shiatsu techniques.",
+    },
+    {
+      name: "60mins Thai massage",
+      price: 700,
+      duration: 60,
+      category: "Spa",
+      description: "Stretching and deep pressure massage.",
+    },
+    {
+      name: "60mins Siatsu massage",
+      price: 700,
+      duration: 60,
+      category: "Spa",
+      description: "Japanese pressure point massage.",
+    },
+    {
+      name: "90 mins Traditional massage",
+      price: 800,
+      duration: 90,
+      category: "Spa",
+      description: "Healing traditional hilot massage.",
+    },
+    {
+      name: "90 mins Hot stone massage",
+      price: 999,
+      duration: 90,
+      category: "Spa",
+      description: "Massage with heated basalt stones.",
+    },
+    {
+      name: "90mins Ventossa massage",
+      price: 999,
+      duration: 90,
+      category: "Spa",
+      description: "Cupping therapy massage.",
+    },
+    {
+      name: "Prenatal massage(DOH lic. Therapist only)",
+      price: 500,
+      duration: 60,
+      category: "Spa",
+      description: "Safe and soothing massage for expectant mothers.",
+    },
+    {
+      name: "Pediatric massage",
+      price: 500,
+      duration: 60,
+      category: "Spa",
+      description: "Gentle massage for children.",
+    },
+    {
+      name: "30mins back massage",
+      price: 300,
+      duration: 30,
+      category: "Spa",
+      description: "Focused relief for back tension.",
+    },
+    {
+      name: "45mins back and head massage",
+      price: 400,
+      duration: 45,
+      category: "Spa",
+      description: "Relief for upper body stress.",
+    },
+    {
+      name: "30mins Foot reflex and leg massage",
+      price: 300,
+      duration: 30,
+      category: "Spa",
+      description: "Pressure point foot therapy.",
+    },
+    {
+      name: "45mins Foot reflex and leg massage",
+      price: 400,
+      duration: 45,
+      category: "Spa",
+      description: "Extended foot and leg therapy.",
+    },
   ];
 
   for (const s of bfServices) {
@@ -93,8 +448,13 @@ async function main() {
   }
 
   // BF Employees
+  // (Updated based on new Categories: Nails, Skin, Eyelash, Spa)
   const bfEmployees = [
-    { name: "Anna Reyes", email: "anna@beautyfeel.com", specialties: [] },
+    {
+      name: "Anna Reyes",
+      email: "anna@beautyfeel.com",
+      specialties: ["Nails", "Spa"],
+    },
     {
       name: "Joy Dela Cruz",
       email: "joy@beautyfeel.com",
@@ -103,7 +463,7 @@ async function main() {
     {
       name: "Bea Alonzo",
       email: "bea@beautyfeel.com",
-      specialties: ["Lashes"],
+      specialties: ["Eyelash"],
     },
     {
       name: "Carla Abellana",
@@ -113,7 +473,12 @@ async function main() {
     {
       name: "Dina Bonnevie",
       email: "dina@beautyfeel.com",
-      specialties: ["Nails", "Lashes"],
+      specialties: ["Skin"],
+    },
+    {
+      name: "Liza Soberano",
+      email: "liza@beautyfeel.com",
+      specialties: ["Skin", "Eyelash"],
     },
   ];
 
@@ -139,7 +504,7 @@ async function main() {
   }
 
   // ============================================
-  // 2. BUSINESS: GENTLEMAN'S CUT (Barber)
+  // 2. BUSINESS: GENTLEMAN'S CUT (Barber) - Kept mostly same but ensures compatibility
   // ============================================
   console.log(" Creating Gentleman's Cut...");
 
@@ -157,6 +522,9 @@ async function main() {
       name: "Gentleman's Cut",
       slug: "gentlemans-cut",
       initials: "GC",
+      description:
+        "Traditional barbering for the modern gentleman. We offer precision cuts, hot towel shaves, and grooming services in a classic, masculine atmosphere.",
+
       owners: { create: { user_id: gcOwnerUser.id } },
       latitude: 9.7, // Approx
       longitude: 118.75, // Approx
@@ -246,7 +614,7 @@ async function main() {
   console.log("\n📋 Login Credentials:");
   console.log("--- BeautyFeel ---");
   console.log("   Owner: owner@beautyfeel.com / password123");
-  console.log("   Emp (Generalist): anna@beautyfeel.com / employee123");
+  console.log("   Emp (Generalist/Spa): anna@beautyfeel.com / employee123");
   console.log("   Emp (Nails): joy@beautyfeel.com / employee123");
   console.log("\n--- Gentleman's Cut ---");
   console.log("   Owner: owner@gentlemanscut.com / password123");

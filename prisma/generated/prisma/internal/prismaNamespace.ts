@@ -1947,6 +1947,8 @@ export const BusinessScalarFieldEnum = {
   name: 'name',
   slug: 'slug',
   initials: 'initials',
+  description: 'description',
+  imageUrl: 'imageUrl',
   latitude: 'latitude',
   longitude: 'longitude',
   commission_calculation_basis: 'commission_calculation_basis',

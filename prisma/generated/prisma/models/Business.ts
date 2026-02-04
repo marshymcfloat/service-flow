@@ -41,6 +41,8 @@ export type BusinessMinAggregateOutputType = {
   name: string | null
   slug: string | null
   initials: string | null
+  description: string | null
+  imageUrl: string | null
   latitude: number | null
   longitude: number | null
   commission_calculation_basis: $Enums.CommissionCalculationBasis | null
@@ -53,6 +55,8 @@ export type BusinessMaxAggregateOutputType = {
   name: string | null
   slug: string | null
   initials: string | null
+  description: string | null
+  imageUrl: string | null
   latitude: number | null
   longitude: number | null
   commission_calculation_basis: $Enums.CommissionCalculationBasis | null
@@ -65,6 +69,8 @@ export type BusinessCountAggregateOutputType = {
   name: number
   slug: number
   initials: number
+  description: number
+  imageUrl: number
   latitude: number
   longitude: number
   commission_calculation_basis: number
@@ -89,6 +95,8 @@ export type BusinessMinAggregateInputType = {
   name?: true
   slug?: true
   initials?: true
+  description?: true
+  imageUrl?: true
   latitude?: true
   longitude?: true
   commission_calculation_basis?: true
@@ -101,6 +109,8 @@ export type BusinessMaxAggregateInputType = {
   name?: true
   slug?: true
   initials?: true
+  description?: true
+  imageUrl?: true
   latitude?: true
   longitude?: true
   commission_calculation_basis?: true
@@ -113,6 +123,8 @@ export type BusinessCountAggregateInputType = {
   name?: true
   slug?: true
   initials?: true
+  description?: true
+  imageUrl?: true
   latitude?: true
   longitude?: true
   commission_calculation_basis?: true
@@ -212,6 +224,8 @@ export type BusinessGroupByOutputType = {
   name: string
   slug: string
   initials: string
+  description: string | null
+  imageUrl: string | null
   latitude: number | null
   longitude: number | null
   commission_calculation_basis: $Enums.CommissionCalculationBasis
@@ -247,6 +261,8 @@ export type BusinessWhereInput = {
   name?: Prisma.StringFilter<"Business"> | string
   slug?: Prisma.StringFilter<"Business"> | string
   initials?: Prisma.StringFilter<"Business"> | string
+  description?: Prisma.StringNullableFilter<"Business"> | string | null
+  imageUrl?: Prisma.StringNullableFilter<"Business"> | string | null
   latitude?: Prisma.FloatNullableFilter<"Business"> | number | null
   longitude?: Prisma.FloatNullableFilter<"Business"> | number | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFilter<"Business"> | $Enums.CommissionCalculationBasis
@@ -271,6 +287,8 @@ export type BusinessOrderByWithRelationInput = {
   name?: Prisma.SortOrder
   slug?: Prisma.SortOrder
   initials?: Prisma.SortOrder
+  description?: Prisma.SortOrderInput | Prisma.SortOrder
+  imageUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   latitude?: Prisma.SortOrderInput | Prisma.SortOrder
   longitude?: Prisma.SortOrderInput | Prisma.SortOrder
   commission_calculation_basis?: Prisma.SortOrder
@@ -298,6 +316,8 @@ export type BusinessWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.BusinessWhereInput | Prisma.BusinessWhereInput[]
   name?: Prisma.StringFilter<"Business"> | string
   initials?: Prisma.StringFilter<"Business"> | string
+  description?: Prisma.StringNullableFilter<"Business"> | string | null
+  imageUrl?: Prisma.StringNullableFilter<"Business"> | string | null
   latitude?: Prisma.FloatNullableFilter<"Business"> | number | null
   longitude?: Prisma.FloatNullableFilter<"Business"> | number | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFilter<"Business"> | $Enums.CommissionCalculationBasis
@@ -322,6 +342,8 @@ export type BusinessOrderByWithAggregationInput = {
   name?: Prisma.SortOrder
   slug?: Prisma.SortOrder
   initials?: Prisma.SortOrder
+  description?: Prisma.SortOrderInput | Prisma.SortOrder
+  imageUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   latitude?: Prisma.SortOrderInput | Prisma.SortOrder
   longitude?: Prisma.SortOrderInput | Prisma.SortOrder
   commission_calculation_basis?: Prisma.SortOrder
@@ -342,6 +364,8 @@ export type BusinessScalarWhereWithAggregatesInput = {
   name?: Prisma.StringWithAggregatesFilter<"Business"> | string
   slug?: Prisma.StringWithAggregatesFilter<"Business"> | string
   initials?: Prisma.StringWithAggregatesFilter<"Business"> | string
+  description?: Prisma.StringNullableWithAggregatesFilter<"Business"> | string | null
+  imageUrl?: Prisma.StringNullableWithAggregatesFilter<"Business"> | string | null
   latitude?: Prisma.FloatNullableWithAggregatesFilter<"Business"> | number | null
   longitude?: Prisma.FloatNullableWithAggregatesFilter<"Business"> | number | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisWithAggregatesFilter<"Business"> | $Enums.CommissionCalculationBasis
@@ -354,6 +378,8 @@ export type BusinessCreateInput = {
   name: string
   slug: string
   initials: string
+  description?: string | null
+  imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
@@ -378,6 +404,8 @@ export type BusinessUncheckedCreateInput = {
   name: string
   slug: string
   initials: string
+  description?: string | null
+  imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
@@ -402,6 +430,8 @@ export type BusinessUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   initials?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
@@ -426,6 +456,8 @@ export type BusinessUncheckedUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   initials?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
@@ -450,6 +482,8 @@ export type BusinessCreateManyInput = {
   name: string
   slug: string
   initials: string
+  description?: string | null
+  imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
@@ -462,6 +496,8 @@ export type BusinessUpdateManyMutationInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   initials?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
@@ -474,6 +510,8 @@ export type BusinessUncheckedUpdateManyInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   initials?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
@@ -486,6 +524,8 @@ export type BusinessCountOrderByAggregateInput = {
   name?: Prisma.SortOrder
   slug?: Prisma.SortOrder
   initials?: Prisma.SortOrder
+  description?: Prisma.SortOrder
+  imageUrl?: Prisma.SortOrder
   latitude?: Prisma.SortOrder
   longitude?: Prisma.SortOrder
   commission_calculation_basis?: Prisma.SortOrder
@@ -503,6 +543,8 @@ export type BusinessMaxOrderByAggregateInput = {
   name?: Prisma.SortOrder
   slug?: Prisma.SortOrder
   initials?: Prisma.SortOrder
+  description?: Prisma.SortOrder
+  imageUrl?: Prisma.SortOrder
   latitude?: Prisma.SortOrder
   longitude?: Prisma.SortOrder
   commission_calculation_basis?: Prisma.SortOrder
@@ -515,6 +557,8 @@ export type BusinessMinOrderByAggregateInput = {
   name?: Prisma.SortOrder
   slug?: Prisma.SortOrder
   initials?: Prisma.SortOrder
+  description?: Prisma.SortOrder
+  imageUrl?: Prisma.SortOrder
   latitude?: Prisma.SortOrder
   longitude?: Prisma.SortOrder
   commission_calculation_basis?: Prisma.SortOrder
@@ -534,6 +578,10 @@ export type BusinessScalarRelationFilter = {
 
 export type StringFieldUpdateOperationsInput = {
   set?: string
+}
+
+export type NullableStringFieldUpdateOperationsInput = {
+  set?: string | null
 }
 
 export type NullableFloatFieldUpdateOperationsInput = {
@@ -725,6 +773,8 @@ export type BusinessCreateWithoutLeave_requestsInput = {
   name: string
   slug: string
   initials: string
+  description?: string | null
+  imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
@@ -748,6 +798,8 @@ export type BusinessUncheckedCreateWithoutLeave_requestsInput = {
   name: string
   slug: string
   initials: string
+  description?: string | null
+  imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
@@ -787,6 +839,8 @@ export type BusinessUpdateWithoutLeave_requestsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   initials?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
@@ -810,6 +864,8 @@ export type BusinessUncheckedUpdateWithoutLeave_requestsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   initials?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
@@ -833,6 +889,8 @@ export type BusinessCreateWithoutBusiness_hoursInput = {
   name: string
   slug: string
   initials: string
+  description?: string | null
+  imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
@@ -856,6 +914,8 @@ export type BusinessUncheckedCreateWithoutBusiness_hoursInput = {
   name: string
   slug: string
   initials: string
+  description?: string | null
+  imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
@@ -895,6 +955,8 @@ export type BusinessUpdateWithoutBusiness_hoursInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   initials?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
@@ -918,6 +980,8 @@ export type BusinessUncheckedUpdateWithoutBusiness_hoursInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   initials?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
@@ -941,6 +1005,8 @@ export type BusinessCreateWithoutSale_eventsInput = {
   name: string
   slug: string
   initials: string
+  description?: string | null
+  imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
@@ -964,6 +1030,8 @@ export type BusinessUncheckedCreateWithoutSale_eventsInput = {
   name: string
   slug: string
   initials: string
+  description?: string | null
+  imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
@@ -1003,6 +1071,8 @@ export type BusinessUpdateWithoutSale_eventsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   initials?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
@@ -1026,6 +1096,8 @@ export type BusinessUncheckedUpdateWithoutSale_eventsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   initials?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
@@ -1049,6 +1121,8 @@ export type BusinessCreateWithoutEmployeesInput = {
   name: string
   slug: string
   initials: string
+  description?: string | null
+  imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
@@ -1072,6 +1146,8 @@ export type BusinessUncheckedCreateWithoutEmployeesInput = {
   name: string
   slug: string
   initials: string
+  description?: string | null
+  imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
@@ -1111,6 +1187,8 @@ export type BusinessUpdateWithoutEmployeesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   initials?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
@@ -1134,6 +1212,8 @@ export type BusinessUncheckedUpdateWithoutEmployeesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   initials?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
@@ -1157,6 +1237,8 @@ export type BusinessCreateWithoutSpecial_datesInput = {
   name: string
   slug: string
   initials: string
+  description?: string | null
+  imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
@@ -1180,6 +1262,8 @@ export type BusinessUncheckedCreateWithoutSpecial_datesInput = {
   name: string
   slug: string
   initials: string
+  description?: string | null
+  imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
@@ -1219,6 +1303,8 @@ export type BusinessUpdateWithoutSpecial_datesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   initials?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
@@ -1242,6 +1328,8 @@ export type BusinessUncheckedUpdateWithoutSpecial_datesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   initials?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
@@ -1265,6 +1353,8 @@ export type BusinessCreateWithoutOwnersInput = {
   name: string
   slug: string
   initials: string
+  description?: string | null
+  imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
@@ -1288,6 +1378,8 @@ export type BusinessUncheckedCreateWithoutOwnersInput = {
   name: string
   slug: string
   initials: string
+  description?: string | null
+  imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
@@ -1327,6 +1419,8 @@ export type BusinessUpdateWithoutOwnersInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   initials?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
@@ -1350,6 +1444,8 @@ export type BusinessUncheckedUpdateWithoutOwnersInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   initials?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
@@ -1373,6 +1469,8 @@ export type BusinessCreateWithoutServicesInput = {
   name: string
   slug: string
   initials: string
+  description?: string | null
+  imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
@@ -1396,6 +1494,8 @@ export type BusinessUncheckedCreateWithoutServicesInput = {
   name: string
   slug: string
   initials: string
+  description?: string | null
+  imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
@@ -1435,6 +1535,8 @@ export type BusinessUpdateWithoutServicesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   initials?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
@@ -1458,6 +1560,8 @@ export type BusinessUncheckedUpdateWithoutServicesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   initials?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
@@ -1481,6 +1585,8 @@ export type BusinessCreateWithoutPackagesInput = {
   name: string
   slug: string
   initials: string
+  description?: string | null
+  imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
@@ -1504,6 +1610,8 @@ export type BusinessUncheckedCreateWithoutPackagesInput = {
   name: string
   slug: string
   initials: string
+  description?: string | null
+  imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
@@ -1543,6 +1651,8 @@ export type BusinessUpdateWithoutPackagesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   initials?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
@@ -1566,6 +1676,8 @@ export type BusinessUncheckedUpdateWithoutPackagesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   initials?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
@@ -1589,6 +1701,8 @@ export type BusinessCreateWithoutCustomersInput = {
   name: string
   slug: string
   initials: string
+  description?: string | null
+  imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
@@ -1612,6 +1726,8 @@ export type BusinessUncheckedCreateWithoutCustomersInput = {
   name: string
   slug: string
   initials: string
+  description?: string | null
+  imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
@@ -1651,6 +1767,8 @@ export type BusinessUpdateWithoutCustomersInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   initials?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
@@ -1674,6 +1792,8 @@ export type BusinessUncheckedUpdateWithoutCustomersInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   initials?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
@@ -1697,6 +1817,8 @@ export type BusinessCreateWithoutBookingsInput = {
   name: string
   slug: string
   initials: string
+  description?: string | null
+  imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
@@ -1720,6 +1842,8 @@ export type BusinessUncheckedCreateWithoutBookingsInput = {
   name: string
   slug: string
   initials: string
+  description?: string | null
+  imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
@@ -1759,6 +1883,8 @@ export type BusinessUpdateWithoutBookingsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   initials?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
@@ -1782,6 +1908,8 @@ export type BusinessUncheckedUpdateWithoutBookingsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   initials?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
@@ -1805,6 +1933,8 @@ export type BusinessCreateWithoutVouchersInput = {
   name: string
   slug: string
   initials: string
+  description?: string | null
+  imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
@@ -1828,6 +1958,8 @@ export type BusinessUncheckedCreateWithoutVouchersInput = {
   name: string
   slug: string
   initials: string
+  description?: string | null
+  imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
@@ -1867,6 +1999,8 @@ export type BusinessUpdateWithoutVouchersInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   initials?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
@@ -1890,6 +2024,8 @@ export type BusinessUncheckedUpdateWithoutVouchersInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   initials?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
@@ -1913,6 +2049,8 @@ export type BusinessCreateWithoutService_flowsInput = {
   name: string
   slug: string
   initials: string
+  description?: string | null
+  imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
@@ -1936,6 +2074,8 @@ export type BusinessUncheckedCreateWithoutService_flowsInput = {
   name: string
   slug: string
   initials: string
+  description?: string | null
+  imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
@@ -1975,6 +2115,8 @@ export type BusinessUpdateWithoutService_flowsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   initials?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
@@ -1998,6 +2140,8 @@ export type BusinessUncheckedUpdateWithoutService_flowsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   initials?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
@@ -2151,6 +2295,8 @@ export type BusinessSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   name?: boolean
   slug?: boolean
   initials?: boolean
+  description?: boolean
+  imageUrl?: boolean
   latitude?: boolean
   longitude?: boolean
   commission_calculation_basis?: boolean
@@ -2176,6 +2322,8 @@ export type BusinessSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   name?: boolean
   slug?: boolean
   initials?: boolean
+  description?: boolean
+  imageUrl?: boolean
   latitude?: boolean
   longitude?: boolean
   commission_calculation_basis?: boolean
@@ -2188,6 +2336,8 @@ export type BusinessSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   name?: boolean
   slug?: boolean
   initials?: boolean
+  description?: boolean
+  imageUrl?: boolean
   latitude?: boolean
   longitude?: boolean
   commission_calculation_basis?: boolean
@@ -2200,6 +2350,8 @@ export type BusinessSelectScalar = {
   name?: boolean
   slug?: boolean
   initials?: boolean
+  description?: boolean
+  imageUrl?: boolean
   latitude?: boolean
   longitude?: boolean
   commission_calculation_basis?: boolean
@@ -2207,7 +2359,7 @@ export type BusinessSelectScalar = {
   updated_at?: boolean
 }
 
-export type BusinessOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "initials" | "latitude" | "longitude" | "commission_calculation_basis" | "created_at" | "updated_at", ExtArgs["result"]["business"]>
+export type BusinessOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "initials" | "description" | "imageUrl" | "latitude" | "longitude" | "commission_calculation_basis" | "created_at" | "updated_at", ExtArgs["result"]["business"]>
 export type BusinessInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   services?: boolean | Prisma.Business$servicesArgs<ExtArgs>
   employees?: boolean | Prisma.Business$employeesArgs<ExtArgs>
@@ -2247,6 +2399,8 @@ export type $BusinessPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     name: string
     slug: string
     initials: string
+    description: string | null
+    imageUrl: string | null
     latitude: number | null
     longitude: number | null
     commission_calculation_basis: $Enums.CommissionCalculationBasis
@@ -2691,6 +2845,8 @@ export interface BusinessFieldRefs {
   readonly name: Prisma.FieldRef<"Business", 'String'>
   readonly slug: Prisma.FieldRef<"Business", 'String'>
   readonly initials: Prisma.FieldRef<"Business", 'String'>
+  readonly description: Prisma.FieldRef<"Business", 'String'>
+  readonly imageUrl: Prisma.FieldRef<"Business", 'String'>
   readonly latitude: Prisma.FieldRef<"Business", 'Float'>
   readonly longitude: Prisma.FieldRef<"Business", 'Float'>
   readonly commission_calculation_basis: Prisma.FieldRef<"Business", 'CommissionCalculationBasis'>
