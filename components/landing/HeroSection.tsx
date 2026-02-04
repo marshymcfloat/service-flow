@@ -16,7 +16,10 @@ import { Badge } from "@/components/ui/badge";
 
 export default function HeroSection() {
   return (
-    <section className="relative pt-28 pb-16 md:pt-40 md:pb-24 overflow-hidden">
+    <section
+      className="relative pt-28 pb-16 md:pt-40 md:pb-24 overflow-hidden"
+      id="hero"
+    >
       <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-green-100/20 via-background to-background opacity-80" />
       <div className="absolute top-0 right-0 -z-10 w-1/2 h-full bg-linear-to-bl from-emerald-100/50 via-teal-50/30 to-transparent blur-[100px] rounded-full translate-x-1/3 -translate-y-1/4" />
       <div className="absolute bottom-0 left-0 -z-10 w-1/2 h-full bg-linear-to-tr from-blue-100/40 via-indigo-50/30 to-transparent blur-[100px] rounded-full -translate-x-1/3 translate-y-1/4" />
