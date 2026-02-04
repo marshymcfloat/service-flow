@@ -34,11 +34,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   return {
-    title: business.name,
-    description: `Book appointments and services at ${business.name}.`,
+    title: `${business.name} | Book Online`,
+    description: `Book appointments at ${business.name}. Check available services, business hours, and secure your slot today.`,
+    alternates: {
+      canonical: `/${business.slug}`,
+    },
     openGraph: {
-      title: `${business.name} | Service Flow`,
-      description: `Book your next appointment at ${business.name}. Powered by Service Flow.`,
+      title: `Book with ${business.name} | Service Flow`,
+      description: `View services, check availability, and book your appointment with ${business.name} online.`,
       url: `/${business.slug}`,
       siteName: "Service Flow",
       locale: "en_PH",
@@ -77,27 +80,13 @@ async function BusinessContent({
     notFound();
   }
 
-  const jsonLd = {
+  const jsonLd: any = {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
     name: business.name,
     url: `${process.env.NEXT_PUBLIC_APP_URL || "https://www.serviceflow.store"}/${business.slug}`,
-    telephone: "",
-    address: {
-      "@type": "PostalAddress",
-      streetAddress: "",
-      addressLocality: "",
-      addressRegion: "",
-      addressCountry: "PH",
-    },
-    geo:
-      business.latitude && business.longitude
-        ? {
-            "@type": "GeoCoordinates",
-            latitude: business.latitude,
-            longitude: business.longitude,
-          }
-        : undefined,
+    image: `${process.env.NEXT_PUBLIC_APP_URL || "https://www.serviceflow.store"}/og-image.png`, // Fallback image
+    priceRange: "₱₱", // Default price range
     openingHoursSpecification: business.business_hours.map((hour: any) => ({
       "@type": "OpeningHoursSpecification",
       dayOfWeek: [
@@ -113,6 +102,19 @@ async function BusinessContent({
       closes: hour.close_time,
     })),
   };
+
+  // Conditionally add GeoCoordinates if they exist
+  if (business.latitude && business.longitude) {
+    jsonLd.geo = {
+      "@type": "GeoCoordinates",
+      latitude: business.latitude,
+      longitude: business.longitude,
+    };
+  }
+
+  // Address structure - currently placeholders but structured correctly for future data
+  // Only include if you have actual data to prevent "incomplete" errors in search console
+  // For now, we omit address if it's strictly empty to keep schema valid
 
   return (
     <>
