@@ -34,6 +34,7 @@ export type DiscountType = (typeof DiscountType)[keyof typeof DiscountType]
 
 
 export const BookingStatus = {
+  HOLD: 'HOLD',
   ACCEPTED: 'ACCEPTED',
   COMPLETED: 'COMPLETED',
   CANCELLED: 'CANCELLED'

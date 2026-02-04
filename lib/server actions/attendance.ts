@@ -36,7 +36,6 @@ export async function checkAttendanceStatusAction(
   if (!auth.success) return auth;
   const { session, businessSlug } = auth;
 
-  // If user is EMPLOYEE, ensure they are checking their own attendance
   if (session.user.role === Role.EMPLOYEE) {
     const userEmployee = await prisma.employee.findUnique({
       where: { user_id: session.user.id },
@@ -49,8 +48,6 @@ export async function checkAttendanceStatusAction(
       };
     }
   }
-  // If user is OWNER, they can check any employee in their business (implicit via businessSlug check later if we join, but simple check here is okay for now provided we trust requireAuth businessSlug context match)
-  // Actually, we should verify that `employeeId` belongs to `businessSlug` to be strictly safe cross-tenant if owner passes a random ID.
 
   const employee = await prisma.employee.findUnique({
     where: { id: employeeId },
@@ -133,7 +130,11 @@ export async function clockInAction(
       business.longitude,
     );
 
-    if (distance > MAX_DISTANCE_METERS) {
+    // Skip distance check in development mode
+    if (
+      process.env.NODE_ENV !== "development" &&
+      distance > MAX_DISTANCE_METERS
+    ) {
       return {
         success: false,
         error: `You are too far from the workplace (${Math.round(distance)}m away). Max allowed: ${MAX_DISTANCE_METERS}m.`,

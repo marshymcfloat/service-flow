@@ -74,6 +74,7 @@ enum DiscountType {
   FLAT
 }
 enum BookingStatus {
+  HOLD       // Slot reserved during payment
   ACCEPTED
   COMPLETED
   CANCELLED
@@ -118,11 +119,13 @@ model BusinessHours {
   open_time   String  // "09:00" (24hr format)
   close_time  String  // "18:00"
   is_closed   Boolean @default(false)
+  
+  category    String  @default("GENERAL") // "GENERAL", "Spa", "Nails", etc.
 
   business_id String
   business    Business @relation(fields: [business_id], references: [id], onDelete: Cascade)
 
-  @@unique([business_id, day_of_week])
+  @@unique([business_id, day_of_week, category])
 }
 
 model SaleEvent {
@@ -168,6 +171,7 @@ model Employee {
   salary Float
   commission_percentage Float @default(0)
   daily_rate Float @default(0)
+  specialties String[] @default([]) // Array of service categories this employee can perform
   attendance EmployeeAttendance[]
 
 
@@ -339,6 +343,13 @@ model Booking {
   scheduled_at  DateTime?  // When the booking is scheduled to start
   estimated_end DateTime?  // Calculated from service durations
   reminder_sent Boolean @default(false)
+  hold_expires_at DateTime? // When HOLD status expires (for online payments)
+  
+  // Computed columns for double-booking prevention (maintained by DB triggers)
+  /// @ignore - Managed by database triggers, do not write directly
+  booking_range String? @ignore
+  /// @ignore - Managed by database triggers, do not write directly  
+  is_active_booking Boolean? @ignore
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -445,4 +456,41 @@ enum FlowType {
 enum CommissionCalculationBasis {
   ORIGINAL_PRICE
   DISCOUNTED_PRICE
+}
+
+// Transactional Outbox: ensures side-effects are sent iff transaction commits
+model OutboxMessage {
+  id            String   @id @default(cuid())
+  event_type    String   // "BOOKING_CREATED", "PAYMENT_CONFIRMED"
+  aggregate_type String  // "Booking", "Payslip"
+  aggregate_id  String
+  payload       Json
+  
+  processed     Boolean  @default(false)
+  processed_at  DateTime?
+  attempts      Int      @default(0)
+  last_error    String?
+  
+  business_id   String
+  created_at    DateTime @default(now())
+  
+  @@index([processed, created_at])
+  @@index([business_id])
+}
+
+// Audit Trail: records who changed what and when
+model AuditLog {
+  id           String   @id @default(cuid())
+  entity_type  String   // "Booking", "Payslip"
+  entity_id    String
+  action       String   // "CREATED", "STATUS_CHANGED"
+  actor_id     String?  // User ID (nullable for system actions)
+  actor_type   String   @default("USER") // "USER", "SYSTEM", "WEBHOOK"
+  changes      Json?    // { before: {...}, after: {...} }
+  
+  business_id  String
+  created_at   DateTime @default(now())
+  
+  @@index([entity_type, entity_id])
+  @@index([business_id, created_at])
 }

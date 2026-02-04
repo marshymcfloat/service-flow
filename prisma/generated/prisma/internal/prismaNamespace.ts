@@ -401,7 +401,9 @@ export const ModelName = {
   Booking: 'Booking',
   Voucher: 'Voucher',
   AvailedService: 'AvailedService',
-  ServiceFlow: 'ServiceFlow'
+  ServiceFlow: 'ServiceFlow',
+  OutboxMessage: 'OutboxMessage',
+  AuditLog: 'AuditLog'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -417,7 +419,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "business" | "leaveRequest" | "businessHours" | "saleEvent" | "user" | "employee" | "employeeAttendance" | "payslip" | "specialDate" | "owner" | "service" | "servicePackage" | "packageItem" | "customer" | "booking" | "voucher" | "availedService" | "serviceFlow"
+    modelProps: "business" | "leaveRequest" | "businessHours" | "saleEvent" | "user" | "employee" | "employeeAttendance" | "payslip" | "specialDate" | "owner" | "service" | "servicePackage" | "packageItem" | "customer" | "booking" | "voucher" | "availedService" | "serviceFlow" | "outboxMessage" | "auditLog"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1753,6 +1755,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    OutboxMessage: {
+      payload: Prisma.$OutboxMessagePayload<ExtArgs>
+      fields: Prisma.OutboxMessageFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.OutboxMessageFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutboxMessagePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.OutboxMessageFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutboxMessagePayload>
+        }
+        findFirst: {
+          args: Prisma.OutboxMessageFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutboxMessagePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.OutboxMessageFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutboxMessagePayload>
+        }
+        findMany: {
+          args: Prisma.OutboxMessageFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutboxMessagePayload>[]
+        }
+        create: {
+          args: Prisma.OutboxMessageCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutboxMessagePayload>
+        }
+        createMany: {
+          args: Prisma.OutboxMessageCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.OutboxMessageCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutboxMessagePayload>[]
+        }
+        delete: {
+          args: Prisma.OutboxMessageDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutboxMessagePayload>
+        }
+        update: {
+          args: Prisma.OutboxMessageUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutboxMessagePayload>
+        }
+        deleteMany: {
+          args: Prisma.OutboxMessageDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.OutboxMessageUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.OutboxMessageUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutboxMessagePayload>[]
+        }
+        upsert: {
+          args: Prisma.OutboxMessageUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutboxMessagePayload>
+        }
+        aggregate: {
+          args: Prisma.OutboxMessageAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateOutboxMessage>
+        }
+        groupBy: {
+          args: Prisma.OutboxMessageGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.OutboxMessageGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.OutboxMessageCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.OutboxMessageCountAggregateOutputType> | number
+        }
+      }
+    }
+    AuditLog: {
+      payload: Prisma.$AuditLogPayload<ExtArgs>
+      fields: Prisma.AuditLogFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AuditLogFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuditLogPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AuditLogFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuditLogPayload>
+        }
+        findFirst: {
+          args: Prisma.AuditLogFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuditLogPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AuditLogFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuditLogPayload>
+        }
+        findMany: {
+          args: Prisma.AuditLogFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuditLogPayload>[]
+        }
+        create: {
+          args: Prisma.AuditLogCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuditLogPayload>
+        }
+        createMany: {
+          args: Prisma.AuditLogCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.AuditLogCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuditLogPayload>[]
+        }
+        delete: {
+          args: Prisma.AuditLogDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuditLogPayload>
+        }
+        update: {
+          args: Prisma.AuditLogUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuditLogPayload>
+        }
+        deleteMany: {
+          args: Prisma.AuditLogDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AuditLogUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.AuditLogUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuditLogPayload>[]
+        }
+        upsert: {
+          args: Prisma.AuditLogUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuditLogPayload>
+        }
+        aggregate: {
+          args: Prisma.AuditLogAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAuditLog>
+        }
+        groupBy: {
+          args: Prisma.AuditLogGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AuditLogGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AuditLogCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AuditLogCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1829,6 +1979,7 @@ export const BusinessHoursScalarFieldEnum = {
   open_time: 'open_time',
   close_time: 'close_time',
   is_closed: 'is_closed',
+  category: 'category',
   business_id: 'business_id'
 } as const
 
@@ -1870,6 +2021,7 @@ export const EmployeeScalarFieldEnum = {
   salary: 'salary',
   commission_percentage: 'commission_percentage',
   daily_rate: 'daily_rate',
+  specialties: 'specialties',
   business_id: 'business_id'
 } as const
 
@@ -1996,6 +2148,7 @@ export const BookingScalarFieldEnum = {
   scheduled_at: 'scheduled_at',
   estimated_end: 'estimated_end',
   reminder_sent: 'reminder_sent',
+  hold_expires_at: 'hold_expires_at',
   created_at: 'created_at',
   updated_at: 'updated_at'
 } as const
@@ -2060,12 +2213,59 @@ export const ServiceFlowScalarFieldEnum = {
 export type ServiceFlowScalarFieldEnum = (typeof ServiceFlowScalarFieldEnum)[keyof typeof ServiceFlowScalarFieldEnum]
 
 
+export const OutboxMessageScalarFieldEnum = {
+  id: 'id',
+  event_type: 'event_type',
+  aggregate_type: 'aggregate_type',
+  aggregate_id: 'aggregate_id',
+  payload: 'payload',
+  processed: 'processed',
+  processed_at: 'processed_at',
+  attempts: 'attempts',
+  last_error: 'last_error',
+  business_id: 'business_id',
+  created_at: 'created_at'
+} as const
+
+export type OutboxMessageScalarFieldEnum = (typeof OutboxMessageScalarFieldEnum)[keyof typeof OutboxMessageScalarFieldEnum]
+
+
+export const AuditLogScalarFieldEnum = {
+  id: 'id',
+  entity_type: 'entity_type',
+  entity_id: 'entity_id',
+  action: 'action',
+  actor_id: 'actor_id',
+  actor_type: 'actor_type',
+  changes: 'changes',
+  business_id: 'business_id',
+  created_at: 'created_at'
+} as const
+
+export type AuditLogScalarFieldEnum = (typeof AuditLogScalarFieldEnum)[keyof typeof AuditLogScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
 } as const
 
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
+
+
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
+
+
+export const NullableJsonNullValueInput = {
+  DbNull: DbNull,
+  JsonNull: JsonNull
+} as const
+
+export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
 
 
 export const QueryMode = {
@@ -2082,6 +2282,15 @@ export const NullsOrder = {
 } as const
 
 export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 
 
 
@@ -2320,6 +2529,20 @@ export type EnumFlowTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaM
 export type ListEnumFlowTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'FlowType[]'>
     
 
+
+/**
+ * Reference to a field of type 'Json'
+ */
+export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+/**
+ * Reference to a field of type 'QueryMode'
+ */
+export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
+    
+
 /**
  * Batch Payload for updateMany & deleteMany & createMany
  */
@@ -2433,6 +2656,8 @@ export type GlobalOmitConfig = {
   voucher?: Prisma.VoucherOmit
   availedService?: Prisma.AvailedServiceOmit
   serviceFlow?: Prisma.ServiceFlowOmit
+  outboxMessage?: Prisma.OutboxMessageOmit
+  auditLog?: Prisma.AuditLogOmit
 }
 
 /* Types for Logging */

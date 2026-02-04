@@ -313,6 +313,14 @@ export default function BookingForm({
     }, 0);
   }, [selectedServices]);
 
+  const targetCategory = useMemo(() => {
+    if (selectedServices.length === 0) return "GENERAL";
+    // Find the full service object to get the category
+    const firstService = selectedServices[0];
+    const fullService = services.find((s) => s.id === firstService.id);
+    return fullService?.category || "GENERAL";
+  }, [selectedServices, services]);
+
   const { data: timeSlots = [], isLoading: isLoadingSlots } = useQuery({
     queryKey: [
       "timeSlots",
@@ -333,6 +341,7 @@ export default function BookingForm({
         businessSlug,
         date: selectedDate,
         serviceDurationMinutes: totalDuration,
+        category: targetCategory,
       });
     },
     enabled:
@@ -360,6 +369,7 @@ export default function BookingForm({
         businessSlug,
         startTime: selectedTime,
         endTime,
+        category: targetCategory,
       });
     },
     enabled: !!selectedTime && !!businessSlug,

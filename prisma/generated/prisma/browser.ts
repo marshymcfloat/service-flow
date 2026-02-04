@@ -107,3 +107,13 @@ export type AvailedService = Prisma.AvailedServiceModel
  * 
  */
 export type ServiceFlow = Prisma.ServiceFlowModel
+/**
+ * Model OutboxMessage
+ * 
+ */
+export type OutboxMessage = Prisma.OutboxMessageModel
+/**
+ * Model AuditLog
+ * 
+ */
+export type AuditLog = Prisma.AuditLogModel

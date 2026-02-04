@@ -1,4 +1,6 @@
 import { prisma } from "@/prisma/prisma";
+import { publishEvent } from "./outbox";
+import { Prisma } from "@/prisma/generated/prisma/client";
 
 export type BookingServiceParams = {
   businessSlug: string;
@@ -231,7 +233,14 @@ export async function createBookingInDb({
     }
 
     const isDownpayment = paymentType === "DOWNPAYMENT";
-    const bookingStatus: "ACCEPTED" | "COMPLETED" = "ACCEPTED";
+    const isOnlinePayment = paymentMethod === "QRPH";
+
+    // Use HOLD status for online payments (will be confirmed after payment)
+    // Use ACCEPTED for cash payments (immediate confirmation)
+    const bookingStatus = isOnlinePayment ? "HOLD" : "ACCEPTED";
+    const holdExpiresAt = isOnlinePayment
+      ? new Date(Date.now() + 5 * 60 * 1000) // 5 minute hold
+      : null;
 
     // Use calculated discountAmount if this function calculated it, otherwise use passed totalDiscount
     const finalVoucherDiscount =
@@ -248,6 +257,7 @@ export async function createBookingInDb({
         total_discount: finalVoucherDiscount, // Store total discount (voucher only?)
         payment_method: paymentMethod,
         status: bookingStatus,
+        hold_expires_at: holdExpiresAt,
         scheduled_at: scheduledAt,
         estimated_end: estimatedEnd,
         downpayment: downpaymentAmount,
@@ -308,6 +318,23 @@ export async function createBookingInDb({
         },
       });
     }
+
+    // Publish outbox event for async processing (emails, etc.)
+    await publishEvent(tx as Prisma.TransactionClient, {
+      type: isOnlinePayment ? "BOOKING_CREATED" : "BOOKING_CONFIRMED",
+      aggregateType: "Booking",
+      aggregateId: String(booking.id),
+      businessId: business.id,
+      payload: {
+        bookingId: booking.id,
+        customerName,
+        email,
+        scheduledAt: scheduledAt.toISOString(),
+        estimatedEnd: estimatedEnd.toISOString(),
+        grandTotal,
+        status: bookingStatus,
+      },
+    });
 
     return booking;
   });

@@ -65,6 +65,12 @@ export default function AttendanceCard({
       return;
     }
 
+    const options = {
+      enableHighAccuracy: true,
+      timeout: 10000,
+      maximumAge: 0,
+    };
+
     navigator.geolocation.getCurrentPosition(
       async (position) => {
         const { latitude, longitude } = position.coords;
@@ -82,11 +88,41 @@ export default function AttendanceCard({
         }
         setLoading(false);
       },
-      (error) => {
-        console.error(error);
-        toast.error("Unable to retrieve location. Please allow access.");
+      async (error) => {
+        console.error("Geolocation error:", error);
+
+        // Developer Bypass: If in dev mode, try to clock in with mock location
+        if (process.env.NODE_ENV === "development") {
+          toast.info("Dev Mode: Geolocation failed, using mock location.");
+          // Use mock coordinates (0,0) - backend will skip check in dev
+          const result = await clockInAction(employeeId, 0, 0, businessSlug);
+
+          if (result.success) {
+            toast.success("Clocked in successfully (Dev Bypass)!");
+          } else {
+            toast.error(result.error);
+          }
+          setLoading(false);
+          return;
+        }
+
+        let errorMessage = "Unable to retrieve location.";
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            errorMessage =
+              "Location permission denied. Please enable it in browser settings or OS settings.";
+            break;
+          case error.POSITION_UNAVAILABLE:
+            errorMessage = "Location information is unavailable.";
+            break;
+          case error.TIMEOUT:
+            errorMessage = "Location request timed out. Please try again.";
+            break;
+        }
+        toast.error(errorMessage);
         setLoading(false);
       },
+      options,
     );
   };
 

@@ -8,9 +8,13 @@ async function main() {
   // Clean up existing data
   await prisma.availedService.deleteMany();
   await prisma.booking.deleteMany();
+  await prisma.packageItem.deleteMany();
   await prisma.servicePackage.deleteMany();
   await prisma.service.deleteMany();
   await prisma.customer.deleteMany();
+  await prisma.employeeAttendance.deleteMany();
+  await prisma.leaveRequest.deleteMany();
+  await prisma.payslip.deleteMany();
   await prisma.employee.deleteMany();
   await prisma.owner.deleteMany();
   await prisma.businessHours.deleteMany();
@@ -18,9 +22,14 @@ async function main() {
   await prisma.user.deleteMany();
 
   const password = await hash("password123", 12);
+  const employeePassword = await hash("employee123", 12);
 
-  // Create Owner User
-  const ownerUser = await prisma.user.create({
+  // ============================================
+  // 1. BUSINESS: BEAUTY FEEL (Spa/Nails/Lashes)
+  // ============================================
+  console.log(" Creating BeautyFeel...");
+
+  const bfOwnerUser = await prisma.user.create({
     data: {
       email: "owner@beautyfeel.com",
       name: "Maria Santos",
@@ -29,369 +38,220 @@ async function main() {
     },
   });
 
-  // Create Business: BeautyFeel
-  const business = await prisma.business.create({
+  const beautyFeel = await prisma.business.create({
     data: {
       name: "BeautyFeel",
       slug: "beautyfeel",
       initials: "BF",
-      owners: {
-        create: {
-          user_id: ownerUser.id,
-        },
-      },
+      owners: { create: { user_id: bfOwnerUser.id } },
       latitude: 9.682940016270514,
       longitude: 118.75246245092016,
     } as any,
   });
 
-  console.log(`Created business: ${business.name} (slug: ${business.slug})`);
-
-  // Create Business Hours
-  const businessHours = [
-    {
-      day_of_week: 0,
-      open_time: "10:00",
-      close_time: "18:00",
-      is_closed: false,
-    }, // Sunday
-    {
-      day_of_week: 1,
-      open_time: "09:00",
-      close_time: "20:00",
-      is_closed: false,
-    }, // Monday
-    {
-      day_of_week: 2,
-      open_time: "09:00",
-      close_time: "20:00",
-      is_closed: false,
-    }, // Tuesday
-    {
-      day_of_week: 3,
-      open_time: "09:00",
-      close_time: "20:00",
-      is_closed: false,
-    }, // Wednesday
-    {
-      day_of_week: 4,
-      open_time: "09:00",
-      close_time: "20:00",
-      is_closed: false,
-    }, // Thursday
-    {
-      day_of_week: 5,
-      open_time: "09:00",
-      close_time: "21:00",
-      is_closed: false,
-    }, // Friday
-    {
-      day_of_week: 6,
-      open_time: "09:00",
-      close_time: "21:00",
-      is_closed: false,
-    }, // Saturday
-  ];
-
-  for (const hours of businessHours) {
+  // BF Business Hours
+  const days = Array.from({ length: 7 }, (_, i) => i);
+  // General Hours (10-6)
+  for (const d of days) {
     await prisma.businessHours.create({
       data: {
-        ...hours,
-        business_id: business.id,
+        business_id: beautyFeel.id,
+        day_of_week: d,
+        open_time: "10:00",
+        close_time: "18:00",
+        is_closed: d === 0, // Closed Sundays
+        category: "GENERAL",
       },
     });
-  }
-  console.log(`Created business hours for ${business.name}`);
 
-  // Create Services - NAILS Category
-  const nailServices = [
-    {
-      name: "Classic Manicure",
-      description: "Traditional nail care with polish",
-      price: 350,
-      duration: 45,
-      category: "Nails",
-    },
-    {
-      name: "Gel Manicure",
-      description: "Long-lasting gel polish manicure",
-      price: 550,
-      duration: 60,
-      category: "Nails",
-    },
-    {
-      name: "Classic Pedicure",
-      description: "Relaxing foot care with polish",
-      price: 450,
-      duration: 60,
-      category: "Nails",
-    },
-    {
-      name: "Gel Pedicure",
-      description: "Gel polish pedicure for lasting shine",
-      price: 650,
-      duration: 75,
-      category: "Nails",
-    },
-
-    {
-      name: "Nail Art (per nail)",
-      description: "Custom nail art designs",
-      price: 50,
-      duration: 10,
-      category: "Nails",
-    },
-    {
-      name: "Acrylic Full Set",
-      description: "Full set of acrylic nail extensions",
-      price: 1200,
-      duration: 120,
-      category: "Nails",
-    },
-    {
-      name: "Acrylic Refill",
-      description: "Acrylic nail maintenance",
-      price: 800,
-      duration: 90,
-      category: "Nails",
-    },
-  ];
-
-  const spaServices = [
-    {
-      name: "Swedish Massage",
-      description: "Full body relaxation massage",
-      price: 800,
-      duration: 60,
-      category: "Spa",
-    },
-    {
-      name: "Deep Tissue Massage",
-      description: "Therapeutic pressure massage",
-      price: 1000,
-      duration: 60,
-      category: "Spa",
-    },
-    {
-      name: "Hot Stone Massage",
-      description: "Warm stone therapy massage",
-      price: 1200,
-      duration: 75,
-      category: "Spa",
-    },
-    {
-      name: "Facial Treatment",
-      description: "Deep cleansing facial",
-      price: 900,
-      duration: 60,
-      category: "Spa",
-    },
-    {
-      name: "Body Scrub",
-      description: "Exfoliating body treatment",
-      price: 700,
-      duration: 45,
-      category: "Spa",
-    },
-    {
-      name: "Aromatherapy Session",
-      description: "Essential oils relaxation",
-      price: 600,
-      duration: 45,
-      category: "Spa",
-    },
-  ];
-
-  // Create Services - LASHES Category
-  const lashServices = [
-    {
-      name: "Classic Lash Extensions",
-      description: "Natural-looking lash extensions",
-      price: 1500,
-      duration: 90,
-      category: "Lashes",
-    },
-    {
-      name: "Volume Lash Extensions",
-      description: "Fuller, dramatic lash look",
-      price: 2000,
-      duration: 120,
-      category: "Lashes",
-    },
-    {
-      name: "Hybrid Lash Extensions",
-      description: "Mix of classic and volume",
-      price: 1800,
-      duration: 105,
-      category: "Lashes",
-    },
-    {
-      name: "Lash Lift",
-      description: "Natural lash curling treatment",
-      price: 800,
-      duration: 60,
-      category: "Lashes",
-    },
-    {
-      name: "Lash Tint",
-      description: "Lash coloring treatment",
-      price: 400,
-      duration: 30,
-      category: "Lashes",
-    },
-    {
-      name: "Lash Refill",
-      description: "Lash extension maintenance",
-      price: 900,
-      duration: 60,
-      category: "Lashes",
-    },
-  ];
-
-  const allServices = [...nailServices, ...spaServices, ...lashServices];
-
-  const createdServices = [];
-  for (const s of allServices) {
-    const service = await prisma.service.create({
+    // Special Spa Hours (Late night Fridays)
+    await prisma.businessHours.create({
       data: {
-        ...s,
-        business_id: business.id,
+        business_id: beautyFeel.id,
+        day_of_week: d,
+        open_time: "12:00",
+        close_time: d === 5 ? "22:00" : "20:00", // Late on Friday
+        is_closed: d === 0,
+        category: "Spa",
       },
     });
-    createdServices.push(service);
   }
-  console.log(
-    `Created ${createdServices.length} services for ${business.name}`,
-  );
 
-  /*
-  // Create Service Packages
-  const packages = [
-    {
-      name: "Pamper Me Package",
-      description:
-        "Complete nail care experience - Gel Manicure + Gel Pedicure",
-      price: 1100, // Discounted from 1200
-      duration: 135,
-      category: "Nails",
-      serviceNames: ["Gel Manicure", "Gel Pedicure"],
-    },
-    {
-      name: "Relaxation Retreat",
-      description:
-        "Ultimate spa experience - Swedish Massage + Facial + Body Scrub",
-      price: 2200, // Discounted from 2400
-      duration: 165,
-      category: "Spa",
-      serviceNames: ["Swedish Massage", "Facial Treatment", "Body Scrub"],
-    },
-    {
-      name: "Lash & Lift Combo",
-      description: "Complete lash transformation - Lash Lift + Lash Tint",
-      price: 1100, // Discounted from 1200
-      duration: 90,
-      category: "Lashes",
-      serviceNames: ["Lash Lift", "Lash Tint"],
-    },
-    {
-      name: "Bridal Beauty Package",
-      description:
-        "Full bridal prep - Gel Manicure + Gel Pedicure + Classic Lash Extensions + Facial",
-      price: 3500, // Big discount for brides
-      duration: 285,
-      category: "Spa",
-      serviceNames: [
-        "Gel Manicure",
-        "Gel Pedicure",
-        "Classic Lash Extensions",
-        "Facial Treatment",
-      ],
-    },
+  // BF Services
+  const bfServices = [
+    { name: "Classic Manicure", price: 350, duration: 45, category: "Nails" },
+    { name: "Gel Manicure", price: 550, duration: 60, category: "Nails" },
+    { name: "Classic Pedicure", price: 450, duration: 60, category: "Nails" },
+    { name: "Full Body Massage", price: 800, duration: 60, category: "Spa" },
+    { name: "Deep Tissue", price: 1000, duration: 60, category: "Spa" },
+    { name: "Classic Lashes", price: 1500, duration: 90, category: "Lashes" },
+    { name: "Volume Lashes", price: 2000, duration: 120, category: "Lashes" },
   ];
 
-  for (const pkg of packages) {
-    const packageServices = createdServices.filter((s) =>
-      pkg.serviceNames.includes(s.name),
-    );
-
-    await prisma.servicePackage.create({
-      data: {
-        name: pkg.name,
-        description: pkg.description,
-        price: pkg.price,
-        duration: pkg.duration,
-        category: pkg.category,
-        business_id: business.id,
-        services: {
-          connect: packageServices.map((s) => ({ id: s.id })),
-        },
-      },
-    });
+  for (const s of bfServices) {
+    await prisma.service.create({ data: { ...s, business_id: beautyFeel.id } });
   }
-  console.log(`Created ${packages.length} service packages`);
-  */
 
-  const employeeUser = await prisma.user.create({
-    data: {
-      email: "anna@beautyfeel.com",
-      name: "Anna Reyes",
-      hashed_password: await hash("employee123", 12),
-      role: Role.EMPLOYEE,
-    },
-  });
-
-  await prisma.employee.create({
-    data: {
-      user_id: employeeUser.id,
-      business_id: business.id,
-      salary: 0,
-      daily_rate: 600,
-      commission_percentage: 10,
-    },
-  });
-  console.log(`Created employee: ${employeeUser.name}`);
-
-  const employeeUser2 = await prisma.user.create({
-    data: {
-      email: "joy@beautyfeel.com",
+  // BF Employees
+  const bfEmployees = [
+    { name: "Anna Reyes", email: "anna@beautyfeel.com", specialties: [] },
+    {
       name: "Joy Dela Cruz",
-      hashed_password: await hash("employee123", 12),
-      role: Role.EMPLOYEE,
+      email: "joy@beautyfeel.com",
+      specialties: ["Nails"],
     },
-  });
-
-  await prisma.employee.create({
-    data: {
-      user_id: employeeUser2.id,
-      business_id: business.id,
-      salary: 0,
-      daily_rate: 533,
-      commission_percentage: 8,
+    {
+      name: "Bea Alonzo",
+      email: "bea@beautyfeel.com",
+      specialties: ["Lashes"],
     },
-  });
-  console.log(`Created employee: ${employeeUser2.name}`);
-
-  const customers = [
-    { name: "Sofia Cruz", email: "sofia@email.com", phone: "09171234567" },
-    { name: "Camille Tan", email: "camille@email.com", phone: "09181234567" },
-    { name: "Patricia Lim", email: "patricia@email.com", phone: "09191234567" },
+    {
+      name: "Carla Abellana",
+      email: "carla@beautyfeel.com",
+      specialties: ["Spa"],
+    },
+    {
+      name: "Dina Bonnevie",
+      email: "dina@beautyfeel.com",
+      specialties: ["Nails", "Lashes"],
+    },
   ];
 
-  for (const c of customers) {
-    await prisma.customer.create({
+  for (const emp of bfEmployees) {
+    const u = await prisma.user.create({
       data: {
-        ...c,
-        business_id: business.id,
+        email: emp.email,
+        name: emp.name,
+        hashed_password: employeePassword,
+        role: Role.EMPLOYEE,
+      },
+    });
+    await prisma.employee.create({
+      data: {
+        user_id: u.id,
+        business_id: beautyFeel.id,
+        salary: 0,
+        daily_rate: 500 + Math.random() * 200,
+        commission_percentage: 10,
+        specialties: emp.specialties,
       },
     });
   }
-  console.log(`Created ${customers.length} customers`);
+
+  // ============================================
+  // 2. BUSINESS: GENTLEMAN'S CUT (Barber)
+  // ============================================
+  console.log(" Creating Gentleman's Cut...");
+
+  const gcOwnerUser = await prisma.user.create({
+    data: {
+      email: "owner@gentlemanscut.com",
+      name: "Arthur Shelby",
+      hashed_password: password,
+      role: Role.OWNER,
+    },
+  });
+
+  const gentlemansCut = await prisma.business.create({
+    data: {
+      name: "Gentleman's Cut",
+      slug: "gentlemans-cut",
+      initials: "GC",
+      owners: { create: { user_id: gcOwnerUser.id } },
+      latitude: 9.7, // Approx
+      longitude: 118.75, // Approx
+    } as any,
+  });
+
+  // GC Business Hours (Early open)
+  for (const d of days) {
+    await prisma.businessHours.create({
+      data: {
+        business_id: gentlemansCut.id,
+        day_of_week: d,
+        open_time: "07:00",
+        close_time: "19:00",
+        is_closed: d === 6, // Closed Saturday
+        category: "GENERAL",
+      },
+    });
+  }
+
+  // GC Services
+  const gcServices = [
+    { name: "Classic Cut", price: 300, duration: 30, category: "Haircut" },
+    { name: "Fade", price: 400, duration: 45, category: "Haircut" },
+    { name: "Hot Towel Shave", price: 350, duration: 30, category: "Shave" },
+    { name: "Beard Trim", price: 200, duration: 20, category: "Grooming" },
+    { name: "Hair Dye", price: 800, duration: 60, category: "Chemical" },
+  ];
+
+  for (const s of gcServices) {
+    await prisma.service.create({
+      data: { ...s, business_id: gentlemansCut.id },
+    });
+  }
+
+  // GC Employees
+  const gcEmployees = [
+    {
+      name: "Thomas Shelby",
+      email: "thomas@gentlemanscut.com",
+      specialties: ["Haircut", "Shave", "Grooming", "Chemical"],
+    }, // Master
+    {
+      name: "John Shelby",
+      email: "john@gentlemanscut.com",
+      specialties: ["Haircut"],
+    },
+    {
+      name: "Polly Gray",
+      email: "polly@gentlemanscut.com",
+      specialties: ["Chemical", "Haircut"],
+    },
+    {
+      name: "Michael Gray",
+      email: "michael@gentlemanscut.com",
+      specialties: [],
+    }, // Generalist
+    {
+      name: "Alfred Solomons",
+      email: "alfie@gentlemanscut.com",
+      specialties: ["Shave", "Grooming"],
+    },
+  ];
+
+  for (const emp of gcEmployees) {
+    const u = await prisma.user.create({
+      data: {
+        email: emp.email,
+        name: emp.name,
+        hashed_password: employeePassword,
+        role: Role.EMPLOYEE,
+      },
+    });
+    await prisma.employee.create({
+      data: {
+        user_id: u.id,
+        business_id: gentlemansCut.id,
+        salary: 0,
+        daily_rate: 600 + Math.random() * 200,
+        commission_percentage: 15,
+        specialties: emp.specialties,
+      },
+    });
+  }
 
   console.log("\n✅ Seeding finished successfully!");
   console.log("\n📋 Login Credentials:");
+  console.log("--- BeautyFeel ---");
   console.log("   Owner: owner@beautyfeel.com / password123");
-  console.log("   Employee: anna@beautyfeel.com / employee123");
-  console.log("   Employee: joy@beautyfeel.com / employee123");
+  console.log("   Emp (Generalist): anna@beautyfeel.com / employee123");
+  console.log("   Emp (Nails): joy@beautyfeel.com / employee123");
+  console.log("\n--- Gentleman's Cut ---");
+  console.log("   Owner: owner@gentlemanscut.com / password123");
+  console.log("   Emp (Master): thomas@gentlemanscut.com / employee123");
+  console.log("   Emp (Haircut): john@gentlemanscut.com / employee123");
 }
 
 main()

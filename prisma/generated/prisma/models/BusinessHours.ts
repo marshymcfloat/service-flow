@@ -42,6 +42,7 @@ export type BusinessHoursMinAggregateOutputType = {
   open_time: string | null
   close_time: string | null
   is_closed: boolean | null
+  category: string | null
   business_id: string | null
 }
 
@@ -51,6 +52,7 @@ export type BusinessHoursMaxAggregateOutputType = {
   open_time: string | null
   close_time: string | null
   is_closed: boolean | null
+  category: string | null
   business_id: string | null
 }
 
@@ -60,6 +62,7 @@ export type BusinessHoursCountAggregateOutputType = {
   open_time: number
   close_time: number
   is_closed: number
+  category: number
   business_id: number
   _all: number
 }
@@ -81,6 +84,7 @@ export type BusinessHoursMinAggregateInputType = {
   open_time?: true
   close_time?: true
   is_closed?: true
+  category?: true
   business_id?: true
 }
 
@@ -90,6 +94,7 @@ export type BusinessHoursMaxAggregateInputType = {
   open_time?: true
   close_time?: true
   is_closed?: true
+  category?: true
   business_id?: true
 }
 
@@ -99,6 +104,7 @@ export type BusinessHoursCountAggregateInputType = {
   open_time?: true
   close_time?: true
   is_closed?: true
+  category?: true
   business_id?: true
   _all?: true
 }
@@ -195,6 +201,7 @@ export type BusinessHoursGroupByOutputType = {
   open_time: string
   close_time: string
   is_closed: boolean
+  category: string
   business_id: string
   _count: BusinessHoursCountAggregateOutputType | null
   _avg: BusinessHoursAvgAggregateOutputType | null
@@ -227,6 +234,7 @@ export type BusinessHoursWhereInput = {
   open_time?: Prisma.StringFilter<"BusinessHours"> | string
   close_time?: Prisma.StringFilter<"BusinessHours"> | string
   is_closed?: Prisma.BoolFilter<"BusinessHours"> | boolean
+  category?: Prisma.StringFilter<"BusinessHours"> | string
   business_id?: Prisma.StringFilter<"BusinessHours"> | string
   business?: Prisma.XOR<Prisma.BusinessScalarRelationFilter, Prisma.BusinessWhereInput>
 }
@@ -237,13 +245,14 @@ export type BusinessHoursOrderByWithRelationInput = {
   open_time?: Prisma.SortOrder
   close_time?: Prisma.SortOrder
   is_closed?: Prisma.SortOrder
+  category?: Prisma.SortOrder
   business_id?: Prisma.SortOrder
   business?: Prisma.BusinessOrderByWithRelationInput
 }
 
 export type BusinessHoursWhereUniqueInput = Prisma.AtLeast<{
   id?: number
-  business_id_day_of_week?: Prisma.BusinessHoursBusiness_idDay_of_weekCompoundUniqueInput
+  business_id_day_of_week_category?: Prisma.BusinessHoursBusiness_idDay_of_weekCategoryCompoundUniqueInput
   AND?: Prisma.BusinessHoursWhereInput | Prisma.BusinessHoursWhereInput[]
   OR?: Prisma.BusinessHoursWhereInput[]
   NOT?: Prisma.BusinessHoursWhereInput | Prisma.BusinessHoursWhereInput[]
@@ -251,9 +260,10 @@ export type BusinessHoursWhereUniqueInput = Prisma.AtLeast<{
   open_time?: Prisma.StringFilter<"BusinessHours"> | string
   close_time?: Prisma.StringFilter<"BusinessHours"> | string
   is_closed?: Prisma.BoolFilter<"BusinessHours"> | boolean
+  category?: Prisma.StringFilter<"BusinessHours"> | string
   business_id?: Prisma.StringFilter<"BusinessHours"> | string
   business?: Prisma.XOR<Prisma.BusinessScalarRelationFilter, Prisma.BusinessWhereInput>
-}, "id" | "business_id_day_of_week">
+}, "id" | "business_id_day_of_week_category">
 
 export type BusinessHoursOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -261,6 +271,7 @@ export type BusinessHoursOrderByWithAggregationInput = {
   open_time?: Prisma.SortOrder
   close_time?: Prisma.SortOrder
   is_closed?: Prisma.SortOrder
+  category?: Prisma.SortOrder
   business_id?: Prisma.SortOrder
   _count?: Prisma.BusinessHoursCountOrderByAggregateInput
   _avg?: Prisma.BusinessHoursAvgOrderByAggregateInput
@@ -278,6 +289,7 @@ export type BusinessHoursScalarWhereWithAggregatesInput = {
   open_time?: Prisma.StringWithAggregatesFilter<"BusinessHours"> | string
   close_time?: Prisma.StringWithAggregatesFilter<"BusinessHours"> | string
   is_closed?: Prisma.BoolWithAggregatesFilter<"BusinessHours"> | boolean
+  category?: Prisma.StringWithAggregatesFilter<"BusinessHours"> | string
   business_id?: Prisma.StringWithAggregatesFilter<"BusinessHours"> | string
 }
 
@@ -286,6 +298,7 @@ export type BusinessHoursCreateInput = {
   open_time: string
   close_time: string
   is_closed?: boolean
+  category?: string
   business: Prisma.BusinessCreateNestedOneWithoutBusiness_hoursInput
 }
 
@@ -295,6 +308,7 @@ export type BusinessHoursUncheckedCreateInput = {
   open_time: string
   close_time: string
   is_closed?: boolean
+  category?: string
   business_id: string
 }
 
@@ -303,6 +317,7 @@ export type BusinessHoursUpdateInput = {
   open_time?: Prisma.StringFieldUpdateOperationsInput | string
   close_time?: Prisma.StringFieldUpdateOperationsInput | string
   is_closed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  category?: Prisma.StringFieldUpdateOperationsInput | string
   business?: Prisma.BusinessUpdateOneRequiredWithoutBusiness_hoursNestedInput
 }
 
@@ -312,6 +327,7 @@ export type BusinessHoursUncheckedUpdateInput = {
   open_time?: Prisma.StringFieldUpdateOperationsInput | string
   close_time?: Prisma.StringFieldUpdateOperationsInput | string
   is_closed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  category?: Prisma.StringFieldUpdateOperationsInput | string
   business_id?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
@@ -321,6 +337,7 @@ export type BusinessHoursCreateManyInput = {
   open_time: string
   close_time: string
   is_closed?: boolean
+  category?: string
   business_id: string
 }
 
@@ -329,6 +346,7 @@ export type BusinessHoursUpdateManyMutationInput = {
   open_time?: Prisma.StringFieldUpdateOperationsInput | string
   close_time?: Prisma.StringFieldUpdateOperationsInput | string
   is_closed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  category?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type BusinessHoursUncheckedUpdateManyInput = {
@@ -337,6 +355,7 @@ export type BusinessHoursUncheckedUpdateManyInput = {
   open_time?: Prisma.StringFieldUpdateOperationsInput | string
   close_time?: Prisma.StringFieldUpdateOperationsInput | string
   is_closed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  category?: Prisma.StringFieldUpdateOperationsInput | string
   business_id?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
@@ -350,9 +369,10 @@ export type BusinessHoursOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
-export type BusinessHoursBusiness_idDay_of_weekCompoundUniqueInput = {
+export type BusinessHoursBusiness_idDay_of_weekCategoryCompoundUniqueInput = {
   business_id: string
   day_of_week: number
+  category: string
 }
 
 export type BusinessHoursCountOrderByAggregateInput = {
@@ -361,6 +381,7 @@ export type BusinessHoursCountOrderByAggregateInput = {
   open_time?: Prisma.SortOrder
   close_time?: Prisma.SortOrder
   is_closed?: Prisma.SortOrder
+  category?: Prisma.SortOrder
   business_id?: Prisma.SortOrder
 }
 
@@ -375,6 +396,7 @@ export type BusinessHoursMaxOrderByAggregateInput = {
   open_time?: Prisma.SortOrder
   close_time?: Prisma.SortOrder
   is_closed?: Prisma.SortOrder
+  category?: Prisma.SortOrder
   business_id?: Prisma.SortOrder
 }
 
@@ -384,6 +406,7 @@ export type BusinessHoursMinOrderByAggregateInput = {
   open_time?: Prisma.SortOrder
   close_time?: Prisma.SortOrder
   is_closed?: Prisma.SortOrder
+  category?: Prisma.SortOrder
   business_id?: Prisma.SortOrder
 }
 
@@ -443,6 +466,7 @@ export type BusinessHoursCreateWithoutBusinessInput = {
   open_time: string
   close_time: string
   is_closed?: boolean
+  category?: string
 }
 
 export type BusinessHoursUncheckedCreateWithoutBusinessInput = {
@@ -451,6 +475,7 @@ export type BusinessHoursUncheckedCreateWithoutBusinessInput = {
   open_time: string
   close_time: string
   is_closed?: boolean
+  category?: string
 }
 
 export type BusinessHoursCreateOrConnectWithoutBusinessInput = {
@@ -488,6 +513,7 @@ export type BusinessHoursScalarWhereInput = {
   open_time?: Prisma.StringFilter<"BusinessHours"> | string
   close_time?: Prisma.StringFilter<"BusinessHours"> | string
   is_closed?: Prisma.BoolFilter<"BusinessHours"> | boolean
+  category?: Prisma.StringFilter<"BusinessHours"> | string
   business_id?: Prisma.StringFilter<"BusinessHours"> | string
 }
 
@@ -497,6 +523,7 @@ export type BusinessHoursCreateManyBusinessInput = {
   open_time: string
   close_time: string
   is_closed?: boolean
+  category?: string
 }
 
 export type BusinessHoursUpdateWithoutBusinessInput = {
@@ -504,6 +531,7 @@ export type BusinessHoursUpdateWithoutBusinessInput = {
   open_time?: Prisma.StringFieldUpdateOperationsInput | string
   close_time?: Prisma.StringFieldUpdateOperationsInput | string
   is_closed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  category?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type BusinessHoursUncheckedUpdateWithoutBusinessInput = {
@@ -512,6 +540,7 @@ export type BusinessHoursUncheckedUpdateWithoutBusinessInput = {
   open_time?: Prisma.StringFieldUpdateOperationsInput | string
   close_time?: Prisma.StringFieldUpdateOperationsInput | string
   is_closed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  category?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type BusinessHoursUncheckedUpdateManyWithoutBusinessInput = {
@@ -520,6 +549,7 @@ export type BusinessHoursUncheckedUpdateManyWithoutBusinessInput = {
   open_time?: Prisma.StringFieldUpdateOperationsInput | string
   close_time?: Prisma.StringFieldUpdateOperationsInput | string
   is_closed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  category?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 
@@ -530,6 +560,7 @@ export type BusinessHoursSelect<ExtArgs extends runtime.Types.Extensions.Interna
   open_time?: boolean
   close_time?: boolean
   is_closed?: boolean
+  category?: boolean
   business_id?: boolean
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["businessHours"]>
@@ -540,6 +571,7 @@ export type BusinessHoursSelectCreateManyAndReturn<ExtArgs extends runtime.Types
   open_time?: boolean
   close_time?: boolean
   is_closed?: boolean
+  category?: boolean
   business_id?: boolean
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["businessHours"]>
@@ -550,6 +582,7 @@ export type BusinessHoursSelectUpdateManyAndReturn<ExtArgs extends runtime.Types
   open_time?: boolean
   close_time?: boolean
   is_closed?: boolean
+  category?: boolean
   business_id?: boolean
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["businessHours"]>
@@ -560,10 +593,11 @@ export type BusinessHoursSelectScalar = {
   open_time?: boolean
   close_time?: boolean
   is_closed?: boolean
+  category?: boolean
   business_id?: boolean
 }
 
-export type BusinessHoursOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "day_of_week" | "open_time" | "close_time" | "is_closed" | "business_id", ExtArgs["result"]["businessHours"]>
+export type BusinessHoursOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "day_of_week" | "open_time" | "close_time" | "is_closed" | "category" | "business_id", ExtArgs["result"]["businessHours"]>
 export type BusinessHoursInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
 }
@@ -585,6 +619,7 @@ export type $BusinessHoursPayload<ExtArgs extends runtime.Types.Extensions.Inter
     open_time: string
     close_time: string
     is_closed: boolean
+    category: string
     business_id: string
   }, ExtArgs["result"]["businessHours"]>
   composites: {}
@@ -1015,6 +1050,7 @@ export interface BusinessHoursFieldRefs {
   readonly open_time: Prisma.FieldRef<"BusinessHours", 'String'>
   readonly close_time: Prisma.FieldRef<"BusinessHours", 'String'>
   readonly is_closed: Prisma.FieldRef<"BusinessHours", 'Boolean'>
+  readonly category: Prisma.FieldRef<"BusinessHours", 'String'>
   readonly business_id: Prisma.FieldRef<"BusinessHours", 'String'>
 }
     

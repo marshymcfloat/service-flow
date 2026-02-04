@@ -14,6 +14,7 @@ export interface GetAvailableSlotsParams {
   date: Date;
   serviceDurationMinutes: number;
   slotIntervalMinutes?: number;
+  category?: string;
 }
 
 import { getCachedBusinessWithHoursAndEmployees } from "@/lib/data/cached";
@@ -23,6 +24,7 @@ export async function getAvailableSlots({
   date,
   serviceDurationMinutes,
   slotIntervalMinutes = 30,
+  category = "GENERAL",
 }: GetAvailableSlotsParams): Promise<TimeSlot[]> {
   const business = await getCachedBusinessWithHoursAndEmployees(businessSlug);
 
@@ -31,9 +33,16 @@ export async function getAvailableSlots({
   }
 
   const dayOfWeek = date.getDay();
-  const businessHours = business.business_hours.find(
-    (h) => h.day_of_week === dayOfWeek,
+  // Try to find category-specific hours, fallback to GENERAL
+  let businessHours = business.business_hours.find(
+    (h) => h.day_of_week === dayOfWeek && h.category === category
   );
+
+  if (!businessHours) {
+     businessHours = business.business_hours.find(
+      (h) => h.day_of_week === dayOfWeek && h.category === "GENERAL"
+    );
+  }
 
   if (!businessHours || businessHours.is_closed) {
     return [];
@@ -107,7 +116,18 @@ export async function getAvailableSlots({
   });
 
   const slots: TimeSlot[] = [];
-  const totalEmployees = business.employees.length;
+
+  // Filter employees based on specialty
+  // If no specialties list, assume generalist (can do everything)
+  // If specialties exists, must include category
+  const qualifiedEmployees = business.employees.filter(emp => 
+    emp.specialties.length === 0 || emp.specialties.includes(category)
+  );
+
+  const totalEmployees = qualifiedEmployees.length;
+
+  // Optim: If no employees can perform this category, no slots
+  if (totalEmployees === 0) return [];
 
   let currentSlotStart = new Date(openTime);
 
@@ -138,12 +158,19 @@ export async function getAvailableSlots({
       const overlaps = currentSlotStart < bookingEnd && slotEnd > bookingStart;
 
       if (overlaps) {
-        const employeeIds = new Set(
+        // Count how many QUALIFIED employees are busy
+        const busyQualifiedIds = new Set(
           booking.availed_services
+             // Only count employees who are actually served_by someone
             .filter((s) => s.served_by_id)
-            .map((s) => s.served_by_id),
+             // Check if the busy employee is one of our qualified employees
+             // (Though strictly, if they are busy, they are busy, regardless of task)
+             // But we only subtract from totalEmployees (which is qualified count)
+             // So we need to see if any of *our qualified pool* is busy.
+            .map((s) => s.served_by_id!)
+            .filter(id => qualifiedEmployees.some(qe => qe.id === id))
         );
-        busyEmployees += employeeIds.size || 1;
+        busyEmployees += busyQualifiedIds.size;
       }
     }
 
@@ -168,10 +195,12 @@ export async function getAvailableEmployees({
   businessSlug,
   startTime,
   endTime,
+  category = "GENERAL"
 }: {
   businessSlug: string;
   startTime: Date;
   endTime: Date;
+  category?: string;
 }) {
   const business = await getCachedBusinessWithHoursAndEmployees(businessSlug);
 
@@ -202,7 +231,12 @@ export async function getAvailableEmployees({
     }
   }
 
-  return business.employees.map((emp) => ({
+  // Filter by specialty
+  const qualifiedEmployees = business.employees.filter(emp => 
+    emp.specialties.length === 0 || emp.specialties.includes(category)
+  );
+
+  return qualifiedEmployees.map((emp) => ({
     id: emp.id,
     name: emp.user.name,
     available: !busyEmployeeIds.has(emp.id),
