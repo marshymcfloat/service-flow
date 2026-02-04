@@ -33,14 +33,17 @@ export async function getAvailableSlots({
   }
 
   const dayOfWeek = date.getDay();
-  // Try to find category-specific hours, fallback to GENERAL
+  const normalizedCategory = category.toLowerCase();
   let businessHours = business.business_hours.find(
-    (h) => h.day_of_week === dayOfWeek && h.category === category
+    (h) =>
+      h.day_of_week === dayOfWeek &&
+      h.category.toLowerCase() === normalizedCategory,
   );
 
   if (!businessHours) {
-     businessHours = business.business_hours.find(
-      (h) => h.day_of_week === dayOfWeek && h.category === "GENERAL"
+    businessHours = business.business_hours.find(
+      (h) =>
+        h.day_of_week === dayOfWeek && h.category.toLowerCase() === "general",
     );
   }
 
@@ -116,17 +119,14 @@ export async function getAvailableSlots({
   });
 
   const slots: TimeSlot[] = [];
-
-  // Filter employees based on specialty
-  // If no specialties list, assume generalist (can do everything)
-  // If specialties exists, must include category
-  const qualifiedEmployees = business.employees.filter(emp => 
-    emp.specialties.length === 0 || emp.specialties.includes(category)
+  const qualifiedEmployees = business.employees.filter(
+    (emp) =>
+      emp.specialties.length === 0 ||
+      emp.specialties.some((s) => s.toLowerCase() === normalizedCategory),
   );
 
   const totalEmployees = qualifiedEmployees.length;
 
-  // Optim: If no employees can perform this category, no slots
   if (totalEmployees === 0) return [];
 
   let currentSlotStart = new Date(openTime);
@@ -158,17 +158,11 @@ export async function getAvailableSlots({
       const overlaps = currentSlotStart < bookingEnd && slotEnd > bookingStart;
 
       if (overlaps) {
-        // Count how many QUALIFIED employees are busy
         const busyQualifiedIds = new Set(
           booking.availed_services
-             // Only count employees who are actually served_by someone
             .filter((s) => s.served_by_id)
-             // Check if the busy employee is one of our qualified employees
-             // (Though strictly, if they are busy, they are busy, regardless of task)
-             // But we only subtract from totalEmployees (which is qualified count)
-             // So we need to see if any of *our qualified pool* is busy.
             .map((s) => s.served_by_id!)
-            .filter(id => qualifiedEmployees.some(qe => qe.id === id))
+            .filter((id) => qualifiedEmployees.some((qe) => qe.id === id)),
         );
         busyEmployees += busyQualifiedIds.size;
       }
@@ -195,7 +189,7 @@ export async function getAvailableEmployees({
   businessSlug,
   startTime,
   endTime,
-  category = "GENERAL"
+  category = "GENERAL",
 }: {
   businessSlug: string;
   startTime: Date;
@@ -231,16 +225,121 @@ export async function getAvailableEmployees({
     }
   }
 
-  // Filter by specialty
-  const qualifiedEmployees = business.employees.filter(emp => 
-    emp.specialties.length === 0 || emp.specialties.includes(category)
+  const normalizedCategory = category.toLowerCase();
+  const qualifiedEmployees = business.employees.filter(
+    (emp) =>
+      emp.specialties.length === 0 ||
+      emp.specialties.some((s) => s.toLowerCase() === normalizedCategory),
   );
 
   return qualifiedEmployees.map((emp) => ({
     id: emp.id,
     name: emp.user.name,
     available: !busyEmployeeIds.has(emp.id),
+    specialties: emp.specialties,
   }));
+}
+
+export async function checkCategoryAvailability({
+  businessSlug,
+  category = "GENERAL",
+  date,
+}: {
+  businessSlug: string;
+  category?: string;
+  date?: Date;
+}): Promise<{
+  hasBusinessHours: boolean;
+  businessHoursPassed: boolean;
+  qualifiedEmployeeCount: number;
+  businessHours?: { open_time: string; close_time: string; is_closed: boolean };
+}> {
+  const business = await getCachedBusinessWithHoursAndEmployees(businessSlug);
+
+  if (!business) {
+    throw new Error("Business not found");
+  }
+
+  const checkDate = date || new Date();
+  const dayOfWeek = checkDate.getDay();
+
+  const normalizedCategory = category.toLowerCase();
+  let businessHours = business.business_hours.find(
+    (h) =>
+      h.day_of_week === dayOfWeek &&
+      h.category.toLowerCase() === normalizedCategory,
+  );
+
+  if (!businessHours) {
+    businessHours = business.business_hours.find(
+      (h) =>
+        h.day_of_week === dayOfWeek && h.category.toLowerCase() === "general",
+    );
+  }
+
+  const hasBusinessHours = !!businessHours && !businessHours.is_closed;
+
+  let businessHoursPassed = false;
+  if (hasBusinessHours && businessHours) {
+    const getPHDateComponents = (d: Date) => {
+      const formatter = new Intl.DateTimeFormat("en-US", {
+        timeZone: "Asia/Manila",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: false,
+      });
+
+      const parts = formatter.formatToParts(d);
+      const getPart = (type: string) =>
+        parts.find((p) => p.type === type)?.value || "";
+
+      return {
+        year: getPart("year"),
+        month: getPart("month"),
+        day: getPart("day"),
+        hour: getPart("hour"),
+        minute: getPart("minute"),
+      };
+    };
+
+    const phDate = getPHDateComponents(checkDate);
+    const dateStr = `${phDate.year}-${phDate.month}-${phDate.day}`;
+
+    const now = new Date();
+    const phNow = getPHDateComponents(now);
+    const nowStr = `${phNow.year}-${phNow.month}-${phNow.day}`;
+
+    const isToday = dateStr === nowStr;
+
+    if (isToday) {
+      const closeTimeStr = `${dateStr}T${businessHours.close_time}:00+08:00`;
+      const closeTime = new Date(closeTimeStr);
+      businessHoursPassed = now >= closeTime;
+    }
+  }
+
+  const qualifiedEmployees = business.employees.filter(
+    (emp) =>
+      emp.specialties.length === 0 ||
+      emp.specialties.some((s) => s.toLowerCase() === normalizedCategory),
+  );
+
+  return {
+    hasBusinessHours,
+    businessHoursPassed,
+    qualifiedEmployeeCount: qualifiedEmployees.length,
+    businessHours: businessHours
+      ? {
+          open_time: businessHours.open_time,
+          close_time: businessHours.close_time,
+          is_closed: businessHours.is_closed,
+        }
+      : undefined,
+  };
 }
 
 export async function getBusinessHours(businessSlug: string) {

@@ -87,6 +87,11 @@ export function AppSidebarClient({ businessSlug, user }: SidebarProps) {
           url: `/app/${slug}/sale-events`,
           icon: Percent,
         },
+        {
+          title: "Business Hours",
+          url: `/app/${slug}/business-hours`,
+          icon: Calendar,
+        },
       ],
     },
     {
@@ -149,7 +154,6 @@ export function AppSidebarClient({ businessSlug, user }: SidebarProps) {
       </SidebarHeader>
 
       <SidebarContent className="overflow-x-hidden">
-        {/* Dashboard - Primary Action */}
         <SidebarGroup className="px-3 py-3">
           <SidebarMenu>
             <SidebarMenuItem>
@@ -181,7 +185,6 @@ export function AppSidebarClient({ businessSlug, user }: SidebarProps) {
           </SidebarMenu>
         </SidebarGroup>
 
-        {/* Navigation Groups */}
         <div className="flex flex-col gap-1 px-3">
           {navGroups.map((group) => (
             <Collapsible
@@ -255,7 +258,6 @@ export function AppSidebarClient({ businessSlug, user }: SidebarProps) {
           ))}
         </div>
 
-        {/* Settings - At bottom */}
         <SidebarGroup className="mt-auto px-3 pb-3">
           <SidebarMenu>
             <SidebarMenuItem>

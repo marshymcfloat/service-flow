@@ -128,8 +128,6 @@ export default async function BusinessSettingsPage({
           </Card>
 
           <div className="flex justify-end">
-            {/* Using a simple submit button for now. 
-                 Could be enhanced with useFormStatus for loading state later. */}
             <Button type="submit" size="lg">
               Save Changes
             </Button>

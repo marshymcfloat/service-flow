@@ -1,7 +1,15 @@
 import * as React from "react";
-import { Check, ChevronsUpDown, Package as PackageIcon } from "lucide-react";
+import {
+  Check,
+  ChevronsUpDown,
+  Package as PackageIcon,
+  AlertCircle,
+  Users,
+  Clock,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { useQuery } from "@tanstack/react-query";
 
 import {
   Service,
@@ -26,6 +34,7 @@ type PackageWithItems = ServicePackage & {
 };
 
 import { getApplicableDiscount } from "@/lib/utils/pricing";
+import { checkCategoryAvailability } from "@/lib/server actions/availability";
 
 const ServiceSelect = React.memo(function ServiceSelect({
   services,
@@ -33,12 +42,14 @@ const ServiceSelect = React.memo(function ServiceSelect({
   categories,
   form,
   saleEvents = [],
+  businessSlug,
 }: {
   services: Service[];
   packages?: PackageWithItems[];
   categories: string[];
   form: UseFormReturn<any>;
   saleEvents?: any[];
+  businessSlug: string;
 }) {
   const [open, setOpen] = React.useState(false);
   const [selectedCategory, setSelectedCategory] = React.useState<string>("all");
@@ -47,6 +58,34 @@ const ServiceSelect = React.memo(function ServiceSelect({
   );
 
   const selectedServices = (form.watch("services") as any[]) || [];
+  const serviceCategories = React.useMemo(() => {
+    return Array.from(new Set(services.map((s) => s.category)));
+  }, [services]);
+
+  const { data: categoryAvailability } = useQuery({
+    queryKey: ["categoryAvailability", businessSlug, serviceCategories],
+    queryFn: async () => {
+      const results: Record<string, any> = {};
+      for (const category of serviceCategories) {
+        try {
+          results[category] = await checkCategoryAvailability({
+            businessSlug,
+            category,
+          });
+        } catch (error) {
+          console.error(`Error checking availability for ${category}:`, error);
+          results[category] = {
+            hasBusinessHours: true,
+            businessHoursPassed: false,
+            qualifiedEmployeeCount: 0,
+          };
+        }
+      }
+      return results;
+    },
+    enabled: !!businessSlug && serviceCategories.length > 0,
+    staleTime: 30000,
+  });
 
   const filteredServices =
     selectedCategory === "all"
@@ -97,20 +136,12 @@ const ServiceSelect = React.memo(function ServiceSelect({
     if (isPackageSelected) {
       newServices = newServices.filter((s) => s.packageId !== pkg.id);
     } else {
-      // Check if package itself has a discount (based on pkg.id)
       const pkgDiscountInfo = getApplicableDiscount(
-        0, // serviceId irrelevant
+        0,
         pkg.id,
         pkg.price,
         saleEvents,
       );
-
-      // Calculate per-item discount proportional to item price
-      // OR just apply discount logic per item if event applies to items?
-      // Requirement: Sale event applies to SERVICE or PACKAGE.
-      // If applies to PACKAGE, the total package price is discounted.
-      // We need to distribute this discount across items or just flag entries?
-      // Best approach: If package is discounted, scale down item prices.
 
       const ratio = pkgDiscountInfo
         ? pkgDiscountInfo.finalPrice / pkg.price
@@ -120,7 +151,7 @@ const ServiceSelect = React.memo(function ServiceSelect({
         newServices.push({
           ...item.service,
           price: item.custom_price * ratio,
-          originalPrice: item.service.price, // Or item.custom_price? Usually custom_price is the package rate.
+          originalPrice: item.service.price,
           quantity: 1,
           packageId: pkg.id,
           packageName: pkg.name,
@@ -224,12 +255,30 @@ const ServiceSelect = React.memo(function ServiceSelect({
                       saleEvents,
                     );
 
+                    const availability =
+                      categoryAvailability?.[service.category];
+                    const dataLoaded = !!availability;
+                    const noStaff =
+                      dataLoaded && availability?.qualifiedEmployeeCount === 0;
+                    const hoursPassed =
+                      dataLoaded && availability?.businessHoursPassed === true;
+                    const noBusinessHours =
+                      dataLoaded && availability?.hasBusinessHours === false;
+                    const isDisabled =
+                      noStaff || hoursPassed || noBusinessHours;
+
                     return (
                       <CommandItem
                         key={service.id}
                         value={service.name}
-                        onSelect={() => toggleService(service)}
-                        className="cursor-pointer aria-selected:bg-primary/5"
+                        onSelect={() => {
+                          if (!isDisabled) toggleService(service);
+                        }}
+                        className={cn(
+                          "cursor-pointer aria-selected:bg-primary/5",
+                          isDisabled && "opacity-50 cursor-not-allowed",
+                        )}
+                        disabled={isDisabled}
                       >
                         <div className="flex items-start gap-3 w-full">
                           <div
@@ -249,11 +298,18 @@ const ServiceSelect = React.memo(function ServiceSelect({
                           </div>
 
                           <div className="flex flex-col flex-1 gap-1">
-                            <div className="flex items-center gap-2">
-                              <span className="font-medium text-foreground">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span
+                                className={cn(
+                                  "font-medium",
+                                  isDisabled
+                                    ? "text-muted-foreground"
+                                    : "text-foreground",
+                                )}
+                              >
                                 {service.name}
                               </span>
-                              {discountInfo && (
+                              {discountInfo && !isDisabled && (
                                 <Badge
                                   variant="secondary"
                                   className="h-4 px-1 text-[10px] bg-destructive/10 text-destructive border-destructive/20 shadow-none"
@@ -261,9 +317,44 @@ const ServiceSelect = React.memo(function ServiceSelect({
                                   sale
                                 </Badge>
                               )}
+                              {noStaff && (
+                                <Badge
+                                  variant="secondary"
+                                  className="h-4 px-1.5 text-[10px] bg-orange-50 text-orange-700 border-orange-200 shadow-none flex items-center gap-1"
+                                >
+                                  <Users className="h-2.5 w-2.5" />
+                                  No Staff
+                                </Badge>
+                              )}
+                              {hoursPassed && (
+                                <Badge
+                                  variant="secondary"
+                                  className="h-4 px-1.5 text-[10px] bg-amber-50 text-amber-700 border-amber-200 shadow-none flex items-center gap-1"
+                                >
+                                  <Clock className="h-2.5 w-2.5" />
+                                  Hours Passed
+                                </Badge>
+                              )}
+                              {noBusinessHours && (
+                                <Badge
+                                  variant="secondary"
+                                  className="h-4 px-1.5 text-[10px] bg-gray-50 text-gray-700 border-gray-200 shadow-none flex items-center gap-1"
+                                >
+                                  <AlertCircle className="h-2.5 w-2.5" />
+                                  Closed
+                                </Badge>
+                              )}
                             </div>
                             <span className="text-xs text-muted-foreground capitalize">
                               {service.category}
+                              {availability?.qualifiedEmployeeCount > 0 &&
+                                !hoursPassed &&
+                                !noBusinessHours && (
+                                  <span className="ml-2 text-green-600">
+                                    • {availability.qualifiedEmployeeCount}{" "}
+                                    staff available
+                                  </span>
+                                )}
                             </span>
                           </div>
 

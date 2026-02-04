@@ -4,6 +4,7 @@ import { createBooking } from "@/lib/server actions/booking";
 import {
   getAvailableSlots,
   getAvailableEmployees,
+  checkCategoryAvailability,
 } from "@/lib/server actions/availability";
 import { useParams, useRouter } from "next/navigation";
 import {
@@ -320,6 +321,25 @@ export default function BookingForm({
     const fullService = services.find((s) => s.id === firstService.id);
     return fullService?.category || "GENERAL";
   }, [selectedServices, services]);
+
+  // Fetch business hours for the selected category
+  const { data: categoryInfo } = useQuery({
+    queryKey: [
+      "categoryAvailability",
+      businessSlug,
+      targetCategory,
+      selectedDate,
+    ],
+    queryFn: async () => {
+      if (!businessSlug) return null;
+      return checkCategoryAvailability({
+        businessSlug,
+        category: targetCategory,
+        date: selectedDate,
+      });
+    },
+    enabled: !!businessSlug && !!targetCategory,
+  });
 
   const { data: timeSlots = [], isLoading: isLoadingSlots } = useQuery({
     queryKey: [
@@ -711,6 +731,7 @@ export default function BookingForm({
                       packages={packages}
                       categories={categories}
                       saleEvents={saleEvents}
+                      businessSlug={businessSlug!}
                     />
                   </FormControl>
                   <FormMessage />
@@ -804,6 +825,8 @@ export default function BookingForm({
                           value={field.value}
                           onChange={field.onChange}
                           isLoading={isLoadingSlots}
+                          category={targetCategory}
+                          businessHours={categoryInfo?.businessHours || null}
                         />
                       </FormControl>
                       <FormMessage />
@@ -837,6 +860,7 @@ export default function BookingForm({
                         value={field.value}
                         onChange={field.onChange}
                         isLoading={isLoadingEmployees}
+                        serviceCategory={targetCategory}
                       />
                     </FormControl>
                     <FormMessage />

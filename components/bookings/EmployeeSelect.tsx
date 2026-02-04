@@ -2,13 +2,14 @@
 
 import * as React from "react";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { Check, User } from "lucide-react";
+import { Check, User, Sparkles } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 interface Employee {
   id: number;
   name: string;
   available: boolean;
+  specialties?: string[];
 }
 
 interface EmployeeSelectProps {
@@ -16,6 +17,7 @@ interface EmployeeSelectProps {
   value?: number;
   onChange: (employeeId: number) => void;
   isLoading?: boolean;
+  serviceCategory?: string;
 }
 
 const EmployeeSelect = React.memo(function EmployeeSelect({
@@ -23,6 +25,7 @@ const EmployeeSelect = React.memo(function EmployeeSelect({
   value,
   onChange,
   isLoading = false,
+  serviceCategory,
 }: EmployeeSelectProps) {
   if (isLoading) {
     return (
@@ -59,7 +62,6 @@ const EmployeeSelect = React.memo(function EmployeeSelect({
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {availableEmployees.map((employee) => {
               const isSelected = value === employee.id;
-              // Generate initials
               const initials = employee.name
                 .split(" ")
                 .map((n) => n[0])
@@ -88,14 +90,48 @@ const EmployeeSelect = React.memo(function EmployeeSelect({
                   >
                     {isSelected ? <Check className="w-4 h-4" /> : initials}
                   </div>
-                  <span
-                    className={cn(
-                      "text-sm font-medium truncate",
-                      isSelected ? "text-primary" : "text-foreground",
+                  <div className="flex-1 flex flex-col gap-1">
+                    <span
+                      className={cn(
+                        "text-sm font-medium truncate",
+                        isSelected ? "text-primary" : "text-foreground",
+                      )}
+                    >
+                      {employee.name}
+                    </span>
+                    {employee.specialties &&
+                      employee.specialties.length > 0 && (
+                        <div className="flex flex-wrap gap-1">
+                          {employee.specialties.slice(0, 2).map((specialty) => (
+                            <Badge
+                              key={specialty}
+                              variant="secondary"
+                              className="h-4 px-1.5 text-[9px] bg-emerald-50 text-emerald-700 border-emerald-200 capitalize"
+                            >
+                              {specialty}
+                            </Badge>
+                          ))}
+                          {employee.specialties.length > 2 && (
+                            <Badge
+                              variant="secondary"
+                              className="h-4 px-1.5 text-[9px] bg-muted text-muted-foreground border-border"
+                            >
+                              +{employee.specialties.length - 2}
+                            </Badge>
+                          )}
+                        </div>
+                      )}
+                    {(!employee.specialties ||
+                      employee.specialties.length === 0) && (
+                      <Badge
+                        variant="secondary"
+                        className="h-4 px-1.5 text-[9px] bg-purple-50 text-purple-700 border-purple-200 w-fit flex items-center gap-1"
+                      >
+                        <Sparkles className="h-2.5 w-2.5" />
+                        Generalist
+                      </Badge>
                     )}
-                  >
-                    {employee.name}
-                  </span>
+                  </div>
                 </div>
               );
             })}
