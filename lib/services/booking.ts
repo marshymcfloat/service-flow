@@ -298,6 +298,7 @@ export async function createBookingInDb({
               final_price: finalPrice,
               commission_base: s.commissionBase || finalPrice,
               served_by_id: serverId,
+              served_by_type: serverId ? "EMPLOYEE" : null,
               status: status,
               claimed_at: claimedAt,
               scheduled_at: serviceStart,

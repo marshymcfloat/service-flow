@@ -5,6 +5,9 @@ import { Prisma } from "@/prisma/generated/prisma/client";
 import { requireAuth } from "@/lib/auth/guards";
 import { revalidatePath } from "next/cache";
 import { hash } from "bcryptjs";
+import crypto from "crypto";
+import { headers } from "next/headers";
+import { sendEmployeeInviteEmail } from "@/lib/services/employee-invite";
 
 // Get all employees for a business
 export async function getEmployeesAction() {
@@ -62,9 +65,9 @@ export async function getEmployeesAction() {
 export async function createEmployeeAction(data: {
   name: string;
   email: string;
-  password: string;
   daily_rate: number;
   commission_percentage: number;
+  specialties?: string[];
 }) {
   const auth = await requireAuth();
   if (!auth.success) return auth;
@@ -88,8 +91,15 @@ export async function createEmployeeAction(data: {
       return { success: false, error: "Business not found" };
     }
 
-    // Hash password
-    const hashedPassword = await hash(data.password, 12);
+    const tempPassword = crypto
+      .randomBytes(12)
+      .toString("base64")
+      .replace(/[^a-zA-Z0-9]/g, "")
+      .slice(0, 12);
+    const hashedPassword = await hash(tempPassword, 12);
+    const tempPasswordExpiresAt = new Date(
+      Date.now() + 24 * 60 * 60 * 1000,
+    );
 
     // Create user and employee in a transaction
     const result = await prisma.$transaction(
@@ -100,6 +110,8 @@ export async function createEmployeeAction(data: {
             email: data.email,
             hashed_password: hashedPassword,
             role: "EMPLOYEE",
+            must_change_password: true,
+            temp_password_expires_at: tempPasswordExpiresAt,
           },
         });
 
@@ -110,6 +122,7 @@ export async function createEmployeeAction(data: {
             salary: 0, // Legacy field
             daily_rate: data.daily_rate,
             commission_percentage: data.commission_percentage,
+            specialties: data.specialties ?? [],
           },
           include: {
             user: true,
@@ -120,7 +133,32 @@ export async function createEmployeeAction(data: {
       },
     );
 
+    const headersList = await headers();
+    const host = headersList.get("host") || "localhost:3000";
+    const protocol = headersList.get("x-forwarded-proto") || "http";
+    const baseUrl = `${protocol}://${host}`;
+    const changePasswordUrl = `${baseUrl}/app/${businessSlug}/change-password`;
+
+    const emailResult = await sendEmployeeInviteEmail({
+      to: data.email,
+      employeeName: data.name,
+      businessName: business.name,
+      tempPassword,
+      expiresAt: tempPasswordExpiresAt,
+      changePasswordUrl,
+    });
+
     revalidatePath(`/app/${businessSlug}/employees`);
+
+    if (!emailResult.success) {
+      console.error("Failed to send employee invite email:", emailResult.error);
+      return {
+        success: true,
+        data: result,
+        warning: "Employee created but email failed to send.",
+      };
+    }
+
     return { success: true, data: result };
   } catch (error) {
     console.error("Failed to create employee:", error);
@@ -136,6 +174,7 @@ export async function updateEmployeeAction(
     email?: string;
     daily_rate?: number;
     commission_percentage?: number;
+    specialties?: string[];
   },
 ) {
   const auth = await requireAuth();
@@ -170,6 +209,9 @@ export async function updateEmployeeAction(
           ...(data.daily_rate !== undefined && { daily_rate: data.daily_rate }),
           ...(data.commission_percentage !== undefined && {
             commission_percentage: data.commission_percentage,
+          }),
+          ...(data.specialties !== undefined && {
+            specialties: data.specialties,
           }),
         },
       });

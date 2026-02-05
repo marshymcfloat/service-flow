@@ -12,8 +12,13 @@ import {
   Employee,
   User,
   Voucher,
+  Owner,
 } from "@/prisma/generated/prisma/client";
 import { BookingList } from "./BookingList";
+import OwnerServiceQueue, {
+  OwnerClaimedService,
+  OwnerPendingService,
+} from "./OwnerServiceQueue";
 
 type BookingWithDetails = Booking & {
   customer: Customer;
@@ -21,6 +26,7 @@ type BookingWithDetails = Booking & {
   availed_services: (AvailedService & {
     service: Service;
     served_by: (Employee & { user: User }) | null;
+    served_by_owner: (Owner & { user: User }) | null;
   })[];
 };
 
@@ -32,6 +38,8 @@ export default function OwnerDashboard({
   presentEmployeesToday,
   bookings,
   allBookings,
+  pendingServices,
+  ownerClaimedServices,
 }: {
   businessName: string;
   businessSlug: string;
@@ -40,6 +48,8 @@ export default function OwnerDashboard({
   presentEmployeesToday: number;
   bookings: { id: number; created_at: Date; grand_total: number }[];
   allBookings: BookingWithDetails[];
+  pendingServices: OwnerPendingService[];
+  ownerClaimedServices: OwnerClaimedService[];
 }) {
   return (
     <div className="min-h-screen bg-zinc-50/50 pb-8 relative">
@@ -94,12 +104,23 @@ export default function OwnerDashboard({
           />
         </section>
 
-        <section className="grid grid-cols-1 xl:grid-cols-2 gap-8 min-h-[500px]">
-          <div className="h-[450px] xl:h-auto">
-            <SalesChart bookings={bookings} className="h-full" />
-          </div>
-          <div className="h-[500px] xl:h-[600px]">
+        <section className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="lg:col-span-2 h-[520px] xl:h-[640px]">
             <BookingList bookings={allBookings} />
+          </div>
+        </section>
+
+        <section className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 h-full">
+            <OwnerServiceQueue
+              businessSlug={businessSlug}
+              pendingServices={pendingServices}
+              claimedServices={ownerClaimedServices}
+              className="h-full"
+            />
+          </div>
+          <div className="h-[450px] lg:h-full">
+            <SalesChart bookings={bookings} className="h-full" />
           </div>
         </section>
       </main>

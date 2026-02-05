@@ -17,6 +17,7 @@ import {
   BookingStatus,
   User,
   Voucher,
+  Owner,
 } from "@/prisma/generated/prisma/client";
 import {
   Calendar,
@@ -37,6 +38,7 @@ type BookingWithDetails = Booking & {
   availed_services: (AvailedService & {
     service: Service;
     served_by: (Employee & { user: User }) | null;
+    served_by_owner: (Owner & { user: User }) | null;
   })[];
 };
 
@@ -181,7 +183,22 @@ export function BookingDetailsDialog({
                           </div>
                         </td>
                         <td className="px-4 py-3.5">
-                          {as.served_by ? (
+                          {as.served_by_owner ? (
+                            <div className="flex items-center gap-2">
+                              <div className="h-5 w-5 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center text-[10px] font-bold">
+                                {as.served_by_owner.user.name.charAt(0)}
+                              </div>
+                              <span className="text-zinc-700 font-medium">
+                                {as.served_by_owner.user.name}
+                              </span>
+                              <Badge
+                                variant="outline"
+                                className="text-[9px] px-1.5 py-0.5 rounded-md border-amber-200 text-amber-700 bg-amber-50"
+                              >
+                                Owner
+                              </Badge>
+                            </div>
+                          ) : as.served_by ? (
                             <div className="flex items-center gap-1.5">
                               <div className="h-5 w-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-[10px] font-bold">
                                 {as.served_by.user.name.charAt(0)}

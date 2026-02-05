@@ -188,7 +188,7 @@ export function EmployeeList({
                     Daily Rate
                   </span>
                   <div className="flex items-center gap-1.5 font-medium text-zinc-900">
-                    <Wallet className="h-3.5 w-3.5 text-emerald-500" />₱
+                    <Wallet className="h-3.5 w-3.5 text-emerald-500" />PHP 
                     {employee.daily_rate.toLocaleString()}
                   </div>
                 </div>
@@ -287,7 +287,7 @@ export function EmployeeList({
                     </div>
                   </TableCell>
                   <TableCell className="py-4 font-medium text-zinc-700">
-                    ₱{employee.daily_rate.toLocaleString()}
+                    PHP {employee.daily_rate.toLocaleString()}
                   </TableCell>
                   <TableCell className="py-4">
                     <Badge
@@ -315,7 +315,7 @@ export function EmployeeList({
                           variant="outline"
                           className="w-fit text-[10px] h-5 px-1.5 text-zinc-500 border-zinc-200"
                         >
-                          ₱{lastPayslip.total_salary.toLocaleString()}
+                          PHP {lastPayslip.total_salary.toLocaleString()}
                         </Badge>
                       </div>
                     ) : (

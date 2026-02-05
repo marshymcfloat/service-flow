@@ -8,14 +8,26 @@ export async function proxy(request: NextRequest) {
     secret: process.env.NEXTAUTH_SECRET,
   });
   const isAuthenticated = !!token;
+  const { pathname } = request.nextUrl;
 
-  if (request.nextUrl.pathname.startsWith("/app")) {
+  if (pathname.startsWith("/app")) {
     if (!isAuthenticated) {
       return NextResponse.redirect(new URL("/", request.url));
     }
   }
 
-  if (request.nextUrl.pathname === "/" && isAuthenticated) {
+  if (pathname.startsWith("/app") && token?.mustChangePassword) {
+    const segments = pathname.split("/").filter(Boolean);
+    const businessSlug = segments[1];
+    if (businessSlug) {
+      const changePath = `/app/${businessSlug}/change-password`;
+      if (!pathname.startsWith(changePath)) {
+        return NextResponse.redirect(new URL(changePath, request.url));
+      }
+    }
+  }
+
+  if (pathname === "/" && isAuthenticated) {
     const businessSlug = token.businessSlug as string;
     if (businessSlug) {
       return NextResponse.redirect(

@@ -1,0 +1,4 @@
+﻿interface:
+  display_name: "Backend Architect (Next.js)"
+  short_description: "Next.js backend architecture and API design"
+  default_prompt: "Use $backend-architect to design a Next.js App Router API with caching and database schema."

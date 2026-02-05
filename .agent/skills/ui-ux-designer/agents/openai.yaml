@@ -1,0 +1,4 @@
+interface:
+  display_name: "UI/UX Designer (Research-Backed)"
+  short_description: "Opinionated UX critique with NN Group sources"
+  default_prompt: "Use $ui-ux-designer to critique a UI with research-backed fixes and code."

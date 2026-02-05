@@ -2,6 +2,7 @@ import "./globals.css";
 import { Toaster } from "sonner";
 import { Space_Grotesk, IBM_Plex_Sans, JetBrains_Mono } from "next/font/google";
 import TanstackProvider from "@/components/providers/TanstackProvider";
+import SessionProvider from "@/components/providers/SessionProvider";
 import { Metadata } from "next";
 
 const spaceGrotesk = Space_Grotesk({
@@ -108,10 +109,12 @@ export default function RootLayout({
       <body
         className={`${spaceGrotesk.variable} ${ibmPlexSans.variable} ${jetbrainsMono.variable} antialiased`}
       >
-        <TanstackProvider>
-          {children}
-          <Toaster />
-        </TanstackProvider>
+        <SessionProvider>
+          <TanstackProvider>
+            {children}
+            <Toaster />
+          </TanstackProvider>
+        </SessionProvider>
       </body>
     </html>
   );

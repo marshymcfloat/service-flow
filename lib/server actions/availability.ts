@@ -75,6 +75,7 @@ export async function getAvailableSlots({
       day: getPart("day"),
       hour: getPart("hour"),
       minute: getPart("minute"),
+      second: getPart("second"),
     };
   };
 
@@ -90,6 +91,9 @@ export async function getAvailableSlots({
   const now = new Date();
   const phNow = getPHDateComponents(now);
   const nowStr = `${phNow.year}-${phNow.month}-${phNow.day}`;
+  const phNowDate = new Date(
+    `${nowStr}T${phNow.hour}:${phNow.minute}:${phNow.second}+08:00`,
+  );
 
   const isToday = dateStr === nowStr;
 
@@ -140,7 +144,7 @@ export async function getAvailableSlots({
       break;
     }
 
-    if (isToday && currentSlotStart <= now) {
+    if (isToday && currentSlotStart <= phNowDate) {
       currentSlotStart = new Date(
         currentSlotStart.getTime() + slotIntervalMinutes * 60 * 1000,
       );
@@ -190,11 +194,13 @@ export async function getAvailableEmployees({
   startTime,
   endTime,
   category = "GENERAL",
+  categories,
 }: {
   businessSlug: string;
   startTime: Date;
   endTime: Date;
   category?: string;
+  categories?: string[];
 }) {
   const business = await getCachedBusinessWithHoursAndEmployees(businessSlug);
 
@@ -225,12 +231,17 @@ export async function getAvailableEmployees({
     }
   }
 
-  const normalizedCategory = category.toLowerCase();
-  const qualifiedEmployees = business.employees.filter(
-    (emp) =>
-      emp.specialties.length === 0 ||
-      emp.specialties.some((s) => s.toLowerCase() === normalizedCategory),
-  );
+  const normalizedCategories =
+    categories && categories.length > 0
+      ? categories.map((c) => c.toLowerCase())
+      : [category.toLowerCase()];
+
+  const qualifiedEmployees = business.employees.filter((emp) => {
+    if (emp.specialties.length === 0) return true;
+    return emp.specialties.some((s) =>
+      normalizedCategories.includes(s.toLowerCase()),
+    );
+  });
 
   return qualifiedEmployees.map((emp) => ({
     id: emp.id,
@@ -303,6 +314,7 @@ export async function checkCategoryAvailability({
         day: getPart("day"),
         hour: getPart("hour"),
         minute: getPart("minute"),
+        second: getPart("second"),
       };
     };
 
@@ -312,13 +324,18 @@ export async function checkCategoryAvailability({
     const now = new Date();
     const phNow = getPHDateComponents(now);
     const nowStr = `${phNow.year}-${phNow.month}-${phNow.day}`;
+    const phNowDate = new Date(
+      `${nowStr}T${phNow.hour}:${phNow.minute}:${phNow.second}+08:00`,
+    );
 
     const isToday = dateStr === nowStr;
 
     if (isToday) {
+      const openTimeStr = `${dateStr}T${businessHours.open_time}:00+08:00`;
+      const openTime = new Date(openTimeStr);
       const closeTimeStr = `${dateStr}T${businessHours.close_time}:00+08:00`;
       const closeTime = new Date(closeTimeStr);
-      businessHoursPassed = now >= closeTime;
+      businessHoursPassed = phNowDate < openTime || phNowDate >= closeTime;
     }
   }
 

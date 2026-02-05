@@ -82,6 +82,14 @@ export const AvailedServiceStatus = {
 export type AvailedServiceStatus = (typeof AvailedServiceStatus)[keyof typeof AvailedServiceStatus]
 
 
+export const ServiceProviderType = {
+  EMPLOYEE: 'EMPLOYEE',
+  OWNER: 'OWNER'
+} as const
+
+export type ServiceProviderType = (typeof ServiceProviderType)[keyof typeof ServiceProviderType]
+
+
 export const LeaveRequestStatus = {
   PENDING: 'PENDING',
   APPROVED: 'APPROVED',

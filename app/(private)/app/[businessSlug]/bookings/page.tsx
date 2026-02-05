@@ -88,6 +88,9 @@ async function BookingsContent({
           served_by: {
             include: { user: true },
           },
+          served_by_owner: {
+            include: { user: true },
+          },
         },
       },
       vouchers: true,

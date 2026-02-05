@@ -17,11 +17,18 @@ export async function EmployeesContent({
     redirect("/auth/login");
   }
 
+  const business = await prisma.business.findUnique({
+    where: { slug: businessSlug },
+    select: { id: true },
+  });
+
+  if (!business) {
+    redirect("/auth/login");
+  }
+
   const employees = await prisma.employee.findMany({
     where: {
-      business: {
-        slug: businessSlug,
-      },
+      business_id: business.id,
     },
     include: {
       user: true,
@@ -46,7 +53,26 @@ export async function EmployeesContent({
     },
   });
 
+  const serviceCategories = await prisma.service.findMany({
+    where: {
+      business_id: business.id,
+    },
+    select: {
+      category: true,
+    },
+    distinct: ["category"],
+  });
+
+  const categories = serviceCategories
+    .map((item) => item.category)
+    .filter((category) => category.toLowerCase() !== "general")
+    .sort((a, b) => a.localeCompare(b));
+
   return (
-    <EmployeesPageClient employees={employees} businessSlug={businessSlug} />
+    <EmployeesPageClient
+      employees={employees}
+      businessSlug={businessSlug}
+      categories={categories}
+    />
   );
 }

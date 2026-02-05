@@ -8,6 +8,8 @@ declare module "next-auth" {
       id: string;
       role: Role;
       businessSlug?: string | null;
+      mustChangePassword?: boolean;
+      tempPasswordExpiresAt?: string | null;
     } & DefaultSession["user"];
   }
 
@@ -16,6 +18,8 @@ declare module "next-auth" {
     role: Role;
     employee?: (Employee & { business: Business }) | null;
     owner?: (Owner & { business: Business }) | null;
+    must_change_password?: boolean;
+    temp_password_expires_at?: Date | null;
   }
 }
 
@@ -24,5 +28,7 @@ declare module "next-auth/jwt" {
     id: string;
     role?: Role;
     businessSlug?: string | null;
+    mustChangePassword?: boolean;
+    tempPasswordExpiresAt?: string | null;
   }
 }

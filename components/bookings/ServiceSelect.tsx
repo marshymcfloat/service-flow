@@ -43,6 +43,7 @@ const ServiceSelect = React.memo(function ServiceSelect({
   form,
   saleEvents = [],
   businessSlug,
+  selectedDate,
 }: {
   services: Service[];
   packages?: PackageWithItems[];
@@ -50,6 +51,7 @@ const ServiceSelect = React.memo(function ServiceSelect({
   form: UseFormReturn<any>;
   saleEvents?: any[];
   businessSlug: string;
+  selectedDate?: Date;
 }) {
   const [open, setOpen] = React.useState(false);
   const [selectedCategory, setSelectedCategory] = React.useState<string>("all");
@@ -63,7 +65,12 @@ const ServiceSelect = React.memo(function ServiceSelect({
   }, [services]);
 
   const { data: categoryAvailability } = useQuery({
-    queryKey: ["categoryAvailability", businessSlug, serviceCategories],
+    queryKey: [
+      "categoryAvailability",
+      businessSlug,
+      serviceCategories,
+      selectedDate?.toISOString(),
+    ],
     queryFn: async () => {
       const results: Record<string, any> = {};
       for (const category of serviceCategories) {
@@ -71,6 +78,7 @@ const ServiceSelect = React.memo(function ServiceSelect({
           results[category] = await checkCategoryAvailability({
             businessSlug,
             category,
+            date: selectedDate,
           });
         } catch (error) {
           console.error(`Error checking availability for ${category}:`, error);
@@ -260,12 +268,12 @@ const ServiceSelect = React.memo(function ServiceSelect({
                     const dataLoaded = !!availability;
                     const noStaff =
                       dataLoaded && availability?.qualifiedEmployeeCount === 0;
-                    const hoursPassed =
+                    const outsideHours =
                       dataLoaded && availability?.businessHoursPassed === true;
                     const noBusinessHours =
                       dataLoaded && availability?.hasBusinessHours === false;
                     const isDisabled =
-                      noStaff || hoursPassed || noBusinessHours;
+                      noStaff || outsideHours || noBusinessHours;
 
                     return (
                       <CommandItem
@@ -326,13 +334,13 @@ const ServiceSelect = React.memo(function ServiceSelect({
                                   No Staff
                                 </Badge>
                               )}
-                              {hoursPassed && (
+                              {outsideHours && (
                                 <Badge
                                   variant="secondary"
                                   className="h-4 px-1.5 text-[10px] bg-amber-50 text-amber-700 border-amber-200 shadow-none flex items-center gap-1"
                                 >
                                   <Clock className="h-2.5 w-2.5" />
-                                  Hours Passed
+                                  Closed Now
                                 </Badge>
                               )}
                               {noBusinessHours && (
@@ -348,7 +356,7 @@ const ServiceSelect = React.memo(function ServiceSelect({
                             <span className="text-xs text-muted-foreground capitalize">
                               {service.category}
                               {availability?.qualifiedEmployeeCount > 0 &&
-                                !hoursPassed &&
+                                !outsideHours &&
                                 !noBusinessHours && (
                                   <span className="ml-2 text-green-600">
                                     • {availability.qualifiedEmployeeCount}{" "}
@@ -389,6 +397,17 @@ const ServiceSelect = React.memo(function ServiceSelect({
                     );
                   })
                 : packages.map((pkg) => {
+                    const availability =
+                      categoryAvailability?.[pkg.category];
+                    const dataLoaded = !!availability;
+                    const noStaff =
+                      dataLoaded && availability?.qualifiedEmployeeCount === 0;
+                    const outsideHours =
+                      dataLoaded && availability?.businessHoursPassed === true;
+                    const noBusinessHours =
+                      dataLoaded && availability?.hasBusinessHours === false;
+                    const isDisabled =
+                      noStaff || outsideHours || noBusinessHours;
                     const isSelected = pkg.items.every((item) =>
                       selectedServices.some(
                         (s) =>
@@ -407,8 +426,14 @@ const ServiceSelect = React.memo(function ServiceSelect({
                       <CommandItem
                         key={pkg.id}
                         value={pkg.name}
-                        onSelect={() => togglePackage(pkg)}
-                        className="cursor-pointer aria-selected:bg-primary/5"
+                        onSelect={() => {
+                          if (!isDisabled) togglePackage(pkg);
+                        }}
+                        className={cn(
+                          "cursor-pointer aria-selected:bg-primary/5",
+                          isDisabled && "opacity-50 cursor-not-allowed",
+                        )}
+                        disabled={isDisabled}
                       >
                         <div className="flex items-start gap-3 w-full">
                           <div
@@ -441,6 +466,33 @@ const ServiceSelect = React.memo(function ServiceSelect({
                                   className="h-4 px-1 text-[10px] bg-destructive/10 text-destructive border-destructive/20 shadow-none"
                                 >
                                   sale
+                                </Badge>
+                              )}
+                              {noStaff && (
+                                <Badge
+                                  variant="secondary"
+                                  className="h-4 px-1.5 text-[10px] bg-orange-50 text-orange-700 border-orange-200 shadow-none flex items-center gap-1"
+                                >
+                                  <Users className="h-2.5 w-2.5" />
+                                  No Staff
+                                </Badge>
+                              )}
+                              {outsideHours && (
+                                <Badge
+                                  variant="secondary"
+                                  className="h-4 px-1.5 text-[10px] bg-amber-50 text-amber-700 border-amber-200 shadow-none flex items-center gap-1"
+                                >
+                                  <Clock className="h-2.5 w-2.5" />
+                                  Closed Now
+                                </Badge>
+                              )}
+                              {noBusinessHours && (
+                                <Badge
+                                  variant="secondary"
+                                  className="h-4 px-1.5 text-[10px] bg-gray-50 text-gray-700 border-gray-200 shadow-none flex items-center gap-1"
+                                >
+                                  <AlertCircle className="h-2.5 w-2.5" />
+                                  Closed
                                 </Badge>
                               )}
                             </div>

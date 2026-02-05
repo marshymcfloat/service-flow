@@ -24,7 +24,6 @@ import { useEffect, useMemo, useState, useCallback } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { verifyVoucherAction } from "@/lib/server actions/vouchers";
 
-// [NEW] Import sale events action
 import { getActiveSaleEvents } from "@/lib/server actions/sale-event";
 import { getApplicableDiscount } from "@/lib/utils/pricing";
 
@@ -314,13 +313,20 @@ export default function BookingForm({
     }, 0);
   }, [selectedServices]);
 
-  const targetCategory = useMemo(() => {
-    if (selectedServices.length === 0) return "GENERAL";
-    // Find the full service object to get the category
-    const firstService = selectedServices[0];
-    const fullService = services.find((s) => s.id === firstService.id);
-    return fullService?.category || "GENERAL";
+  const selectedServiceCategories = useMemo(() => {
+    const categorySet = new Set<string>();
+    selectedServices.forEach((service) => {
+      const category =
+        service.category || services.find((s) => s.id === service.id)?.category;
+      if (category) categorySet.add(category);
+    });
+    return Array.from(categorySet);
   }, [selectedServices, services]);
+
+  const targetCategory = useMemo(() => {
+    if (selectedServiceCategories.length === 0) return "GENERAL";
+    return selectedServiceCategories[0];
+  }, [selectedServiceCategories]);
 
   // Fetch business hours for the selected category
   const { data: categoryInfo } = useQuery({
@@ -377,6 +383,7 @@ export default function BookingForm({
       businessSlug,
       selectedTime?.toISOString(),
       totalDuration,
+      selectedServiceCategories.join("|"),
     ],
     queryFn: async () => {
       if (!selectedTime || !businessSlug) {
@@ -389,6 +396,7 @@ export default function BookingForm({
         businessSlug,
         startTime: selectedTime,
         endTime,
+        categories: selectedServiceCategories,
         category: targetCategory,
       });
     },
@@ -732,6 +740,7 @@ export default function BookingForm({
                       categories={categories}
                       saleEvents={saleEvents}
                       businessSlug={businessSlug!}
+                      selectedDate={selectedDate}
                     />
                   </FormControl>
                   <FormMessage />
@@ -827,6 +836,7 @@ export default function BookingForm({
                           isLoading={isLoadingSlots}
                           category={targetCategory}
                           businessHours={categoryInfo?.businessHours || null}
+                          disabled={selectedServices.length === 0}
                         />
                       </FormControl>
                       <FormMessage />
@@ -860,7 +870,7 @@ export default function BookingForm({
                         value={field.value}
                         onChange={field.onChange}
                         isLoading={isLoadingEmployees}
-                        serviceCategory={targetCategory}
+                        serviceCategories={selectedServiceCategories}
                       />
                     </FormControl>
                     <FormMessage />

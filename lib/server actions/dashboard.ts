@@ -4,6 +4,7 @@ import { prisma } from "@/prisma/prisma";
 import {
   AvailedServiceStatus,
   BookingStatus,
+  ServiceProviderType,
 } from "@/prisma/generated/prisma/client";
 import { revalidatePath } from "next/cache";
 import { requireAuth } from "@/lib/auth/guards";
@@ -85,6 +86,7 @@ export async function claimServiceAction(
       data: {
         status: AvailedServiceStatus.CLAIMED,
         served_by_id: employeeId,
+        served_by_type: ServiceProviderType.EMPLOYEE,
         claimed_at: new Date(),
       },
     });
@@ -111,6 +113,7 @@ export async function unclaimServiceAction(serviceId: number) {
       data: {
         status: AvailedServiceStatus.PENDING,
         served_by_id: null,
+        served_by_type: null,
         claimed_at: null,
       },
     });
@@ -120,6 +123,319 @@ export async function unclaimServiceAction(serviceId: number) {
   } catch (error) {
     console.error("Error unclaiming service:", error);
     return { success: false, error: "Unable to unclaim service." };
+  }
+}
+
+export async function getOwnerClaimedServicesAction() {
+  const auth = await requireAuth();
+  if (!auth.success) return auth;
+  const { businessSlug, session } = auth;
+
+  if (session?.user?.role !== "OWNER") {
+    return { success: false, error: "Unauthorized" };
+  }
+
+  try {
+    const owner = await prisma.owner.findFirst({
+      where: {
+        user_id: session.user.id,
+        business: { slug: businessSlug },
+      },
+      select: { id: true },
+    });
+
+    if (!owner) {
+      return { success: false, error: "Owner not found" };
+    }
+
+    const claimedServices = await prisma.availedService.findMany({
+      where: {
+        served_by_owner_id: owner.id,
+        status: {
+          in: [AvailedServiceStatus.CLAIMED, AvailedServiceStatus.SERVING],
+        },
+        booking: {
+          business: { slug: businessSlug },
+          status: { in: ["ACCEPTED"] },
+        },
+      },
+      select: {
+        id: true,
+        price: true,
+        scheduled_at: true,
+        claimed_at: true,
+        status: true,
+        package_id: true,
+        package: {
+          select: {
+            name: true,
+          },
+        },
+        service: {
+          select: {
+            name: true,
+            duration: true,
+          },
+        },
+        booking: {
+          select: {
+            customer: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: {
+        scheduled_at: "asc",
+      },
+    });
+
+    return { success: true, data: claimedServices };
+  } catch (error) {
+    console.error("Error fetching owner claimed services:", error);
+    return { success: false, error: "Unable to fetch claimed services." };
+  }
+}
+
+export async function claimServiceAsOwnerAction(serviceId: number) {
+  const auth = await requireAuth();
+  if (!auth.success) return auth;
+  const { businessSlug, session } = auth;
+
+  if (session?.user?.role !== "OWNER") {
+    return { success: false, error: "Unauthorized" };
+  }
+
+  try {
+    const owner = await prisma.owner.findFirst({
+      where: {
+        user_id: session.user.id,
+        business: { slug: businessSlug },
+      },
+      select: { id: true },
+    });
+
+    if (!owner) {
+      return { success: false, error: "Owner not found" };
+    }
+
+    const result = await prisma.availedService.updateMany({
+      where: {
+        id: serviceId,
+        status: AvailedServiceStatus.PENDING,
+        booking: { business: { slug: businessSlug } },
+      },
+      data: {
+        status: AvailedServiceStatus.CLAIMED,
+        served_by_owner_id: owner.id,
+        served_by_id: null,
+        served_by_type: ServiceProviderType.OWNER,
+        claimed_at: new Date(),
+      },
+    });
+
+    if (result.count === 0) {
+      return { success: false, error: "Service already claimed or not found." };
+    }
+
+    revalidatePath(`/app/${businessSlug}`);
+    return { success: true };
+  } catch (error) {
+    console.error("Error claiming service as owner:", error);
+    return { success: false, error: "Unable to claim service." };
+  }
+}
+
+export async function unclaimServiceAsOwnerAction(serviceId: number) {
+  const auth = await requireAuth();
+  if (!auth.success) return auth;
+  const { businessSlug, session } = auth;
+
+  if (session?.user?.role !== "OWNER") {
+    return { success: false, error: "Unauthorized" };
+  }
+
+  try {
+    const owner = await prisma.owner.findFirst({
+      where: {
+        user_id: session.user.id,
+        business: { slug: businessSlug },
+      },
+      select: { id: true },
+    });
+
+    if (!owner) {
+      return { success: false, error: "Owner not found" };
+    }
+
+    const result = await prisma.availedService.updateMany({
+      where: {
+        id: serviceId,
+        served_by_owner_id: owner.id,
+        booking: { business: { slug: businessSlug } },
+      },
+      data: {
+        status: AvailedServiceStatus.PENDING,
+        served_by_owner_id: null,
+        served_by_type: null,
+        claimed_at: null,
+      },
+    });
+
+    if (result.count === 0) {
+      return { success: false, error: "Unable to unclaim service." };
+    }
+
+    revalidatePath(`/app/${businessSlug}`);
+    return { success: true };
+  } catch (error) {
+    console.error("Error unclaiming service as owner:", error);
+    return { success: false, error: "Unable to unclaim service." };
+  }
+}
+
+export async function markServiceServedAsOwnerAction(serviceId: number) {
+  const auth = await requireAuth();
+  if (!auth.success) return auth;
+  const { businessSlug, session } = auth;
+
+  if (session?.user?.role !== "OWNER") {
+    return { success: false, error: "Unauthorized" };
+  }
+
+  try {
+    const owner = await prisma.owner.findFirst({
+      where: {
+        user_id: session.user.id,
+        business: { slug: businessSlug },
+      },
+      select: { id: true },
+    });
+
+    if (!owner) {
+      return { success: false, error: "Owner not found" };
+    }
+
+    const result = await prisma.$transaction(async (tx) => {
+      const service = await tx.availedService.findUnique({
+        where: {
+          id: serviceId,
+        },
+        select: {
+          booking_id: true,
+          served_by_owner_id: true,
+        },
+      });
+
+      if (!service || service.served_by_owner_id !== owner.id) {
+        throw new Error("Service not found or not claimed by owner");
+      }
+
+      const updatedService = await tx.availedService.update({
+        where: {
+          id: serviceId,
+        },
+        data: {
+          status: AvailedServiceStatus.COMPLETED,
+          served_at: new Date(),
+          completed_at: new Date(),
+        },
+      });
+
+      const remainingUnserved = await tx.availedService.count({
+        where: {
+          booking_id: service.booking_id,
+          status: {
+            notIn: [
+              AvailedServiceStatus.COMPLETED,
+              AvailedServiceStatus.CANCELLED,
+            ],
+          },
+        },
+      });
+
+      if (remainingUnserved === 0) {
+        await tx.booking.update({
+          where: { id: service.booking_id },
+          data: { status: BookingStatus.COMPLETED },
+        });
+      }
+
+      return updatedService;
+    });
+
+    revalidatePath(`/app/${businessSlug}`);
+    return { success: true, data: result };
+  } catch (error) {
+    console.error("Error marking service as served (owner):", error);
+    return { success: false, error: "Unable to mark as served." };
+  }
+}
+
+export async function unserveServiceAsOwnerAction(serviceId: number) {
+  const auth = await requireAuth();
+  if (!auth.success) return auth;
+  const { businessSlug, session } = auth;
+
+  if (session?.user?.role !== "OWNER") {
+    return { success: false, error: "Unauthorized" };
+  }
+
+  try {
+    const owner = await prisma.owner.findFirst({
+      where: {
+        user_id: session.user.id,
+        business: { slug: businessSlug },
+      },
+      select: { id: true },
+    });
+
+    if (!owner) {
+      return { success: false, error: "Owner not found" };
+    }
+
+    const result = await prisma.$transaction(async (tx) => {
+      const service = await tx.availedService.findUnique({
+        where: {
+          id: serviceId,
+        },
+        select: {
+          booking_id: true,
+          served_by_owner_id: true,
+          booking: { select: { status: true } },
+        },
+      });
+
+      if (!service || service.served_by_owner_id !== owner.id) {
+        throw new Error("Service not found or not served by owner");
+      }
+
+      const updatedService = await tx.availedService.update({
+        where: { id: serviceId },
+        data: {
+          status: AvailedServiceStatus.CLAIMED,
+          served_at: null,
+          completed_at: null,
+        },
+      });
+
+      if (service.booking.status === BookingStatus.COMPLETED) {
+        await tx.booking.update({
+          where: { id: service.booking_id },
+          data: { status: BookingStatus.ACCEPTED },
+        });
+      }
+
+      return updatedService;
+    });
+
+    revalidatePath(`/app/${businessSlug}`);
+    return { success: true, data: result };
+  } catch (error) {
+    console.error("Error unserving service (owner):", error);
+    return { success: false, error: "Unable to unserve." };
   }
 }
 

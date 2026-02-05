@@ -11,6 +11,7 @@ import {
   Employee,
   User,
   Voucher,
+  Owner,
 } from "@/prisma/generated/prisma/client";
 import {
   Card,
@@ -81,6 +82,7 @@ type BookingWithDetails = Booking & {
   availed_services: (AvailedService & {
     service: Service;
     served_by: (Employee & { user: User }) | null;
+    served_by_owner: (Owner & { user: User }) | null;
   })[];
 };
 

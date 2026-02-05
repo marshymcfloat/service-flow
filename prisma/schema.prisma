@@ -110,6 +110,11 @@ enum AvailedServiceStatus {
   CANCELLED   // Service cancelled
 }
 
+enum ServiceProviderType {
+  EMPLOYEE
+  OWNER
+}
+
 enum LeaveRequestStatus {
   PENDING
   APPROVED
@@ -162,6 +167,9 @@ model User {
   role      Role       @default(EMPLOYEE)
   employee  Employee?
   owner     Owner?
+
+  must_change_password Boolean @default(false)
+  temp_password_expires_at DateTime?
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -243,6 +251,8 @@ model Owner {
 
   business_id String
   business    Business @relation(fields: [business_id], references: [id], onDelete: Cascade)
+
+  served_services AvailedService[] @relation("OwnerServedServices")
 
   @@unique([business_id, user_id])
 }
@@ -410,12 +420,18 @@ model AvailedService {
   served_by_id Int?
   served_by Employee? @relation(fields: [served_by_id], references: [id], onDelete: SetNull)
 
+  served_by_owner_id Int?
+  served_by_owner Owner? @relation("OwnerServedServices", fields: [served_by_owner_id], references: [id], onDelete: SetNull)
+  served_by_type ServiceProviderType?
+
   // Scheduling fields
   scheduled_at  DateTime?  // When this specific service starts
   estimated_end DateTime?  // scheduled_at + duration
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+
+  @@index([served_by_owner_id, status])
 }
 
 

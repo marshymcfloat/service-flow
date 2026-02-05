@@ -1,0 +1,4 @@
+interface:
+  display_name: "Frontend Developer (React)"
+  short_description: "React UI, performance, accessibility"
+  default_prompt: "Use $frontend-developer to build a responsive React component with accessibility and performance considerations."

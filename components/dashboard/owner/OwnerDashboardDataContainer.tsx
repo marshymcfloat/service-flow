@@ -22,10 +22,27 @@ export default async function OwnerDashboardDataContainer({
   }
 
   const business = await getCachedBusinessBySlug(businessSlug);
+  if (!business) {
+    return <div>Error loading dashboard</div>;
+  }
+
+  const owner = await prisma.owner.findFirst({
+    where: {
+      user_id: session.user.id,
+      business_id: business.id,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (!owner) {
+    return <div>Error loading dashboard</div>;
+  }
 
   const allSuccessfulBookings = await prisma.booking.findMany({
     where: {
-      business_id: business?.id,
+      business_id: business.id,
       status: {
         not: "CANCELLED",
       },
@@ -47,7 +64,7 @@ export default async function OwnerDashboardDataContainer({
 
   const bookingsTodayCount = await prisma.booking.count({
     where: {
-      business_id: business?.id,
+      business_id: business.id,
       created_at: {
         gte: startOfToday,
         lte: endOfToday,
@@ -64,7 +81,7 @@ export default async function OwnerDashboardDataContainer({
 
   const allBookings = await prisma.booking.findMany({
     where: {
-      business_id: business?.id,
+      business_id: business.id,
     },
     include: {
       customer: true,
@@ -72,6 +89,9 @@ export default async function OwnerDashboardDataContainer({
         include: {
           service: true,
           served_by: {
+            include: { user: true },
+          },
+          served_by_owner: {
             include: { user: true },
           },
         },
@@ -83,15 +103,100 @@ export default async function OwnerDashboardDataContainer({
     },
   });
 
+  const pendingServices = await prisma.availedService.findMany({
+    where: {
+      booking: {
+        business_id: business.id,
+        status: { in: ["ACCEPTED"] },
+      },
+      status: "PENDING",
+    },
+    select: {
+      id: true,
+      price: true,
+      scheduled_at: true,
+      package_id: true,
+      package: {
+        select: {
+          name: true,
+        },
+      },
+      service: {
+        select: {
+          name: true,
+          duration: true,
+        },
+      },
+      booking: {
+        select: {
+          customer: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      },
+    },
+    orderBy: {
+      scheduled_at: "asc",
+    },
+    take: 20,
+  });
+
+  const ownerClaimedServices = await prisma.availedService.findMany({
+    where: {
+      served_by_owner_id: owner.id,
+      status: { in: ["CLAIMED", "SERVING"] },
+      booking: {
+        business_id: business.id,
+        status: { in: ["ACCEPTED"] },
+      },
+    },
+    select: {
+      id: true,
+      price: true,
+      scheduled_at: true,
+      claimed_at: true,
+      status: true,
+      package_id: true,
+      package: {
+        select: {
+          name: true,
+        },
+      },
+      service: {
+        select: {
+          name: true,
+          duration: true,
+        },
+      },
+      booking: {
+        select: {
+          customer: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      },
+    },
+    orderBy: {
+      scheduled_at: "asc",
+    },
+    take: 20,
+  });
+
   return (
     <OwnerDashboard
-      businessName={business?.name || ""}
+      businessName={business.name}
       businessSlug={businessSlug}
       totalSales={totalSales}
       bookingsToday={bookingsTodayCount}
       presentEmployeesToday={presentEmployeesToday}
       bookings={allSuccessfulBookings}
       allBookings={allBookings}
+      pendingServices={pendingServices}
+      ownerClaimedServices={ownerClaimedServices}
     />
   );
 }

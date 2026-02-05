@@ -12,6 +12,7 @@ interface TimeSlotPickerProps {
   isLoading?: boolean;
   category?: string;
   businessHours?: { open_time: string; close_time: string } | null;
+  disabled?: boolean;
 }
 
 export default function TimeSlotPicker({
@@ -21,6 +22,7 @@ export default function TimeSlotPicker({
   isLoading = false,
   category,
   businessHours,
+  disabled = false,
 }: TimeSlotPickerProps) {
   if (isLoading) {
     return (
@@ -28,6 +30,16 @@ export default function TimeSlotPicker({
         {Array.from({ length: 8 }).map((_, i) => (
           <div key={i} className="h-16 rounded-md bg-muted animate-pulse" />
         ))}
+      </div>
+    );
+  }
+
+  if (disabled) {
+    return (
+      <div className="text-center py-8 text-muted-foreground">
+        <Clock className="h-8 w-8 mx-auto mb-2 opacity-50" />
+        <p>Select services to view available slots</p>
+        <p className="text-sm">Time slots are disabled until then</p>
       </div>
     );
   }

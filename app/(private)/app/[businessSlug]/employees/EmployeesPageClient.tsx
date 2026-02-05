@@ -43,22 +43,23 @@ type EmployeeWithDetails = Employee & {
 interface EmployeesPageClientProps {
   employees: EmployeeWithDetails[];
   businessSlug: string;
+  categories: string[];
 }
 
 interface EmployeeFormData {
   name: string;
   email: string;
-  password: string;
   daily_rate: string;
   commission_percentage: string;
+  specialties: string[];
 }
 
 const initialFormData: EmployeeFormData = {
   name: "",
   email: "",
-  password: "",
   daily_rate: "",
   commission_percentage: "",
+  specialties: [],
 };
 
 type OptimisticAction =
@@ -70,6 +71,7 @@ type OptimisticAction =
         email: string;
         daily_rate: number;
         commission_percentage: number;
+        specialties: string[];
       };
     }
   | { type: "delete"; employeeId: number }
@@ -78,6 +80,7 @@ type OptimisticAction =
 export function EmployeesPageClient({
   employees,
   businessSlug,
+  categories,
 }: EmployeesPageClientProps) {
   const router = useRouter();
   const [search, setSearch] = useState("");
@@ -101,15 +104,16 @@ export function EmployeesPageClient({
           return state.map((emp) =>
             emp.id === action.employeeId
               ? {
-                  ...emp,
-                  daily_rate: action.data.daily_rate,
-                  commission_percentage: action.data.commission_percentage,
-                  user: {
-                    ...emp.user,
-                    name: action.data.name,
-                    email: action.data.email,
-                  },
-                }
+                ...emp,
+                daily_rate: action.data.daily_rate,
+                commission_percentage: action.data.commission_percentage,
+                specialties: action.data.specialties,
+                user: {
+                  ...emp.user,
+                  name: action.data.name,
+                  email: action.data.email,
+                },
+              }
               : emp,
           );
         case "delete":
@@ -130,7 +134,7 @@ export function EmployeesPageClient({
   }, [optimisticEmployees, search]);
 
   const handleAddEmployee = async () => {
-    if (!formData.name || !formData.email || !formData.password) {
+    if (!formData.name || !formData.email) {
       toast.error("Please fill in required fields");
       return;
     }
@@ -139,14 +143,18 @@ export function EmployeesPageClient({
     const result = await createEmployeeAction({
       name: formData.name,
       email: formData.email,
-      password: formData.password,
       daily_rate: parseFloat(formData.daily_rate) || 0,
       commission_percentage: parseFloat(formData.commission_percentage) || 0,
+      specialties: formData.specialties,
     });
 
     setIsLoading(false);
     if (result.success) {
-      toast.success("Employee created successfully");
+      if ("warning" in result && result.warning) {
+        toast.warning(result.warning);
+      } else {
+        toast.success("Employee created. Temporary password sent via email.");
+      }
       setIsAddDialogOpen(false);
       setFormData(initialFormData);
       router.refresh();
@@ -166,6 +174,7 @@ export function EmployeesPageClient({
       email: formData.email,
       daily_rate: parseFloat(formData.daily_rate) || 0,
       commission_percentage: parseFloat(formData.commission_percentage) || 0,
+      specialties: formData.specialties,
     };
 
     // Close dialog immediately for better UX
@@ -253,9 +262,9 @@ export function EmployeesPageClient({
     setFormData({
       name: employee.user.name,
       email: employee.user.email,
-      password: "",
       daily_rate: employee.daily_rate.toString(),
       commission_percentage: employee.commission_percentage.toString(),
+      specialties: employee.specialties ?? [],
     });
     setIsEditDialogOpen(true);
   };
@@ -283,21 +292,21 @@ export function EmployeesPageClient({
             </DialogTrigger>
             <DialogContent className="sm:max-w-[500px] rounded-3xl p-0 gap-0 overflow-hidden">
               <DialogHeader className="p-6 pb-2">
-                <DialogTitle className="text-xl font-bold text-zinc-900">
-                  Add New Employee
-                </DialogTitle>
-                <DialogDescription className="text-zinc-500">
-                  Create a new employee account. They will be able to log in
-                  with these credentials.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="px-6 py-4">
-                <EmployeeForm
-                  formData={formData}
-                  setFormData={setFormData}
-                  isNew={true}
-                />
-              </div>
+              <DialogTitle className="text-xl font-bold text-zinc-900">
+                Add New Employee
+              </DialogTitle>
+              <DialogDescription className="text-zinc-500">
+                Create a new employee account. They will receive a temporary
+                password via email and be required to change it.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="px-6 py-4">
+              <EmployeeForm
+                formData={formData}
+                setFormData={setFormData}
+                categories={categories}
+              />
+            </div>
               <DialogFooter className="p-6 pt-2 bg-zinc-50/50 border-t border-zinc-100">
                 <Button
                   variant="outline"
@@ -390,7 +399,7 @@ export function EmployeesPageClient({
               <EmployeeForm
                 formData={formData}
                 setFormData={setFormData}
-                isNew={false}
+                categories={categories}
               />
             </div>
             <DialogFooter className="p-6 pt-2 bg-zinc-50/50 border-t border-zinc-100">
@@ -469,12 +478,22 @@ export function EmployeesPageClient({
 function EmployeeForm({
   formData,
   setFormData,
-  isNew,
+  categories,
 }: {
   formData: EmployeeFormData;
   setFormData: (data: EmployeeFormData) => void;
-  isNew: boolean;
+  categories: string[];
 }) {
+  const isGeneralist = formData.specialties.length === 0;
+
+  const toggleSpecialty = (category: string) => {
+    const exists = formData.specialties.includes(category);
+    const updated = exists
+      ? formData.specialties.filter((item) => item !== category)
+      : [...formData.specialties, category];
+    setFormData({ ...formData, specialties: updated });
+  };
+
   return (
     <div className="grid gap-4">
       <div className="grid gap-2">
@@ -504,27 +523,42 @@ function EmployeeForm({
         />
       </div>
 
-      {isNew && (
-        <div className="grid gap-2">
-          <Label htmlFor="password">
-            Password <span className="text-red-500">*</span>
-          </Label>
-          <Input
-            id="password"
-            type="password"
-            placeholder="Minimum 6 characters"
-            value={formData.password}
-            onChange={(e) =>
-              setFormData({ ...formData, password: e.target.value })
-            }
-            className="h-10 rounded-xl"
-          />
+      <div className="grid gap-2">
+        <Label>Specialties</Label>
+        <div className="flex flex-wrap gap-2">
+          <Button
+            type="button"
+            size="sm"
+            variant={isGeneralist ? "default" : "outline"}
+            onClick={() => setFormData({ ...formData, specialties: [] })}
+            className="rounded-full"
+          >
+            Generalist (All)
+          </Button>
+          {categories.map((category) => {
+            const isSelected = formData.specialties.includes(category);
+            return (
+              <Button
+                key={category}
+                type="button"
+                size="sm"
+                variant={isSelected ? "default" : "outline"}
+                onClick={() => toggleSpecialty(category)}
+                className="rounded-full capitalize"
+              >
+                {category}
+              </Button>
+            );
+          })}
         </div>
-      )}
+        <p className="text-xs text-muted-foreground">
+          Select specialties or choose Generalist to allow all services.
+        </p>
+      </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div className="grid gap-2">
-          <Label htmlFor="daily_rate">Daily Rate (₱)</Label>
+          <Label htmlFor="daily_rate">Daily Rate (PHP)</Label>
           <Input
             id="daily_rate"
             type="number"

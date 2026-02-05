@@ -157,6 +157,8 @@ export const UserScalarFieldEnum = {
   hashed_password: 'hashed_password',
   name: 'name',
   role: 'role',
+  must_change_password: 'must_change_password',
+  temp_password_expires_at: 'temp_password_expires_at',
   created_at: 'created_at',
   updated_at: 'updated_at'
 } as const
@@ -338,6 +340,8 @@ export const AvailedServiceScalarFieldEnum = {
   service_id: 'service_id',
   package_id: 'package_id',
   served_by_id: 'served_by_id',
+  served_by_owner_id: 'served_by_owner_id',
+  served_by_type: 'served_by_type',
   scheduled_at: 'scheduled_at',
   estimated_end: 'estimated_end',
   created_at: 'created_at',

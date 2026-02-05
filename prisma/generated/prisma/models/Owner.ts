@@ -202,6 +202,7 @@ export type OwnerWhereInput = {
   business_id?: Prisma.StringFilter<"Owner"> | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   business?: Prisma.XOR<Prisma.BusinessScalarRelationFilter, Prisma.BusinessWhereInput>
+  served_services?: Prisma.AvailedServiceListRelationFilter
 }
 
 export type OwnerOrderByWithRelationInput = {
@@ -210,6 +211,7 @@ export type OwnerOrderByWithRelationInput = {
   business_id?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
   business?: Prisma.BusinessOrderByWithRelationInput
+  served_services?: Prisma.AvailedServiceOrderByRelationAggregateInput
 }
 
 export type OwnerWhereUniqueInput = Prisma.AtLeast<{
@@ -222,6 +224,7 @@ export type OwnerWhereUniqueInput = Prisma.AtLeast<{
   business_id?: Prisma.StringFilter<"Owner"> | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   business?: Prisma.XOR<Prisma.BusinessScalarRelationFilter, Prisma.BusinessWhereInput>
+  served_services?: Prisma.AvailedServiceListRelationFilter
 }, "id" | "user_id" | "business_id_user_id">
 
 export type OwnerOrderByWithAggregationInput = {
@@ -247,23 +250,27 @@ export type OwnerScalarWhereWithAggregatesInput = {
 export type OwnerCreateInput = {
   user: Prisma.UserCreateNestedOneWithoutOwnerInput
   business: Prisma.BusinessCreateNestedOneWithoutOwnersInput
+  served_services?: Prisma.AvailedServiceCreateNestedManyWithoutServed_by_ownerInput
 }
 
 export type OwnerUncheckedCreateInput = {
   id?: number
   user_id: string
   business_id: string
+  served_services?: Prisma.AvailedServiceUncheckedCreateNestedManyWithoutServed_by_ownerInput
 }
 
 export type OwnerUpdateInput = {
   user?: Prisma.UserUpdateOneRequiredWithoutOwnerNestedInput
   business?: Prisma.BusinessUpdateOneRequiredWithoutOwnersNestedInput
+  served_services?: Prisma.AvailedServiceUpdateManyWithoutServed_by_ownerNestedInput
 }
 
 export type OwnerUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   user_id?: Prisma.StringFieldUpdateOperationsInput | string
   business_id?: Prisma.StringFieldUpdateOperationsInput | string
+  served_services?: Prisma.AvailedServiceUncheckedUpdateManyWithoutServed_by_ownerNestedInput
 }
 
 export type OwnerCreateManyInput = {
@@ -402,13 +409,31 @@ export type OwnerUncheckedUpdateOneWithoutUserNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.OwnerUpdateToOneWithWhereWithoutUserInput, Prisma.OwnerUpdateWithoutUserInput>, Prisma.OwnerUncheckedUpdateWithoutUserInput>
 }
 
+export type OwnerCreateNestedOneWithoutServed_servicesInput = {
+  create?: Prisma.XOR<Prisma.OwnerCreateWithoutServed_servicesInput, Prisma.OwnerUncheckedCreateWithoutServed_servicesInput>
+  connectOrCreate?: Prisma.OwnerCreateOrConnectWithoutServed_servicesInput
+  connect?: Prisma.OwnerWhereUniqueInput
+}
+
+export type OwnerUpdateOneWithoutServed_servicesNestedInput = {
+  create?: Prisma.XOR<Prisma.OwnerCreateWithoutServed_servicesInput, Prisma.OwnerUncheckedCreateWithoutServed_servicesInput>
+  connectOrCreate?: Prisma.OwnerCreateOrConnectWithoutServed_servicesInput
+  upsert?: Prisma.OwnerUpsertWithoutServed_servicesInput
+  disconnect?: Prisma.OwnerWhereInput | boolean
+  delete?: Prisma.OwnerWhereInput | boolean
+  connect?: Prisma.OwnerWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.OwnerUpdateToOneWithWhereWithoutServed_servicesInput, Prisma.OwnerUpdateWithoutServed_servicesInput>, Prisma.OwnerUncheckedUpdateWithoutServed_servicesInput>
+}
+
 export type OwnerCreateWithoutBusinessInput = {
   user: Prisma.UserCreateNestedOneWithoutOwnerInput
+  served_services?: Prisma.AvailedServiceCreateNestedManyWithoutServed_by_ownerInput
 }
 
 export type OwnerUncheckedCreateWithoutBusinessInput = {
   id?: number
   user_id: string
+  served_services?: Prisma.AvailedServiceUncheckedCreateNestedManyWithoutServed_by_ownerInput
 }
 
 export type OwnerCreateOrConnectWithoutBusinessInput = {
@@ -448,11 +473,13 @@ export type OwnerScalarWhereInput = {
 
 export type OwnerCreateWithoutUserInput = {
   business: Prisma.BusinessCreateNestedOneWithoutOwnersInput
+  served_services?: Prisma.AvailedServiceCreateNestedManyWithoutServed_by_ownerInput
 }
 
 export type OwnerUncheckedCreateWithoutUserInput = {
   id?: number
   business_id: string
+  served_services?: Prisma.AvailedServiceUncheckedCreateNestedManyWithoutServed_by_ownerInput
 }
 
 export type OwnerCreateOrConnectWithoutUserInput = {
@@ -473,10 +500,50 @@ export type OwnerUpdateToOneWithWhereWithoutUserInput = {
 
 export type OwnerUpdateWithoutUserInput = {
   business?: Prisma.BusinessUpdateOneRequiredWithoutOwnersNestedInput
+  served_services?: Prisma.AvailedServiceUpdateManyWithoutServed_by_ownerNestedInput
 }
 
 export type OwnerUncheckedUpdateWithoutUserInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  business_id?: Prisma.StringFieldUpdateOperationsInput | string
+  served_services?: Prisma.AvailedServiceUncheckedUpdateManyWithoutServed_by_ownerNestedInput
+}
+
+export type OwnerCreateWithoutServed_servicesInput = {
+  user: Prisma.UserCreateNestedOneWithoutOwnerInput
+  business: Prisma.BusinessCreateNestedOneWithoutOwnersInput
+}
+
+export type OwnerUncheckedCreateWithoutServed_servicesInput = {
+  id?: number
+  user_id: string
+  business_id: string
+}
+
+export type OwnerCreateOrConnectWithoutServed_servicesInput = {
+  where: Prisma.OwnerWhereUniqueInput
+  create: Prisma.XOR<Prisma.OwnerCreateWithoutServed_servicesInput, Prisma.OwnerUncheckedCreateWithoutServed_servicesInput>
+}
+
+export type OwnerUpsertWithoutServed_servicesInput = {
+  update: Prisma.XOR<Prisma.OwnerUpdateWithoutServed_servicesInput, Prisma.OwnerUncheckedUpdateWithoutServed_servicesInput>
+  create: Prisma.XOR<Prisma.OwnerCreateWithoutServed_servicesInput, Prisma.OwnerUncheckedCreateWithoutServed_servicesInput>
+  where?: Prisma.OwnerWhereInput
+}
+
+export type OwnerUpdateToOneWithWhereWithoutServed_servicesInput = {
+  where?: Prisma.OwnerWhereInput
+  data: Prisma.XOR<Prisma.OwnerUpdateWithoutServed_servicesInput, Prisma.OwnerUncheckedUpdateWithoutServed_servicesInput>
+}
+
+export type OwnerUpdateWithoutServed_servicesInput = {
+  user?: Prisma.UserUpdateOneRequiredWithoutOwnerNestedInput
+  business?: Prisma.BusinessUpdateOneRequiredWithoutOwnersNestedInput
+}
+
+export type OwnerUncheckedUpdateWithoutServed_servicesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  user_id?: Prisma.StringFieldUpdateOperationsInput | string
   business_id?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
@@ -487,11 +554,13 @@ export type OwnerCreateManyBusinessInput = {
 
 export type OwnerUpdateWithoutBusinessInput = {
   user?: Prisma.UserUpdateOneRequiredWithoutOwnerNestedInput
+  served_services?: Prisma.AvailedServiceUpdateManyWithoutServed_by_ownerNestedInput
 }
 
 export type OwnerUncheckedUpdateWithoutBusinessInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   user_id?: Prisma.StringFieldUpdateOperationsInput | string
+  served_services?: Prisma.AvailedServiceUncheckedUpdateManyWithoutServed_by_ownerNestedInput
 }
 
 export type OwnerUncheckedUpdateManyWithoutBusinessInput = {
@@ -500,6 +569,35 @@ export type OwnerUncheckedUpdateManyWithoutBusinessInput = {
 }
 
 
+/**
+ * Count Type OwnerCountOutputType
+ */
+
+export type OwnerCountOutputType = {
+  served_services: number
+}
+
+export type OwnerCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  served_services?: boolean | OwnerCountOutputTypeCountServed_servicesArgs
+}
+
+/**
+ * OwnerCountOutputType without action
+ */
+export type OwnerCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the OwnerCountOutputType
+   */
+  select?: Prisma.OwnerCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * OwnerCountOutputType without action
+ */
+export type OwnerCountOutputTypeCountServed_servicesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AvailedServiceWhereInput
+}
+
 
 export type OwnerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -507,6 +605,8 @@ export type OwnerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   business_id?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
+  served_services?: boolean | Prisma.Owner$served_servicesArgs<ExtArgs>
+  _count?: boolean | Prisma.OwnerCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["owner"]>
 
 export type OwnerSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -535,6 +635,8 @@ export type OwnerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = ru
 export type OwnerInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
+  served_services?: boolean | Prisma.Owner$served_servicesArgs<ExtArgs>
+  _count?: boolean | Prisma.OwnerCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type OwnerIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -550,6 +652,7 @@ export type $OwnerPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   objects: {
     user: Prisma.$UserPayload<ExtArgs>
     business: Prisma.$BusinessPayload<ExtArgs>
+    served_services: Prisma.$AvailedServicePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -951,6 +1054,7 @@ export interface Prisma__OwnerClient<T, Null = never, ExtArgs extends runtime.Ty
   readonly [Symbol.toStringTag]: "PrismaPromise"
   user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   business<T extends Prisma.BusinessDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.BusinessDefaultArgs<ExtArgs>>): Prisma.Prisma__BusinessClient<runtime.Types.Result.GetResult<Prisma.$BusinessPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  served_services<T extends Prisma.Owner$served_servicesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Owner$served_servicesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AvailedServicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1376,6 +1480,30 @@ export type OwnerDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Interna
    * Limit how many Owners to delete.
    */
   limit?: number
+}
+
+/**
+ * Owner.served_services
+ */
+export type Owner$served_servicesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AvailedService
+   */
+  select?: Prisma.AvailedServiceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AvailedService
+   */
+  omit?: Prisma.AvailedServiceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AvailedServiceInclude<ExtArgs> | null
+  where?: Prisma.AvailedServiceWhereInput
+  orderBy?: Prisma.AvailedServiceOrderByWithRelationInput | Prisma.AvailedServiceOrderByWithRelationInput[]
+  cursor?: Prisma.AvailedServiceWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AvailedServiceScalarFieldEnum | Prisma.AvailedServiceScalarFieldEnum[]
 }
 
 /**

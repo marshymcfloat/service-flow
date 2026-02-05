@@ -17,7 +17,7 @@ interface EmployeeSelectProps {
   value?: number;
   onChange: (employeeId: number) => void;
   isLoading?: boolean;
-  serviceCategory?: string;
+  serviceCategories?: string[];
 }
 
 const EmployeeSelect = React.memo(function EmployeeSelect({
@@ -25,7 +25,7 @@ const EmployeeSelect = React.memo(function EmployeeSelect({
   value,
   onChange,
   isLoading = false,
-  serviceCategory,
+  serviceCategories,
 }: EmployeeSelectProps) {
   if (isLoading) {
     return (
@@ -40,14 +40,33 @@ const EmployeeSelect = React.memo(function EmployeeSelect({
     );
   }
 
-  const availableEmployees = employees.filter((e) => e.available);
-  const unavailableEmployees = employees.filter((e) => !e.available);
+  const categorySet = React.useMemo(() => {
+    if (!serviceCategories || serviceCategories.length === 0) return null;
+    return new Set(serviceCategories.map((category) => category.toLowerCase()));
+  }, [serviceCategories]);
 
-  if (employees.length === 0) {
+  const matchesCategories = (employee: Employee) => {
+    if (!categorySet) return true;
+    if (!employee.specialties || employee.specialties.length === 0) return true;
+    return employee.specialties.some((specialty) =>
+      categorySet.has(specialty.toLowerCase()),
+    );
+  };
+
+  const filteredEmployees = employees.filter(matchesCategories);
+  const availableEmployees = filteredEmployees.filter((e) => e.available);
+  const unavailableEmployees = filteredEmployees.filter((e) => !e.available);
+
+  if (filteredEmployees.length === 0) {
     return (
       <div className="text-center py-6 text-muted-foreground">
         <User className="h-8 w-8 mx-auto mb-2 opacity-50" />
         <p>No staff members available</p>
+        {categorySet && (
+          <p className="text-xs mt-1">
+            No staff match the selected services.
+          </p>
+        )}
       </div>
     );
   }

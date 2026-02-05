@@ -30,6 +30,8 @@ export type UserMinAggregateOutputType = {
   hashed_password: string | null
   name: string | null
   role: $Enums.Role | null
+  must_change_password: boolean | null
+  temp_password_expires_at: Date | null
   created_at: Date | null
   updated_at: Date | null
 }
@@ -40,6 +42,8 @@ export type UserMaxAggregateOutputType = {
   hashed_password: string | null
   name: string | null
   role: $Enums.Role | null
+  must_change_password: boolean | null
+  temp_password_expires_at: Date | null
   created_at: Date | null
   updated_at: Date | null
 }
@@ -50,6 +54,8 @@ export type UserCountAggregateOutputType = {
   hashed_password: number
   name: number
   role: number
+  must_change_password: number
+  temp_password_expires_at: number
   created_at: number
   updated_at: number
   _all: number
@@ -62,6 +68,8 @@ export type UserMinAggregateInputType = {
   hashed_password?: true
   name?: true
   role?: true
+  must_change_password?: true
+  temp_password_expires_at?: true
   created_at?: true
   updated_at?: true
 }
@@ -72,6 +80,8 @@ export type UserMaxAggregateInputType = {
   hashed_password?: true
   name?: true
   role?: true
+  must_change_password?: true
+  temp_password_expires_at?: true
   created_at?: true
   updated_at?: true
 }
@@ -82,6 +92,8 @@ export type UserCountAggregateInputType = {
   hashed_password?: true
   name?: true
   role?: true
+  must_change_password?: true
+  temp_password_expires_at?: true
   created_at?: true
   updated_at?: true
   _all?: true
@@ -165,6 +177,8 @@ export type UserGroupByOutputType = {
   hashed_password: string
   name: string
   role: $Enums.Role
+  must_change_password: boolean
+  temp_password_expires_at: Date | null
   created_at: Date
   updated_at: Date
   _count: UserCountAggregateOutputType | null
@@ -196,6 +210,8 @@ export type UserWhereInput = {
   hashed_password?: Prisma.StringFilter<"User"> | string
   name?: Prisma.StringFilter<"User"> | string
   role?: Prisma.EnumRoleFilter<"User"> | $Enums.Role
+  must_change_password?: Prisma.BoolFilter<"User"> | boolean
+  temp_password_expires_at?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   created_at?: Prisma.DateTimeFilter<"User"> | Date | string
   updated_at?: Prisma.DateTimeFilter<"User"> | Date | string
   employee?: Prisma.XOR<Prisma.EmployeeNullableScalarRelationFilter, Prisma.EmployeeWhereInput> | null
@@ -208,6 +224,8 @@ export type UserOrderByWithRelationInput = {
   hashed_password?: Prisma.SortOrder
   name?: Prisma.SortOrder
   role?: Prisma.SortOrder
+  must_change_password?: Prisma.SortOrder
+  temp_password_expires_at?: Prisma.SortOrderInput | Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
   employee?: Prisma.EmployeeOrderByWithRelationInput
@@ -223,6 +241,8 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   hashed_password?: Prisma.StringFilter<"User"> | string
   name?: Prisma.StringFilter<"User"> | string
   role?: Prisma.EnumRoleFilter<"User"> | $Enums.Role
+  must_change_password?: Prisma.BoolFilter<"User"> | boolean
+  temp_password_expires_at?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   created_at?: Prisma.DateTimeFilter<"User"> | Date | string
   updated_at?: Prisma.DateTimeFilter<"User"> | Date | string
   employee?: Prisma.XOR<Prisma.EmployeeNullableScalarRelationFilter, Prisma.EmployeeWhereInput> | null
@@ -235,6 +255,8 @@ export type UserOrderByWithAggregationInput = {
   hashed_password?: Prisma.SortOrder
   name?: Prisma.SortOrder
   role?: Prisma.SortOrder
+  must_change_password?: Prisma.SortOrder
+  temp_password_expires_at?: Prisma.SortOrderInput | Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
   _count?: Prisma.UserCountOrderByAggregateInput
@@ -251,6 +273,8 @@ export type UserScalarWhereWithAggregatesInput = {
   hashed_password?: Prisma.StringWithAggregatesFilter<"User"> | string
   name?: Prisma.StringWithAggregatesFilter<"User"> | string
   role?: Prisma.EnumRoleWithAggregatesFilter<"User"> | $Enums.Role
+  must_change_password?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
+  temp_password_expires_at?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
   created_at?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
   updated_at?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
 }
@@ -261,6 +285,8 @@ export type UserCreateInput = {
   hashed_password: string
   name: string
   role?: $Enums.Role
+  must_change_password?: boolean
+  temp_password_expires_at?: Date | string | null
   created_at?: Date | string
   updated_at?: Date | string
   employee?: Prisma.EmployeeCreateNestedOneWithoutUserInput
@@ -273,6 +299,8 @@ export type UserUncheckedCreateInput = {
   hashed_password: string
   name: string
   role?: $Enums.Role
+  must_change_password?: boolean
+  temp_password_expires_at?: Date | string | null
   created_at?: Date | string
   updated_at?: Date | string
   employee?: Prisma.EmployeeUncheckedCreateNestedOneWithoutUserInput
@@ -285,6 +313,8 @@ export type UserUpdateInput = {
   hashed_password?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  must_change_password?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  temp_password_expires_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   employee?: Prisma.EmployeeUpdateOneWithoutUserNestedInput
@@ -297,6 +327,8 @@ export type UserUncheckedUpdateInput = {
   hashed_password?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  must_change_password?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  temp_password_expires_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   employee?: Prisma.EmployeeUncheckedUpdateOneWithoutUserNestedInput
@@ -309,6 +341,8 @@ export type UserCreateManyInput = {
   hashed_password: string
   name: string
   role?: $Enums.Role
+  must_change_password?: boolean
+  temp_password_expires_at?: Date | string | null
   created_at?: Date | string
   updated_at?: Date | string
 }
@@ -319,6 +353,8 @@ export type UserUpdateManyMutationInput = {
   hashed_password?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  must_change_password?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  temp_password_expires_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -329,6 +365,8 @@ export type UserUncheckedUpdateManyInput = {
   hashed_password?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  must_change_password?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  temp_password_expires_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -339,6 +377,8 @@ export type UserCountOrderByAggregateInput = {
   hashed_password?: Prisma.SortOrder
   name?: Prisma.SortOrder
   role?: Prisma.SortOrder
+  must_change_password?: Prisma.SortOrder
+  temp_password_expires_at?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
 }
@@ -349,6 +389,8 @@ export type UserMaxOrderByAggregateInput = {
   hashed_password?: Prisma.SortOrder
   name?: Prisma.SortOrder
   role?: Prisma.SortOrder
+  must_change_password?: Prisma.SortOrder
+  temp_password_expires_at?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
 }
@@ -359,6 +401,8 @@ export type UserMinOrderByAggregateInput = {
   hashed_password?: Prisma.SortOrder
   name?: Prisma.SortOrder
   role?: Prisma.SortOrder
+  must_change_password?: Prisma.SortOrder
+  temp_password_expires_at?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
 }
@@ -370,6 +414,10 @@ export type UserScalarRelationFilter = {
 
 export type EnumRoleFieldUpdateOperationsInput = {
   set?: $Enums.Role
+}
+
+export type NullableDateTimeFieldUpdateOperationsInput = {
+  set?: Date | string | null
 }
 
 export type UserCreateNestedOneWithoutEmployeeInput = {
@@ -406,6 +454,8 @@ export type UserCreateWithoutEmployeeInput = {
   hashed_password: string
   name: string
   role?: $Enums.Role
+  must_change_password?: boolean
+  temp_password_expires_at?: Date | string | null
   created_at?: Date | string
   updated_at?: Date | string
   owner?: Prisma.OwnerCreateNestedOneWithoutUserInput
@@ -417,6 +467,8 @@ export type UserUncheckedCreateWithoutEmployeeInput = {
   hashed_password: string
   name: string
   role?: $Enums.Role
+  must_change_password?: boolean
+  temp_password_expires_at?: Date | string | null
   created_at?: Date | string
   updated_at?: Date | string
   owner?: Prisma.OwnerUncheckedCreateNestedOneWithoutUserInput
@@ -444,6 +496,8 @@ export type UserUpdateWithoutEmployeeInput = {
   hashed_password?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  must_change_password?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  temp_password_expires_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   owner?: Prisma.OwnerUpdateOneWithoutUserNestedInput
@@ -455,6 +509,8 @@ export type UserUncheckedUpdateWithoutEmployeeInput = {
   hashed_password?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  must_change_password?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  temp_password_expires_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   owner?: Prisma.OwnerUncheckedUpdateOneWithoutUserNestedInput
@@ -466,6 +522,8 @@ export type UserCreateWithoutOwnerInput = {
   hashed_password: string
   name: string
   role?: $Enums.Role
+  must_change_password?: boolean
+  temp_password_expires_at?: Date | string | null
   created_at?: Date | string
   updated_at?: Date | string
   employee?: Prisma.EmployeeCreateNestedOneWithoutUserInput
@@ -477,6 +535,8 @@ export type UserUncheckedCreateWithoutOwnerInput = {
   hashed_password: string
   name: string
   role?: $Enums.Role
+  must_change_password?: boolean
+  temp_password_expires_at?: Date | string | null
   created_at?: Date | string
   updated_at?: Date | string
   employee?: Prisma.EmployeeUncheckedCreateNestedOneWithoutUserInput
@@ -504,6 +564,8 @@ export type UserUpdateWithoutOwnerInput = {
   hashed_password?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  must_change_password?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  temp_password_expires_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   employee?: Prisma.EmployeeUpdateOneWithoutUserNestedInput
@@ -515,6 +577,8 @@ export type UserUncheckedUpdateWithoutOwnerInput = {
   hashed_password?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  must_change_password?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  temp_password_expires_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   employee?: Prisma.EmployeeUncheckedUpdateOneWithoutUserNestedInput
@@ -528,6 +592,8 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   hashed_password?: boolean
   name?: boolean
   role?: boolean
+  must_change_password?: boolean
+  temp_password_expires_at?: boolean
   created_at?: boolean
   updated_at?: boolean
   employee?: boolean | Prisma.User$employeeArgs<ExtArgs>
@@ -540,6 +606,8 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   hashed_password?: boolean
   name?: boolean
   role?: boolean
+  must_change_password?: boolean
+  temp_password_expires_at?: boolean
   created_at?: boolean
   updated_at?: boolean
 }, ExtArgs["result"]["user"]>
@@ -550,6 +618,8 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   hashed_password?: boolean
   name?: boolean
   role?: boolean
+  must_change_password?: boolean
+  temp_password_expires_at?: boolean
   created_at?: boolean
   updated_at?: boolean
 }, ExtArgs["result"]["user"]>
@@ -560,11 +630,13 @@ export type UserSelectScalar = {
   hashed_password?: boolean
   name?: boolean
   role?: boolean
+  must_change_password?: boolean
+  temp_password_expires_at?: boolean
   created_at?: boolean
   updated_at?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "hashed_password" | "name" | "role" | "created_at" | "updated_at", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "hashed_password" | "name" | "role" | "must_change_password" | "temp_password_expires_at" | "created_at" | "updated_at", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   employee?: boolean | Prisma.User$employeeArgs<ExtArgs>
   owner?: boolean | Prisma.User$ownerArgs<ExtArgs>
@@ -584,6 +656,8 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     hashed_password: string
     name: string
     role: $Enums.Role
+    must_change_password: boolean
+    temp_password_expires_at: Date | null
     created_at: Date
     updated_at: Date
   }, ExtArgs["result"]["user"]>
@@ -1016,6 +1090,8 @@ export interface UserFieldRefs {
   readonly hashed_password: Prisma.FieldRef<"User", 'String'>
   readonly name: Prisma.FieldRef<"User", 'String'>
   readonly role: Prisma.FieldRef<"User", 'Role'>
+  readonly must_change_password: Prisma.FieldRef<"User", 'Boolean'>
+  readonly temp_password_expires_at: Prisma.FieldRef<"User", 'DateTime'>
   readonly created_at: Prisma.FieldRef<"User", 'DateTime'>
   readonly updated_at: Prisma.FieldRef<"User", 'DateTime'>
 }
