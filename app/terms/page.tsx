@@ -6,6 +6,30 @@ export const metadata: Metadata = {
   title: "Terms of Service | ServiceFlow",
   description:
     "Read the terms and conditions for using ServiceFlow booking management platform.",
+  alternates: {
+    canonical: "/terms",
+  },
+  openGraph: {
+    title: "Terms of Service | ServiceFlow",
+    description:
+      "Read the terms and conditions for using ServiceFlow booking management platform.",
+    url: "/terms",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Terms of Service | ServiceFlow",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Terms of Service | ServiceFlow",
+    description:
+      "Read the terms and conditions for using ServiceFlow booking management platform.",
+    images: ["/og-image.png"],
+  },
 };
 
 export default function TermsOfServicePage() {

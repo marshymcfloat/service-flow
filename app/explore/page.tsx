@@ -10,10 +10,29 @@ export const metadata: Metadata = {
   title: "Explore Businesses | Service Flow",
   description:
     "Browse trusted local businesses using Service Flow for their appointments and management.",
+  alternates: {
+    canonical: "/explore",
+  },
   openGraph: {
     title: "Explore Businesses | Service Flow",
     description:
       "Find and book appointments with top-rated salons, barbershops, and spas near you.",
+    url: "/explore",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Explore Businesses | Service Flow",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Explore Businesses | Service Flow",
+    description:
+      "Find and book appointments with top-rated salons, barbershops, and spas near you.",
+    images: ["/og-image.png"],
   },
 };
 

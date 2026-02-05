@@ -1,8 +1,18 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2 } from "lucide-react";
+import { Metadata } from "next";
 
 import { Suspense } from "react";
+
+export const metadata: Metadata = {
+  title: "Booking Confirmed | Service Flow",
+  description: "Your booking is confirmed. Thank you for choosing Service Flow.",
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 async function BookingSuccessContent({
   params,

@@ -7,7 +7,17 @@ import LandingFooter from "@/components/landing/LandingFooter";
 
 import { Suspense } from "react";
 
+const getBaseUrl = () => {
+  const url =
+    process.env.NEXT_PUBLIC_APP_URL || "https://www.serviceflow.store";
+  if (url.startsWith("http://") || url.startsWith("https://")) {
+    return url.replace(/\/$/, "");
+  }
+  return `https://${url.replace(/\/$/, "")}`;
+};
+
 export default function Home() {
+  const baseUrl = getBaseUrl();
   return (
     <main className="min-h-screen w-full bg-background flex flex-col">
       <script
@@ -19,8 +29,8 @@ export default function Home() {
               {
                 "@type": "Organization",
                 name: "Service Flow",
-                url: "https://www.serviceflow.store",
-                logo: "https://www.serviceflow.store/logo.png",
+                url: baseUrl,
+                logo: `${baseUrl}/logo.png`,
                 sameAs: [
                   "https://twitter.com/serviceflow",
                   "https://facebook.com/serviceflow",
@@ -34,7 +44,7 @@ export default function Home() {
                 offers: {
                   "@type": "Offer",
                   price: "0",
-                  priceCurrency: "USD",
+                  priceCurrency: "PHP",
                 },
               },
             ],
