@@ -262,7 +262,11 @@ export default function BookingForm({
       if (!hasRedirected && businessSlug) {
         setHasRedirected(true);
         setTimeout(() => {
-          router.push(`/${businessSlug}/booking/success`);
+          const bookingId = qrPayment?.bookingId;
+          const successUrl = bookingId
+            ? `/${businessSlug}/booking/success?bookingId=${bookingId}`
+            : `/${businessSlug}/booking/success`;
+          router.push(successUrl);
         }, 1200);
       }
       return;

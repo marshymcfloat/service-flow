@@ -1,9 +1,23 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, CalendarPlus } from "lucide-react";
 import { Metadata } from "next";
-
 import { Suspense } from "react";
+import { prisma } from "@/prisma/prisma";
+
+type BookingSuccessSearchParams = {
+  bookingId?: string | string[];
+};
+
+const formatIcsDate = (date: Date) =>
+  date.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
+
+const escapeIcsText = (value: string) =>
+  value
+    .replace(/\\/g, "\\\\")
+    .replace(/\n/g, "\\n")
+    .replace(/,/g, "\\,")
+    .replace(/;/g, "\\;");
 
 export const metadata: Metadata = {
   title: "Booking Confirmed | Service Flow",
@@ -16,10 +30,79 @@ export const metadata: Metadata = {
 
 async function BookingSuccessContent({
   params,
+  searchParams,
 }: {
   params: Promise<{ businessSlug: string }>;
+  searchParams?: BookingSuccessSearchParams;
 }) {
   const { businessSlug } = await params;
+  const bookingIdParam = Array.isArray(searchParams?.bookingId)
+    ? searchParams?.bookingId[0]
+    : searchParams?.bookingId;
+  const bookingId = bookingIdParam ? Number(bookingIdParam) : null;
+
+  const booking =
+    bookingId && Number.isFinite(bookingId)
+      ? await prisma.booking.findFirst({
+          where: {
+            id: bookingId,
+            business: { slug: businessSlug },
+          },
+          select: {
+            id: true,
+            scheduled_at: true,
+            estimated_end: true,
+            business: { select: { name: true } },
+            availed_services: {
+              select: { service: { select: { name: true } } },
+            },
+          },
+        })
+      : null;
+
+  const scheduledAt = booking?.scheduled_at ?? null;
+  const estimatedEnd =
+    booking?.estimated_end ??
+    (scheduledAt ? new Date(scheduledAt.getTime() + 60 * 60 * 1000) : null);
+  const serviceNames =
+    booking?.availed_services
+      ?.map((item) => item.service?.name)
+      .filter((name): name is string => Boolean(name)) ?? [];
+  const businessName = booking?.business?.name || "Service Flow";
+
+  const calendarHref =
+    booking && scheduledAt && estimatedEnd
+      ? (() => {
+          const servicesLabel =
+            serviceNames.length > 0 ? serviceNames.join(", ") : "Appointment";
+          const summary = `${servicesLabel} at ${businessName}`;
+          const description =
+            serviceNames.length > 0
+              ? `Services: ${serviceNames.join(", ")}`
+              : "Service appointment";
+
+          const icsContent = [
+            "BEGIN:VCALENDAR",
+            "VERSION:2.0",
+            "PRODID:-//Service Flow//Booking//EN",
+            "CALSCALE:GREGORIAN",
+            "METHOD:PUBLISH",
+            "BEGIN:VEVENT",
+            `UID:booking-${booking.id}@serviceflow`,
+            `DTSTAMP:${formatIcsDate(new Date())}`,
+            `DTSTART:${formatIcsDate(scheduledAt)}`,
+            `DTEND:${formatIcsDate(estimatedEnd)}`,
+            `SUMMARY:${escapeIcsText(summary)}`,
+            `DESCRIPTION:${escapeIcsText(description)}`,
+            "END:VEVENT",
+            "END:VCALENDAR",
+          ].join("\r\n");
+
+          return `data:text/calendar;charset=utf-8,${encodeURIComponent(
+            icsContent,
+          )}`;
+        })()
+      : null;
 
   return (
     <div className="flex w-full max-w-sm flex-col items-center gap-6 text-center">
@@ -42,6 +125,13 @@ async function BookingSuccessContent({
         <Button asChild className="w-full bg-violet-600 hover:bg-violet-700">
           <Link href={`/${businessSlug}/booking`}>Book Another Service</Link>
         </Button>
+        {calendarHref ? (
+          <Button asChild variant="outline" className="w-full">
+            <a href={calendarHref}>
+              <CalendarPlus className="h-4 w-4" /> Add reminder to calendar
+            </a>
+          </Button>
+        ) : null}
       </div>
     </div>
   );
@@ -49,13 +139,15 @@ async function BookingSuccessContent({
 
 export default async function BookingSuccessPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ businessSlug: string }>;
+  searchParams?: BookingSuccessSearchParams;
 }) {
   return (
     <div className="flex h-screen w-full flex-col items-center justify-center bg-background p-4">
       <Suspense fallback={<div>Loading...</div>}>
-        <BookingSuccessContent params={params} />
+        <BookingSuccessContent params={params} searchParams={searchParams} />
       </Suspense>
     </div>
   );
