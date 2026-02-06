@@ -1,5 +1,8 @@
 import crypto from "crypto";
 import { createBookingInDb } from "@/lib/services/booking";
+import { prisma } from "@/prisma/prisma";
+import { getPayMongoPaymentIntentById } from "@/lib/server actions/paymongo";
+import { extractPaymentIntentReferences } from "@/lib/paymongo/webhook-utils";
 
 // Handle preflight requests (CORS)
 export async function OPTIONS() {
@@ -97,72 +100,214 @@ export async function POST(req: Request) {
     }
 
     const body = JSON.parse(rawBody);
+    const eventType = body?.data?.attributes?.type;
 
-    const eventType = body.data.attributes.type;
-    if (eventType !== "checkout_session.payment.paid") {
-      return new Response("Event ignored", { status: 200 });
+    if (!eventType) {
+      return new Response("Missing event type", { status: 400 });
     }
 
-    const attributes = body.data.attributes.data.attributes;
-    const metadata = attributes.metadata;
+    if (eventType === "checkout_session.payment.paid") {
+      const attributes = body.data.attributes.data.attributes;
+      const metadata = attributes.metadata;
+      const checkoutSessionId = body?.data?.attributes?.data?.id;
 
-    if (!metadata) {
-      console.error("No metadata found in webhook event");
-      return new Response("No metadata", { status: 400 });
+      if (!metadata) {
+        console.error("No metadata found in webhook event");
+        return new Response("No metadata", { status: 400 });
+      }
+
+      const {
+        businessSlug,
+        customerName,
+        customerId,
+        email,
+        services: servicesJson,
+        scheduledAt: scheduledAtStr,
+        estimatedEnd: estimatedEndStr,
+        employeeId: employeeIdStr,
+        currentEmployeeId: currentEmployeeIdStr,
+        paymentMethod,
+        paymentType,
+        voucherCode,
+      } = metadata;
+
+      if (!businessSlug) {
+        console.error("Missing required metadata fields: businessSlug");
+        return new Response("Missing metadata", { status: 400 });
+      }
+
+      const services = JSON.parse(servicesJson);
+      const scheduledAt = scheduledAtStr ? new Date(scheduledAtStr) : new Date();
+      const estimatedEnd = estimatedEndStr
+        ? new Date(estimatedEndStr)
+        : new Date();
+      const employeeId = employeeIdStr
+        ? parseInt(employeeIdStr, 10)
+        : undefined;
+      const currentEmployeeId = currentEmployeeIdStr
+        ? parseInt(currentEmployeeIdStr, 10)
+        : undefined;
+
+      const booking = await createBookingInDb({
+        businessSlug,
+        customerId,
+        customerName,
+        email,
+        services,
+        scheduledAt,
+        estimatedEnd,
+        employeeId,
+        currentEmployeeId,
+        paymentMethod: paymentMethod as "QRPH",
+        paymentType: paymentType as "FULL" | "DOWNPAYMENT",
+        voucherCode,
+        paymentConfirmed: true,
+        paymongoCheckoutSessionId: checkoutSessionId,
+      });
+
+      console.log(
+        `Booking created successfully: ${booking.id} (${booking.status})`,
+      );
+
+      return new Response("Webhook processed", { status: 200 });
     }
 
-    const {
-      businessSlug,
-      customerName,
-      customerId,
-      email,
-      services: servicesJson,
-      scheduledAt: scheduledAtStr,
-      estimatedEnd: estimatedEndStr,
-      employeeId: employeeIdStr,
-      currentEmployeeId: currentEmployeeIdStr,
-      paymentMethod,
-      paymentType,
-      voucherCode,
-    } = metadata;
+    if (eventType === "payment.paid") {
+      const { paymentIntentId, paymentId, paymentMethodId } =
+        extractPaymentIntentReferences(body);
 
-    if (!businessSlug) {
-      console.error("Missing required metadata fields: businessSlug");
-      return new Response("Missing metadata", { status: 400 });
+      if (!paymentIntentId) {
+        console.error("Missing payment intent ID in payment.paid event");
+        return new Response("Missing payment intent ID", { status: 400 });
+      }
+
+      const existingBooking = await prisma.booking.findFirst({
+        where: { paymongo_payment_intent_id: paymentIntentId },
+      });
+
+      if (existingBooking) {
+        if (existingBooking.status !== "ACCEPTED") {
+          await prisma.booking.update({
+            where: { id: existingBooking.id },
+            data: {
+              status: "ACCEPTED",
+              hold_expires_at: null,
+              paymongo_payment_id: paymentId,
+              paymongo_payment_method_id:
+                paymentMethodId || existingBooking.paymongo_payment_method_id,
+            },
+          });
+        }
+
+        return new Response("Webhook processed", { status: 200 });
+      }
+
+      const metadata = await resolvePaymentIntentMetadata(paymentIntentId);
+
+      if (!metadata) {
+        console.error("No metadata found for payment intent");
+        return new Response("No metadata", { status: 400 });
+      }
+
+      const booking = await createBookingFromMetadata({
+        metadata,
+        paymentIntentId,
+        paymentMethodId,
+        paymentId,
+      });
+
+      console.log(
+        `Booking created successfully: ${booking.id} (${booking.status})`,
+      );
+
+      return new Response("Webhook processed", { status: 200 });
     }
 
-    const services = JSON.parse(servicesJson);
-    const scheduledAt = scheduledAtStr ? new Date(scheduledAtStr) : new Date();
-    const estimatedEnd = estimatedEndStr
-      ? new Date(estimatedEndStr)
-      : new Date();
-    const employeeId = employeeIdStr ? parseInt(employeeIdStr, 10) : undefined;
-    const currentEmployeeId = currentEmployeeIdStr
-      ? parseInt(currentEmployeeIdStr, 10)
-      : undefined;
+    if (eventType === "payment.failed" || eventType === "qrph.expired") {
+      const { paymentIntentId } = extractPaymentIntentReferences(body);
 
-    const booking = await createBookingInDb({
-      businessSlug,
-      customerId,
-      customerName,
-      email,
-      services,
-      scheduledAt,
-      estimatedEnd,
-      employeeId,
-      currentEmployeeId,
-      paymentMethod: paymentMethod as "QRPH",
-      paymentType: paymentType as "FULL" | "DOWNPAYMENT",
-      voucherCode,
-    });
+      if (paymentIntentId) {
+        const booking = await prisma.booking.findFirst({
+          where: { paymongo_payment_intent_id: paymentIntentId },
+        });
 
-    console.log(
-      `Booking created successfully: ${booking.id} (${booking.status})`,
-    );
+        if (booking && booking.status !== "CANCELLED") {
+          await prisma.booking.update({
+            where: { id: booking.id },
+            data: { status: "CANCELLED" },
+          });
+        }
+      }
 
-    return new Response("Webhook processed", { status: 200 });
+      return new Response("Webhook processed", { status: 200 });
+    }
+
+    return new Response("Event ignored", { status: 200 });
   } catch (error) {
     console.error("Webhook processing error:", error);
     return new Response("Internal Server Error", { status: 500 });
   }
+}
+
+async function resolvePaymentIntentMetadata(paymentIntentId: string) {
+  const paymentIntent = await getPayMongoPaymentIntentById(paymentIntentId);
+  return paymentIntent?.attributes?.metadata;
+}
+
+async function createBookingFromMetadata({
+  metadata,
+  paymentIntentId,
+  paymentMethodId,
+  paymentId,
+}: {
+  metadata: Record<string, any>;
+  paymentIntentId?: string;
+  paymentMethodId?: string;
+  paymentId?: string;
+}) {
+  const {
+    businessSlug,
+    customerName,
+    customerId,
+    email,
+    services: servicesJson,
+    scheduledAt: scheduledAtStr,
+    estimatedEnd: estimatedEndStr,
+    employeeId: employeeIdStr,
+    currentEmployeeId: currentEmployeeIdStr,
+    paymentMethod,
+    paymentType,
+    voucherCode,
+  } = metadata;
+
+  if (!businessSlug) {
+    throw new Error("Missing required metadata fields: businessSlug");
+  }
+
+  const services = JSON.parse(servicesJson);
+  const scheduledAt = scheduledAtStr ? new Date(scheduledAtStr) : new Date();
+  const estimatedEnd = estimatedEndStr ? new Date(estimatedEndStr) : new Date();
+  const employeeId = employeeIdStr ? parseInt(employeeIdStr, 10) : undefined;
+  const currentEmployeeId = currentEmployeeIdStr
+    ? parseInt(currentEmployeeIdStr, 10)
+    : undefined;
+
+  return createBookingInDb({
+    businessSlug,
+    customerId,
+    customerName,
+    email,
+    services,
+    scheduledAt,
+    estimatedEnd,
+    employeeId,
+    currentEmployeeId,
+    paymentMethod: paymentMethod as "QRPH",
+    paymentType: paymentType as "FULL" | "DOWNPAYMENT",
+    voucherCode,
+    paymentConfirmed: true,
+    paymongoPaymentIntentId: paymentIntentId,
+    paymongoPaymentMethodId: paymentMethodId,
+    paymongoPaymentId: paymentId,
+  });
 }

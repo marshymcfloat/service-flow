@@ -1,11 +1,11 @@
 "use client";
 
-import { createBooking } from "@/lib/server actions/booking";
+import { createBooking, CreateBookingResult } from "@/lib/server actions/booking";
 import {
   getAvailableSlots,
   getAvailableEmployees,
 } from "@/lib/server actions/availability";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import {
   Service,
   ServicePackage,
@@ -62,6 +62,8 @@ import ServiceClaimSelector from "./ServiceClaimSelector";
 import { SegmentedToggle } from "../ui/segmented-toggle";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
+import QrPaymentPanel from "./QrPaymentPanel";
+import { getPayMongoPaymentIntentStatus } from "@/lib/server actions/paymongo";
 
 type PackageWithItems = ServicePackage & {
   items: (PackageItem & { service: Service })[];
@@ -93,6 +95,7 @@ export default function BookingForm({
   isModal = false,
 }: BookingFormProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const form = useForm<any>({
     resolver: zodResolver(createBookingSchema),
     defaultValues: {
@@ -111,6 +114,7 @@ export default function BookingForm({
 
   const params = useParams<{ businessSlug: string }>();
   const businessSlug = params.businessSlug;
+  const canceled = searchParams.get("canceled");
 
   // [NEW] Fetch active sale events
   const { data: saleEventsResult } = useQuery({
@@ -192,12 +196,71 @@ export default function BookingForm({
     // If customer has an email, set it to state
     if (customer && customer.email) {
       setExistingCustomerEmail(customer.email);
+      form.setValue("email", customer.email, { shouldValidate: true });
     } else {
       setExistingCustomerEmail(null);
+      form.setValue("email", "", { shouldValidate: true });
     }
-  }, []);
+  }, [form]);
 
   const [isWalkIn, setIsWalkIn] = useState(false);
+  const [qrPayment, setQrPayment] = useState<{
+    paymentIntentId: string;
+    bookingId: number;
+    qrImage: string;
+    expiresAt?: string;
+  } | null>(null);
+  const [qrStatus, setQrStatus] = useState<
+    "pending" | "paid" | "failed" | "expired"
+  >("pending");
+  const [hasRedirected, setHasRedirected] = useState(false);
+
+  useEffect(() => {
+    if (canceled === "true") {
+      toast.error("Payment was canceled or expired. Please try again.");
+      if (businessSlug) {
+        router.replace(`/${businessSlug}/booking`);
+      }
+    }
+  }, [canceled, businessSlug, router]);
+
+  const { data: paymentIntentStatus } = useQuery({
+    queryKey: ["paymongoIntentStatus", qrPayment?.paymentIntentId],
+    queryFn: () =>
+      qrPayment
+        ? getPayMongoPaymentIntentStatus(qrPayment.paymentIntentId)
+        : Promise.resolve(null),
+    enabled: !!qrPayment && qrStatus === "pending",
+    refetchInterval: qrPayment && qrStatus === "pending" ? 5000 : false,
+  });
+
+  useEffect(() => {
+    if (!qrPayment || !paymentIntentStatus) return;
+
+    const status = paymentIntentStatus.status;
+    if (status === "succeeded") {
+      setQrStatus("paid");
+      if (!hasRedirected && businessSlug) {
+        setHasRedirected(true);
+        setTimeout(() => {
+          router.push(`/${businessSlug}/booking/success`);
+        }, 1200);
+      }
+      return;
+    }
+
+    if (status === "canceled" || status === "failed") {
+      setQrStatus("failed");
+      return;
+    }
+
+    if (qrPayment.expiresAt) {
+      const expired = new Date(qrPayment.expiresAt).getTime() <= Date.now();
+      if (expired) {
+        setQrStatus("expired");
+      }
+    }
+  }, [paymentIntentStatus, qrPayment, businessSlug, hasRedirected, router]);
 
   // Memoize the toggle handler
   const handleWalkInToggle = useCallback(() => {
@@ -432,10 +495,17 @@ export default function BookingForm({
 
   const { mutate: createBookingAction, isPending } = useMutation({
     mutationFn: createBooking,
-    onSuccess: (checkoutUrl) => {
-      if (checkoutUrl && checkoutUrl.startsWith("http")) {
-        window.location.href = checkoutUrl;
-      } else if (isEmployee) {
+    onSuccess: (result: CreateBookingResult) => {
+      if (!result) return;
+
+      if (result.type === "redirect") {
+        if (result.url && result.url.startsWith("http")) {
+          window.location.href = result.url;
+        }
+        return;
+      }
+
+      if (result.type === "internal") {
         form.reset();
         setIsWalkIn(false); // Reset walk-in toggle
         setClaimedUniqueIds([]);
@@ -444,6 +514,17 @@ export default function BookingForm({
         toast.success("Booking successfully created");
 
         router.back();
+        return;
+      }
+
+      if (result.type === "qrph") {
+        setQrPayment({
+          paymentIntentId: result.paymentIntentId,
+          bookingId: result.bookingId,
+          qrImage: result.qrImage,
+          expiresAt: result.expiresAt,
+        });
+        setQrStatus("pending");
       }
     },
     onError: (error) => {
@@ -532,6 +613,24 @@ export default function BookingForm({
         })}
         className="flex flex-col 2xl:flex-row h-full gap-6 2xl:gap-8 relative isolate"
       >
+        {qrPayment && (
+          <QrPaymentPanel
+            qrImage={qrPayment.qrImage}
+            amountLabel={`₱${finalAmountToPay.toFixed(2)}`}
+            status={qrStatus}
+            expiresAt={qrPayment.expiresAt}
+            onClose={() => {
+              setQrPayment(null);
+              setQrStatus("pending");
+              setHasRedirected(false);
+            }}
+            onRetry={() => {
+              setQrPayment(null);
+              setQrStatus("pending");
+              setHasRedirected(false);
+            }}
+          />
+        )}
         <div className="flex-1 space-y-6 overflow-y-auto pb-4 2xl:pb-0 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
           {/* Hidden Fields & Identification */}
           <FormField
@@ -581,7 +680,7 @@ export default function BookingForm({
               render={({ field }) => {
                 return (
                   <FormItem>
-                    <FormLabel>Email (Optional)</FormLabel>
+                    <FormLabel>Email</FormLabel>
                     {isEmployee && existingCustomerEmail ? (
                       <div className="text-sm bg-yellow-50 text-yellow-800 p-3 rounded-md border border-yellow-200">
                         This customer already has an email linked (
@@ -599,6 +698,9 @@ export default function BookingForm({
                         <FormControl>
                           <Input placeholder="email@example.com" {...field} />
                         </FormControl>
+                        <p className="text-xs text-muted-foreground">
+                          Required for QR payments.
+                        </p>
                         <FormMessage />
                       </>
                     )}

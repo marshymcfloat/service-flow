@@ -29,6 +29,11 @@ export type BookingServiceParams = {
   email?: string;
   voucherCode?: string;
   totalDiscount?: number;
+  paymentConfirmed?: boolean;
+  paymongoCheckoutSessionId?: string;
+  paymongoPaymentIntentId?: string;
+  paymongoPaymentMethodId?: string;
+  paymongoPaymentId?: string;
 };
 
 export async function createBookingInDb({
@@ -46,6 +51,11 @@ export async function createBookingInDb({
   email,
   voucherCode,
   totalDiscount = 0,
+  paymentConfirmed = false,
+  paymongoCheckoutSessionId,
+  paymongoPaymentIntentId,
+  paymongoPaymentMethodId,
+  paymongoPaymentId,
 }: BookingServiceParams) {
   return await prisma.$transaction(async (tx) => {
     const business = await tx.business.findUnique({
@@ -237,10 +247,12 @@ export async function createBookingInDb({
 
     // Use HOLD status for online payments (will be confirmed after payment)
     // Use ACCEPTED for cash payments (immediate confirmation)
-    const bookingStatus = isOnlinePayment ? "HOLD" : "ACCEPTED";
-    const holdExpiresAt = isOnlinePayment
-      ? new Date(Date.now() + 5 * 60 * 1000) // 5 minute hold
-      : null;
+    const bookingStatus =
+      isOnlinePayment && !paymentConfirmed ? "HOLD" : "ACCEPTED";
+    const holdExpiresAt =
+      bookingStatus === "HOLD"
+        ? new Date(Date.now() + 10 * 60 * 1000) // 10 minute hold
+        : null;
 
     // Use calculated discountAmount if this function calculated it, otherwise use passed totalDiscount
     const finalVoucherDiscount =
@@ -256,6 +268,10 @@ export async function createBookingInDb({
         grand_total: grandTotal,
         total_discount: finalVoucherDiscount, // Store total discount (voucher only?)
         payment_method: paymentMethod,
+        paymongo_checkout_session_id: paymongoCheckoutSessionId,
+        paymongo_payment_intent_id: paymongoPaymentIntentId,
+        paymongo_payment_method_id: paymongoPaymentMethodId,
+        paymongo_payment_id: paymongoPaymentId,
         status: bookingStatus,
         hold_expires_at: holdExpiresAt,
         scheduled_at: scheduledAt,
@@ -321,8 +337,11 @@ export async function createBookingInDb({
     }
 
     // Publish outbox event for async processing (emails, etc.)
+    const eventType =
+      bookingStatus === "ACCEPTED" ? "BOOKING_CONFIRMED" : "BOOKING_CREATED";
+
     await publishEvent(tx as Prisma.TransactionClient, {
-      type: isOnlinePayment ? "BOOKING_CREATED" : "BOOKING_CONFIRMED",
+      type: eventType,
       aggregateType: "Booking",
       aggregateId: String(booking.id),
       businessId: business.id,

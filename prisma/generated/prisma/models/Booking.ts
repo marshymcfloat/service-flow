@@ -46,6 +46,10 @@ export type BookingMinAggregateOutputType = {
   customer_id: string | null
   business_id: string | null
   payment_method: $Enums.PaymentMethod | null
+  paymongo_checkout_session_id: string | null
+  paymongo_payment_intent_id: string | null
+  paymongo_payment_method_id: string | null
+  paymongo_payment_id: string | null
   grand_total: number | null
   total_discount: number | null
   downpayment: number | null
@@ -65,6 +69,10 @@ export type BookingMaxAggregateOutputType = {
   customer_id: string | null
   business_id: string | null
   payment_method: $Enums.PaymentMethod | null
+  paymongo_checkout_session_id: string | null
+  paymongo_payment_intent_id: string | null
+  paymongo_payment_method_id: string | null
+  paymongo_payment_id: string | null
   grand_total: number | null
   total_discount: number | null
   downpayment: number | null
@@ -84,6 +92,10 @@ export type BookingCountAggregateOutputType = {
   customer_id: number
   business_id: number
   payment_method: number
+  paymongo_checkout_session_id: number
+  paymongo_payment_intent_id: number
+  paymongo_payment_method_id: number
+  paymongo_payment_id: number
   grand_total: number
   total_discount: number
   downpayment: number
@@ -119,6 +131,10 @@ export type BookingMinAggregateInputType = {
   customer_id?: true
   business_id?: true
   payment_method?: true
+  paymongo_checkout_session_id?: true
+  paymongo_payment_intent_id?: true
+  paymongo_payment_method_id?: true
+  paymongo_payment_id?: true
   grand_total?: true
   total_discount?: true
   downpayment?: true
@@ -138,6 +154,10 @@ export type BookingMaxAggregateInputType = {
   customer_id?: true
   business_id?: true
   payment_method?: true
+  paymongo_checkout_session_id?: true
+  paymongo_payment_intent_id?: true
+  paymongo_payment_method_id?: true
+  paymongo_payment_id?: true
   grand_total?: true
   total_discount?: true
   downpayment?: true
@@ -157,6 +177,10 @@ export type BookingCountAggregateInputType = {
   customer_id?: true
   business_id?: true
   payment_method?: true
+  paymongo_checkout_session_id?: true
+  paymongo_payment_intent_id?: true
+  paymongo_payment_method_id?: true
+  paymongo_payment_id?: true
   grand_total?: true
   total_discount?: true
   downpayment?: true
@@ -263,6 +287,10 @@ export type BookingGroupByOutputType = {
   customer_id: string
   business_id: string
   payment_method: $Enums.PaymentMethod
+  paymongo_checkout_session_id: string | null
+  paymongo_payment_intent_id: string | null
+  paymongo_payment_method_id: string | null
+  paymongo_payment_id: string | null
   grand_total: number
   total_discount: number
   downpayment: number | null
@@ -305,6 +333,10 @@ export type BookingWhereInput = {
   customer_id?: Prisma.StringFilter<"Booking"> | string
   business_id?: Prisma.StringFilter<"Booking"> | string
   payment_method?: Prisma.EnumPaymentMethodFilter<"Booking"> | $Enums.PaymentMethod
+  paymongo_checkout_session_id?: Prisma.StringNullableFilter<"Booking"> | string | null
+  paymongo_payment_intent_id?: Prisma.StringNullableFilter<"Booking"> | string | null
+  paymongo_payment_method_id?: Prisma.StringNullableFilter<"Booking"> | string | null
+  paymongo_payment_id?: Prisma.StringNullableFilter<"Booking"> | string | null
   grand_total?: Prisma.FloatFilter<"Booking"> | number
   total_discount?: Prisma.FloatFilter<"Booking"> | number
   downpayment?: Prisma.FloatNullableFilter<"Booking"> | number | null
@@ -328,6 +360,10 @@ export type BookingOrderByWithRelationInput = {
   customer_id?: Prisma.SortOrder
   business_id?: Prisma.SortOrder
   payment_method?: Prisma.SortOrder
+  paymongo_checkout_session_id?: Prisma.SortOrderInput | Prisma.SortOrder
+  paymongo_payment_intent_id?: Prisma.SortOrderInput | Prisma.SortOrder
+  paymongo_payment_method_id?: Prisma.SortOrderInput | Prisma.SortOrder
+  paymongo_payment_id?: Prisma.SortOrderInput | Prisma.SortOrder
   grand_total?: Prisma.SortOrder
   total_discount?: Prisma.SortOrder
   downpayment?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -347,6 +383,8 @@ export type BookingOrderByWithRelationInput = {
 
 export type BookingWhereUniqueInput = Prisma.AtLeast<{
   id?: number
+  paymongo_checkout_session_id?: string
+  paymongo_payment_intent_id?: string
   AND?: Prisma.BookingWhereInput | Prisma.BookingWhereInput[]
   OR?: Prisma.BookingWhereInput[]
   NOT?: Prisma.BookingWhereInput | Prisma.BookingWhereInput[]
@@ -354,6 +392,8 @@ export type BookingWhereUniqueInput = Prisma.AtLeast<{
   customer_id?: Prisma.StringFilter<"Booking"> | string
   business_id?: Prisma.StringFilter<"Booking"> | string
   payment_method?: Prisma.EnumPaymentMethodFilter<"Booking"> | $Enums.PaymentMethod
+  paymongo_payment_method_id?: Prisma.StringNullableFilter<"Booking"> | string | null
+  paymongo_payment_id?: Prisma.StringNullableFilter<"Booking"> | string | null
   grand_total?: Prisma.FloatFilter<"Booking"> | number
   total_discount?: Prisma.FloatFilter<"Booking"> | number
   downpayment?: Prisma.FloatNullableFilter<"Booking"> | number | null
@@ -369,7 +409,7 @@ export type BookingWhereUniqueInput = Prisma.AtLeast<{
   business?: Prisma.XOR<Prisma.BusinessScalarRelationFilter, Prisma.BusinessWhereInput>
   vouchers?: Prisma.VoucherListRelationFilter
   availed_services?: Prisma.AvailedServiceListRelationFilter
-}, "id">
+}, "id" | "paymongo_checkout_session_id" | "paymongo_payment_intent_id">
 
 export type BookingOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -377,6 +417,10 @@ export type BookingOrderByWithAggregationInput = {
   customer_id?: Prisma.SortOrder
   business_id?: Prisma.SortOrder
   payment_method?: Prisma.SortOrder
+  paymongo_checkout_session_id?: Prisma.SortOrderInput | Prisma.SortOrder
+  paymongo_payment_intent_id?: Prisma.SortOrderInput | Prisma.SortOrder
+  paymongo_payment_method_id?: Prisma.SortOrderInput | Prisma.SortOrder
+  paymongo_payment_id?: Prisma.SortOrderInput | Prisma.SortOrder
   grand_total?: Prisma.SortOrder
   total_discount?: Prisma.SortOrder
   downpayment?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -404,6 +448,10 @@ export type BookingScalarWhereWithAggregatesInput = {
   customer_id?: Prisma.StringWithAggregatesFilter<"Booking"> | string
   business_id?: Prisma.StringWithAggregatesFilter<"Booking"> | string
   payment_method?: Prisma.EnumPaymentMethodWithAggregatesFilter<"Booking"> | $Enums.PaymentMethod
+  paymongo_checkout_session_id?: Prisma.StringNullableWithAggregatesFilter<"Booking"> | string | null
+  paymongo_payment_intent_id?: Prisma.StringNullableWithAggregatesFilter<"Booking"> | string | null
+  paymongo_payment_method_id?: Prisma.StringNullableWithAggregatesFilter<"Booking"> | string | null
+  paymongo_payment_id?: Prisma.StringNullableWithAggregatesFilter<"Booking"> | string | null
   grand_total?: Prisma.FloatWithAggregatesFilter<"Booking"> | number
   total_discount?: Prisma.FloatWithAggregatesFilter<"Booking"> | number
   downpayment?: Prisma.FloatNullableWithAggregatesFilter<"Booking"> | number | null
@@ -420,6 +468,10 @@ export type BookingScalarWhereWithAggregatesInput = {
 export type BookingCreateInput = {
   status?: $Enums.BookingStatus
   payment_method?: $Enums.PaymentMethod
+  paymongo_checkout_session_id?: string | null
+  paymongo_payment_intent_id?: string | null
+  paymongo_payment_method_id?: string | null
+  paymongo_payment_id?: string | null
   grand_total: number
   total_discount: number
   downpayment?: number | null
@@ -443,6 +495,10 @@ export type BookingUncheckedCreateInput = {
   customer_id: string
   business_id: string
   payment_method?: $Enums.PaymentMethod
+  paymongo_checkout_session_id?: string | null
+  paymongo_payment_intent_id?: string | null
+  paymongo_payment_method_id?: string | null
+  paymongo_payment_id?: string | null
   grand_total: number
   total_discount: number
   downpayment?: number | null
@@ -461,6 +517,10 @@ export type BookingUncheckedCreateInput = {
 export type BookingUpdateInput = {
   status?: Prisma.EnumBookingStatusFieldUpdateOperationsInput | $Enums.BookingStatus
   payment_method?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
+  paymongo_checkout_session_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymongo_payment_intent_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymongo_payment_method_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymongo_payment_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   grand_total?: Prisma.FloatFieldUpdateOperationsInput | number
   total_discount?: Prisma.FloatFieldUpdateOperationsInput | number
   downpayment?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -484,6 +544,10 @@ export type BookingUncheckedUpdateInput = {
   customer_id?: Prisma.StringFieldUpdateOperationsInput | string
   business_id?: Prisma.StringFieldUpdateOperationsInput | string
   payment_method?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
+  paymongo_checkout_session_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymongo_payment_intent_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymongo_payment_method_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymongo_payment_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   grand_total?: Prisma.FloatFieldUpdateOperationsInput | number
   total_discount?: Prisma.FloatFieldUpdateOperationsInput | number
   downpayment?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -505,6 +569,10 @@ export type BookingCreateManyInput = {
   customer_id: string
   business_id: string
   payment_method?: $Enums.PaymentMethod
+  paymongo_checkout_session_id?: string | null
+  paymongo_payment_intent_id?: string | null
+  paymongo_payment_method_id?: string | null
+  paymongo_payment_id?: string | null
   grand_total: number
   total_discount: number
   downpayment?: number | null
@@ -521,6 +589,10 @@ export type BookingCreateManyInput = {
 export type BookingUpdateManyMutationInput = {
   status?: Prisma.EnumBookingStatusFieldUpdateOperationsInput | $Enums.BookingStatus
   payment_method?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
+  paymongo_checkout_session_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymongo_payment_intent_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymongo_payment_method_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymongo_payment_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   grand_total?: Prisma.FloatFieldUpdateOperationsInput | number
   total_discount?: Prisma.FloatFieldUpdateOperationsInput | number
   downpayment?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -540,6 +612,10 @@ export type BookingUncheckedUpdateManyInput = {
   customer_id?: Prisma.StringFieldUpdateOperationsInput | string
   business_id?: Prisma.StringFieldUpdateOperationsInput | string
   payment_method?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
+  paymongo_checkout_session_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymongo_payment_intent_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymongo_payment_method_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymongo_payment_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   grand_total?: Prisma.FloatFieldUpdateOperationsInput | number
   total_discount?: Prisma.FloatFieldUpdateOperationsInput | number
   downpayment?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -569,6 +645,10 @@ export type BookingCountOrderByAggregateInput = {
   customer_id?: Prisma.SortOrder
   business_id?: Prisma.SortOrder
   payment_method?: Prisma.SortOrder
+  paymongo_checkout_session_id?: Prisma.SortOrder
+  paymongo_payment_intent_id?: Prisma.SortOrder
+  paymongo_payment_method_id?: Prisma.SortOrder
+  paymongo_payment_id?: Prisma.SortOrder
   grand_total?: Prisma.SortOrder
   total_discount?: Prisma.SortOrder
   downpayment?: Prisma.SortOrder
@@ -595,6 +675,10 @@ export type BookingMaxOrderByAggregateInput = {
   customer_id?: Prisma.SortOrder
   business_id?: Prisma.SortOrder
   payment_method?: Prisma.SortOrder
+  paymongo_checkout_session_id?: Prisma.SortOrder
+  paymongo_payment_intent_id?: Prisma.SortOrder
+  paymongo_payment_method_id?: Prisma.SortOrder
+  paymongo_payment_id?: Prisma.SortOrder
   grand_total?: Prisma.SortOrder
   total_discount?: Prisma.SortOrder
   downpayment?: Prisma.SortOrder
@@ -614,6 +698,10 @@ export type BookingMinOrderByAggregateInput = {
   customer_id?: Prisma.SortOrder
   business_id?: Prisma.SortOrder
   payment_method?: Prisma.SortOrder
+  paymongo_checkout_session_id?: Prisma.SortOrder
+  paymongo_payment_intent_id?: Prisma.SortOrder
+  paymongo_payment_method_id?: Prisma.SortOrder
+  paymongo_payment_id?: Prisma.SortOrder
   grand_total?: Prisma.SortOrder
   total_discount?: Prisma.SortOrder
   downpayment?: Prisma.SortOrder
@@ -773,6 +861,10 @@ export type BookingUpdateOneRequiredWithoutAvailed_servicesNestedInput = {
 export type BookingCreateWithoutBusinessInput = {
   status?: $Enums.BookingStatus
   payment_method?: $Enums.PaymentMethod
+  paymongo_checkout_session_id?: string | null
+  paymongo_payment_intent_id?: string | null
+  paymongo_payment_method_id?: string | null
+  paymongo_payment_id?: string | null
   grand_total: number
   total_discount: number
   downpayment?: number | null
@@ -794,6 +886,10 @@ export type BookingUncheckedCreateWithoutBusinessInput = {
   status?: $Enums.BookingStatus
   customer_id: string
   payment_method?: $Enums.PaymentMethod
+  paymongo_checkout_session_id?: string | null
+  paymongo_payment_intent_id?: string | null
+  paymongo_payment_method_id?: string | null
+  paymongo_payment_id?: string | null
   grand_total: number
   total_discount: number
   downpayment?: number | null
@@ -844,6 +940,10 @@ export type BookingScalarWhereInput = {
   customer_id?: Prisma.StringFilter<"Booking"> | string
   business_id?: Prisma.StringFilter<"Booking"> | string
   payment_method?: Prisma.EnumPaymentMethodFilter<"Booking"> | $Enums.PaymentMethod
+  paymongo_checkout_session_id?: Prisma.StringNullableFilter<"Booking"> | string | null
+  paymongo_payment_intent_id?: Prisma.StringNullableFilter<"Booking"> | string | null
+  paymongo_payment_method_id?: Prisma.StringNullableFilter<"Booking"> | string | null
+  paymongo_payment_id?: Prisma.StringNullableFilter<"Booking"> | string | null
   grand_total?: Prisma.FloatFilter<"Booking"> | number
   total_discount?: Prisma.FloatFilter<"Booking"> | number
   downpayment?: Prisma.FloatNullableFilter<"Booking"> | number | null
@@ -860,6 +960,10 @@ export type BookingScalarWhereInput = {
 export type BookingCreateWithoutCustomerInput = {
   status?: $Enums.BookingStatus
   payment_method?: $Enums.PaymentMethod
+  paymongo_checkout_session_id?: string | null
+  paymongo_payment_intent_id?: string | null
+  paymongo_payment_method_id?: string | null
+  paymongo_payment_id?: string | null
   grand_total: number
   total_discount: number
   downpayment?: number | null
@@ -881,6 +985,10 @@ export type BookingUncheckedCreateWithoutCustomerInput = {
   status?: $Enums.BookingStatus
   business_id: string
   payment_method?: $Enums.PaymentMethod
+  paymongo_checkout_session_id?: string | null
+  paymongo_payment_intent_id?: string | null
+  paymongo_payment_method_id?: string | null
+  paymongo_payment_id?: string | null
   grand_total: number
   total_discount: number
   downpayment?: number | null
@@ -925,6 +1033,10 @@ export type BookingUpdateManyWithWhereWithoutCustomerInput = {
 export type BookingCreateWithoutVouchersInput = {
   status?: $Enums.BookingStatus
   payment_method?: $Enums.PaymentMethod
+  paymongo_checkout_session_id?: string | null
+  paymongo_payment_intent_id?: string | null
+  paymongo_payment_method_id?: string | null
+  paymongo_payment_id?: string | null
   grand_total: number
   total_discount: number
   downpayment?: number | null
@@ -947,6 +1059,10 @@ export type BookingUncheckedCreateWithoutVouchersInput = {
   customer_id: string
   business_id: string
   payment_method?: $Enums.PaymentMethod
+  paymongo_checkout_session_id?: string | null
+  paymongo_payment_intent_id?: string | null
+  paymongo_payment_method_id?: string | null
+  paymongo_payment_id?: string | null
   grand_total: number
   total_discount: number
   downpayment?: number | null
@@ -980,6 +1096,10 @@ export type BookingUpdateToOneWithWhereWithoutVouchersInput = {
 export type BookingUpdateWithoutVouchersInput = {
   status?: Prisma.EnumBookingStatusFieldUpdateOperationsInput | $Enums.BookingStatus
   payment_method?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
+  paymongo_checkout_session_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymongo_payment_intent_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymongo_payment_method_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymongo_payment_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   grand_total?: Prisma.FloatFieldUpdateOperationsInput | number
   total_discount?: Prisma.FloatFieldUpdateOperationsInput | number
   downpayment?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -1002,6 +1122,10 @@ export type BookingUncheckedUpdateWithoutVouchersInput = {
   customer_id?: Prisma.StringFieldUpdateOperationsInput | string
   business_id?: Prisma.StringFieldUpdateOperationsInput | string
   payment_method?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
+  paymongo_checkout_session_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymongo_payment_intent_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymongo_payment_method_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymongo_payment_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   grand_total?: Prisma.FloatFieldUpdateOperationsInput | number
   total_discount?: Prisma.FloatFieldUpdateOperationsInput | number
   downpayment?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -1019,6 +1143,10 @@ export type BookingUncheckedUpdateWithoutVouchersInput = {
 export type BookingCreateWithoutAvailed_servicesInput = {
   status?: $Enums.BookingStatus
   payment_method?: $Enums.PaymentMethod
+  paymongo_checkout_session_id?: string | null
+  paymongo_payment_intent_id?: string | null
+  paymongo_payment_method_id?: string | null
+  paymongo_payment_id?: string | null
   grand_total: number
   total_discount: number
   downpayment?: number | null
@@ -1041,6 +1169,10 @@ export type BookingUncheckedCreateWithoutAvailed_servicesInput = {
   customer_id: string
   business_id: string
   payment_method?: $Enums.PaymentMethod
+  paymongo_checkout_session_id?: string | null
+  paymongo_payment_intent_id?: string | null
+  paymongo_payment_method_id?: string | null
+  paymongo_payment_id?: string | null
   grand_total: number
   total_discount: number
   downpayment?: number | null
@@ -1074,6 +1206,10 @@ export type BookingUpdateToOneWithWhereWithoutAvailed_servicesInput = {
 export type BookingUpdateWithoutAvailed_servicesInput = {
   status?: Prisma.EnumBookingStatusFieldUpdateOperationsInput | $Enums.BookingStatus
   payment_method?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
+  paymongo_checkout_session_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymongo_payment_intent_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymongo_payment_method_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymongo_payment_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   grand_total?: Prisma.FloatFieldUpdateOperationsInput | number
   total_discount?: Prisma.FloatFieldUpdateOperationsInput | number
   downpayment?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -1096,6 +1232,10 @@ export type BookingUncheckedUpdateWithoutAvailed_servicesInput = {
   customer_id?: Prisma.StringFieldUpdateOperationsInput | string
   business_id?: Prisma.StringFieldUpdateOperationsInput | string
   payment_method?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
+  paymongo_checkout_session_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymongo_payment_intent_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymongo_payment_method_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymongo_payment_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   grand_total?: Prisma.FloatFieldUpdateOperationsInput | number
   total_discount?: Prisma.FloatFieldUpdateOperationsInput | number
   downpayment?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -1115,6 +1255,10 @@ export type BookingCreateManyBusinessInput = {
   status?: $Enums.BookingStatus
   customer_id: string
   payment_method?: $Enums.PaymentMethod
+  paymongo_checkout_session_id?: string | null
+  paymongo_payment_intent_id?: string | null
+  paymongo_payment_method_id?: string | null
+  paymongo_payment_id?: string | null
   grand_total: number
   total_discount: number
   downpayment?: number | null
@@ -1131,6 +1275,10 @@ export type BookingCreateManyBusinessInput = {
 export type BookingUpdateWithoutBusinessInput = {
   status?: Prisma.EnumBookingStatusFieldUpdateOperationsInput | $Enums.BookingStatus
   payment_method?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
+  paymongo_checkout_session_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymongo_payment_intent_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymongo_payment_method_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymongo_payment_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   grand_total?: Prisma.FloatFieldUpdateOperationsInput | number
   total_discount?: Prisma.FloatFieldUpdateOperationsInput | number
   downpayment?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -1152,6 +1300,10 @@ export type BookingUncheckedUpdateWithoutBusinessInput = {
   status?: Prisma.EnumBookingStatusFieldUpdateOperationsInput | $Enums.BookingStatus
   customer_id?: Prisma.StringFieldUpdateOperationsInput | string
   payment_method?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
+  paymongo_checkout_session_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymongo_payment_intent_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymongo_payment_method_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymongo_payment_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   grand_total?: Prisma.FloatFieldUpdateOperationsInput | number
   total_discount?: Prisma.FloatFieldUpdateOperationsInput | number
   downpayment?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -1172,6 +1324,10 @@ export type BookingUncheckedUpdateManyWithoutBusinessInput = {
   status?: Prisma.EnumBookingStatusFieldUpdateOperationsInput | $Enums.BookingStatus
   customer_id?: Prisma.StringFieldUpdateOperationsInput | string
   payment_method?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
+  paymongo_checkout_session_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymongo_payment_intent_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymongo_payment_method_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymongo_payment_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   grand_total?: Prisma.FloatFieldUpdateOperationsInput | number
   total_discount?: Prisma.FloatFieldUpdateOperationsInput | number
   downpayment?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -1190,6 +1346,10 @@ export type BookingCreateManyCustomerInput = {
   status?: $Enums.BookingStatus
   business_id: string
   payment_method?: $Enums.PaymentMethod
+  paymongo_checkout_session_id?: string | null
+  paymongo_payment_intent_id?: string | null
+  paymongo_payment_method_id?: string | null
+  paymongo_payment_id?: string | null
   grand_total: number
   total_discount: number
   downpayment?: number | null
@@ -1206,6 +1366,10 @@ export type BookingCreateManyCustomerInput = {
 export type BookingUpdateWithoutCustomerInput = {
   status?: Prisma.EnumBookingStatusFieldUpdateOperationsInput | $Enums.BookingStatus
   payment_method?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
+  paymongo_checkout_session_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymongo_payment_intent_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymongo_payment_method_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymongo_payment_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   grand_total?: Prisma.FloatFieldUpdateOperationsInput | number
   total_discount?: Prisma.FloatFieldUpdateOperationsInput | number
   downpayment?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -1227,6 +1391,10 @@ export type BookingUncheckedUpdateWithoutCustomerInput = {
   status?: Prisma.EnumBookingStatusFieldUpdateOperationsInput | $Enums.BookingStatus
   business_id?: Prisma.StringFieldUpdateOperationsInput | string
   payment_method?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
+  paymongo_checkout_session_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymongo_payment_intent_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymongo_payment_method_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymongo_payment_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   grand_total?: Prisma.FloatFieldUpdateOperationsInput | number
   total_discount?: Prisma.FloatFieldUpdateOperationsInput | number
   downpayment?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -1247,6 +1415,10 @@ export type BookingUncheckedUpdateManyWithoutCustomerInput = {
   status?: Prisma.EnumBookingStatusFieldUpdateOperationsInput | $Enums.BookingStatus
   business_id?: Prisma.StringFieldUpdateOperationsInput | string
   payment_method?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
+  paymongo_checkout_session_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymongo_payment_intent_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymongo_payment_method_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymongo_payment_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   grand_total?: Prisma.FloatFieldUpdateOperationsInput | number
   total_discount?: Prisma.FloatFieldUpdateOperationsInput | number
   downpayment?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -1306,6 +1478,10 @@ export type BookingSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   customer_id?: boolean
   business_id?: boolean
   payment_method?: boolean
+  paymongo_checkout_session_id?: boolean
+  paymongo_payment_intent_id?: boolean
+  paymongo_payment_method_id?: boolean
+  paymongo_payment_id?: boolean
   grand_total?: boolean
   total_discount?: boolean
   downpayment?: boolean
@@ -1330,6 +1506,10 @@ export type BookingSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   customer_id?: boolean
   business_id?: boolean
   payment_method?: boolean
+  paymongo_checkout_session_id?: boolean
+  paymongo_payment_intent_id?: boolean
+  paymongo_payment_method_id?: boolean
+  paymongo_payment_id?: boolean
   grand_total?: boolean
   total_discount?: boolean
   downpayment?: boolean
@@ -1351,6 +1531,10 @@ export type BookingSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   customer_id?: boolean
   business_id?: boolean
   payment_method?: boolean
+  paymongo_checkout_session_id?: boolean
+  paymongo_payment_intent_id?: boolean
+  paymongo_payment_method_id?: boolean
+  paymongo_payment_id?: boolean
   grand_total?: boolean
   total_discount?: boolean
   downpayment?: boolean
@@ -1372,6 +1556,10 @@ export type BookingSelectScalar = {
   customer_id?: boolean
   business_id?: boolean
   payment_method?: boolean
+  paymongo_checkout_session_id?: boolean
+  paymongo_payment_intent_id?: boolean
+  paymongo_payment_method_id?: boolean
+  paymongo_payment_id?: boolean
   grand_total?: boolean
   total_discount?: boolean
   downpayment?: boolean
@@ -1385,7 +1573,7 @@ export type BookingSelectScalar = {
   updated_at?: boolean
 }
 
-export type BookingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "status" | "customer_id" | "business_id" | "payment_method" | "grand_total" | "total_discount" | "downpayment" | "downpayment_status" | "downpayment_date" | "scheduled_at" | "estimated_end" | "reminder_sent" | "hold_expires_at" | "created_at" | "updated_at", ExtArgs["result"]["booking"]>
+export type BookingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "status" | "customer_id" | "business_id" | "payment_method" | "paymongo_checkout_session_id" | "paymongo_payment_intent_id" | "paymongo_payment_method_id" | "paymongo_payment_id" | "grand_total" | "total_discount" | "downpayment" | "downpayment_status" | "downpayment_date" | "scheduled_at" | "estimated_end" | "reminder_sent" | "hold_expires_at" | "created_at" | "updated_at", ExtArgs["result"]["booking"]>
 export type BookingInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   customer?: boolean | Prisma.CustomerDefaultArgs<ExtArgs>
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
@@ -1416,6 +1604,10 @@ export type $BookingPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     customer_id: string
     business_id: string
     payment_method: $Enums.PaymentMethod
+    paymongo_checkout_session_id: string | null
+    paymongo_payment_intent_id: string | null
+    paymongo_payment_method_id: string | null
+    paymongo_payment_id: string | null
     grand_total: number
     total_discount: number
     downpayment: number | null
@@ -1859,6 +2051,10 @@ export interface BookingFieldRefs {
   readonly customer_id: Prisma.FieldRef<"Booking", 'String'>
   readonly business_id: Prisma.FieldRef<"Booking", 'String'>
   readonly payment_method: Prisma.FieldRef<"Booking", 'PaymentMethod'>
+  readonly paymongo_checkout_session_id: Prisma.FieldRef<"Booking", 'String'>
+  readonly paymongo_payment_intent_id: Prisma.FieldRef<"Booking", 'String'>
+  readonly paymongo_payment_method_id: Prisma.FieldRef<"Booking", 'String'>
+  readonly paymongo_payment_id: Prisma.FieldRef<"Booking", 'String'>
   readonly grand_total: Prisma.FieldRef<"Booking", 'Float'>
   readonly total_discount: Prisma.FieldRef<"Booking", 'Float'>
   readonly downpayment: Prisma.FieldRef<"Booking", 'Float'>

@@ -3,8 +3,16 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Script from "next/script";
 import { connection } from "next/server";
-import { Suspense } from "react";
 import { unstable_cache } from "next/cache";
+import BeautyFeelLanding from "@/components/facing/beautyfeel/BeautyFeelLanding";
+import {
+  beautyFeelContent,
+  isBeautyFeelSlug,
+} from "@/components/facing/beautyfeel/content";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { Suspense } from "react";
+import BusinessFacingSkeleton from "@/components/skeletons/BusinessFacingSkeleton";
 
 interface Props {
   params: Promise<{
@@ -16,7 +24,7 @@ const getBusinessMetadata = unstable_cache(
   async (slug: string) => {
     return prisma.business.findUnique({
       where: { slug },
-      select: { name: true, slug: true },
+      select: { name: true, slug: true, description: true, imageUrl: true },
     });
   },
   ["business-metadata"],
@@ -33,45 +41,67 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
   }
 
+  const imageUrl = business.imageUrl || "/og-image.png";
+
   return {
     title: `${business.name} | Book Online`,
-    description: `Book appointments at ${business.name}. Check available services, business hours, and secure your slot today.`,
+    description:
+      business.description ||
+      `Book appointments at ${business.name}. Check available services, business hours, and secure your slot today.`,
     alternates: {
       canonical: `/${business.slug}`,
     },
     openGraph: {
       title: `Book with ${business.name} | Service Flow`,
-      description: `View services, check availability, and book your appointment with ${business.name} online.`,
+      description:
+        business.description ||
+        `View services, check availability, and book your appointment with ${business.name} online.`,
       url: `/${business.slug}`,
       siteName: "Service Flow",
       locale: "en_PH",
       type: "website",
+      images: [
+        {
+          url: imageUrl,
+          width: 1200,
+          height: 630,
+          alt: business.name,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${business.name} | Book Online`,
+      description:
+        business.description ||
+        `Book appointments at ${business.name} with Service Flow.`,
+      images: [imageUrl],
     },
   };
 }
 
 export default function FacingWebsitePage({ params }: Props) {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-8">
-      <Suspense
-        fallback={<div className="text-muted-foreground">Loading...</div>}
-      >
-        <BusinessContent params={params} />
-      </Suspense>
-    </div>
+    <Suspense fallback={<BusinessFacingSkeleton />}>
+      <FacingWebsiteContent params={params} />
+    </Suspense>
   );
 }
 
-async function BusinessContent({
-  params,
-}: {
-  params: Promise<{ businessSlug: string }>;
-}) {
+async function FacingWebsiteContent({ params }: Props) {
   await connection();
   const { businessSlug } = await params;
+
   const business = await prisma.business.findUnique({
     where: { slug: businessSlug },
-    include: {
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      description: true,
+      imageUrl: true,
+      latitude: true,
+      longitude: true,
       business_hours: true,
     },
   });
@@ -80,30 +110,48 @@ async function BusinessContent({
     notFound();
   }
 
-  const jsonLd: any = {
+  const now = new Date();
+  const [services, saleEvents] = await Promise.all([
+    prisma.service.findMany({
+      where: { business_id: business.id },
+      orderBy: [{ category: "asc" }, { price: "asc" }],
+    }),
+    prisma.saleEvent.findMany({
+      where: {
+        business_id: business.id,
+        start_date: { lte: now },
+        end_date: { gte: now },
+      },
+      orderBy: { start_date: "desc" },
+      take: 4,
+    }),
+  ]);
+
+  const generalHours = business.business_hours.filter(
+    (hour) => hour.category === "GENERAL",
+  );
+  const hoursForSchema = generalHours.length
+    ? generalHours
+    : business.business_hours;
+
+  const jsonLd: Record<string, any> = {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
     name: business.name,
     url: `${process.env.NEXT_PUBLIC_APP_URL || "https://www.serviceflow.store"}/${business.slug}`,
-    image: `${process.env.NEXT_PUBLIC_APP_URL || "https://www.serviceflow.store"}/og-image.png`, // Fallback image
-    priceRange: "₱₱", // Default price range
-    openingHoursSpecification: business.business_hours.map((hour: any) => ({
+    image:
+      business.imageUrl ||
+      `${process.env.NEXT_PUBLIC_APP_URL || "https://www.serviceflow.store"}/og-image.png`,
+    priceRange: "PHP",
+    description: business.description || undefined,
+    openingHoursSpecification: hoursForSchema.map((hour) => ({
       "@type": "OpeningHoursSpecification",
-      dayOfWeek: [
-        "Monday",
-        "Tuesday",
-        "Wednesday",
-        "Thursday",
-        "Friday",
-        "Saturday",
-        "Sunday",
-      ][hour.day_of_week],
+      dayOfWeek: dayOfWeekLabel(hour.day_of_week),
       opens: hour.open_time,
       closes: hour.close_time,
     })),
   };
 
-  // Conditionally add GeoCoordinates if they exist
   if (business.latitude && business.longitude) {
     jsonLd.geo = {
       "@type": "GeoCoordinates",
@@ -112,21 +160,49 @@ async function BusinessContent({
     };
   }
 
-  // Address structure - currently placeholders but structured correctly for future data
-  // Only include if you have actual data to prevent "incomplete" errors in search console
-  // For now, we omit address if it's strictly empty to keep schema valid
+  if (isBeautyFeelSlug(business.slug)) {
+    jsonLd.sameAs = beautyFeelContent.socials.map((social) => social.href);
+    return (
+      <>
+        <Script
+          id="json-ld"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+        <BeautyFeelLanding
+          business={business}
+          services={services}
+          businessHours={business.business_hours}
+          saleEvents={saleEvents}
+        />
+      </>
+    );
+  }
 
   return (
-    <>
-      <Script
-        id="json-ld"
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
-      <h1 className="text-4xl font-bold mb-4">{business.name}</h1>
-      <p className="text-lg text-muted-foreground">
-        Public booking page coming soon...
-      </p>
-    </>
+    <div className="min-h-screen bg-background px-6 py-16">
+      <div className="mx-auto max-w-3xl space-y-6 text-center">
+        <h1 className="text-4xl font-semibold">{business.name}</h1>
+        <p className="text-muted-foreground">
+          This business is still preparing their public-facing website. You can
+          book an appointment online now.
+        </p>
+        <Button asChild>
+          <Link href={`/${business.slug}/booking`}>Book now</Link>
+        </Button>
+      </div>
+    </div>
   );
+}
+
+function dayOfWeekLabel(index: number) {
+  return [
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+  ][index];
 }

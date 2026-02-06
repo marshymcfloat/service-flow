@@ -42,6 +42,10 @@ export const createBookingSchema = z
   .refine((data) => data.customerId || data.customerName, {
     message: "Please select an existing customer or enter a new customer name",
     path: ["customerName"],
+  })
+  .refine((data) => data.paymentMethod !== "QRPH" || !!data.email, {
+    message: "Email is required for QR payments",
+    path: ["email"],
   });
 
 export type CreateBookingTypes = z.infer<typeof createBookingSchema>;

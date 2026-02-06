@@ -2,7 +2,7 @@
 
 import { createBookingInDb } from "@/lib/services/booking";
 
-import { createPayMongoCheckoutSession } from "./paymongo";
+import { createPayMongoQrPaymentIntent } from "./paymongo";
 import { prisma } from "@/prisma/prisma";
 import { PaymentMethod, PaymentType } from "@/lib/zod schemas/bookings";
 import { headers } from "next/headers";
@@ -30,6 +30,18 @@ interface CreateBookingParams {
   voucherCode?: string;
 }
 
+export type CreateBookingResult =
+  | { type: "redirect"; url: string }
+  | {
+      type: "qrph";
+      paymentIntentId: string;
+      paymentMethodId: string;
+      bookingId: number;
+      qrImage: string;
+      expiresAt?: string;
+    }
+  | { type: "internal"; url: string };
+
 export async function createBooking({
   customerId,
   customerName,
@@ -42,7 +54,7 @@ export async function createBooking({
   services,
   email,
   voucherCode,
-}: CreateBookingParams & { currentEmployeeId?: number }) {
+}: CreateBookingParams & { currentEmployeeId?: number }): Promise<CreateBookingResult> {
   try {
     const business = await prisma.business.findUnique({
       where: { slug: businessSlug },
@@ -160,36 +172,14 @@ export async function createBooking({
       });
 
       revalidatePath(`/app/${businessSlug}`);
-      return `/app/${businessSlug}/bookings/${booking.id}?created=true`;
+      return {
+        type: "internal",
+        url: `/app/${businessSlug}/bookings/${booking.id}?created=true`,
+      };
     }
 
-    let line_items;
-
-    if (voucherDiscount > 0 || processedServices.some((s) => s.discount > 0)) {
-      // If ANY discount exists (Sale OR Voucher), use single line item
-      line_items = [
-        {
-          name: `Booking for ${customerName}${voucherCode ? ` (Voucher: ${voucherCode})` : ""}`,
-          amount: Math.round(amountToPay * 100),
-          currency: "PHP",
-          quantity: 1,
-          description: `Services: ${processedServices
-            .map(
-              (s) =>
-                `${s.name}${s.discount > 0 ? ` (${s.discountReason})` : ""}`,
-            )
-            .join(", ")}`,
-        },
-      ];
-    } else {
-      line_items = processedServices.map((service) => ({
-        name: service.name,
-        amount: Math.round(
-          service.price * (paymentType === "DOWNPAYMENT" ? 0.5 : 1) * 100,
-        ),
-        currency: "PHP",
-        quantity: service.quantity,
-      }));
+    if (!email) {
+      throw new Error("Email is required for QR payments");
     }
 
     const metadata = {
@@ -226,19 +216,46 @@ export async function createBooking({
     const protocol = headersList.get("x-forwarded-proto") || "http";
     const baseUrl = `${protocol}://${host}`;
 
-    const checkoutUrl = await createPayMongoCheckoutSession({
-      line_items,
+    const qrPayment = await createPayMongoQrPaymentIntent({
+      amount: Math.round(amountToPay * 100),
       description: `${paymentType === "DOWNPAYMENT" ? "Downpayment for " : ""}Booking for ${customerName}`,
       metadata,
-      success_url: `${baseUrl}/${businessSlug}/booking/success`,
-      cancel_url: `${baseUrl}/${businessSlug}/booking?canceled=true`,
-      allowed_payment_methods:
-        currentEmployeeId && paymentMethod === "QRPH"
-          ? ["qrph"]
-          : ["qrph", "gcash", "card"],
+      billing: {
+        name: customerName,
+        email,
+      },
+      returnUrl: `${baseUrl}/${businessSlug}/booking/success`,
+      expirySeconds: 600,
     });
 
-    return checkoutUrl;
+    const booking = await createBookingInDb({
+      businessSlug,
+      customerId,
+      customerName,
+      services: processedServices,
+      scheduledAt,
+      estimatedEnd,
+      employeeId,
+      currentEmployeeId,
+      paymentMethod: "QRPH",
+      paymentType,
+      email,
+      voucherCode,
+      totalDiscount: voucherDiscount,
+      paymongoPaymentIntentId: qrPayment.paymentIntentId,
+      paymongoPaymentMethodId: qrPayment.paymentMethodId,
+    });
+
+    revalidatePath(`/app/${businessSlug}`);
+
+    return {
+      type: "qrph",
+      paymentIntentId: qrPayment.paymentIntentId,
+      paymentMethodId: qrPayment.paymentMethodId,
+      bookingId: booking.id,
+      qrImage: qrPayment.qrImage,
+      expiresAt: qrPayment.expiresAt,
+    };
   } catch (err) {
     console.error("Error creating booking:", err);
     throw err;

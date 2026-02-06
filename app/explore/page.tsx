@@ -146,7 +146,6 @@ async function BusinessList() {
                 )}
               </div>
 
-              {/* Tags / Placeholders to fill space */}
               <div className="flex gap-2 pt-2">
                 <span className="inline-flex items-center rounded-md bg-slate-50 px-2 py-1 text-xs font-medium text-slate-600 ring-1 ring-inset ring-slate-500/10">
                   Service Provider
