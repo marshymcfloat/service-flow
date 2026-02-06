@@ -30,13 +30,13 @@ export default function BeautyFeelMap({
   const position = { lat: latitude, lng: longitude };
 
   return (
-    <div className="h-72 w-full overflow-hidden rounded-3xl border border-black/10 bg-[color:var(--bf-cream)]">
+    <div className="relative isolate z-0 h-72 w-full overflow-hidden rounded-3xl border border-black/10 bg-[color:var(--bf-cream)]">
       <MapContainer
         // @ts-ignore
         center={position}
         zoom={14}
         scrollWheelZoom={false}
-        className="h-full w-full"
+        className="h-full w-full z-0"
       >
         <TileLayer
           // @ts-ignore

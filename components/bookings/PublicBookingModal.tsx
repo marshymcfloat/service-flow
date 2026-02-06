@@ -35,6 +35,7 @@ export default async function PublicBookingModal({
       title={`Book with ${business.name}`}
       description="Choose services, pick a time, and confirm your slot."
       className="sm:max-w-4xl"
+      modal={false}
     >
       <div className="space-y-6">
         <div className="flex items-center gap-3">

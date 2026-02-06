@@ -16,7 +16,7 @@ import {
   ServicePackage,
   PackageItem,
 } from "@/prisma/generated/prisma/client";
-import { UseFormReturn } from "react-hook-form";
+import { UseFormReturn, useWatch } from "react-hook-form";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import {
   Command,
@@ -59,10 +59,51 @@ const ServiceSelect = React.memo(function ServiceSelect({
     "services",
   );
 
-  const selectedServices = (form.watch("services") as any[]) || [];
+  const selectedServices = useWatch({
+    control: form.control,
+    name: "services",
+    defaultValue: [],
+  }) as any[];
+
   const serviceCategories = React.useMemo(() => {
     return Array.from(new Set(services.map((s) => s.category)));
   }, [services]);
+
+  const normalizeId = React.useCallback((value: unknown) => {
+    return String(value);
+  }, []);
+
+  const normalizePackageId = React.useCallback((value: unknown) => {
+    return value === null || value === undefined || value === ""
+      ? "none"
+      : String(value);
+  }, []);
+
+  const selectedServiceKeys = React.useMemo(() => {
+    const keySet = new Set<string>();
+    selectedServices.forEach((service) => {
+      keySet.add(
+        `${normalizeId(service.id)}|${normalizePackageId(service.packageId)}`,
+      );
+    });
+    return keySet;
+  }, [selectedServices, normalizeId, normalizePackageId]);
+
+  const filteredServices = React.useMemo(() => {
+    return selectedCategory === "all"
+      ? services
+      : services.filter((s) => s.category === selectedCategory);
+  }, [selectedCategory, services]);
+
+  const setSelectedServices = React.useCallback(
+    (nextServices: any[]) => {
+      form.setValue("services", nextServices, {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
+    },
+    [form],
+  );
 
   const { data: categoryAvailability } = useQuery({
     queryKey: [
@@ -95,84 +136,103 @@ const ServiceSelect = React.memo(function ServiceSelect({
     staleTime: 30000,
   });
 
-  const filteredServices =
-    selectedCategory === "all"
-      ? services
-      : services.filter((s) => s.category === selectedCategory);
-
-  const toggleService = (service: Service) => {
-    const isSelected = selectedServices.some(
-      (s) => s.id === service.id && !s.packageId,
-    );
-    let newServices;
-    if (isSelected) {
-      newServices = selectedServices.filter(
-        (s) => s.id !== service.id || s.packageId,
+  const toggleService = React.useCallback(
+    (service: Service) => {
+      const isSelected = selectedServiceKeys.has(
+        `${normalizeId(service.id)}|none`,
       );
-    } else {
-      const discountInfo = getApplicableDiscount(
-        service.id,
-        undefined,
-        service.price,
-        saleEvents,
-      );
-      newServices = [
-        ...selectedServices,
-        {
-          ...service,
-          quantity: 1,
-          price: discountInfo ? discountInfo.finalPrice : service.price,
-          originalPrice: service.price,
-          discount: discountInfo ? discountInfo.discount : 0,
-          discountReason: discountInfo ? discountInfo.reason : null,
-        },
-      ];
-    }
-    form.setValue("services", newServices);
-  };
+      let newServices;
+      if (isSelected) {
+        newServices = selectedServices.filter(
+          (s) =>
+            normalizeId(s.id) !== normalizeId(service.id) ||
+            normalizePackageId(s.packageId) !== "none",
+        );
+      } else {
+        const discountInfo = getApplicableDiscount(
+          service.id,
+          undefined,
+          service.price,
+          saleEvents,
+        );
+        newServices = [
+          ...selectedServices,
+          {
+            ...service,
+            quantity: 1,
+            price: discountInfo ? discountInfo.finalPrice : service.price,
+            originalPrice: service.price,
+            discount: discountInfo ? discountInfo.discount : 0,
+            discountReason: discountInfo ? discountInfo.reason : null,
+          },
+        ];
+      }
+      setSelectedServices(newServices);
+    },
+    [
+      normalizeId,
+      normalizePackageId,
+      saleEvents,
+      selectedServiceKeys,
+      selectedServices,
+      setSelectedServices,
+    ],
+  );
 
-  const togglePackage = (pkg: PackageWithItems) => {
-    const packageServices = pkg.items;
-    const isPackageSelected = packageServices.every((item) =>
-      selectedServices.some(
-        (s) => s.id === item.service.id && s.packageId === pkg.id,
-      ),
-    );
-
-    let newServices = [...selectedServices];
-
-    if (isPackageSelected) {
-      newServices = newServices.filter((s) => s.packageId !== pkg.id);
-    } else {
-      const pkgDiscountInfo = getApplicableDiscount(
-        0,
-        pkg.id,
-        pkg.price,
-        saleEvents,
+  const togglePackage = React.useCallback(
+    (pkg: PackageWithItems) => {
+      const packageServices = pkg.items;
+      const isPackageSelected = packageServices.every((item) =>
+        selectedServiceKeys.has(
+          `${normalizeId(item.service.id)}|${normalizePackageId(pkg.id)}`,
+        ),
       );
 
-      const ratio = pkgDiscountInfo
-        ? pkgDiscountInfo.finalPrice / pkg.price
-        : 1;
+      let newServices = [...selectedServices];
 
-      pkg.items.forEach((item) => {
-        newServices.push({
-          ...item.service,
-          price: item.custom_price * ratio,
-          originalPrice: item.service.price,
-          quantity: 1,
-          packageId: pkg.id,
-          packageName: pkg.name,
-          discount: pkgDiscountInfo
-            ? item.custom_price - item.custom_price * ratio
-            : 0,
-          discountReason: pkgDiscountInfo ? pkgDiscountInfo.reason : null,
+      if (isPackageSelected) {
+        newServices = newServices.filter(
+          (s) => normalizePackageId(s.packageId) !== normalizePackageId(pkg.id),
+        );
+      } else {
+        const pkgDiscountInfo = getApplicableDiscount(
+          0,
+          pkg.id,
+          pkg.price,
+          saleEvents,
+        );
+
+        const ratio = pkgDiscountInfo
+          ? pkgDiscountInfo.finalPrice / pkg.price
+          : 1;
+
+        pkg.items.forEach((item) => {
+          newServices.push({
+            ...item.service,
+            price: item.custom_price * ratio,
+            originalPrice: item.service.price,
+            quantity: 1,
+            packageId: pkg.id,
+            packageName: pkg.name,
+            discount: pkgDiscountInfo
+              ? item.custom_price - item.custom_price * ratio
+              : 0,
+            discountReason: pkgDiscountInfo ? pkgDiscountInfo.reason : null,
+          });
         });
-      });
-    }
+      }
 
-    form.setValue("services", newServices);
-  };
+      setSelectedServices(newServices);
+    },
+    [
+      normalizeId,
+      normalizePackageId,
+      saleEvents,
+      selectedServiceKeys,
+      selectedServices,
+      setSelectedServices,
+    ],
+  );
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -253,8 +313,8 @@ const ServiceSelect = React.memo(function ServiceSelect({
             <CommandGroup>
               {viewMode === "services"
                 ? filteredServices.map((service) => {
-                    const isSelected = selectedServices.some(
-                      (s) => s.id === service.id && !s.packageId,
+                    const isSelected = selectedServiceKeys.has(
+                      `${normalizeId(service.id)}|none`,
                     );
                     const discountInfo = getApplicableDiscount(
                       service.id,
@@ -407,9 +467,10 @@ const ServiceSelect = React.memo(function ServiceSelect({
                       dataLoaded && availability?.hasBusinessHours === false;
                     const isDisabled = noStaff || noBusinessHours;
                     const isSelected = pkg.items.every((item) =>
-                      selectedServices.some(
-                        (s) =>
-                          s.id === item.service.id && s.packageId === pkg.id,
+                      selectedServiceKeys.has(
+                        `${normalizeId(item.service.id)}|${normalizePackageId(
+                          pkg.id,
+                        )}`,
                       ),
                     );
 

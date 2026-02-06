@@ -1,10 +1,8 @@
 "use client";
 
-import AuthDialog from "@/components/auth/AuthDialog";
-import { Button } from "@/components/ui/button";
+import Link from "next/link";
 import {
   ArrowRight,
-  PlayCircle,
   Sparkles,
   Scissors,
   Flower2,
@@ -12,6 +10,8 @@ import {
   CalendarCheck,
   TrendingUp,
 } from "lucide-react";
+import AuthDialog from "@/components/auth/AuthDialog";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
 export default function HeroSection() {
@@ -60,10 +60,13 @@ export default function HeroSection() {
                 </Button>
               </AuthDialog>
               <Button
+                asChild
                 variant="outline"
                 className="rounded-full h-12 px-8 text-base font-medium border-border/60 hover:bg-muted/50 backdrop-blur-sm gap-2 transition-all hover:scale-105"
               >
-                <PlayCircle className="size-5" /> View Demo
+                <Link href="/explore">
+                  <Sparkles className="size-5" /> Explore
+                </Link>
               </Button>
             </div>
           </div>

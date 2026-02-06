@@ -1,6 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import type { MouseEvent } from "react";
+import { createPortal } from "react-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -26,7 +28,12 @@ export default function QrPaymentPanel({
   onClose,
   onRetry,
 }: QrPaymentPanelProps) {
+  const [portalRoot, setPortalRoot] = useState<HTMLElement | null>(null);
   const [remaining, setRemaining] = useState<string | null>(null);
+
+  useEffect(() => {
+    setPortalRoot(document.body);
+  }, []);
 
   useEffect(() => {
     if (!expiresAt) return;
@@ -71,9 +78,29 @@ export default function QrPaymentPanel({
     return <Clock3 className="h-5 w-5 text-amber-500" />;
   }, [status]);
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 py-10 backdrop-blur-sm">
-      <Card className="w-full max-w-md rounded-2xl border border-black/10 bg-white/95 p-6 shadow-xl">
+  const handleDismiss = useCallback(() => {
+    onClose();
+  }, [onClose]);
+
+  const handleBackdropClick = useCallback(
+    (event: MouseEvent<HTMLDivElement>) => {
+      if (event.target === event.currentTarget) {
+        onClose();
+      }
+    },
+    [onClose],
+  );
+
+  if (!portalRoot) return null;
+
+  return createPortal(
+    <div
+      className="fixed inset-0 z-[70] flex items-center justify-center bg-black/40 px-4 py-10 backdrop-blur-sm pointer-events-auto"
+      onClick={handleBackdropClick}
+      role="dialog"
+      aria-modal="true"
+    >
+      <Card className="w-full max-w-md rounded-2xl border border-black/10 bg-white/95 p-6 shadow-xl pointer-events-auto">
         <div className="space-y-4 text-center">
           <div className="inline-flex items-center justify-center rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">
             QR Payment
@@ -105,13 +132,14 @@ export default function QrPaymentPanel({
           )}
           <div className="space-y-2">
             {status === "failed" || status === "expired" ? (
-              <Button onClick={onRetry} className="w-full">
+              <Button type="button" onClick={onRetry} className="w-full">
                 Try again
               </Button>
             ) : null}
             <Button
+              type="button"
               variant="outline"
-              onClick={onClose}
+              onClick={handleDismiss}
               className="w-full"
             >
               Back to booking
@@ -122,6 +150,7 @@ export default function QrPaymentPanel({
           </p>
         </div>
       </Card>
-    </div>
+    </div>,
+    portalRoot,
   );
 }

@@ -11,7 +11,7 @@ import {
   ServicePackage,
   PackageItem,
 } from "@/prisma/generated/prisma/client";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   createBookingSchema,
@@ -124,12 +124,31 @@ export default function BookingForm({
   });
   const saleEvents = (saleEventsResult?.success && saleEventsResult.data) || [];
 
-  const selectedServices = (form.watch("services") as any[]) || [];
-  const selectedDate = form.watch("scheduledAt") as Date | undefined;
-  const selectedTime = form.watch("selectedTime") as Date | undefined;
-  const paymentMethod = form.watch("paymentMethod") as PaymentMethod;
-  const paymentType = form.watch("paymentType") as PaymentType;
-  const customerId = form.watch("customerId");
+  const selectedServices = useWatch({
+    control: form.control,
+    name: "services",
+    defaultValue: [],
+  }) as any[];
+  const selectedDate = useWatch({
+    control: form.control,
+    name: "scheduledAt",
+  }) as Date | undefined;
+  const selectedTime = useWatch({
+    control: form.control,
+    name: "selectedTime",
+  }) as Date | undefined;
+  const paymentMethod = useWatch({
+    control: form.control,
+    name: "paymentMethod",
+  }) as PaymentMethod;
+  const paymentType = useWatch({
+    control: form.control,
+    name: "paymentType",
+  }) as PaymentType;
+  const customerId = useWatch({
+    control: form.control,
+    name: "customerId",
+  }) as string;
 
   const [existingCustomerEmail, setExistingCustomerEmail] = useState<
     string | null
@@ -297,7 +316,7 @@ export default function BookingForm({
   const [voucherError, setVoucherError] = useState<string | null>(null);
   const [isVerifyingVoucher, setIsVerifyingVoucher] = useState(false);
 
-  const handleVerifyVoucher = async () => {
+  const handleVerifyVoucher = useCallback(async () => {
     if (!voucherCode.trim()) return;
     setIsVerifyingVoucher(true);
     setVoucherError(null);
@@ -319,13 +338,13 @@ export default function BookingForm({
       setVoucherError(result.error || "Invalid voucher code");
       toast.error(result.error || "Invalid voucher code");
     }
-  };
+  }, [voucherCode, businessSlug, total]);
 
-  const clearVoucher = () => {
+  const clearVoucher = useCallback(() => {
     setVoucherCode("");
     setAppliedVoucher(null);
     setVoucherError(null);
-  };
+  }, []);
 
   // Re-verify voucher if total changes (e.g. added/removed services)
   useEffect(() => {
@@ -589,17 +608,21 @@ export default function BookingForm({
     ],
   );
 
-  const paymentMethodOptions = isEmployee
-    ? [
-        { value: "CASH" as const, label: "Cash" },
-        { value: "QRPH" as const, label: "QR Payment" },
-      ]
-    : [{ value: "QRPH" as const, label: "QR Payment" }];
+  const paymentMethodOptions = useMemo(() => {
+    return isEmployee
+      ? [
+          { value: "CASH" as const, label: "Cash" },
+          { value: "QRPH" as const, label: "QR Payment" },
+        ]
+      : [{ value: "QRPH" as const, label: "QR Payment" }];
+  }, [isEmployee]);
 
-  const paymentTypeOptions = [
-    { value: "FULL" as const, label: "Full" },
-    { value: "DOWNPAYMENT" as const, label: "50%" },
-  ];
+  const paymentTypeOptions = useMemo(() => {
+    return [
+      { value: "FULL" as const, label: "Full" },
+      { value: "DOWNPAYMENT" as const, label: "50%" },
+    ];
+  }, []);
 
   return (
     <Form {...form}>
