@@ -272,8 +272,7 @@ const ServiceSelect = React.memo(function ServiceSelect({
                       dataLoaded && availability?.businessHoursPassed === true;
                     const noBusinessHours =
                       dataLoaded && availability?.hasBusinessHours === false;
-                    const isDisabled =
-                      noStaff || outsideHours || noBusinessHours;
+                    const isDisabled = noStaff || noBusinessHours;
 
                     return (
                       <CommandItem
@@ -406,8 +405,7 @@ const ServiceSelect = React.memo(function ServiceSelect({
                       dataLoaded && availability?.businessHoursPassed === true;
                     const noBusinessHours =
                       dataLoaded && availability?.hasBusinessHours === false;
-                    const isDisabled =
-                      noStaff || outsideHours || noBusinessHours;
+                    const isDisabled = noStaff || noBusinessHours;
                     const isSelected = pkg.items.every((item) =>
                       selectedServices.some(
                         (s) =>

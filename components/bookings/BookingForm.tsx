@@ -4,7 +4,6 @@ import { createBooking } from "@/lib/server actions/booking";
 import {
   getAvailableSlots,
   getAvailableEmployees,
-  checkCategoryAvailability,
 } from "@/lib/server actions/availability";
 import { useParams, useRouter } from "next/navigation";
 import {
@@ -313,6 +312,29 @@ export default function BookingForm({
     }, 0);
   }, [selectedServices]);
 
+  const slotServiceInputs = useMemo(() => {
+    const serviceMap = new Map<number, number>();
+    selectedServices.forEach((service) => {
+      const quantity = Math.max(1, Number(service.quantity) || 1);
+      serviceMap.set(
+        service.id,
+        (serviceMap.get(service.id) || 0) + quantity,
+      );
+    });
+    return Array.from(serviceMap.entries()).map(([id, quantity]) => ({
+      id,
+      quantity,
+    }));
+  }, [selectedServices]);
+
+  const slotServiceKey = useMemo(() => {
+    return slotServiceInputs
+      .slice()
+      .sort((a, b) => a.id - b.id)
+      .map((item) => `${item.id}:${item.quantity}`)
+      .join("|");
+  }, [slotServiceInputs]);
+
   const selectedServiceCategories = useMemo(() => {
     const categorySet = new Set<string>();
     selectedServices.forEach((service) => {
@@ -323,36 +345,12 @@ export default function BookingForm({
     return Array.from(categorySet);
   }, [selectedServices, services]);
 
-  const targetCategory = useMemo(() => {
-    if (selectedServiceCategories.length === 0) return "GENERAL";
-    return selectedServiceCategories[0];
-  }, [selectedServiceCategories]);
-
-  // Fetch business hours for the selected category
-  const { data: categoryInfo } = useQuery({
-    queryKey: [
-      "categoryAvailability",
-      businessSlug,
-      targetCategory,
-      selectedDate,
-    ],
-    queryFn: async () => {
-      if (!businessSlug) return null;
-      return checkCategoryAvailability({
-        businessSlug,
-        category: targetCategory,
-        date: selectedDate,
-      });
-    },
-    enabled: !!businessSlug && !!targetCategory,
-  });
-
   const { data: timeSlots = [], isLoading: isLoadingSlots } = useQuery({
     queryKey: [
       "timeSlots",
       businessSlug,
       selectedDate?.toISOString(),
-      totalDuration,
+      slotServiceKey,
     ],
     queryFn: async () => {
       if (
@@ -366,8 +364,7 @@ export default function BookingForm({
       return getAvailableSlots({
         businessSlug,
         date: selectedDate,
-        serviceDurationMinutes: totalDuration,
-        category: targetCategory,
+        services: slotServiceInputs,
       });
     },
     enabled:
@@ -397,7 +394,7 @@ export default function BookingForm({
         startTime: selectedTime,
         endTime,
         categories: selectedServiceCategories,
-        category: targetCategory,
+        category: selectedServiceCategories[0] || "GENERAL",
       });
     },
     enabled: !!selectedTime && !!businessSlug,
@@ -412,6 +409,13 @@ export default function BookingForm({
       form.setValue("employeeId", undefined);
     }
   }, [selectedServices.length, form, isWalkIn]);
+
+  useEffect(() => {
+    if (!isWalkIn && selectedServices.length > 0) {
+      form.setValue("selectedTime", undefined);
+      form.setValue("employeeId", undefined);
+    }
+  }, [slotServiceKey, form, isWalkIn, selectedServices.length]);
 
   useEffect(() => {
     if (!selectedDate && !isWalkIn) {
@@ -834,8 +838,6 @@ export default function BookingForm({
                           value={field.value}
                           onChange={field.onChange}
                           isLoading={isLoadingSlots}
-                          category={targetCategory}
-                          businessHours={categoryInfo?.businessHours || null}
                           disabled={selectedServices.length === 0}
                         />
                       </FormControl>

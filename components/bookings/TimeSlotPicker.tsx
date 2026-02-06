@@ -48,8 +48,10 @@ export default function TimeSlotPicker({
     return (
       <div className="text-center py-8 text-muted-foreground">
         <Clock className="h-8 w-8 mx-auto mb-2 opacity-50" />
-        <p>No available slots for this date</p>
-        <p className="text-sm">Try selecting a different day</p>
+        <p>No available slots for the selected services</p>
+        <p className="text-sm">
+          Try selecting a different day or removing a time-restricted service
+        </p>
       </div>
     );
   }
