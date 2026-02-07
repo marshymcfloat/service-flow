@@ -3,8 +3,8 @@
 import { useState, useMemo, useOptimistic, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Customer } from "@/prisma/generated/prisma/client";
-import { PageHeader } from "@/components/dashboard/PageHeader";
 import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -37,14 +37,6 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
-  Empty,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-  EmptyDescription,
-  EmptyContent,
-} from "@/components/ui/empty";
-import {
   Search,
   Plus,
   Pencil,
@@ -53,11 +45,13 @@ import {
   MoreHorizontal,
   Mail,
   Phone,
+  Calendar,
 } from "lucide-react";
 import {
   createCustomer,
   updateCustomer,
   deleteCustomer,
+  getCustomerHistory,
 } from "@/lib/server actions/customer";
 import { toast } from "sonner";
 import {
@@ -69,6 +63,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { CustomerForm, CustomerFormData } from "./CustomerForm";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { useQuery } from "@tanstack/react-query";
+import { formatPH } from "@/lib/date-utils";
+
+type CustomerHistoryResponse = Awaited<ReturnType<typeof getCustomerHistory>>;
+type CustomerHistoryData =
+  CustomerHistoryResponse extends { success: true; data: infer T } ? T : never;
 
 interface CustomersClientProps {
   customers: Customer[];
@@ -97,6 +98,8 @@ export function CustomersClient({
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
     null,
   );
+  const [isHistoryDialogOpen, setIsHistoryDialogOpen] = useState(false);
+  const [historyCustomer, setHistoryCustomer] = useState<Customer | null>(null);
   const [formData, setFormData] = useState<CustomerFormData>(initialFormData);
   const [isLoading, setIsLoading] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -128,6 +131,21 @@ export function CustomersClient({
       );
     });
   }, [optimisticCustomers, search]);
+
+  const {
+    data: historyResult,
+    isFetching: isHistoryLoading,
+  } = useQuery({
+    queryKey: ["customerHistory", historyCustomer?.id],
+    queryFn: () =>
+      historyCustomer
+        ? getCustomerHistory(historyCustomer.id)
+        : Promise.resolve(null),
+    enabled: !!historyCustomer && isHistoryDialogOpen,
+    staleTime: 1000 * 60 * 5,
+    gcTime: 1000 * 60 * 30,
+    refetchOnWindowFocus: false,
+  });
 
   const handleAddCustomer = async () => {
     if (!formData.name) {
@@ -228,6 +246,57 @@ export function CustomersClient({
       phone: customer.phone || "",
     });
     setIsEditDialogOpen(true);
+  };
+
+  const openHistoryDialog = (customer: Customer) => {
+    setHistoryCustomer(customer);
+    setIsHistoryDialogOpen(true);
+  };
+
+  const closeHistoryDialog = (open: boolean) => {
+    setIsHistoryDialogOpen(open);
+    if (!open) {
+      setHistoryCustomer(null);
+    }
+  };
+
+  const historyData: CustomerHistoryData | null =
+    historyResult?.success ? historyResult.data : null;
+
+  const pendingFlows = useMemo(() => {
+    if (!historyData) return [];
+    return historyData.flowStatus.filter((flow) => flow.status === "PENDING");
+  }, [historyData]);
+
+  const nextFlowDue = useMemo(() => {
+    if (!pendingFlows.length) return null;
+    return pendingFlows
+      .slice()
+      .sort(
+        (a, b) =>
+          new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime(),
+      )[0];
+  }, [pendingFlows]);
+
+  const getBookingStatusClass = (status: string) => {
+    switch (status) {
+      case "ACCEPTED":
+        return "bg-emerald-50 text-emerald-700 border-emerald-200";
+      case "COMPLETED":
+        return "bg-blue-50 text-blue-700 border-blue-200";
+      case "HOLD":
+        return "bg-amber-50 text-amber-700 border-amber-200";
+      case "CANCELLED":
+        return "bg-red-50 text-red-700 border-red-200";
+      default:
+        return "bg-zinc-50 text-zinc-700 border-zinc-200";
+    }
+  };
+
+  const getFlowStatusClass = (status: string) => {
+    return status === "COMPLETED"
+      ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+      : "bg-amber-50 text-amber-700 border-amber-200";
   };
 
   const getInitials = (name: string) => {
@@ -346,7 +415,8 @@ export function CustomersClient({
                 {filteredCustomers.map((customer) => (
                   <div
                     key={customer.id}
-                    className="bg-white rounded-2xl p-4 shadow-sm border border-zinc-100 flex flex-col gap-4"
+                    className="bg-white rounded-2xl p-4 shadow-sm border border-zinc-100 flex flex-col gap-4 cursor-pointer hover:border-emerald-100 hover:shadow-md transition"
+                    onClick={() => openHistoryDialog(customer)}
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
@@ -375,12 +445,20 @@ export function CustomersClient({
                             variant="ghost"
                             size="icon"
                             className="h-8 w-8 text-zinc-400"
+                            onClick={(event) => event.stopPropagation()}
                           >
                             <MoreHorizontal className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            onClick={() => openHistoryDialog(customer)}
+                          >
+                            <Calendar className="h-4 w-4 mr-2" />
+                            View History
+                          </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem
                             onClick={() => openEditDialog(customer)}
@@ -468,7 +546,8 @@ export function CustomersClient({
                     {filteredCustomers.map((customer) => (
                       <TableRow
                         key={customer.id}
-                        className="hover:bg-zinc-50/50 transition-colors border-zinc-100"
+                        className="hover:bg-zinc-50/50 transition-colors border-zinc-100 cursor-pointer"
+                        onClick={() => openHistoryDialog(customer)}
                       >
                         <TableCell className="pl-6 py-4">
                           <div className="flex items-center gap-3">
@@ -504,19 +583,30 @@ export function CustomersClient({
                             </span>
                           )}
                         </TableCell>
-                        <TableCell className="text-right pr-6 py-4">
+                        <TableCell
+                          className="text-right pr-6 py-4"
+                          onClick={(event) => event.stopPropagation()}
+                        >
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                               <Button
                                 variant="ghost"
                                 size="icon"
                                 className="h-8 w-8 text-zinc-400 hover:text-zinc-900"
+                                onClick={(event) => event.stopPropagation()}
                               >
                                 <MoreHorizontal className="h-4 w-4" />
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                               <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                onClick={() => openHistoryDialog(customer)}
+                              >
+                                <Calendar className="h-4 w-4 mr-2" />
+                                View History
+                              </DropdownMenuItem>
                               <DropdownMenuSeparator />
                               <DropdownMenuItem
                                 onClick={() => openEditDialog(customer)}
@@ -572,6 +662,213 @@ export function CustomersClient({
             </div>
           )}
         </div>
+
+        {/* History Dialog */}
+        <Dialog open={isHistoryDialogOpen} onOpenChange={closeHistoryDialog}>
+          <DialogContent className="sm:max-w-[900px]">
+            <DialogHeader>
+              <DialogTitle>Customer History</DialogTitle>
+              <DialogDescription>
+                {historyCustomer
+                  ? `Overview for ${historyCustomer.name}`
+                  : "Customer overview"}
+              </DialogDescription>
+            </DialogHeader>
+
+            {isHistoryLoading && (
+              <div className="text-sm text-zinc-500">Loading history...</div>
+            )}
+
+            {!isHistoryLoading &&
+              historyResult?.success === false && (
+                <div className="text-sm text-red-600">
+                  {historyResult.error || "Failed to load history"}
+                </div>
+              )}
+
+            {!isHistoryLoading && historyData && (
+              <div className="space-y-5">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  <Card className="border-zinc-100">
+                    <CardContent className="p-4 space-y-2">
+                      <p className="text-xs uppercase tracking-wider font-semibold text-zinc-500">
+                        Next Appointment
+                      </p>
+                      {historyData.nextAppointment ? (
+                        <div className="space-y-1">
+                          <p className="text-sm font-semibold text-zinc-900">
+                            {formatPH(
+                              historyData.nextAppointment.scheduledAt,
+                              "PPP p",
+                            )}
+                          </p>
+                          <p className="text-xs text-zinc-500">
+                            {historyData.nextAppointment.services.length > 0
+                              ? historyData.nextAppointment.services.join(", ")
+                              : "No services listed"}
+                          </p>
+                        </div>
+                      ) : (
+                        <p className="text-sm text-zinc-500">
+                          No upcoming appointment scheduled.
+                        </p>
+                      )}
+                    </CardContent>
+                  </Card>
+
+                  <Card className="border-zinc-100">
+                    <CardContent className="p-4 space-y-2">
+                      <p className="text-xs uppercase tracking-wider font-semibold text-zinc-500">
+                        Next Recommended (Service Flow)
+                      </p>
+                      {nextFlowDue ? (
+                        <div className="space-y-1">
+                          <p className="text-sm font-semibold text-zinc-900">
+                            {nextFlowDue.suggestedServiceName}
+                          </p>
+                          <p className="text-xs text-zinc-500">
+                            Due{" "}
+                            {formatPH(nextFlowDue.dueDate, "MMM d, yyyy")}
+                          </p>
+                          <div className="flex items-center gap-2">
+                            <Badge
+                              className={`border ${getFlowStatusClass(nextFlowDue.status)}`}
+                            >
+                              {nextFlowDue.status}
+                            </Badge>
+                            <Badge className="bg-zinc-50 text-zinc-700 border border-zinc-200">
+                              {nextFlowDue.flowType}
+                            </Badge>
+                          </div>
+                        </div>
+                      ) : (
+                        <p className="text-sm text-zinc-500">
+                          No pending service flows.
+                        </p>
+                      )}
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-sm font-semibold text-zinc-800">
+                      Service Flow Status
+                    </h4>
+                    <span className="text-xs text-zinc-500">
+                      {historyData.flowStatus.length} total
+                    </span>
+                  </div>
+
+                  {historyData.flowStatus.length === 0 ? (
+                    <div className="text-sm text-zinc-500">
+                      No service flows configured for this customer.
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      {historyData.flowStatus.map((flow) => (
+                        <div
+                          key={`${flow.triggerServiceId}-${flow.suggestedServiceId}`}
+                          className="flex flex-col gap-2 border border-zinc-100 rounded-xl p-3 bg-white"
+                        >
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="text-sm font-semibold text-zinc-900">
+                              {flow.triggerServiceName}
+                            </span>
+                            <span className="text-xs text-zinc-400">-&gt;</span>
+                            <span className="text-sm font-semibold text-zinc-900">
+                              {flow.suggestedServiceName}
+                            </span>
+                            <Badge
+                              className={`border ${getFlowStatusClass(flow.status)}`}
+                            >
+                              {flow.status}
+                            </Badge>
+                            <Badge className="bg-zinc-50 text-zinc-700 border border-zinc-200">
+                              {flow.flowType}
+                            </Badge>
+                          </div>
+                          <div className="text-xs text-zinc-500">
+                            Last service:{" "}
+                            {formatPH(flow.lastServiceDate, "MMM d, yyyy")}
+                            {" • "}
+                            {flow.status === "COMPLETED"
+                              ? `Completed ${formatPH(flow.completedAt, "MMM d, yyyy")}`
+                              : `Due ${formatPH(flow.dueDate, "MMM d, yyyy")}`}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-sm font-semibold text-zinc-800">
+                      Booking History
+                    </h4>
+                    <span className="text-xs text-zinc-500">
+                      {historyData.bookings.length} total
+                    </span>
+                  </div>
+
+                  {historyData.bookings.length === 0 ? (
+                    <div className="text-sm text-zinc-500">
+                      No bookings found for this customer.
+                    </div>
+                  ) : (
+                    <ScrollArea className="h-[320px] pr-3">
+                      <div className="space-y-3">
+                        {historyData.bookings.map((booking) => {
+                          const serviceNames =
+                            booking.availed_services
+                              ?.map((item) => item.service?.name)
+                              .filter(Boolean) || [];
+
+                          const displayDate =
+                            booking.scheduled_at || booking.created_at;
+
+                          return (
+                            <div
+                              key={booking.id}
+                              className="border border-zinc-100 rounded-xl p-3 bg-white"
+                            >
+                              <div className="flex flex-wrap items-center justify-between gap-2">
+                                <div className="text-sm font-semibold text-zinc-900">
+                                  Booking #{booking.id}
+                                </div>
+                                <Badge
+                                  className={`border ${getBookingStatusClass(booking.status)}`}
+                                >
+                                  {booking.status}
+                                </Badge>
+                              </div>
+                              <div className="text-xs text-zinc-500 mt-1">
+                                {formatPH(
+                                  displayDate,
+                                  "PPP p",
+                                )}
+                              </div>
+                              <div className="text-xs text-zinc-600 mt-2">
+                                {serviceNames.length > 0
+                                  ? `Services: ${serviceNames.join(", ")}`
+                                  : "Services: Not listed"}
+                              </div>
+                              <div className="text-xs text-zinc-600 mt-1">
+                                Payment: {booking.payment_method} • Total: PHP{" "}
+                                {booking.grand_total.toLocaleString()}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </ScrollArea>
+                  )}
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
 
         {/* Edit Dialog */}
         <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>

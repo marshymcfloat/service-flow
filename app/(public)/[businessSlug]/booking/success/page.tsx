@@ -10,7 +10,10 @@ type BookingSuccessSearchParams = {
 };
 
 const formatIcsDate = (date: Date) =>
-  date.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
+  date
+    .toISOString()
+    .replace(/[-:]/g, "")
+    .replace(/\.\d{3}Z$/, "Z");
 
 const escapeIcsText = (value: string) =>
   value
@@ -21,7 +24,8 @@ const escapeIcsText = (value: string) =>
 
 export const metadata: Metadata = {
   title: "Booking Confirmed | Service Flow",
-  description: "Your booking is confirmed. Thank you for choosing Service Flow.",
+  description:
+    "Your booking is confirmed. Thank you for choosing Service Flow.",
   robots: {
     index: false,
     follow: false,
@@ -67,7 +71,7 @@ async function BookingSuccessContent({
   const serviceNames =
     booking?.availed_services
       ?.map((item) => item.service?.name)
-      .filter((name): name is string => Boolean(name)) ?? [];
+      .filter(Boolean) ?? [];
   const businessName = booking?.business?.name || "Service Flow";
 
   const calendarHref =
@@ -96,7 +100,7 @@ async function BookingSuccessContent({
             `DESCRIPTION:${escapeIcsText(description)}`,
             "END:VEVENT",
             "END:VCALENDAR",
-          ].join("\r\n");
+          ].join("\n");
 
           return `data:text/calendar;charset=utf-8,${encodeURIComponent(
             icsContent,

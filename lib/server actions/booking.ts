@@ -184,6 +184,7 @@ export async function createBooking({
 
     const metadata = {
       businessSlug,
+      businessName: business.name,
       customerId,
       customerName,
       email,
@@ -216,9 +217,11 @@ export async function createBooking({
     const protocol = headersList.get("x-forwarded-proto") || "http";
     const baseUrl = `${protocol}://${host}`;
 
+    const paymongoDescription = `${business.name} (${business.slug}) - ${paymentType === "DOWNPAYMENT" ? "Downpayment for " : ""}Booking for ${customerName}`;
+
     const qrPayment = await createPayMongoQrPaymentIntent({
       amount: Math.round(amountToPay * 100),
-      description: `${paymentType === "DOWNPAYMENT" ? "Downpayment for " : ""}Booking for ${customerName}`,
+      description: paymongoDescription,
       metadata,
       billing: {
         name: customerName,
