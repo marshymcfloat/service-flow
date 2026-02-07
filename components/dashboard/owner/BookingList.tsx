@@ -86,7 +86,15 @@ type BookingWithDetails = Booking & {
   })[];
 };
 
-export function BookingList({ bookings }: { bookings: BookingWithDetails[] }) {
+export function BookingList({
+  bookings,
+  variant = "card",
+  className,
+}: {
+  bookings: BookingWithDetails[];
+  variant?: "card" | "embedded";
+  className?: string;
+}) {
   const router = useRouter();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
@@ -145,10 +153,29 @@ export function BookingList({ bookings }: { bookings: BookingWithDetails[] }) {
     }
   };
 
+  const isEmbedded = variant === "embedded";
+  const tablePaddingLeft = isEmbedded ? "pl-4" : "pl-8";
+  const tablePaddingRight = isEmbedded ? "pr-4" : "pr-8";
+
   return (
     <>
-      <Card className="h-full shadow-xl shadow-zinc-200/50 border-none bg-white flex flex-col overflow-hidden rounded-[32px]">
-        <CardHeader className="pb-6 space-y-6 md:px-8 md:pt-8 bg-zinc-50/50 border-b border-zinc-100">
+      <Card
+        className={cn(
+          "h-full flex flex-col overflow-hidden",
+          isEmbedded
+            ? "border-0 shadow-none bg-transparent rounded-none"
+            : "shadow-xl shadow-zinc-200/50 border-none bg-white rounded-[32px]",
+          className,
+        )}
+      >
+        <CardHeader
+          className={cn(
+            "pb-6 space-y-6 border-b",
+            isEmbedded
+              ? "px-0 pt-0 bg-transparent border-zinc-100/60"
+              : "md:px-8 md:pt-8 bg-zinc-50/50 border-zinc-100",
+          )}
+        >
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="space-y-1">
               <CardTitle className="text-2xl font-bold tracking-tight text-zinc-900">
@@ -161,7 +188,7 @@ export function BookingList({ bookings }: { bookings: BookingWithDetails[] }) {
             <Button
               variant="outline"
               size="sm"
-              className="h-10 gap-2 rounded-xl border-zinc-200 bg-white hover:bg-zinc-50 hover:text-zinc-900 transition-colors"
+              className="h-11 gap-2 rounded-xl border-zinc-200 bg-white hover:bg-zinc-50 hover:text-zinc-900 transition-colors"
               onClick={() => router.refresh()}
             >
               <RefreshCcw className="h-4 w-4" />
@@ -175,13 +202,13 @@ export function BookingList({ bookings }: { bookings: BookingWithDetails[] }) {
               <Search className="absolute left-3.5 top-3 h-4 w-4 text-zinc-400" />
               <Input
                 placeholder="Search by customer name or ID..."
-                className="pl-10 h-10 rounded-xl border-zinc-200 bg-white focus-visible:ring-emerald-500 placeholder:text-zinc-400"
+                className="pl-10 h-11 rounded-xl border-zinc-200 bg-white focus-visible:ring-emerald-500 placeholder:text-zinc-400"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
             </div>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full sm:w-[150px] h-10 rounded-xl border-zinc-200 bg-white focus:ring-emerald-500">
+              <SelectTrigger className="w-full sm:w-[150px] h-11 rounded-xl border-zinc-200 bg-white focus:ring-emerald-500">
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent className="rounded-xl">
@@ -194,9 +221,19 @@ export function BookingList({ bookings }: { bookings: BookingWithDetails[] }) {
           </div>
         </CardHeader>
 
-        <CardContent className="flex-1 overflow-auto p-0 min-h-[400px] bg-white">
+        <CardContent
+          className={cn(
+            "flex-1 overflow-auto p-0 min-h-[400px]",
+            isEmbedded ? "bg-transparent" : "bg-white",
+          )}
+        >
           {/* Mobile Card View */}
-          <div className="md:hidden flex flex-col p-4 space-y-4">
+          <div
+            className={cn(
+              "md:hidden flex flex-col space-y-4",
+              isEmbedded ? "p-2" : "p-4",
+            )}
+          >
             {filteredBookings.length > 0 ? (
               filteredBookings.map((booking) => (
                 <div
@@ -311,7 +348,12 @@ export function BookingList({ bookings }: { bookings: BookingWithDetails[] }) {
             <Table>
               <TableHeader className="bg-zinc-50/80 sticky top-0 z-10 backdrop-blur-sm">
                 <TableRow className="hover:bg-transparent border-zinc-100">
-                  <TableHead className="w-[100px] font-semibold text-zinc-500 pl-8 h-12">
+                  <TableHead
+                    className={cn(
+                      "w-[100px] font-semibold text-zinc-500 h-12",
+                      tablePaddingLeft,
+                    )}
+                  >
                     ID
                   </TableHead>
                   <TableHead className="font-semibold text-zinc-500 h-12">
@@ -326,7 +368,12 @@ export function BookingList({ bookings }: { bookings: BookingWithDetails[] }) {
                   <TableHead className="text-right font-semibold text-zinc-500 h-12">
                     Total
                   </TableHead>
-                  <TableHead className="text-right font-semibold text-zinc-500 pr-8 h-12">
+                  <TableHead
+                    className={cn(
+                      "text-right font-semibold text-zinc-500 h-12",
+                      tablePaddingRight,
+                    )}
+                  >
                     Actions
                   </TableHead>
                 </TableRow>
@@ -342,7 +389,12 @@ export function BookingList({ bookings }: { bookings: BookingWithDetails[] }) {
                         setIsDialogOpen(true);
                       }}
                     >
-                      <TableCell className="font-medium text-zinc-500 pl-8 py-4">
+                      <TableCell
+                        className={cn(
+                          "font-medium text-zinc-500 py-4",
+                          tablePaddingLeft,
+                        )}
+                      >
                         <span className="bg-zinc-100/80 text-zinc-600 px-2 py-1 rounded-md text-xs font-semibold">
                           #{booking.id}
                         </span>
@@ -425,7 +477,9 @@ export function BookingList({ bookings }: { bookings: BookingWithDetails[] }) {
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell className="text-right pr-8 py-4">
+                      <TableCell
+                        className={cn("text-right py-4", tablePaddingRight)}
+                      >
                         <div
                           className="flex justify-end gap-1"
                           onClick={(e) => e.stopPropagation()}

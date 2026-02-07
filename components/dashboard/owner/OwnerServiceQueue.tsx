@@ -74,11 +74,13 @@ export default function OwnerServiceQueue({
   pendingServices: initialPending,
   claimedServices: initialClaimed,
   className,
+  variant = "card",
 }: {
   businessSlug: string;
   pendingServices: OwnerPendingService[];
   claimedServices: OwnerClaimedService[];
   className?: string;
+  variant?: "card" | "embedded";
 }) {
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<"pending" | "claimed">("pending");
@@ -259,14 +261,24 @@ export default function OwnerServiceQueue({
   const renderTime = (date: Date | null) =>
     date ? formatPH(date, "h:mm a") : "Walk-in";
 
+  const isEmbedded = variant === "embedded";
+
   return (
     <Card
       className={cn(
-        "rounded-[32px] border-none shadow-lg shadow-zinc-200/50 bg-white flex flex-col overflow-hidden h-full",
+        "flex flex-col overflow-hidden h-full",
+        isEmbedded
+          ? "border-0 shadow-none bg-transparent rounded-none"
+          : "rounded-[32px] border-none shadow-lg shadow-zinc-200/50 bg-white",
         className,
       )}
     >
-      <CardHeader className="md:px-8 md:pt-8 pb-0">
+      <CardHeader
+        className={cn(
+          "pb-0",
+          isEmbedded ? "px-0 pt-0" : "md:px-8 md:pt-8",
+        )}
+      >
         <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
           <div className="space-y-1">
             <CardTitle className="text-2xl font-bold tracking-tight text-zinc-900">
@@ -290,7 +302,12 @@ export default function OwnerServiceQueue({
         </div>
       </CardHeader>
 
-      <CardContent className="px-2 md:px-6 py-6 flex-1 min-h-[300px] overflow-auto">
+      <CardContent
+        className={cn(
+          "py-6 flex-1 min-h-[300px] overflow-auto",
+          isEmbedded ? "px-0" : "px-2 md:px-6",
+        )}
+      >
         <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)}>
           <TabsList className="w-full grid grid-cols-2 rounded-2xl bg-zinc-50 border border-zinc-100 p-1 shadow-sm h-12 overflow-hidden items-stretch">
             <TabsTrigger

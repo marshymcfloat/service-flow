@@ -186,6 +186,33 @@ export default async function OwnerDashboardDataContainer({
     take: 20,
   });
 
+  const payrollData = await prisma.payslip.findMany({
+    where: {
+      employee: {
+        business_id: business.id,
+      },
+      status: "PAID",
+    },
+    select: {
+      id: true,
+      total_salary: true,
+      starting_date: true,
+      ending_date: true,
+      employee: {
+        select: {
+          user: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      },
+    },
+    orderBy: {
+      ending_date: "desc",
+    },
+  });
+
   return (
     <OwnerDashboard
       businessName={business.name}
@@ -197,6 +224,7 @@ export default async function OwnerDashboardDataContainer({
       allBookings={allBookings}
       pendingServices={pendingServices}
       ownerClaimedServices={ownerClaimedServices}
+      payroll={payrollData}
     />
   );
 }

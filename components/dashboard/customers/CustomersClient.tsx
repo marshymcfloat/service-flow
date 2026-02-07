@@ -52,6 +52,7 @@ import {
   updateCustomer,
   deleteCustomer,
   getCustomerHistory,
+  type CustomerHistoryData,
 } from "@/lib/server actions/customer";
 import { toast } from "sonner";
 import {
@@ -66,10 +67,6 @@ import { CustomerForm, CustomerFormData } from "./CustomerForm";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useQuery } from "@tanstack/react-query";
 import { formatPH } from "@/lib/date-utils";
-
-type CustomerHistoryResponse = Awaited<ReturnType<typeof getCustomerHistory>>;
-type CustomerHistoryData =
-  CustomerHistoryResponse extends { success: true; data: infer T } ? T : never;
 
 interface CustomersClientProps {
   customers: Customer[];
@@ -132,10 +129,7 @@ export function CustomersClient({
     });
   }, [optimisticCustomers, search]);
 
-  const {
-    data: historyResult,
-    isFetching: isHistoryLoading,
-  } = useQuery({
+  const { data: historyResult, isFetching: isHistoryLoading } = useQuery({
     queryKey: ["customerHistory", historyCustomer?.id],
     queryFn: () =>
       historyCustomer
@@ -260,8 +254,9 @@ export function CustomersClient({
     }
   };
 
-  const historyData: CustomerHistoryData | null =
-    historyResult?.success ? historyResult.data : null;
+  const historyData: CustomerHistoryData | null = historyResult?.success
+    ? historyResult.data
+    : null;
 
   const pendingFlows = useMemo(() => {
     if (!historyData) return [];
@@ -273,8 +268,7 @@ export function CustomersClient({
     return pendingFlows
       .slice()
       .sort(
-        (a, b) =>
-          new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime(),
+        (a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime(),
       )[0];
   }, [pendingFlows]);
 
@@ -679,12 +673,11 @@ export function CustomersClient({
               <div className="text-sm text-zinc-500">Loading history...</div>
             )}
 
-            {!isHistoryLoading &&
-              historyResult?.success === false && (
-                <div className="text-sm text-red-600">
-                  {historyResult.error || "Failed to load history"}
-                </div>
-              )}
+            {!isHistoryLoading && historyResult?.success === false && (
+              <div className="text-sm text-red-600">
+                {historyResult.error || "Failed to load history"}
+              </div>
+            )}
 
             {!isHistoryLoading && historyData && (
               <div className="space-y-5">
@@ -727,8 +720,7 @@ export function CustomersClient({
                             {nextFlowDue.suggestedServiceName}
                           </p>
                           <p className="text-xs text-zinc-500">
-                            Due{" "}
-                            {formatPH(nextFlowDue.dueDate, "MMM d, yyyy")}
+                            Due {formatPH(nextFlowDue.dueDate, "MMM d, yyyy")}
                           </p>
                           <div className="flex items-center gap-2">
                             <Badge
@@ -844,10 +836,7 @@ export function CustomersClient({
                                 </Badge>
                               </div>
                               <div className="text-xs text-zinc-500 mt-1">
-                                {formatPH(
-                                  displayDate,
-                                  "PPP p",
-                                )}
+                                {formatPH(displayDate, "PPP p")}
                               </div>
                               <div className="text-xs text-zinc-600 mt-2">
                                 {serviceNames.length > 0
