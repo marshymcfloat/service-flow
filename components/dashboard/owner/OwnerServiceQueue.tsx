@@ -274,10 +274,7 @@ export default function OwnerServiceQueue({
       )}
     >
       <CardHeader
-        className={cn(
-          "pb-0",
-          isEmbedded ? "px-0 pt-0" : "md:px-8 md:pt-8",
-        )}
+        className={cn("pb-0", isEmbedded ? "px-0 pt-0" : "md:px-8 md:pt-8")}
       >
         <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
           <div className="space-y-1">
@@ -382,7 +379,7 @@ export default function OwnerServiceQueue({
                       </div>
                       <div className="flex flex-col items-end gap-2">
                         <span className="text-sm font-bold text-zinc-900 bg-zinc-50 px-2 py-0.5 rounded-md border border-zinc-100">
-                          â‚±{item.price.toLocaleString()}
+                          ₱{item.price.toLocaleString()}
                         </span>
                         <Button
                           size="sm"
@@ -464,7 +461,7 @@ export default function OwnerServiceQueue({
                       </div>
                       <div className="flex flex-col items-end gap-2">
                         <span className="text-sm font-bold text-zinc-900 bg-zinc-50 px-2 py-0.5 rounded-md border border-zinc-100">
-                          â‚±{item.price.toLocaleString()}
+                          ₱{item.price.toLocaleString()}
                         </span>
                         <div className="flex items-center gap-2">
                           <Button

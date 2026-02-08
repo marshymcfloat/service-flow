@@ -1,6 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
-import { BusinessHours, SaleEvent, Service } from "@/prisma/generated/prisma/client";
+import {
+  BusinessHours,
+  SaleEvent,
+  Service,
+} from "@/prisma/generated/prisma/client";
 import { beautyFeelContent } from "./content";
 import BeautyFeelShell from "./BeautyFeelShell";
 import BeautyFeelMap from "./BeautyFeelMap";
@@ -93,8 +97,7 @@ export default function BeautyFeelLanding({
 
   const todayIndex = new Date().getDay();
   const todayHours = hoursByDay[todayIndex];
-  const hasLocation =
-    business.latitude !== null && business.longitude !== null;
+  const hasLocation = business.latitude !== null && business.longitude !== null;
 
   return (
     <BeautyFeelShell
@@ -433,9 +436,7 @@ export default function BeautyFeelLanding({
             <p className="text-xs uppercase tracking-[0.3em] text-[color:var(--bf-muted)]">
               Social
             </p>
-            <h3 className="mt-3 text-lg font-semibold">
-              Follow BeautyFeel
-            </h3>
+            <h3 className="mt-3 text-lg font-semibold">Follow BeautyFeel</h3>
             <div className="mt-4 space-y-2 text-sm">
               {beautyFeelContent.socials.map((social) => (
                 <a

@@ -63,9 +63,7 @@ const EmployeeSelect = React.memo(function EmployeeSelect({
         <User className="h-8 w-8 mx-auto mb-2 opacity-50" />
         <p>No staff members available</p>
         {categorySet && (
-          <p className="text-xs mt-1">
-            No staff match the selected services.
-          </p>
+          <p className="text-xs mt-1">No staff match the selected services.</p>
         )}
       </div>
     );
@@ -78,7 +76,7 @@ const EmployeeSelect = React.memo(function EmployeeSelect({
           <p className="text-xs text-muted-foreground mb-3 font-medium uppercase tracking-wider">
             Available Staff
           </p>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 gap-3">
             {availableEmployees.map((employee) => {
               const isSelected = value === employee.id;
               const initials = employee.name
@@ -101,7 +99,7 @@ const EmployeeSelect = React.memo(function EmployeeSelect({
                 >
                   <div
                     className={cn(
-                      "flex items-center justify-center w-8 h-8 rounded-full text-xs font-semibold transition-colors",
+                      "flex items-center justify-center w-8 h-8 rounded-full text-xs font-semibold transition-colors shrink-0",
                       isSelected
                         ? "bg-primary text-primary-foreground"
                         : "bg-muted text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary",
@@ -109,7 +107,7 @@ const EmployeeSelect = React.memo(function EmployeeSelect({
                   >
                     {isSelected ? <Check className="w-4 h-4" /> : initials}
                   </div>
-                  <div className="flex-1 flex flex-col gap-1">
+                  <div className="flex-1 flex flex-col gap-1 min-w-0">
                     <span
                       className={cn(
                         "text-sm font-medium truncate",
