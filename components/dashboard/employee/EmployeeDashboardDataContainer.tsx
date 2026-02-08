@@ -61,6 +61,7 @@ export default async function EmployeeDashboardDataContainer({
     where: {
       booking: {
         business_id: business.id,
+        status: "ACCEPTED",
       },
       status: "PENDING",
     },
