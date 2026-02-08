@@ -1,9 +1,7 @@
 "use client";
 
-import React from "react";
-import { Plus, LogOut, User as UserIcon } from "lucide-react";
+import { LogOut, User as UserIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
 import EmployeeServedHistory from "./EmployeeServedHistory";
 import PendingServicesList from "./PendingServicesList";
 import AttendanceCard from "./AttendanceCard";
@@ -17,6 +15,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { BookingDialog } from "../owner/BookingDialog";
+import { Service, ServicePackage } from "@/prisma/generated/prisma/client";
+import { PackageWithItems } from "@/components/bookings/BookingForm";
 
 export default function EmployeeDashboard({
   businessName,
@@ -27,6 +28,9 @@ export default function EmployeeDashboard({
   currentEmployeeCommission,
   currentEmployeeSalary,
   todayAttendance,
+  services,
+  packages,
+  categories,
 }: {
   businessName: string | null;
   businessSlug: string;
@@ -36,6 +40,9 @@ export default function EmployeeDashboard({
   currentEmployeeCommission: number;
   currentEmployeeSalary: number;
   todayAttendance: any;
+  services: Service[];
+  packages: PackageWithItems[];
+  categories: string[];
 }) {
   const handleSignOut = () => {
     signOut({ callbackUrl: "/" });
@@ -54,16 +61,12 @@ export default function EmployeeDashboard({
         </div>
 
         <div className="flex items-center gap-3">
-          <Button
-            asChild
-            size="sm"
-            className="hidden md:flex rounded-full shadow-lg shadow-indigo-500/20 bg-indigo-600 hover:bg-indigo-700 text-white border-0 transition-transform active:scale-95"
-          >
-            <Link href={`/${businessSlug}/booking`}>
-              <Plus className="h-4 w-4 mr-2" />
-              <span className="font-medium">New Booking</span>
-            </Link>
-          </Button>
+          <BookingDialog
+            services={services}
+            packages={packages}
+            categories={categories}
+            businessSlug={businessSlug}
+          />
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -97,7 +100,7 @@ export default function EmployeeDashboard({
         </div>
       </header>
 
-      <div className="md:hidden fixed bottom-6 right-6 z-50">
+      {/*       <div className="md:hidden fixed bottom-6 right-6 z-50">
         <Button
           asChild
           size="icon"
@@ -108,7 +111,7 @@ export default function EmployeeDashboard({
             <span className="sr-only">Add Booking</span>
           </Link>
         </Button>
-      </div>
+      </div> */}
 
       <div className="px-4 py-6 md:px-8 max-w-7xl mx-auto space-y-8">
         <section className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6">

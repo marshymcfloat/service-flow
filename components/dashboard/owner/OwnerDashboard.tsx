@@ -4,7 +4,7 @@ import { PhilippinePeso, Plus, Calendar, Users } from "lucide-react";
 import Link from "next/link";
 import DashboardCard from "../DashboardCard";
 import { SalesChart } from "./SalesChart";
-import { SidebarTrigger } from "@/components/ui/sidebar";
+
 import { formatPH } from "@/lib/date-utils";
 import {
   Booking,
@@ -15,8 +15,15 @@ import {
   User,
   Voucher,
   Owner,
+  ServicePackage,
 } from "@/prisma/generated/prisma/client";
 import { BookingList } from "./BookingList";
+import { BookingDialog } from "./BookingDialog";
+import {
+  getCachedServices,
+  getCachedPackages,
+  getCachedBusinessBySlug,
+} from "@/lib/data/cached";
 import OwnerServiceQueue, {
   OwnerClaimedService,
   OwnerPendingService,
@@ -32,7 +39,7 @@ type BookingWithDetails = Booking & {
   })[];
 };
 
-export default function OwnerDashboard({
+export default async function OwnerDashboard({
   businessName,
   businessSlug,
   totalSales,
@@ -65,32 +72,31 @@ export default function OwnerDashboard({
     };
   }[];
 }) {
+  const business = await getCachedBusinessBySlug(businessSlug);
+  const services = business ? await getCachedServices(business.id) : [];
+  const packages = business ? await getCachedPackages(business.id) : [];
+  const categories = Array.from(new Set(services.map((s) => s.category)));
+
   const todayLabel = formatPH(new Date(), "MMM d, yyyy");
   return (
     <div className="min-h-screen bg-gradient-to-b from-zinc-50 via-white to-zinc-50">
-      <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-zinc-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <SidebarTrigger className="h-11 w-11 rounded-xl border border-zinc-200 hover:bg-zinc-100/80 transition-colors" />
-            <div className="leading-tight">
-              <div className="font-semibold text-lg md:text-xl text-zinc-900">
-                {businessName}
-              </div>
-              <div className="text-xs text-zinc-500">Owner Dashboard</div>
-            </div>
-          </div>
+      <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-slate-200/60 px-4 py-3 flex items-center justify-between md:px-8 md:py-4 shadow-[0_2px_20px_-12px_rgba(0,0,0,0.1)] transition-all duration-300">
+        <div className="flex flex-col">
+          <h1 className="font-bold text-lg leading-none md:text-xl text-slate-900 tracking-tight">
+            {businessName}
+          </h1>
+          <p className="text-[10px] uppercase tracking-widest font-semibold text-indigo-500 mt-1">
+            Owner Dashboard
+          </p>
+        </div>
 
-          <Button
-            asChild
-            className="rounded-xl shadow-sm shadow-emerald-500/20 bg-emerald-600 hover:bg-emerald-700 text-white px-4 md:px-6 h-11 transition-transform active:scale-95"
-          >
-            <Link href={`/${businessSlug}/booking`}>
-              <Plus className="h-4 w-4 md:mr-2" strokeWidth={3} />
-              <span className="hidden md:inline font-semibold">
-                New Booking
-              </span>
-            </Link>
-          </Button>
+        <div className="flex items-center gap-3">
+          <BookingDialog
+            services={services}
+            packages={packages}
+            categories={categories}
+            businessSlug={businessSlug}
+          />
         </div>
       </header>
 

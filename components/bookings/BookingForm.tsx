@@ -1,6 +1,9 @@
 "use client";
 
-import { createBooking, CreateBookingResult } from "@/lib/server actions/booking";
+import {
+  createBooking,
+  CreateBookingResult,
+} from "@/lib/server actions/booking";
 import {
   getAvailableSlots,
   getAvailableEmployees,
@@ -65,7 +68,7 @@ import { Input } from "../ui/input";
 import QrPaymentPanel from "./QrPaymentPanel";
 import { getPayMongoPaymentIntentStatus } from "@/lib/server actions/paymongo";
 
-type PackageWithItems = ServicePackage & {
+export type PackageWithItems = ServicePackage & {
   items: (PackageItem & { service: Service })[];
 };
 
@@ -116,7 +119,6 @@ export default function BookingForm({
   const businessSlug = params.businessSlug;
   const canceled = searchParams.get("canceled");
 
-  // [NEW] Fetch active sale events
   const { data: saleEventsResult } = useQuery({
     queryKey: ["activeSaleEvents", businessSlug],
     queryFn: () => getActiveSaleEvents(businessSlug),
@@ -157,7 +159,6 @@ export default function BookingForm({
   const [isLoadingFlows, setIsLoadingFlows] = useState(false);
   const [claimedUniqueIds, setClaimedUniqueIds] = useState<string[]>([]);
 
-  // Fetch pending flows when customer is selected
   useEffect(() => {
     async function fetchFlows() {
       if (!customerId) {
@@ -172,11 +173,9 @@ export default function BookingForm({
     fetchFlows();
   }, [customerId]);
 
-  // [NEW] Re-calculate prices when sale events change
   useEffect(() => {
     if (saleEvents.length > 0 && selectedServices.length > 0) {
       const updatedServices = selectedServices.map((service) => {
-        // Recalculate discount
         const discountInfo = getApplicableDiscount(
           service.id,
           service.packageId ? Number(service.packageId) : undefined,
@@ -185,7 +184,6 @@ export default function BookingForm({
         );
 
         if (discountInfo) {
-          // Only update if differ to avoid infinite loop
           if (service.price !== discountInfo.finalPrice) {
             return {
               ...service,
@@ -211,16 +209,19 @@ export default function BookingForm({
   }, [saleEvents]); // Run only when saleEvents loaded/changed
 
   // Callback when a customer is selected from the search input
-  const handleCustomerSelect = useCallback((customer: any) => {
-    // If customer has an email, set it to state
-    if (customer && customer.email) {
-      setExistingCustomerEmail(customer.email);
-      form.setValue("email", customer.email, { shouldValidate: true });
-    } else {
-      setExistingCustomerEmail(null);
-      form.setValue("email", "", { shouldValidate: true });
-    }
-  }, [form]);
+  const handleCustomerSelect = useCallback(
+    (customer: any) => {
+      // If customer has an email, set it to state
+      if (customer && customer.email) {
+        setExistingCustomerEmail(customer.email);
+        form.setValue("email", customer.email, { shouldValidate: true });
+      } else {
+        setExistingCustomerEmail(null);
+        form.setValue("email", "", { shouldValidate: true });
+      }
+    },
+    [form],
+  );
 
   const [isWalkIn, setIsWalkIn] = useState(false);
   const [qrPayment, setQrPayment] = useState<{
@@ -285,7 +286,6 @@ export default function BookingForm({
     }
   }, [paymentIntentStatus, qrPayment, businessSlug, hasRedirected, router]);
 
-  // Memoize the toggle handler
   const handleWalkInToggle = useCallback(() => {
     const newState = !isWalkIn;
     setIsWalkIn(newState);
@@ -402,10 +402,7 @@ export default function BookingForm({
     const serviceMap = new Map<number, number>();
     selectedServices.forEach((service) => {
       const quantity = Math.max(1, Number(service.quantity) || 1);
-      serviceMap.set(
-        service.id,
-        (serviceMap.get(service.id) || 0) + quantity,
-      );
+      serviceMap.set(service.id, (serviceMap.get(service.id) || 0) + quantity);
     });
     return Array.from(serviceMap.entries()).map(([id, quantity]) => ({
       id,

@@ -3,7 +3,11 @@ import { prisma } from "@/prisma/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/next auth/options";
 import { redirect } from "next/navigation";
-import { getCachedBusinessBySlug } from "@/lib/data/cached";
+import {
+  getCachedBusinessBySlug,
+  getCachedServices,
+  getCachedPackages,
+} from "@/lib/data/cached";
 
 export default async function EmployeeDashboardDataContainer({
   businessSlug,
@@ -75,6 +79,10 @@ export default async function EmployeeDashboardDataContainer({
     take: 20,
   });
 
+  const services = await getCachedServices(business.id);
+  const packages = await getCachedPackages(business.id);
+  const categories = Array.from(new Set(services.map((s) => s.category)));
+
   const { checkAttendanceStatusAction, getAttendanceCountAction } =
     await import("@/lib/server actions/attendance");
   const attendanceResult = await checkAttendanceStatusAction(employee.id);
@@ -137,6 +145,9 @@ export default async function EmployeeDashboardDataContainer({
       currentEmployeeCommission={employee.commission_percentage}
       currentEmployeeSalary={totalEstimatedSalary}
       todayAttendance={todayAttendance}
+      services={services}
+      packages={packages}
+      categories={categories}
     />
   );
 }
