@@ -267,7 +267,8 @@ export default function BookingForm({
           const successUrl = bookingId
             ? `/${businessSlug}/booking/success?bookingId=${bookingId}`
             : `/${businessSlug}/booking/success`;
-          router.push(successUrl);
+          // Use window.location.href to ensure full page reload and clear any open modals
+          window.location.href = successUrl;
         }, 1200);
       }
       return;
