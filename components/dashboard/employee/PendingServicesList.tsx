@@ -20,9 +20,12 @@ import {
   getPendingServicesAction,
 } from "@/lib/server actions/dashboard";
 
+import { getApplicableDiscount } from "@/lib/utils/pricing";
+
 interface PendingService {
   id: number;
   service: {
+    id: number; // Ensure ID is present
     name: string;
     duration: number | null;
   };
@@ -43,10 +46,12 @@ export default function PendingServicesList({
   services: initialServices,
   businessSlug,
   currentEmployeeId,
+  saleEvents = [],
 }: {
   services: PendingService[];
   businessSlug: string;
   currentEmployeeId: number;
+  saleEvents?: any[];
 }) {
   const [selectedService, setSelectedService] = useState<PendingService | null>(
     null,
@@ -103,6 +108,13 @@ export default function PendingServicesList({
                 .toUpperCase()
                 .slice(0, 2);
 
+              const discountInfo = getApplicableDiscount(
+                item.service.id, // Assuming service ID is available on item.service
+                item.package_id ? Number(item.package_id) : undefined,
+                item.price,
+                saleEvents,
+              );
+
               return (
                 <div
                   key={item.id}
@@ -154,7 +166,19 @@ export default function PendingServicesList({
 
                     <div className="flex flex-col items-end pl-2">
                       <span className="text-sm font-bold text-slate-900 bg-slate-50 px-2 py-0.5 rounded-md border border-slate-100">
-                        ₱{item.price.toLocaleString()}
+                        {discountInfo &&
+                        discountInfo.finalPrice !== item.price ? (
+                          <div className="flex flex-col items-end leading-none gap-0.5">
+                            <span className="text-xs text-red-500 line-through opacity-70">
+                              ₱{item.price.toLocaleString()}
+                            </span>
+                            <span className="text-emerald-600">
+                              ₱{discountInfo.finalPrice.toLocaleString()}
+                            </span>
+                          </div>
+                        ) : (
+                          `₱${item.price.toLocaleString()}`
+                        )}
                       </span>
                     </div>
                   </div>

@@ -79,6 +79,7 @@ interface BookingFormProps {
   isEmployee?: boolean;
   currentEmployeeId?: number;
   isModal?: boolean;
+  onSuccess?: () => void;
 }
 
 import {
@@ -96,6 +97,7 @@ export default function BookingForm({
   isEmployee = false,
   currentEmployeeId,
   isModal = false,
+  onSuccess,
 }: BookingFormProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -534,7 +536,11 @@ export default function BookingForm({
         setExistingCustomerEmail(null);
         toast.success("Booking successfully created");
 
-        router.back();
+        if (onSuccess) {
+          onSuccess();
+        } else {
+          router.back();
+        }
         return;
       }
 
@@ -576,6 +582,7 @@ export default function BookingForm({
             id: s.id,
             name: s.name,
             price: s.price,
+            originalPrice: s.originalPrice,
             quantity: 1,
             duration: s.duration || 30,
             claimedByCurrentEmployee:
@@ -597,6 +604,7 @@ export default function BookingForm({
         services: flatServicesPayload,
         email: data.email,
         voucherCode: appliedVoucher?.code,
+        isWalkIn: isWalkIn,
       });
     },
     [

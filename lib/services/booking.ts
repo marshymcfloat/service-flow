@@ -130,7 +130,7 @@ export async function createBookingInDb({
 
     // Recalculate prices and validate
     const validatedServices = services.map((service) => {
-      let finalPrice = service.price;
+      let finalPrice = service.originalPrice || service.price;
       let discountAmount = 0;
       let discountReason = service.discountReason;
 
@@ -148,11 +148,13 @@ export async function createBookingInDb({
           // Sort by highest discount value (approximation for mixed types)
           const valA =
             a.discount_type === "PERCENTAGE"
-              ? (service.price * a.discount_value) / 100
+              ? (service.originalPrice || service.price) *
+                (a.discount_value / 100)
               : a.discount_value;
           const valB =
             b.discount_type === "PERCENTAGE"
-              ? (service.price * b.discount_value) / 100
+              ? (service.originalPrice || service.price) *
+                (b.discount_value / 100)
               : b.discount_value;
           return valB - valA;
         })[0];
@@ -161,16 +163,21 @@ export async function createBookingInDb({
         let eventDiscount = 0;
         if (applicableEvent.discount_type === "PERCENTAGE") {
           eventDiscount =
-            (service.price * applicableEvent.discount_value) / 100;
+            ((service.originalPrice || service.price) *
+              applicableEvent.discount_value) /
+            100;
         } else {
           eventDiscount = applicableEvent.discount_value;
         }
 
         // Ensure we don't discount more than the price
-        eventDiscount = Math.min(eventDiscount, service.price);
+        eventDiscount = Math.min(
+          eventDiscount,
+          service.originalPrice || service.price,
+        );
 
         if (eventDiscount > 0) {
-          finalPrice = service.price - eventDiscount;
+          finalPrice = (service.originalPrice || service.price) - eventDiscount;
           discountAmount = eventDiscount;
           discountReason = applicableEvent.title;
         }
@@ -179,7 +186,7 @@ export async function createBookingInDb({
       return {
         ...service,
         price: finalPrice, // Override with server-calculated price
-        originalPrice: service.price,
+        originalPrice: service.originalPrice || service.price,
         discount: discountAmount,
         discountReason,
       };

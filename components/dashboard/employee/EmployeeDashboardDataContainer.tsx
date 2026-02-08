@@ -97,6 +97,11 @@ export default async function EmployeeDashboardDataContainer({
     orderBy: { ending_date: "desc" },
   });
 
+  const { getActiveSaleEvents } =
+    await import("@/lib/server actions/sale-event");
+  const saleEventsResult = await getActiveSaleEvents(businessSlug);
+  const saleEvents = (saleEventsResult.success && saleEventsResult.data) || [];
+
   // Start from the day AFTER the last payslip
   const salaryStartDate = lastPayslip
     ? lastPayslip.ending_date
@@ -149,6 +154,7 @@ export default async function EmployeeDashboardDataContainer({
       services={services}
       packages={packages}
       categories={categories}
+      saleEvents={saleEvents}
     />
   );
 }

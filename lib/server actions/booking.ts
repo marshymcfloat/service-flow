@@ -7,6 +7,7 @@ import { prisma } from "@/prisma/prisma";
 import { PaymentMethod, PaymentType } from "@/lib/zod schemas/bookings";
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
+import { sendBookingConfirmation } from "@/lib/email/send-booking-details";
 
 interface CreateBookingParams {
   customerId?: string;
@@ -28,6 +29,7 @@ interface CreateBookingParams {
     originalPrice?: number;
   }[];
   voucherCode?: string;
+  isWalkIn?: boolean;
 }
 
 export type CreateBookingResult =
@@ -54,6 +56,7 @@ export async function createBooking({
   services,
   email,
   voucherCode,
+  isWalkIn = false,
 }: CreateBookingParams & {
   currentEmployeeId?: number;
 }): Promise<CreateBookingResult> {
@@ -80,7 +83,7 @@ export async function createBooking({
 
     // 1. Calculate prices and commissions based on active sales
     const processedServices = services.map((service) => {
-      let finalPrice = service.price;
+      let finalPrice = service.originalPrice || service.price;
       let discount = 0;
       let discountReason = null;
 
@@ -94,24 +97,29 @@ export async function createBooking({
 
       if (applicableSale) {
         if (applicableSale.discount_type === "PERCENTAGE") {
-          discount = service.price * (applicableSale.discount_value / 100);
+          discount =
+            (service.originalPrice || service.price) *
+            (applicableSale.discount_value / 100);
         } else {
           discount = applicableSale.discount_value;
         }
-        finalPrice = Math.max(0, service.price - discount);
+        finalPrice = Math.max(
+          0,
+          (service.originalPrice || service.price) - discount,
+        );
         discountReason = `SALE_EVENT: ${applicableSale.title}`;
       }
 
       // Determine commission base
       const commissionBase =
         business.commission_calculation_basis === "ORIGINAL_PRICE"
-          ? service.price // Original price before sale
+          ? service.originalPrice || service.price // Original price before sale
           : finalPrice; // Discounted price
 
       return {
         ...service,
         price: finalPrice, // Update price to be the final price for the booking
-        originalPrice: service.price, // Keep track of original
+        originalPrice: service.originalPrice || service.price, // Keep track of original
         discount,
         discountReason,
         commissionBase,
@@ -178,6 +186,10 @@ export async function createBooking({
         // I will need to update createBookingInDb signature to accept the extra fields.
       });
 
+      if (!isWalkIn) {
+        await sendBookingConfirmation(booking.id);
+      }
+
       revalidatePath(`/app/${businessSlug}`);
       return {
         type: "internal",
@@ -202,6 +214,7 @@ export async function createBooking({
       paymentMethod,
       paymentType,
       voucherCode,
+      isWalkIn: isWalkIn ? "true" : "false",
       services: JSON.stringify(
         processedServices.map((s) => ({
           id: s.id,

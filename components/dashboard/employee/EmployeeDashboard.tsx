@@ -31,6 +31,7 @@ export default function EmployeeDashboard({
   services,
   packages,
   categories,
+  saleEvents,
 }: {
   businessName: string | null;
   businessSlug: string;
@@ -43,6 +44,7 @@ export default function EmployeeDashboard({
   services: Service[];
   packages: PackageWithItems[];
   categories: string[];
+  saleEvents: any[];
 }) {
   const handleSignOut = () => {
     signOut({ callbackUrl: "/" });
@@ -212,6 +214,7 @@ export default function EmployeeDashboard({
                 services={pendingServices}
                 businessSlug={businessSlug}
                 currentEmployeeId={currentEmployeeId}
+                saleEvents={saleEvents}
               />
             </div>
           </section>

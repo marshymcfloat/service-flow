@@ -3,6 +3,7 @@ import { createBookingInDb } from "@/lib/services/booking";
 import { prisma } from "@/prisma/prisma";
 import { getPayMongoPaymentIntentById } from "@/lib/server actions/paymongo";
 import { extractPaymentIntentReferences } from "@/lib/paymongo/webhook-utils";
+import { sendBookingConfirmation } from "@/lib/email/send-booking-details";
 
 // Handle preflight requests (CORS)
 export async function OPTIONS() {
@@ -129,6 +130,7 @@ export async function POST(req: Request) {
         paymentMethod,
         paymentType,
         voucherCode,
+        isWalkIn: isWalkInStr,
       } = metadata;
 
       if (!businessSlug) {
@@ -137,7 +139,9 @@ export async function POST(req: Request) {
       }
 
       const services = JSON.parse(servicesJson);
-      const scheduledAt = scheduledAtStr ? new Date(scheduledAtStr) : new Date();
+      const scheduledAt = scheduledAtStr
+        ? new Date(scheduledAtStr)
+        : new Date();
       const estimatedEnd = estimatedEndStr
         ? new Date(estimatedEndStr)
         : new Date();
@@ -169,6 +173,10 @@ export async function POST(req: Request) {
         `Booking created successfully: ${booking.id} (${booking.status})`,
       );
 
+      if (isWalkInStr !== "true") {
+        await sendBookingConfirmation(booking.id);
+      }
+
       return new Response("Webhook processed", { status: 200 });
     }
 
@@ -199,6 +207,16 @@ export async function POST(req: Request) {
           });
         }
 
+        // Sync email sending for existing booking if needed (e.g. if it wasn't sent before)
+        // But logic says we only send on confirmation.
+        // For QRPH, payment.paid is the confirmation.
+        const metadata = await resolvePaymentIntentMetadata(paymentIntentId);
+        const isWalkIn = metadata?.isWalkIn === "true";
+
+        if (!isWalkIn) {
+          await sendBookingConfirmation(existingBooking.id);
+        }
+
         return new Response("Webhook processed", { status: 200 });
       }
 
@@ -219,6 +237,10 @@ export async function POST(req: Request) {
       console.log(
         `Booking created successfully: ${booking.id} (${booking.status})`,
       );
+
+      if (metadata?.isWalkIn !== "true") {
+        await sendBookingConfirmation(booking.id);
+      }
 
       return new Response("Webhook processed", { status: 200 });
     }
@@ -278,6 +300,7 @@ async function createBookingFromMetadata({
     paymentMethod,
     paymentType,
     voucherCode,
+    isWalkIn: isWalkInStr,
   } = metadata;
 
   if (!businessSlug) {

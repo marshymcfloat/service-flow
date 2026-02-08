@@ -53,6 +53,7 @@ export function BookingDialog({
             categories={categories}
             isEmployee={true}
             isModal={true}
+            onSuccess={() => setOpen(false)}
           />
         </div>
       </DialogContent>

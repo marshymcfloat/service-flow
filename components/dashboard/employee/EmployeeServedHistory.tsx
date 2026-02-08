@@ -49,6 +49,9 @@ interface ServedService {
   };
   scheduled_at: Date | null;
   price: number;
+  final_price?: number | null;
+  discount?: number | null;
+  discount_reason?: string | null;
   status: string;
   package?: {
     name: string;
@@ -171,6 +174,9 @@ export default function EmployeeServedHistory({
                 .toUpperCase()
                 .slice(0, 2);
 
+              const displayPrice = item.final_price ?? item.price;
+              const hasDiscount = item.discount && item.discount > 0;
+
               return (
                 <div
                   key={item.id}
@@ -198,9 +204,20 @@ export default function EmployeeServedHistory({
                   </div>
 
                   <div className="flex flex-col items-end gap-1.5">
-                    <span className="font-bold text-sm text-slate-700">
-                      ₱{item.price.toLocaleString()}
-                    </span>
+                    {hasDiscount ? (
+                      <div className="flex flex-col items-end leading-none gap-0.5">
+                        <span className="text-xs text-red-500 line-through opacity-70">
+                          ₱{item.price.toLocaleString()}
+                        </span>
+                        <span className="font-bold text-sm text-emerald-600">
+                          ₱{displayPrice.toLocaleString()}
+                        </span>
+                      </div>
+                    ) : (
+                      <span className="font-bold text-sm text-slate-700">
+                        ₱{item.price.toLocaleString()}
+                      </span>
+                    )}
                     {item.status === "CLAIMED" ? (
                       <Badge
                         variant="outline"
@@ -261,9 +278,21 @@ export default function EmployeeServedHistory({
                   <p className="text-xs text-muted-foreground font-medium uppercase">
                     Price
                   </p>
-                  <p className="text-lg font-bold">
-                    ₱{selectedService.price.toLocaleString()}
-                  </p>
+                  <div className="text-lg font-bold">
+                    {selectedService.final_price &&
+                    selectedService.final_price !== selectedService.price ? (
+                      <div className="flex flex-col">
+                        <span className="text-xs text-red-500 line-through opacity-70">
+                          ₱{selectedService.price.toLocaleString()}
+                        </span>
+                        <span className="text-emerald-600">
+                          ₱{selectedService.final_price.toLocaleString()}
+                        </span>
+                      </div>
+                    ) : (
+                      `₱${selectedService.price.toLocaleString()}`
+                    )}
+                  </div>
                 </div>
                 <div className="p-3 bg-green-50/50 rounded-lg space-y-1 border border-green-100">
                   <p className="text-xs text-green-700 font-medium uppercase">
@@ -272,7 +301,8 @@ export default function EmployeeServedHistory({
                   <p className="text-lg font-bold text-green-700">
                     ₱
                     {(
-                      (selectedService.price * currentEmployeeCommission) /
+                      ((selectedService.final_price ?? selectedService.price) *
+                        currentEmployeeCommission) /
                       100
                     ).toLocaleString()}
                   </p>
