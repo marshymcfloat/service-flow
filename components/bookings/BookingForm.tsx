@@ -1227,11 +1227,41 @@ export default function BookingForm({
                               ? "Due Now"
                               : "Total Amount"}
                           </p>
+                          {paymentMethod === "QRPH" && (
+                            <p className="text-[10px] text-muted-foreground">
+                              Includes 1.5% fee
+                            </p>
+                          )}
                         </div>
                         <div className="text-2xl font-bold text-primary tabular-nums tracking-tight">
-                          ₱{finalAmountToPay.toLocaleString()}
+                          ₱
+                          {(
+                            finalAmountToPay +
+                            (paymentMethod === "QRPH"
+                              ? finalAmountToPay * 0.015
+                              : 0)
+                          ).toLocaleString(undefined, {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })}
                         </div>
                       </div>
+
+                      {paymentMethod === "QRPH" && (
+                        <div className="flex justify-between items-center text-xs text-muted-foreground/80 mt-1">
+                          <span>Convenience Fee (1.5%)</span>
+                          <span className="tabular-nums">
+                            + ₱
+                            {(finalAmountToPay * 0.015).toLocaleString(
+                              undefined,
+                              {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                              },
+                            )}
+                          </span>
+                        </div>
+                      )}
 
                       <Button
                         disabled={

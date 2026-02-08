@@ -1,9 +1,18 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, CalendarPlus } from "lucide-react";
+import { CheckCircle2, CalendarPlus, Home, ArrowRight } from "lucide-react";
 import { Metadata } from "next";
 import { Suspense } from "react";
 import { prisma } from "@/prisma/prisma";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
 
 type BookingSuccessSearchParams = {
   bookingId?: string | string[];
@@ -37,12 +46,14 @@ async function BookingSuccessContent({
   searchParams,
 }: {
   params: Promise<{ businessSlug: string }>;
-  searchParams?: BookingSuccessSearchParams;
+  searchParams: Promise<BookingSuccessSearchParams>;
 }) {
   const { businessSlug } = await params;
-  const bookingIdParam = Array.isArray(searchParams?.bookingId)
-    ? searchParams?.bookingId[0]
-    : searchParams?.bookingId;
+  const resolvedSearchParams = await searchParams; // Await searchParams
+
+  const bookingIdParam = Array.isArray(resolvedSearchParams?.bookingId)
+    ? resolvedSearchParams?.bookingId[0]
+    : resolvedSearchParams?.bookingId;
   const bookingId = bookingIdParam ? Number(bookingIdParam) : null;
 
   const booking =
@@ -56,6 +67,8 @@ async function BookingSuccessContent({
             id: true,
             scheduled_at: true,
             estimated_end: true,
+            payment_method: true,
+            grand_total: true,
             business: { select: { name: true } },
             availed_services: {
               select: { service: { select: { name: true } } },
@@ -64,7 +77,9 @@ async function BookingSuccessContent({
         })
       : null;
 
-  const scheduledAt = booking?.scheduled_at ?? null;
+  const scheduledAt = booking?.scheduled_at
+    ? new Date(booking.scheduled_at)
+    : null;
   const estimatedEnd =
     booking?.estimated_end ??
     (scheduledAt ? new Date(scheduledAt.getTime() + 60 * 60 * 1000) : null);
@@ -109,48 +124,142 @@ async function BookingSuccessContent({
       : null;
 
   return (
-    <div className="flex w-full max-w-sm flex-col items-center gap-6 text-center">
-      <div className="relative flex h-20 w-20 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
-        <CheckCircle2 className="h-10 w-10 text-green-600 dark:text-green-500 animate-in zoom-in duration-300" />
-        <div className="absolute h-full w-full animate-ping rounded-full bg-green-400 opacity-20 duration-1000" />
-      </div>
+    <div className="flex w-full max-w-md flex-col items-center gap-8 animate-in fade-in zoom-in-95 duration-500">
+      <Card className="w-full border-green-100 shadow-xl shadow-green-900/5 overflow-hidden">
+        <div className="bg-green-50/50 p-8 flex flex-col items-center justify-center border-b border-green-100">
+          <div className="relative flex h-24 w-24 items-center justify-center rounded-full bg-white shadow-sm ring-8 ring-green-50 mb-4">
+            <CheckCircle2 className="h-12 w-12 text-green-600 animate-in zoom-in duration-300 delay-150" />
+            <div className="absolute inset-0 rounded-full animate-ping bg-green-400/20 duration-1000" />
+          </div>
+          <h1 className="text-2xl font-bold tracking-tight text-green-950">
+            Booking Confirmed!
+          </h1>
+          <p className="text-green-800/80 mt-2 text-center text-sm font-medium">
+            Your appointment has been successfully scheduled.
+          </p>
+        </div>
 
-      <div className="space-y-2">
-        <h1 className="text-2xl font-semibold tracking-tight">
-          Booking Confirmed!
-        </h1>
-        <p className="text-muted-foreground">
-          Thank you for your reservation. We have received your payment and your
-          booking is confirmed.
-        </p>
-      </div>
+        <CardContent className="space-y-6 pt-6">
+          {booking ? (
+            <div className="space-y-4">
+              <div className="flex justify-between items-start text-sm">
+                <span className="text-muted-foreground">Business via</span>
+                <span className="font-semibold text-right">{businessName}</span>
+              </div>
 
-      <div className="flex w-full flex-col gap-2">
-        <Button asChild className="w-full bg-violet-600 hover:bg-violet-700">
-          <Link href={`/${businessSlug}/booking`}>Book Another Service</Link>
-        </Button>
-        {calendarHref ? (
-          <Button asChild variant="outline" className="w-full">
-            <a href={calendarHref}>
-              <CalendarPlus className="h-4 w-4" /> Add reminder to calendar
-            </a>
+              <Separator />
+
+              <div className="space-y-1">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  Date & Time
+                </p>
+                <p className="text-lg font-medium">
+                  {scheduledAt?.toLocaleDateString(undefined, {
+                    weekday: "long",
+                    month: "long",
+                    day: "numeric",
+                  })}
+                </p>
+                <p className="text-muted-foreground text-sm">
+                  {scheduledAt?.toLocaleTimeString(undefined, {
+                    hour: "numeric",
+                    minute: "2-digit",
+                  })}
+                  {" - "}
+                  {estimatedEnd?.toLocaleTimeString(undefined, {
+                    hour: "numeric",
+                    minute: "2-digit",
+                  })}
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  Services
+                </p>
+                <div className="flex flex-wrap gap-1.5">
+                  {serviceNames.map((name, i) => (
+                    <Badge key={i} variant="secondary" className="font-normal">
+                      {name}
+                    </Badge>
+                  ))}
+                  {serviceNames.length === 0 && (
+                    <span className="text-sm text-muted-foreground">
+                      No services listed
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              <Separator />
+
+              <div className="flex justify-between items-center bg-muted/40 p-3 rounded-lg">
+                <span className="text-sm font-medium text-muted-foreground">
+                  Total Paid
+                </span>
+                <span className="text-lg font-bold text-primary">
+                  ₱{booking.grand_total.toLocaleString()}
+                </span>
+              </div>
+            </div>
+          ) : (
+            <div className="text-center py-8 text-muted-foreground">
+              <p>Could not retrieve booking details.</p>
+            </div>
+          )}
+        </CardContent>
+
+        <CardFooter className="flex flex-col gap-3 pt-2 pb-6 px-6">
+          <Button
+            asChild
+            className="w-full h-11 text-base shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all active:scale-[0.98]"
+          >
+            <Link href={`/${businessSlug}/booking`}>
+              Book Another Service <ArrowRight className="ml-2 w-4 h-4" />
+            </Link>
           </Button>
-        ) : null}
-      </div>
+
+          <div className="grid grid-cols-2 gap-3 w-full">
+            {calendarHref && (
+              <Button asChild variant="outline" className="w-full">
+                <a href={calendarHref} download="booking.ics">
+                  <CalendarPlus className="mr-2 h-4 w-4" /> Add to Calendar
+                </a>
+              </Button>
+            )}
+            <Button asChild variant="outline" className="w-full">
+              <Link href={`/`}>
+                <Home className="mr-2 h-4 w-4" /> Go Home
+              </Link>
+            </Button>
+          </div>
+        </CardFooter>
+      </Card>
+
+      <p className="text-xs text-muted-foreground text-center max-w-xs">
+        A confirmation email has been sent to your inbox.
+      </p>
     </div>
   );
 }
 
-export default async function BookingSuccessPage({
+export default function BookingSuccessPage({
   params,
   searchParams,
 }: {
   params: Promise<{ businessSlug: string }>;
-  searchParams?: BookingSuccessSearchParams;
+  searchParams: Promise<BookingSuccessSearchParams>;
 }) {
   return (
-    <div className="flex h-screen w-full flex-col items-center justify-center bg-background p-4">
-      <Suspense fallback={<div>Loading...</div>}>
+    <div className="flex min-h-dvh w-full flex-col items-center justify-center bg-gray-50/50 dark:bg-zinc-950 p-4 md:p-8">
+      <Suspense
+        fallback={
+          <div className="animate-pulse flex flex-col items-center gap-4">
+            <div className="h-20 w-20 bg-muted rounded-full"></div>
+            <div className="h-8 w-48 bg-muted rounded"></div>
+          </div>
+        }
+      >
         <BookingSuccessContent params={params} searchParams={searchParams} />
       </Suspense>
     </div>

@@ -31,8 +31,8 @@ async function main() {
 
   const bfOwnerUser = await prisma.user.create({
     data: {
-      email: "owner@beautyfeel.com",
-      name: "Maria Santos",
+      email: "rjpern@gmail.com",
+      name: "Ellaine Pe",
       hashed_password: password,
       role: Role.OWNER,
     },
@@ -441,6 +441,13 @@ async function main() {
       category: "Spa",
       description: "Extended foot and leg therapy.",
     },
+    {
+      name: "Test Service",
+      price: 5,
+      duration: 15,
+      category: "General",
+      description: "A quick test service.",
+    },
   ];
 
   for (const s of bfServices) {
@@ -451,34 +458,14 @@ async function main() {
   // (Updated based on new Categories: Nails, Skin, Eyelash, Spa)
   const bfEmployees = [
     {
-      name: "Anna Reyes",
-      email: "anna@beautyfeel.com",
-      specialties: ["Nails", "Spa"],
+      name: "Jan David Almirante",
+      email: "jan@beautyfeel.com",
+      specialties: ["Nails", "Spa", "Skin", "Eyelash"],
     },
     {
-      name: "Joy Dela Cruz",
-      email: "joy@beautyfeel.com",
-      specialties: ["Nails"],
-    },
-    {
-      name: "Bea Alonzo",
-      email: "bea@beautyfeel.com",
-      specialties: ["Eyelash"],
-    },
-    {
-      name: "Carla Abellana",
-      email: "carla@beautyfeel.com",
-      specialties: ["Spa"],
-    },
-    {
-      name: "Dina Bonnevie",
-      email: "dina@beautyfeel.com",
-      specialties: ["Skin"],
-    },
-    {
-      name: "Liza Soberano",
-      email: "liza@beautyfeel.com",
-      specialties: ["Skin", "Eyelash"],
+      name: "Daniel Canoy",
+      email: "daniel@beautyfeel.com",
+      specialties: ["Nails", "Spa", "Skin", "Eyelash"],
     },
   ];
 
@@ -560,13 +547,12 @@ async function main() {
     });
   }
 
-  // GC Employees
   const gcEmployees = [
     {
       name: "Thomas Shelby",
       email: "thomas@gentlemanscut.com",
       specialties: ["Haircut", "Shave", "Grooming", "Chemical"],
-    }, // Master
+    },
     {
       name: "John Shelby",
       email: "john@gentlemanscut.com",
@@ -613,9 +599,9 @@ async function main() {
   console.log("\n✅ Seeding finished successfully!");
   console.log("\n📋 Login Credentials:");
   console.log("--- BeautyFeel ---");
-  console.log("   Owner: owner@beautyfeel.com / password123");
-  console.log("   Emp (Generalist/Spa): anna@beautyfeel.com / employee123");
-  console.log("   Emp (Nails): joy@beautyfeel.com / employee123");
+  console.log("   Owner: rjpern@gmail.com / password123");
+  console.log("   Emp (Jan): jan@beautyfeel.com / employee123");
+  console.log("   Emp (Daniel): daniel@beautyfeel.com / employee123");
   console.log("\n--- Gentleman's Cut ---");
   console.log("   Owner: owner@gentlemanscut.com / password123");
   console.log("   Emp (Master): thomas@gentlemanscut.com / employee123");

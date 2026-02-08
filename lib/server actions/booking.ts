@@ -54,7 +54,9 @@ export async function createBooking({
   services,
   email,
   voucherCode,
-}: CreateBookingParams & { currentEmployeeId?: number }): Promise<CreateBookingResult> {
+}: CreateBookingParams & {
+  currentEmployeeId?: number;
+}): Promise<CreateBookingResult> {
   try {
     const business = await prisma.business.findUnique({
       where: { slug: businessSlug },
@@ -139,10 +141,15 @@ export async function createBooking({
     }
 
     const totalAfterDiscounts = Math.max(0, subtotal - voucherDiscount);
-    const amountToPay =
+    let amountToPay =
       paymentType === "DOWNPAYMENT"
         ? totalAfterDiscounts * 0.5
         : totalAfterDiscounts;
+
+    // Add 1.5% convenience fee for QR payments
+    if (paymentMethod === "QRPH") {
+      amountToPay += amountToPay * 0.015;
+    }
 
     const totalDuration = services.reduce(
       (sum, s) => sum + (s.duration || 30) * s.quantity,
