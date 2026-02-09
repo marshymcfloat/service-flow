@@ -1,18 +1,12 @@
 import { prisma } from "@/prisma/prisma";
 import { Resend } from "resend";
-import {
-  addDays,
-  addWeeks,
-  addMonths,
-  isSameDay,
-  startOfDay,
-  endOfDay,
-} from "date-fns";
+import { getStartOfDayPH, getEndOfDayPH } from "@/lib/date-utils";
 
 export async function sendFlowReminders() {
   const resend = new Resend(process.env.RESEND_API_KEY);
 
   try {
+    // Use Philippine timezone for "today"
     const today = new Date();
 
     // 1. Get all active service flows
@@ -50,7 +44,7 @@ export async function sendFlowReminders() {
       // So: completed_at == today - delay
       const lookbackDate = today;
 
-      // Helper to subtract time
+      // Helper to subtract time (now timezone-aware)
       const subtractDelay = (
         date: Date,
         amount: number,
@@ -69,8 +63,9 @@ export async function sendFlowReminders() {
         flow.delay_unit,
       );
 
-      const startOfCheck = startOfDay(checkDate);
-      const endOfCheck = endOfDay(checkDate);
+      // Use Philippine timezone for start/end of day
+      const startOfCheck = getStartOfDayPH(checkDate);
+      const endOfCheck = getEndOfDayPH(checkDate);
 
       const qualifyingServices = await prisma.availedService.findMany({
         where: {
@@ -114,40 +109,135 @@ export async function sendFlowReminders() {
         const serviceName = flow.trigger_service.name;
         const nextServiceName = flow.suggested_service.name;
 
+        // Create a slug-like booking link (or use your actual booking URL logic here)
+        const bookingLink = `https://serviceflow.store/${businessName
+          .toLowerCase()
+          .replace(/\s+/g, "-")}`;
+
         const isRequired = flow.type === "REQUIRED";
 
+        // 1. Dynamic Subject Line (No Emojis)
         const subject = isRequired
-          ? `Action Required: Next step for your ${serviceName} is due`
+          ? `Action Required: Next step for your ${serviceName}`
           : `Recommendation: Try ${nextServiceName} at ${businessName}`;
 
-        const content = isRequired
-          ? `It's time for the next step in your treatment process. Please book your <strong>${nextServiceName}</strong> to continue correctly.`
-          : `Based on your recent <strong>${serviceName}</strong>, we highly recommend trying our <strong>${nextServiceName}</strong>. It's the perfect follow-up!`;
+        // 2. Dynamic Body Text
+        // We keep this clean text, letting the HTML handle the bolding/layout
+        const introText = isRequired
+          ? `It is time for the next step in your treatment process. To ensure the best results, please book your follow-up service soon.`
+          : `Based on your recent visit for ${serviceName}, we highly recommend trying this follow-up service. It is the perfect addition to your routine!`;
 
-        // Simple Template
+        // 3. Dynamic Labels for the Green Box
+        const boxLabel = isRequired ? "ACTION REQUIRED" : "RECOMMENDED FOR YOU";
+        const boxSubText = isRequired ? "Due for booking" : "perfect follow-up";
+
+        // 4. The HTML Template (Matches the "BeautyFeel" Screenshot)
         const emailHtml = `
             <!DOCTYPE html>
             <html lang="en">
             <head>
               <meta charset="utf-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>${subject}</title>
               <style>
-                body { font-family: sans-serif; padding: 20px; color: #333; }
-                .container { max-width: 600px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #ddd; }
-                .btn { display: inline-block; background: #10b981; color: #fff; padding: 10px 20px; text-decoration: none; border-radius: 4px; margin-top: 20px; }
+                /* Reset & Base */
+                body { margin: 0; padding: 0; background-color: #ffffff; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; color: #1f2937; }
+                table { border-spacing: 0; width: 100%; }
+                td { padding: 0; }
+                img { border: 0; }
+                a { text-decoration: none; color: inherit; }
+                
+                /* Layout */
+                .wrapper { width: 100%; background-color: #ffffff; padding-bottom: 40px; }
+                .main-container { max-width: 600px; margin: 0 auto; background-color: #ffffff; border: 1px solid #f3f4f6; border-radius: 8px; overflow: hidden; }
+                
+                /* Header (Navy Blue) */
+                .header { background-color: #111827; padding: 40px 20px; text-align: center; }
+                .business-name { color: #ffffff; font-size: 24px; font-weight: 700; margin: 0; letter-spacing: -0.5px; }
+                
+                /* Content */
+                .content-body { padding: 40px 30px; }
+                .greeting { font-size: 16px; color: #111827; margin: 0 0 16px 0; font-weight: 700; }
+                .greeting-name { color: #10b981; } 
+                .text-paragraph { color: #4b5563; font-size: 15px; line-height: 1.6; margin-bottom: 30px; margin-top: 0; }
+                
+                /* The Green "Info" Box */
+                .highlight-box { background-color: #ecfdf5; border-radius: 8px; padding: 30px 20px; text-align: center; margin-bottom: 40px; border: 1px solid #d1fae5; }
+                .box-label { color: #059669; font-size: 11px; letter-spacing: 1.5px; font-weight: 700; text-transform: uppercase; margin-bottom: 10px; display: block; }
+                .box-main-text { color: #111827; font-size: 24px; font-weight: 800; margin: 0; letter-spacing: -0.5px; line-height: 1.2; }
+                .box-sub-text { color: #059669; font-size: 13px; font-weight: 600; margin-top: 8px; display: block; }
+                
+                /* List Section */
+                .section-divider { border-top: 1px dashed #e5e7eb; margin-bottom: 25px; }
+                .section-label { color: #6b7280; font-size: 11px; letter-spacing: 1px; font-weight: 700; text-transform: uppercase; margin-bottom: 15px; display: block; }
+                
+                .action-item { display: block; margin-bottom: 10px; }
+                .dot { height: 8px; width: 8px; background-color: #10b981; border-radius: 50%; display: inline-block; margin-right: 12px; vertical-align: middle; }
+                .action-text { color: #111827; font-size: 14px; font-weight: 600; vertical-align: middle; }
+                
+                /* Footer */
+                .footer { background-color: #f9fafb; padding: 24px; text-align: center; border-top: 1px solid #f3f4f6; }
+                .footer-text { color: #9ca3af; font-size: 11px; margin-bottom: 6px; line-height: 1.5; }
+                .brand-link { color: #2563eb; text-decoration: none; font-weight: 600; }
               </style>
             </head>
             <body>
-              <div class="container">
-                <h2>${isRequired ? "Upcoming Appointment Due" : "Recommended for You"}</h2>
-                <p>Hi ${customerName},</p>
-                <p>${content}</p>
-                <p>
-                  <strong>Service:</strong> ${nextServiceName}
-                </p>
-                <a href="https://serviceflow.store" class="btn">Book Now</a>
-                <p style="margin-top: 30px; font-size: 12px; color: #999;">
-                   You visited ${businessName} on ${item.completed_at?.toLocaleDateString() ?? "recently"}.
-                </p>
+              <div class="wrapper">
+                <div class="main-container">
+                  
+                  <!-- Dark Header -->
+                  <div class="header">
+                    <h1 class="business-name">${businessName}</h1>
+                  </div>
+
+                  <!-- Main Body -->
+                  <div class="content-body">
+                    
+                    <!-- Greeting -->
+                    <div class="greeting">
+                      Hello, <span class="greeting-name">${customerName}</span>
+                    </div>
+
+                    <p class="text-paragraph">
+                      ${introText}
+                    </p>
+
+                    <!-- The Green Highlight Box (Clickable) -->
+                    <a href="${bookingLink}" style="text-decoration: none; display: block;">
+                      <div class="highlight-box">
+                        <span class="box-label">${boxLabel}</span>
+                        <div class="box-main-text">${nextServiceName}</div>
+                        <span class="box-sub-text">Click to Book Now</span>
+                      </div>
+                    </a>
+
+                    <!-- Divider -->
+                    <div class="section-divider"></div>
+
+                    <!-- Previous Context Section -->
+                    <span class="section-label">BASED ON PREVIOUS VISIT</span>
+                    
+                    <div class="action-item">
+                      <span class="dot"></span>
+                      <span class="action-text">${serviceName}</span>
+                    </div>
+                    <div style="font-size: 12px; color: #6b7280; padding-left: 20px;">
+                      Completed on ${item.completed_at?.toLocaleDateString() ?? "recently"}
+                    </div>
+                    
+                  </div>
+
+                  <!-- Footer -->
+                  <div class="footer">
+                    <div class="footer-text">
+                      Need help? Contact ${businessName} directly.
+                    </div>
+                    <div class="footer-text">
+                      &copy; ${new Date().getFullYear()} ${businessName} &middot; Powered by <a href="https://www.serviceflow.store" class="brand-link">ServiceFlow</a>
+                    </div>
+                  </div>
+
+                </div>
               </div>
             </body>
             </html>
