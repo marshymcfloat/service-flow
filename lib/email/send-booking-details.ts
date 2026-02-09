@@ -3,6 +3,7 @@ import { render } from "@react-email/render";
 import BookingConfirmationEmail from "@/components/emails/BookingConfirmationEmail";
 import { prisma } from "@/prisma/prisma";
 import { formatPH } from "@/lib/date-utils";
+import { logger } from "@/lib/logger";
 
 const resend = new Resend(process.env.RESEND_API_KEY!);
 
@@ -22,7 +23,9 @@ export async function sendBookingConfirmation(bookingId: number) {
     });
 
     if (!booking || !booking.customer.email) {
-      console.log(`Booking ${bookingId} not found or customer has no email.`);
+      logger.warn(
+        `[BookingConfirmation] Booking ${bookingId} not found or customer has no email.`,
+      );
       return;
     }
 
@@ -70,13 +73,15 @@ export async function sendBookingConfirmation(bookingId: number) {
     });
 
     if (error) {
-      console.error("Resend API Error:", error);
+      logger.error("[BookingConfirmation] Resend API Error:", { error });
       return { success: false, error };
     }
 
     return { success: true, data };
   } catch (error) {
-    console.error("Error sending booking confirmation:", error);
+    logger.error("[BookingConfirmation] Error sending booking confirmation:", {
+      error,
+    });
     return { success: false, error };
   }
 }

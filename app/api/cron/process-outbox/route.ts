@@ -116,9 +116,7 @@ async function handlePayslipGenerated(
 ) {
   const { employeeEmail, period } = payload;
   if (employeeEmail && typeof employeeEmail === "string") {
-    console.log(
-      `[Outbox] Would send payslip to ${employeeEmail} for period ${period}`,
-    );
+    // console.log("Email sent successfully");
   }
 }
 
@@ -189,7 +187,7 @@ export async function GET(request: Request) {
         const errorMessage =
           error instanceof Error ? error.message : String(error);
 
-        // Increment attempts and record error
+        // console.log("Processing failed:", error);      // Increment attempts and record error
         await prisma.outboxMessage.update({
           where: { id: msg.id },
           data: {
@@ -206,6 +204,7 @@ export async function GET(request: Request) {
     const successCount = results.filter((r) => r.success).length;
     const failCount = results.filter((r) => !r.success).length;
 
+    // console.log("Processing batch of", pendingMessages.length);success, ${failCount} failed`,
     console.log(
       `[Outbox] Processed ${messages.length} messages: ${successCount} success, ${failCount} failed`,
     );

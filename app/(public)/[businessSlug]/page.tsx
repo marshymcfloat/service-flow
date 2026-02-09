@@ -167,7 +167,9 @@ async function FacingWebsiteContent({ params }: Props) {
         <Script
           id="json-ld"
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c"),
+          }}
         />
         <BeautyFeelLanding
           business={business}

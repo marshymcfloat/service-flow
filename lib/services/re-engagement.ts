@@ -1,6 +1,7 @@
 import { prisma } from "@/prisma/prisma";
 import { Resend } from "resend";
 import { getStartOfDayPH } from "@/lib/date-utils";
+import { logger } from "@/lib/logger";
 
 export async function sendReEngagementEmails() {
   const resend = new Resend(process.env.RESEND_API_KEY);
@@ -20,8 +21,8 @@ export async function sendReEngagementEmails() {
       },
     });
 
-    console.log(`[Re-engagement] Processing ${businesses.length} businesses`);
-    console.log(
+    logger.info(`[Re-engagement] Processing ${businesses.length} businesses`);
+    logger.info(
       `[Re-engagement] Cutoff date (60 days ago PH time): ${sixtyDaysAgo.toISOString()}`,
     );
 
@@ -57,7 +58,7 @@ export async function sendReEngagementEmails() {
         },
       });
 
-      console.log(
+      logger.info(
         `[Re-engagement] Business "${business.name}": Found ${inactiveCustomers.length} customers with completed bookings`,
       );
 
@@ -67,8 +68,8 @@ export async function sendReEngagementEmails() {
         const lastBooking = customer.bookings[0];
         const isInactive = lastBooking.created_at <= sixtyDaysAgo;
 
-        if (process.env.NODE_ENV === "development") {
-          console.log(
+        if (process.env.NODE_ENV !== "production") {
+          logger.debug(
             `[Re-engagement] Customer ${customer.name} (${customer.email}): Last booking ${lastBooking.created_at.toISOString()}, 60 days ago: ${sixtyDaysAgo.toISOString()}, Inactive: ${isInactive}`,
           );
         }
@@ -76,7 +77,7 @@ export async function sendReEngagementEmails() {
         return isInactive;
       });
 
-      console.log(
+      logger.info(
         `[Re-engagement] Business "${business.name}": ${customersToEmail.length} customers inactive for 60+ days`,
       );
 
@@ -99,9 +100,9 @@ export async function sendReEngagementEmails() {
           });
 
           if (error) {
-            console.error(
+            logger.error(
               `[Re-engagement] Failed to send email to ${customer.email}:`,
-              error,
+              { error },
             );
             allResults.push({
               business: business.name,
@@ -111,7 +112,7 @@ export async function sendReEngagementEmails() {
               error,
             });
           } else {
-            console.log(
+            logger.info(
               `[Re-engagement] Email sent to ${customer.email} (last booking: ${lastBookingDate?.toISOString()})`,
             );
             allResults.push({
@@ -122,10 +123,9 @@ export async function sendReEngagementEmails() {
             });
           }
         } catch (emailError) {
-          console.error(
-            `[Re-engagement] Error sending to ${customer.email}:`,
+          logger.error(`[Re-engagement] Error sending to ${customer.email}:`, {
             emailError,
-          );
+          });
           allResults.push({
             business: business.name,
             customerId: customer.id,
@@ -140,7 +140,7 @@ export async function sendReEngagementEmails() {
     const successCount = allResults.filter((r) => r.success).length;
     const failCount = allResults.filter((r) => !r.success).length;
 
-    console.log(
+    logger.info(
       `[Re-engagement] Summary: ${successCount} sent, ${failCount} failed`,
     );
 
@@ -152,7 +152,7 @@ export async function sendReEngagementEmails() {
       details: allResults,
     };
   } catch (error) {
-    console.error("[Re-engagement] Service error:", error);
+    logger.error("[Re-engagement] Service error:", { error });
     throw error;
   }
 }

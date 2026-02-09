@@ -203,7 +203,6 @@ export default function BookingForm({
         (s, i) => s.price !== selectedServices[i].price,
       );
       if (hasChanges) {
-        console.log("Updating services with sale prices", updatedServices);
         form.setValue("services", updatedServices);
       }
     }
@@ -580,7 +579,7 @@ export default function BookingForm({
         return;
       }
 
-      console.log("Submitting booking:", data);
+      // Log removed for privacy
 
       // For walk-in, force current time if not correctly set for some reason
       const scheduledAt = isWalkIn

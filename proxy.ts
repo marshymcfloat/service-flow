@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { rateLimit } from "@/lib/rate-limit";
 import type { NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
 
@@ -51,9 +52,21 @@ export async function proxy(request: NextRequest) {
     "camera=(), microphone=(), geolocation=(), browsing-topics=()",
   );
 
+  if (pathname.startsWith("/api")) {
+    const ip = request.headers.get("x-forwarded-for") ?? "127.0.0.1";
+    const result = rateLimit(ip);
+
+    if (!result.success) {
+      return NextResponse.json(
+        { error: "Too many requests" },
+        { status: 429, headers: { "Retry-After": String(60) } },
+      );
+    }
+  }
+
   return response;
 }
 
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
 };

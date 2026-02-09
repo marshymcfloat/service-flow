@@ -597,15 +597,9 @@ async function main() {
   }
 
   console.log("\n✅ Seeding finished successfully!");
-  console.log("\n📋 Login Credentials:");
-  console.log("--- BeautyFeel ---");
-  console.log("   Owner: rjpern@gmail.com / password123");
-  console.log("   Emp (Jan): jan@beautyfeel.com / employee123");
-  console.log("   Emp (Daniel): daniel@beautyfeel.com / employee123");
-  console.log("\n--- Gentleman's Cut ---");
-  console.log("   Owner: owner@gentlemanscut.com / password123");
-  console.log("   Emp (Master): thomas@gentlemanscut.com / employee123");
-  console.log("   Emp (Haircut): john@gentlemanscut.com / employee123");
+  console.log("\n✅ Seeding finished successfully!");
+  console.log("\n📋 Accounts created with default credentials.");
+  console.log("   See README or seed script for details.");
 }
 
 main()

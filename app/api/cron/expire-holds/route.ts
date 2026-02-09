@@ -51,7 +51,7 @@ export async function GET(request: Request) {
       },
     });
 
-    console.log(`Expired ${expiredHolds.count} hold bookings`);
+    // console.log(`Expired ${expiredHolds.count} hold bookings`);
 
     return NextResponse.json({
       success: true,

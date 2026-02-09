@@ -1,6 +1,7 @@
 import { prisma } from "@/prisma/prisma";
 import { Resend } from "resend";
 import { getStartOfDayPH, getEndOfDayPH } from "@/lib/date-utils";
+import { logger } from "@/lib/logger";
 
 export async function sendFlowReminders() {
   const resend = new Resend(process.env.RESEND_API_KEY);
@@ -17,7 +18,7 @@ export async function sendFlowReminders() {
       },
     });
 
-    console.log(
+    logger.info(
       `[Flow Reminders] Found ${activeFlows.length} configured flows.`,
     );
 
@@ -97,7 +98,7 @@ export async function sendFlowReminders() {
         },
       });
 
-      console.log(
+      logger.info(
         `[Flow Reminders] Flow ${flow.id}: Found ${qualifyingServices.length} qualifying services from ${checkDate.toDateString()}`,
       );
 
@@ -251,9 +252,9 @@ export async function sendFlowReminders() {
         });
 
         if (error) {
-          console.error(
+          logger.error(
             `[Flow Reminders] Failed to send to ${item.booking.customer.email}`,
-            error,
+            { error },
           );
         } else {
           sentCount++;
@@ -288,7 +289,7 @@ export async function sendFlowReminders() {
       emails_sent: sentCount,
     };
   } catch (error) {
-    console.error("[Flow Reminders] Error:", error);
+    logger.error("[Flow Reminders] Error:", { error });
     throw error;
   }
 }

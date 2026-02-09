@@ -1,0 +1,147 @@
+"use server";
+
+import { prisma } from "@/prisma/prisma";
+import {
+  AvailedServiceStatus,
+  BookingStatus, // Added BookingStatus here as it is used in the query filter
+} from "@/prisma/generated/prisma/client";
+import { requireAuth } from "@/lib/auth/guards";
+
+export async function getPendingServicesAction() {
+  const auth = await requireAuth();
+  if (!auth.success) return [];
+  const { businessSlug } = auth;
+
+  try {
+    const business = await prisma.business.findUnique({
+      where: { slug: businessSlug },
+      select: { id: true },
+    });
+
+    if (!business) return [];
+
+    const pendingServices = await prisma.availedService.findMany({
+      where: {
+        booking: {
+          business_id: business.id,
+          status: { in: ["ACCEPTED"] },
+        },
+        status: AvailedServiceStatus.PENDING,
+      },
+      select: {
+        id: true,
+        price: true,
+        scheduled_at: true,
+        package_id: true,
+        package: {
+          select: {
+            name: true,
+          },
+        },
+        service: {
+          select: {
+            id: true,
+            name: true,
+            duration: true,
+          },
+        },
+        booking: {
+          select: {
+            customer: {
+              select: {
+                name: true,
+              },
+            },
+            downpayment: true,
+            downpayment_status: true,
+            grand_total: true,
+          },
+        },
+      },
+      orderBy: {
+        scheduled_at: "asc",
+      },
+    });
+
+    return pendingServices;
+  } catch (error) {
+    console.error("Error fetching pending services:", error);
+    return [];
+  }
+}
+
+export async function getOwnerClaimedServicesAction() {
+  const auth = await requireAuth();
+  if (!auth.success) return auth;
+  const { businessSlug, session } = auth;
+
+  if (session?.user?.role !== "OWNER") {
+    return { success: false, error: "Unauthorized" };
+  }
+
+  try {
+    const owner = await prisma.owner.findFirst({
+      where: {
+        user_id: session.user.id,
+        business: { slug: businessSlug },
+      },
+      select: { id: true },
+    });
+
+    if (!owner) {
+      return { success: false, error: "Owner not found" };
+    }
+
+    const claimedServices = await prisma.availedService.findMany({
+      where: {
+        served_by_owner_id: owner.id,
+        status: {
+          in: [AvailedServiceStatus.CLAIMED, AvailedServiceStatus.SERVING],
+        },
+        booking: {
+          business: { slug: businessSlug },
+          status: { in: ["ACCEPTED"] },
+        },
+      },
+      select: {
+        id: true,
+        price: true,
+        final_price: true,
+        discount: true,
+        discount_reason: true,
+        scheduled_at: true,
+        claimed_at: true,
+        status: true,
+        package_id: true,
+        package: {
+          select: {
+            name: true,
+          },
+        },
+        service: {
+          select: {
+            name: true,
+            duration: true,
+          },
+        },
+        booking: {
+          select: {
+            customer: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: {
+        scheduled_at: "asc",
+      },
+    });
+
+    return { success: true, data: claimedServices };
+  } catch (error) {
+    console.error("Error fetching owner claimed services:", error);
+    return { success: false, error: "Unable to fetch claimed services." };
+  }
+}

@@ -1,6 +1,7 @@
 import { prisma } from "@/prisma/prisma";
 import { Resend } from "resend";
 import { formatPH } from "@/lib/date-utils";
+import { logger } from "@/lib/logger";
 
 export async function sendBookingReminders() {
   const resend = new Resend(process.env.RESEND_API_KEY);
@@ -39,10 +40,10 @@ export async function sendBookingReminders() {
       },
     });
 
-    console.log(
+    logger.info(
       `[Reminders] Checking window: ${now.toISOString()} - ${fortyFiveMinutesFromNow.toISOString()}`,
     );
-    console.log(`[Reminders] Found ${bookings.length} bookings to remind.`);
+    logger.info(`[Reminders] Found ${bookings.length} bookings to remind.`);
 
     // DEBUG: Check for bookings that SHOULD have been found but weren't
     if (bookings.length === 0) {
@@ -62,9 +63,9 @@ export async function sendBookingReminders() {
         },
         take: 5,
       });
-      console.log(
-        "[Reminders DEBUG] Recent/Upcoming bookings in DB:",
-        JSON.stringify(debugBookings, null, 2),
+      logger.debug(
+        "[Reminders DEBUG] Recent/Upcoming bookings in DB: " +
+          JSON.stringify(debugBookings, null, 2),
       );
     }
 
@@ -180,10 +181,9 @@ export async function sendBookingReminders() {
         });
 
         if (error) {
-          console.error(
-            `Failed to send email to ${booking.customer.email}:`,
+          logger.error(`Failed to send email to ${booking.customer.email}:`, {
             error,
-          );
+          });
           return { id: booking.id, success: false, error };
         }
 
@@ -202,7 +202,7 @@ export async function sendBookingReminders() {
       details: results,
     };
   } catch (error) {
-    console.error("Reminder service error:", error);
+    logger.error("Reminder service error:", { error });
     throw error;
   }
 }

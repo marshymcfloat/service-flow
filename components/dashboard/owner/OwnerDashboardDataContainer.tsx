@@ -102,6 +102,7 @@ export default async function OwnerDashboardDataContainer({
     orderBy: {
       created_at: "desc",
     },
+    take: 1000,
   });
 
   const pendingServices = await prisma.availedService.findMany({

@@ -1,8 +1,8 @@
-import { getServerSession } from "next-auth";
+import { getServerSession, Session } from "next-auth";
 import { authOptions } from "@/lib/next auth/options";
 
 export type AuthResult =
-  | { success: true; session: any; businessSlug: string }
+  | { success: true; session: Session; businessSlug: string }
   | { success: false; error: string };
 
 export async function requireAuth(): Promise<AuthResult> {

@@ -92,6 +92,29 @@ ServiceFlow is a comprehensive business management and booking SaaS platform des
 
     Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+### 🐳 Docker Deployment (Production)
+
+1.  **Build the image**
+
+    ```bash
+    docker build -t service-flow .
+    ```
+
+2.  **Run the container**
+    ```bash
+    docker run -p 3000:3000 --env-file .env service-flow
+    ```
+
+## 🔒 Security
+
+- **Environment Variables**: Never commit `.env` to version control. Use `.env.example` as a template.
+- **Authentication**: Protected routes are secured via `proxy.ts` (Next.js 16 middleware replacement) and NextAuth.js.
+- **Validation**: API inputs are validated using Zod schemas.
+
+## 📡 API Documentation
+
+See [API.md](API.md) for details on available endpoints, including health checks and webhooks.
+
 ## 📂 Project Structure
 
 ```
