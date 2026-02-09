@@ -263,15 +263,27 @@ export default function BookingForm({
     if (status === "succeeded") {
       setQrStatus("paid");
       if (!hasRedirected && businessSlug) {
-        setHasRedirected(true);
-        setTimeout(() => {
-          const bookingId = qrPayment?.bookingId;
-          const successUrl = bookingId
-            ? `/${businessSlug}/booking/success?bookingId=${bookingId}`
-            : `/${businessSlug}/booking/success`;
-          // Use window.location.href to ensure full page reload and clear any open modals
-          window.location.href = successUrl;
-        }, 1200);
+        if (isEmployee) {
+          form.reset();
+          setIsWalkIn(false);
+          setClaimedUniqueIds([]);
+          setPendingFlows([]);
+          setExistingCustomerEmail(null);
+          setQrPayment(null);
+          toast.success("Payment Received! Booking confirmed.");
+
+          if (onSuccess) onSuccess();
+        } else {
+          setHasRedirected(true);
+          setTimeout(() => {
+            const bookingId = qrPayment?.bookingId;
+            const successUrl = bookingId
+              ? `/${businessSlug}/booking/success?bookingId=${bookingId}`
+              : `/${businessSlug}/booking/success`;
+            // Use window.location.href to ensure full page reload and clear any open modals
+            window.location.href = successUrl;
+          }, 1200);
+        }
       }
       return;
     }

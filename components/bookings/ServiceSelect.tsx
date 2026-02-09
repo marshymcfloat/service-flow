@@ -252,7 +252,7 @@ const ServiceSelect = React.memo(function ServiceSelect({
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        className="w-(--radix-popover-trigger-width) p-0"
+        className="w-(--radix-popover-trigger-width) p-0 pointer-events-auto"
         align="start"
       >
         <div className="flex p-2 gap-2 border-b">
@@ -300,7 +300,7 @@ const ServiceSelect = React.memo(function ServiceSelect({
           </div>
         )}
 
-        <Command>
+        <Command className="h-auto overflow-visible">
           <CommandInput
             placeholder={
               viewMode === "services"
@@ -308,7 +308,7 @@ const ServiceSelect = React.memo(function ServiceSelect({
                 : "Search package..."
             }
           />
-          <CommandList>
+          <CommandList className="max-h-[300px] overflow-y-auto pointer-events-auto">
             <CommandEmpty>No results found.</CommandEmpty>
             <CommandGroup>
               {viewMode === "services"
@@ -456,8 +456,7 @@ const ServiceSelect = React.memo(function ServiceSelect({
                     );
                   })
                 : packages.map((pkg) => {
-                    const availability =
-                      categoryAvailability?.[pkg.category];
+                    const availability = categoryAvailability?.[pkg.category];
                     const dataLoaded = !!availability;
                     const noStaff =
                       dataLoaded && availability?.qualifiedEmployeeCount === 0;
