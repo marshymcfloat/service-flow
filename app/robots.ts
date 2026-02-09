@@ -1,25 +1,15 @@
 import { MetadataRoute } from "next";
 
-const getBaseUrl = () => {
-  const url =
-    process.env.NEXT_PUBLIC_APP_URL || "https://www.serviceflow.store";
-  if (url.startsWith("http://") || url.startsWith("https://")) {
-    return url;
-  }
-  return `https://${url}`;
-};
-
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = getBaseUrl();
+  const baseUrl =
+    process.env.NEXT_PUBLIC_APP_URL || "https://www.serviceflow.store";
 
   return {
-    rules: [
-      {
-        userAgent: "*",
-        allow: "/",
-        disallow: ["/app/", "/auth/", "/api/"],
-      },
-    ],
+    rules: {
+      userAgent: "*",
+      allow: "/",
+      disallow: ["/api/", "/dashboard/", "/admin/"],
+    },
     sitemap: `${baseUrl}/sitemap.xml`,
   };
 }

@@ -1,59 +1,19 @@
-import { prisma } from "@/prisma/prisma";
 import { MetadataRoute } from "next";
 
-const getBaseUrl = () => {
-  const url = process.env.NEXT_PUBLIC_APP_URL;
-  if (!url) return "https://www.serviceflow.store";
+export default function sitemap(): MetadataRoute.Sitemap {
+  const baseUrl =
+    process.env.NEXT_PUBLIC_APP_URL || "https://www.serviceflow.store";
 
-  return url.startsWith("http")
-    ? url.replace(/\/$/, "")
-    : `https://${url.replace(/\/$/, "")}`;
-};
-
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = getBaseUrl();
-  const lastModified = new Date();
-
-  const staticRoutes: MetadataRoute.Sitemap = [
-    {
-      url: baseUrl,
-      lastModified,
-      changeFrequency: "monthly",
-      priority: 1,
-    },
-    {
-      url: `${baseUrl}/explore`,
-      lastModified,
-      changeFrequency: "daily",
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/privacy`,
-      lastModified,
-      changeFrequency: "yearly",
-      priority: 0.3,
-    },
-    {
-      url: `${baseUrl}/terms`,
-      lastModified,
-      changeFrequency: "yearly",
-      priority: 0.3,
-    },
-  ];
-
-  const businesses = await prisma.business.findMany({
-    select: {
-      slug: true,
-      updated_at: true,
-    },
-  });
-
-  const businessRoutes: MetadataRoute.Sitemap = businesses.map((business) => ({
-    url: `${baseUrl}/${business.slug}`,
-    lastModified: business.updated_at,
-    changeFrequency: "weekly",
-    priority: 0.8,
+  // Static routes
+  const routes = ["", "/explore", "/privacy", "/terms"].map((route) => ({
+    url: `${baseUrl}${route}`,
+    lastModified: new Date().toISOString().split("T")[0],
+    changeFrequency: "weekly" as const,
+    priority: route === "" ? 1 : 0.8,
   }));
 
-  return [...staticRoutes, ...businessRoutes];
+  // TODO: Add dynamic routes here (e.g., fetch from database)
+  // const dynamicRoutes = ...
+
+  return [...routes];
 }

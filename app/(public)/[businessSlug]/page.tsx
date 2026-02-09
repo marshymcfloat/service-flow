@@ -31,53 +31,28 @@ const getBusinessMetadata = unstable_cache(
   { revalidate: 60 },
 );
 
+import { constructMetadata } from "@/lib/metadata";
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { businessSlug } = await params;
   const business = await getBusinessMetadata(businessSlug);
 
   if (!business) {
-    return {
+    return constructMetadata({
       title: "Business Not Found",
-    };
+      noIndex: true,
+    });
   }
 
   const imageUrl = business.imageUrl || "/og-image.png";
 
-  return {
+  return constructMetadata({
     title: `${business.name} | Book Online`,
     description:
       business.description ||
       `Book appointments at ${business.name}. Check available services, business hours, and secure your slot today.`,
-    alternates: {
-      canonical: `/${business.slug}`,
-    },
-    openGraph: {
-      title: `Book with ${business.name} | Service Flow`,
-      description:
-        business.description ||
-        `View services, check availability, and book your appointment with ${business.name} online.`,
-      url: `/${business.slug}`,
-      siteName: "Service Flow",
-      locale: "en_PH",
-      type: "website",
-      images: [
-        {
-          url: imageUrl,
-          width: 1200,
-          height: 630,
-          alt: business.name,
-        },
-      ],
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: `${business.name} | Book Online`,
-      description:
-        business.description ||
-        `Book appointments at ${business.name} with Service Flow.`,
-      images: [imageUrl],
-    },
-  };
+    image: imageUrl,
+  });
 }
 
 export default function FacingWebsitePage({ params }: Props) {

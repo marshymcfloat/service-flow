@@ -1,40 +1,17 @@
 import { prisma } from "@/prisma/prisma";
 import Link from "next/link";
-import { Metadata } from "next";
 import { ArrowRight, MapPin, Search, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { connection } from "next/server";
 import { Suspense } from "react";
+import { constructMetadata } from "@/lib/metadata";
 
-export const metadata: Metadata = {
+export const metadata = constructMetadata({
   title: "Explore Businesses | Service Flow",
   description:
     "Browse trusted local businesses using Service Flow for their appointments and management.",
-  alternates: {
-    canonical: "/explore",
-  },
-  openGraph: {
-    title: "Explore Businesses | Service Flow",
-    description:
-      "Find and book appointments with top-rated salons, barbershops, and spas near you.",
-    url: "/explore",
-    images: [
-      {
-        url: "/og-image.png",
-        width: 1200,
-        height: 630,
-        alt: "Explore Businesses | Service Flow",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Explore Businesses | Service Flow",
-    description:
-      "Find and book appointments with top-rated salons, barbershops, and spas near you.",
-    images: ["/og-image.png"],
-  },
-};
+  image: "/og-image.png",
+});
 
 export default function ExplorePage() {
   return (
