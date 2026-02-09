@@ -21,7 +21,7 @@ async function main() {
   await prisma.business.deleteMany();
   await prisma.user.deleteMany();
 
-  const password = await hash("password123", 12);
+  const password = await hash("Ellainepe123", 12);
   const employeePassword = await hash("employee123", 12);
 
   // ============================================
@@ -56,59 +56,61 @@ async function main() {
   const days = Array.from({ length: 7 }, (_, i) => i);
 
   for (const d of days) {
+    // 1. Spa Category: 10am to 10pm (Assuming general hours, can be adjusted)
     await prisma.businessHours.create({
       data: {
         business_id: beautyFeel.id,
         day_of_week: d,
-        open_time: "00:00",
-        close_time: "24:00",
+        open_time: "10:00",
+        close_time: "22:00",
         is_closed: false,
         category: "Spa",
       },
     });
 
+    // 2. Nails Category: 10am to 10pm
     await prisma.businessHours.create({
       data: {
         business_id: beautyFeel.id,
         day_of_week: d,
         open_time: "10:00",
-        close_time: "20:00",
+        close_time: "22:00",
         is_closed: false,
         category: "Nails",
       },
     });
 
-    // 3. Skin Category: 10am to 8pm
+    // 3. Skin Category: 10am to 10pm
     await prisma.businessHours.create({
       data: {
         business_id: beautyFeel.id,
         day_of_week: d,
         open_time: "10:00",
-        close_time: "20:00",
+        close_time: "22:00",
         is_closed: false,
         category: "Skin",
       },
     });
 
-    // 4. Eyelash Category: 10am to 8pm
+    // 4. Eyelash Category: 10am to 10pm
     await prisma.businessHours.create({
       data: {
         business_id: beautyFeel.id,
         day_of_week: d,
         open_time: "10:00",
-        close_time: "20:00",
+        close_time: "22:00",
         is_closed: false,
         category: "Eyelash",
       },
     });
 
-    // 5. General fallback (if needed)
+    // 5. General fallback
     await prisma.businessHours.create({
       data: {
         business_id: beautyFeel.id,
         day_of_week: d,
         open_time: "10:00",
-        close_time: "20:00",
+        close_time: "22:00",
         is_closed: false,
         category: "GENERAL",
       },
@@ -117,7 +119,7 @@ async function main() {
 
   // BF Services
   const bfServices = [
-    // --- Nail Care ---
+    // --- Nail Care (Category: Nails) ---
     {
       name: "Manicure gel",
       price: 280,
@@ -161,7 +163,7 @@ async function main() {
       description: "Classic nail cleaning and polish.",
     },
 
-    // --- Eyelash/Eyebrow Services ---
+    // --- Eyelash/Eyebrow Services (Category: Eyelash) ---
     {
       name: "Classic eyelash extensions",
       price: 399,
@@ -263,7 +265,7 @@ async function main() {
       description: "Exfoliating full body treatment.",
     },
 
-    // --- Skin Care Treatment ---
+    // --- Skin Care Treatment (Category: Skin) ---
     {
       name: "Deep cleaning facial",
       price: 800,
@@ -341,6 +343,20 @@ async function main() {
       category: "Skin",
       description: "Non-surgical skin tightening.",
     },
+    // {
+    //   name: "Mesolipo (Fat shrinker)",
+    //   price: 0, // "Soon..."
+    //   duration: 60,
+    //   category: "Skin",
+    //   description: "Coming Soon...",
+    // },
+    // {
+    //   name: "Skin Booster",
+    //   price: 0, // "Soon..."
+    //   duration: 60,
+    //   category: "Skin",
+    //   description: "Coming Soon...",
+    // },
     {
       name: "Glutathione drip and push(price starts at)",
       price: 800,
@@ -441,13 +457,6 @@ async function main() {
       category: "Spa",
       description: "Extended foot and leg therapy.",
     },
-    {
-      name: "Test Service",
-      price: 5,
-      duration: 15,
-      category: "General",
-      description: "A quick test service.",
-    },
   ];
 
   for (const s of bfServices) {
@@ -485,112 +494,6 @@ async function main() {
         salary: 0,
         daily_rate: 500 + Math.random() * 200,
         commission_percentage: 10,
-        specialties: emp.specialties,
-      },
-    });
-  }
-
-  // ============================================
-  // 2. BUSINESS: GENTLEMAN'S CUT (Barber) - Kept mostly same but ensures compatibility
-  // ============================================
-  console.log(" Creating Gentleman's Cut...");
-
-  const gcOwnerUser = await prisma.user.create({
-    data: {
-      email: "owner@gentlemanscut.com",
-      name: "Arthur Shelby",
-      hashed_password: password,
-      role: Role.OWNER,
-    },
-  });
-
-  const gentlemansCut = await prisma.business.create({
-    data: {
-      name: "Gentleman's Cut",
-      slug: "gentlemans-cut",
-      initials: "GC",
-      description:
-        "Traditional barbering for the modern gentleman. We offer precision cuts, hot towel shaves, and grooming services in a classic, masculine atmosphere.",
-
-      owners: { create: { user_id: gcOwnerUser.id } },
-      latitude: 9.7, // Approx
-      longitude: 118.75, // Approx
-    } as any,
-  });
-
-  // GC Business Hours (Early open)
-  for (const d of days) {
-    await prisma.businessHours.create({
-      data: {
-        business_id: gentlemansCut.id,
-        day_of_week: d,
-        open_time: "07:00",
-        close_time: "19:00",
-        is_closed: d === 6, // Closed Saturday
-        category: "GENERAL",
-      },
-    });
-  }
-
-  // GC Services
-  const gcServices = [
-    { name: "Classic Cut", price: 300, duration: 30, category: "Haircut" },
-    { name: "Fade", price: 400, duration: 45, category: "Haircut" },
-    { name: "Hot Towel Shave", price: 350, duration: 30, category: "Shave" },
-    { name: "Beard Trim", price: 200, duration: 20, category: "Grooming" },
-    { name: "Hair Dye", price: 800, duration: 60, category: "Chemical" },
-  ];
-
-  for (const s of gcServices) {
-    await prisma.service.create({
-      data: { ...s, business_id: gentlemansCut.id },
-    });
-  }
-
-  const gcEmployees = [
-    {
-      name: "Thomas Shelby",
-      email: "thomas@gentlemanscut.com",
-      specialties: ["Haircut", "Shave", "Grooming", "Chemical"],
-    },
-    {
-      name: "John Shelby",
-      email: "john@gentlemanscut.com",
-      specialties: ["Haircut"],
-    },
-    {
-      name: "Polly Gray",
-      email: "polly@gentlemanscut.com",
-      specialties: ["Chemical", "Haircut"],
-    },
-    {
-      name: "Michael Gray",
-      email: "michael@gentlemanscut.com",
-      specialties: [],
-    }, // Generalist
-    {
-      name: "Alfred Solomons",
-      email: "alfie@gentlemanscut.com",
-      specialties: ["Shave", "Grooming"],
-    },
-  ];
-
-  for (const emp of gcEmployees) {
-    const u = await prisma.user.create({
-      data: {
-        email: emp.email,
-        name: emp.name,
-        hashed_password: employeePassword,
-        role: Role.EMPLOYEE,
-      },
-    });
-    await prisma.employee.create({
-      data: {
-        user_id: u.id,
-        business_id: gentlemansCut.id,
-        salary: 0,
-        daily_rate: 600 + Math.random() * 200,
-        commission_percentage: 15,
         specialties: emp.specialties,
       },
     });

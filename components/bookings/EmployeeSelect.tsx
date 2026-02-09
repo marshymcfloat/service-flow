@@ -14,8 +14,8 @@ interface Employee {
 
 interface EmployeeSelectProps {
   employees: Employee[];
-  value?: number;
-  onChange: (employeeId: number) => void;
+  value?: number | null;
+  onChange: (employeeId: number | null) => void;
   isLoading?: boolean;
   serviceCategories?: string[];
 }
@@ -89,7 +89,7 @@ const EmployeeSelect = React.memo(function EmployeeSelect({
               return (
                 <div
                   key={employee.id}
-                  onClick={() => onChange(employee.id)}
+                  onClick={() => onChange(isSelected ? null : employee.id)}
                   className={cn(
                     "cursor-pointer group relative flex items-center gap-3 p-2 pr-3 rounded-lg border transition-all duration-200",
                     isSelected
