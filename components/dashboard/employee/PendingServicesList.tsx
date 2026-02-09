@@ -33,6 +33,9 @@ interface PendingService {
     customer: {
       name: string;
     };
+    downpayment: number | null;
+    downpayment_status: string | null;
+    grand_total: number;
   };
   scheduled_at: Date | null;
   price: number;
@@ -203,11 +206,67 @@ export default function PendingServicesList({
               {selectedService?.booking.customer.name}
             </DialogDescription>
           </DialogHeader>
-          <div className="py-4">
+          <div className="py-4 space-y-4">
             <p className="text-sm text-muted-foreground">
               By claiming this service, you will be assigned as the staff member
               responsible for it. You can mark it as served later.
             </p>
+
+            {selectedService && (
+              <div className="border-t pt-4 space-y-2">
+                <h4 className="text-sm font-semibold text-slate-900">
+                  Payment Status
+                </h4>
+                <div className="space-y-1 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Total Amount:</span>
+                    <span className="font-medium">
+                      ₱{selectedService.booking.grand_total.toLocaleString()}
+                    </span>
+                  </div>
+                  {selectedService.booking.downpayment &&
+                  selectedService.booking.downpayment > 0 ? (
+                    <>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">
+                          Downpayment:
+                        </span>
+                        <span className="font-medium text-green-600">
+                          ₱
+                          {selectedService.booking.downpayment.toLocaleString()}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Balance:</span>
+                        <span className="font-bold text-orange-600">
+                          ₱
+                          {(
+                            selectedService.booking.grand_total -
+                            selectedService.booking.downpayment
+                          ).toLocaleString()}
+                        </span>
+                      </div>
+                      <div className="mt-2 p-2 bg-orange-50 border border-orange-200 rounded-md">
+                        <p className="text-xs text-orange-800 font-medium">
+                          ⚠️ Half-paid: Balance of ₱
+                          {(
+                            selectedService.booking.grand_total -
+                            selectedService.booking.downpayment
+                          ).toLocaleString()}{" "}
+                          still due
+                        </p>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded-md">
+                      <p className="text-xs text-green-800 font-medium">
+                        ✓ Fully paid
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
           <DialogFooter>
             <Button

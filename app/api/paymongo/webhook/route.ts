@@ -207,16 +207,14 @@ export async function POST(req: Request) {
           });
         }
 
-        // Send email if not walk-in
+        // Send email if not walk-in (fetch metadata to check)
         if (existingBooking.payment_method === "QRPH") {
-          // We can rely on the existing booking data, no need to parse metadata again for isWalkIn
-          // We might need to check if it IS a walk-in, but usually online payments are not walk-ins in this flow?
-          // actually, walk-ins can pay via QR.
-          // Let's fetch metadata just for that flag if needed, or check the booking details if we stored it.
-          // booking model doesn't seem to have isWalkIn flag directly?
-          // It's checked in createBooking.
-          // For safety, let's just send the email. If it's a walk-in, they get an email, which is fine.
-          await sendBookingConfirmation(existingBooking.id);
+          const metadata = await resolvePaymentIntentMetadata(paymentIntentId);
+          const isWalkIn = metadata?.isWalkIn === "true";
+
+          if (!isWalkIn) {
+            await sendBookingConfirmation(existingBooking.id);
+          }
         }
 
         return new Response("Webhook processed", { status: 200 });

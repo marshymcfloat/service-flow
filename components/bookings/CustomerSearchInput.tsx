@@ -86,6 +86,12 @@ const CustomerSearchInput = React.memo(function CustomerSearchInput({
             }
             setShowResults(true);
             form.setValue("customerId", "");
+            // Clear email field when search is modified
+            form.setValue("email", "");
+            // Notify parent to clear existingCustomerEmail state
+            if (onCustomerSelect) {
+              onCustomerSelect(null);
+            }
           }}
           onBlur={props.onBlur}
           onFocus={() => setShowResults(true)}

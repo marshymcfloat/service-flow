@@ -300,7 +300,7 @@ const ServiceSelect = React.memo(function ServiceSelect({
           </div>
         )}
 
-        <Command className="h-auto overflow-visible">
+        <Command>
           <CommandInput
             placeholder={
               viewMode === "services"
@@ -308,318 +308,327 @@ const ServiceSelect = React.memo(function ServiceSelect({
                 : "Search package..."
             }
           />
-          <CommandList className="max-h-[300px] overflow-y-auto pointer-events-auto">
-            <CommandEmpty>No results found.</CommandEmpty>
-            <CommandGroup>
-              {viewMode === "services"
-                ? filteredServices.map((service) => {
-                    const isSelected = selectedServiceKeys.has(
-                      `${normalizeId(service.id)}|none`,
-                    );
-                    const discountInfo = getApplicableDiscount(
-                      service.id,
-                      undefined,
-                      service.price,
-                      saleEvents,
-                    );
+          <div
+            className="max-h-[300px] overflow-y-auto overscroll-contain"
+            onWheel={(e) => e.stopPropagation()}
+          >
+            <CommandList className="max-h-none overflow-visible">
+              <CommandEmpty>No results found.</CommandEmpty>
+              <CommandGroup>
+                {viewMode === "services"
+                  ? filteredServices.map((service) => {
+                      const isSelected = selectedServiceKeys.has(
+                        `${normalizeId(service.id)}|none`,
+                      );
+                      const discountInfo = getApplicableDiscount(
+                        service.id,
+                        undefined,
+                        service.price,
+                        saleEvents,
+                      );
 
-                    const availability =
-                      categoryAvailability?.[service.category];
-                    const dataLoaded = !!availability;
-                    const noStaff =
-                      dataLoaded && availability?.qualifiedEmployeeCount === 0;
-                    const outsideHours =
-                      dataLoaded && availability?.businessHoursPassed === true;
-                    const noBusinessHours =
-                      dataLoaded && availability?.hasBusinessHours === false;
-                    const isDisabled = noStaff || noBusinessHours;
+                      const availability =
+                        categoryAvailability?.[service.category];
+                      const dataLoaded = !!availability;
+                      const noStaff =
+                        dataLoaded &&
+                        availability?.qualifiedEmployeeCount === 0;
+                      const outsideHours =
+                        dataLoaded &&
+                        availability?.businessHoursPassed === true;
+                      const noBusinessHours =
+                        dataLoaded && availability?.hasBusinessHours === false;
+                      const isDisabled = noStaff || noBusinessHours;
 
-                    return (
-                      <CommandItem
-                        key={service.id}
-                        value={service.name}
-                        onSelect={() => {
-                          if (!isDisabled) toggleService(service);
-                        }}
-                        className={cn(
-                          "cursor-pointer aria-selected:bg-primary/5",
-                          isDisabled && "opacity-50 cursor-not-allowed",
-                        )}
-                        disabled={isDisabled}
-                      >
-                        <div className="flex items-start gap-3 w-full">
-                          <div
-                            className={cn(
-                              "flex items-center justify-center w-4 h-4 mt-1 rounded-sm border transition-colors",
-                              isSelected
-                                ? "bg-primary border-primary text-primary-foreground"
-                                : "border-muted-foreground/30",
-                            )}
-                          >
-                            <Check
+                      return (
+                        <CommandItem
+                          key={service.id}
+                          value={service.name}
+                          onSelect={() => {
+                            if (!isDisabled) toggleService(service);
+                          }}
+                          className={cn(
+                            "cursor-pointer aria-selected:bg-primary/5",
+                            isDisabled && "opacity-50 cursor-not-allowed",
+                          )}
+                          disabled={isDisabled}
+                        >
+                          <div className="flex items-start gap-3 w-full">
+                            <div
                               className={cn(
-                                "h-3 w-3",
-                                isSelected ? "opacity-100" : "opacity-0",
+                                "flex items-center justify-center w-4 h-4 mt-1 rounded-sm border transition-colors",
+                                isSelected
+                                  ? "bg-primary border-primary text-primary-foreground"
+                                  : "border-muted-foreground/30",
                               )}
-                            />
-                          </div>
-
-                          <div className="flex flex-col flex-1 gap-1">
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <span
+                            >
+                              <Check
                                 className={cn(
-                                  "font-medium",
-                                  isDisabled
-                                    ? "text-muted-foreground"
-                                    : "text-foreground",
+                                  "h-3 w-3",
+                                  isSelected ? "opacity-100" : "opacity-0",
                                 )}
-                              >
-                                {service.name}
-                              </span>
-                              {discountInfo && !isDisabled && (
-                                <Badge
-                                  variant="secondary"
-                                  className="h-4 px-1 text-[10px] bg-destructive/10 text-destructive border-destructive/20 shadow-none"
-                                >
-                                  sale
-                                </Badge>
-                              )}
-                              {noStaff && (
-                                <Badge
-                                  variant="secondary"
-                                  className="h-4 px-1.5 text-[10px] bg-orange-50 text-orange-700 border-orange-200 shadow-none flex items-center gap-1"
-                                >
-                                  <Users className="h-2.5 w-2.5" />
-                                  No Staff
-                                </Badge>
-                              )}
-                              {outsideHours && (
-                                <Badge
-                                  variant="secondary"
-                                  className="h-4 px-1.5 text-[10px] bg-amber-50 text-amber-700 border-amber-200 shadow-none flex items-center gap-1"
-                                >
-                                  <Clock className="h-2.5 w-2.5" />
-                                  Closed Now
-                                </Badge>
-                              )}
-                              {noBusinessHours && (
-                                <Badge
-                                  variant="secondary"
-                                  className="h-4 px-1.5 text-[10px] bg-gray-50 text-gray-700 border-gray-200 shadow-none flex items-center gap-1"
-                                >
-                                  <AlertCircle className="h-2.5 w-2.5" />
-                                  Closed
-                                </Badge>
-                              )}
+                              />
                             </div>
-                            <span className="text-xs text-muted-foreground capitalize">
-                              {service.category}
-                              {availability?.qualifiedEmployeeCount > 0 &&
-                                !outsideHours &&
-                                !noBusinessHours && (
-                                  <span className="ml-2 text-green-600">
-                                    • {availability.qualifiedEmployeeCount}{" "}
-                                    staff available
-                                  </span>
-                                )}
-                            </span>
-                          </div>
 
-                          <div className="flex flex-col items-end gap-0.5">
-                            {discountInfo ? (
-                              <>
-                                <span className="text-sm font-semibold text-destructive tabular-nums">
-                                  ₱
-                                  {discountInfo.finalPrice.toLocaleString(
-                                    undefined,
-                                    { minimumFractionDigits: 2 },
+                            <div className="flex flex-col flex-1 gap-1">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span
+                                  className={cn(
+                                    "font-medium",
+                                    isDisabled
+                                      ? "text-muted-foreground"
+                                      : "text-foreground",
                                   )}
+                                >
+                                  {service.name}
                                 </span>
-                                <span className="text-[10px] text-muted-foreground line-through tabular-nums">
+                                {discountInfo && !isDisabled && (
+                                  <Badge
+                                    variant="secondary"
+                                    className="h-4 px-1 text-[10px] bg-destructive/10 text-destructive border-destructive/20 shadow-none"
+                                  >
+                                    sale
+                                  </Badge>
+                                )}
+                                {noStaff && (
+                                  <Badge
+                                    variant="secondary"
+                                    className="h-4 px-1.5 text-[10px] bg-orange-50 text-orange-700 border-orange-200 shadow-none flex items-center gap-1"
+                                  >
+                                    <Users className="h-2.5 w-2.5" />
+                                    No Staff
+                                  </Badge>
+                                )}
+                                {outsideHours && (
+                                  <Badge
+                                    variant="secondary"
+                                    className="h-4 px-1.5 text-[10px] bg-amber-50 text-amber-700 border-amber-200 shadow-none flex items-center gap-1"
+                                  >
+                                    <Clock className="h-2.5 w-2.5" />
+                                    Closed Now
+                                  </Badge>
+                                )}
+                                {noBusinessHours && (
+                                  <Badge
+                                    variant="secondary"
+                                    className="h-4 px-1.5 text-[10px] bg-gray-50 text-gray-700 border-gray-200 shadow-none flex items-center gap-1"
+                                  >
+                                    <AlertCircle className="h-2.5 w-2.5" />
+                                    Closed
+                                  </Badge>
+                                )}
+                              </div>
+                              <span className="text-xs text-muted-foreground capitalize">
+                                {service.category}
+                                {availability?.qualifiedEmployeeCount > 0 &&
+                                  !outsideHours &&
+                                  !noBusinessHours && (
+                                    <span className="ml-2 text-green-600">
+                                      • {availability.qualifiedEmployeeCount}{" "}
+                                      staff available
+                                    </span>
+                                  )}
+                              </span>
+                            </div>
+
+                            <div className="flex flex-col items-end gap-0.5">
+                              {discountInfo ? (
+                                <>
+                                  <span className="text-sm font-semibold text-destructive tabular-nums">
+                                    ₱
+                                    {discountInfo.finalPrice.toLocaleString(
+                                      undefined,
+                                      { minimumFractionDigits: 2 },
+                                    )}
+                                  </span>
+                                  <span className="text-[10px] text-muted-foreground line-through tabular-nums">
+                                    ₱
+                                    {service.price.toLocaleString(undefined, {
+                                      minimumFractionDigits: 2,
+                                    })}
+                                  </span>
+                                </>
+                              ) : (
+                                <span className="text-sm font-medium text-foreground/80 tabular-nums">
                                   ₱
                                   {service.price.toLocaleString(undefined, {
                                     minimumFractionDigits: 2,
                                   })}
                                 </span>
-                              </>
-                            ) : (
-                              <span className="text-sm font-medium text-foreground/80 tabular-nums">
-                                ₱
-                                {service.price.toLocaleString(undefined, {
-                                  minimumFractionDigits: 2,
-                                })}
-                              </span>
-                            )}
+                              )}
+                            </div>
                           </div>
-                        </div>
-                      </CommandItem>
-                    );
-                  })
-                : packages.map((pkg) => {
-                    const availability = categoryAvailability?.[pkg.category];
-                    const dataLoaded = !!availability;
-                    const noStaff =
-                      dataLoaded && availability?.qualifiedEmployeeCount === 0;
-                    const outsideHours =
-                      dataLoaded && availability?.businessHoursPassed === true;
-                    const noBusinessHours =
-                      dataLoaded && availability?.hasBusinessHours === false;
-                    const isDisabled = noStaff || noBusinessHours;
-                    const isSelected = pkg.items.every((item) =>
-                      selectedServiceKeys.has(
-                        `${normalizeId(item.service.id)}|${normalizePackageId(
-                          pkg.id,
-                        )}`,
-                      ),
-                    );
+                        </CommandItem>
+                      );
+                    })
+                  : packages.map((pkg) => {
+                      const availability = categoryAvailability?.[pkg.category];
+                      const dataLoaded = !!availability;
+                      const noStaff =
+                        dataLoaded &&
+                        availability?.qualifiedEmployeeCount === 0;
+                      const outsideHours =
+                        dataLoaded &&
+                        availability?.businessHoursPassed === true;
+                      const noBusinessHours =
+                        dataLoaded && availability?.hasBusinessHours === false;
+                      const isDisabled = noStaff || noBusinessHours;
+                      const isSelected = pkg.items.every((item) =>
+                        selectedServiceKeys.has(
+                          `${normalizeId(item.service.id)}|${normalizePackageId(
+                            pkg.id,
+                          )}`,
+                        ),
+                      );
 
-                    const discountInfo = getApplicableDiscount(
-                      0,
-                      pkg.id,
-                      pkg.price,
-                      saleEvents,
-                    );
+                      const discountInfo = getApplicableDiscount(
+                        0,
+                        pkg.id,
+                        pkg.price,
+                        saleEvents,
+                      );
 
-                    return (
-                      <CommandItem
-                        key={pkg.id}
-                        value={pkg.name}
-                        onSelect={() => {
-                          if (!isDisabled) togglePackage(pkg);
-                        }}
-                        className={cn(
-                          "cursor-pointer aria-selected:bg-primary/5",
-                          isDisabled && "opacity-50 cursor-not-allowed",
-                        )}
-                        disabled={isDisabled}
-                      >
-                        <div className="flex items-start gap-3 w-full">
-                          <div
-                            className={cn(
-                              "flex items-center justify-center w-4 h-4 mt-1 rounded-sm border transition-colors",
-                              isSelected
-                                ? "bg-primary border-primary text-primary-foreground"
-                                : "border-muted-foreground/30",
-                            )}
-                          >
-                            <Check
+                      return (
+                        <CommandItem
+                          key={pkg.id}
+                          value={pkg.name}
+                          onSelect={() => {
+                            if (!isDisabled) togglePackage(pkg);
+                          }}
+                          className={cn(
+                            "cursor-pointer aria-selected:bg-primary/5",
+                            isDisabled && "opacity-50 cursor-not-allowed",
+                          )}
+                          disabled={isDisabled}
+                        >
+                          <div className="flex items-start gap-3 w-full">
+                            <div
                               className={cn(
-                                "h-3 w-3",
-                                isSelected ? "opacity-100" : "opacity-0",
+                                "flex items-center justify-center w-4 h-4 mt-1 rounded-sm border transition-colors",
+                                isSelected
+                                  ? "bg-primary border-primary text-primary-foreground"
+                                  : "border-muted-foreground/30",
                               )}
-                            />
-                          </div>
+                            >
+                              <Check
+                                className={cn(
+                                  "h-3 w-3",
+                                  isSelected ? "opacity-100" : "opacity-0",
+                                )}
+                              />
+                            </div>
 
-                          <div className="flex flex-col flex-1 gap-1.5">
-                            <div className="flex items-center gap-2">
-                              <div className="flex items-center justify-center w-5 h-5 rounded-full bg-primary/10 text-primary">
-                                <PackageIcon className="h-3 w-3" />
+                            <div className="flex flex-col flex-1 gap-1.5">
+                              <div className="flex items-center gap-2">
+                                <div className="flex items-center justify-center w-5 h-5 rounded-full bg-primary/10 text-primary">
+                                  <PackageIcon className="h-3 w-3" />
+                                </div>
+                                <span className="font-semibold text-foreground">
+                                  {pkg.name}
+                                </span>
+                                {discountInfo && (
+                                  <Badge
+                                    variant="secondary"
+                                    className="h-4 px-1 text-[10px] bg-destructive/10 text-destructive border-destructive/20 shadow-none"
+                                  >
+                                    sale
+                                  </Badge>
+                                )}
+                                {noStaff && (
+                                  <Badge
+                                    variant="secondary"
+                                    className="h-4 px-1.5 text-[10px] bg-orange-50 text-orange-700 border-orange-200 shadow-none flex items-center gap-1"
+                                  >
+                                    <Users className="h-2.5 w-2.5" />
+                                    No Staff
+                                  </Badge>
+                                )}
+                                {outsideHours && (
+                                  <Badge
+                                    variant="secondary"
+                                    className="h-4 px-1.5 text-[10px] bg-amber-50 text-amber-700 border-amber-200 shadow-none flex items-center gap-1"
+                                  >
+                                    <Clock className="h-2.5 w-2.5" />
+                                    Closed Now
+                                  </Badge>
+                                )}
+                                {noBusinessHours && (
+                                  <Badge
+                                    variant="secondary"
+                                    className="h-4 px-1.5 text-[10px] bg-gray-50 text-gray-700 border-gray-200 shadow-none flex items-center gap-1"
+                                  >
+                                    <AlertCircle className="h-2.5 w-2.5" />
+                                    Closed
+                                  </Badge>
+                                )}
                               </div>
-                              <span className="font-semibold text-foreground">
-                                {pkg.name}
-                              </span>
-                              {discountInfo && (
-                                <Badge
-                                  variant="secondary"
-                                  className="h-4 px-1 text-[10px] bg-destructive/10 text-destructive border-destructive/20 shadow-none"
-                                >
-                                  sale
-                                </Badge>
-                              )}
-                              {noStaff && (
-                                <Badge
-                                  variant="secondary"
-                                  className="h-4 px-1.5 text-[10px] bg-orange-50 text-orange-700 border-orange-200 shadow-none flex items-center gap-1"
-                                >
-                                  <Users className="h-2.5 w-2.5" />
-                                  No Staff
-                                </Badge>
-                              )}
-                              {outsideHours && (
-                                <Badge
-                                  variant="secondary"
-                                  className="h-4 px-1.5 text-[10px] bg-amber-50 text-amber-700 border-amber-200 shadow-none flex items-center gap-1"
-                                >
-                                  <Clock className="h-2.5 w-2.5" />
-                                  Closed Now
-                                </Badge>
-                              )}
-                              {noBusinessHours && (
-                                <Badge
-                                  variant="secondary"
-                                  className="h-4 px-1.5 text-[10px] bg-gray-50 text-gray-700 border-gray-200 shadow-none flex items-center gap-1"
-                                >
-                                  <AlertCircle className="h-2.5 w-2.5" />
-                                  Closed
-                                </Badge>
-                              )}
+
+                              <div className="flex flex-wrap gap-1">
+                                {pkg.items.slice(0, 3).map((item) => (
+                                  <span
+                                    key={item.service_id}
+                                    className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] bg-muted text-muted-foreground border border-border"
+                                  >
+                                    {item.service.name}
+                                  </span>
+                                ))}
+                                {pkg.items.length > 3 && (
+                                  <span className="text-[10px] text-muted-foreground self-center">
+                                    +{pkg.items.length - 3} more
+                                  </span>
+                                )}
+                              </div>
                             </div>
 
-                            <div className="flex flex-wrap gap-1">
-                              {pkg.items.slice(0, 3).map((item) => (
-                                <span
-                                  key={item.service_id}
-                                  className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] bg-muted text-muted-foreground border border-border"
-                                >
-                                  {item.service.name}
-                                </span>
-                              ))}
-                              {pkg.items.length > 3 && (
-                                <span className="text-[10px] text-muted-foreground self-center">
-                                  +{pkg.items.length - 3} more
-                                </span>
-                              )}
-                            </div>
-                          </div>
-
-                          <div className="flex flex-col items-end gap-0.5">
-                            {discountInfo ? (
-                              <>
-                                <span className="text-sm font-semibold text-destructive tabular-nums">
-                                  ₱
-                                  {discountInfo.finalPrice.toLocaleString(
-                                    undefined,
-                                    { minimumFractionDigits: 2 },
-                                  )}
-                                </span>
-                                <span className="text-[10px] text-muted-foreground line-through tabular-nums">
+                            <div className="flex flex-col items-end gap-0.5">
+                              {discountInfo ? (
+                                <>
+                                  <span className="text-sm font-semibold text-destructive tabular-nums">
+                                    ₱
+                                    {discountInfo.finalPrice.toLocaleString(
+                                      undefined,
+                                      { minimumFractionDigits: 2 },
+                                    )}
+                                  </span>
+                                  <span className="text-[10px] text-muted-foreground line-through tabular-nums">
+                                    ₱
+                                    {pkg.price.toLocaleString(undefined, {
+                                      minimumFractionDigits: 2,
+                                    })}
+                                  </span>
+                                </>
+                              ) : (
+                                <span className="text-sm font-medium text-foreground/80 tabular-nums">
                                   ₱
                                   {pkg.price.toLocaleString(undefined, {
                                     minimumFractionDigits: 2,
                                   })}
                                 </span>
-                              </>
-                            ) : (
-                              <span className="text-sm font-medium text-foreground/80 tabular-nums">
-                                ₱
-                                {pkg.price.toLocaleString(undefined, {
-                                  minimumFractionDigits: 2,
-                                })}
-                              </span>
-                            )}
-                            {(() => {
-                              if (discountInfo) return null;
-                              const original = pkg.items.reduce(
-                                (sum, item) => sum + item.service.price,
-                                0,
-                              );
-                              if (original > pkg.price) {
-                                return (
-                                  <span className="text-[10px] text-green-600 font-medium bg-green-50 px-1 rounded-sm">
-                                    Save ₱
-                                    {(original - pkg.price).toLocaleString()}
-                                  </span>
+                              )}
+                              {(() => {
+                                if (discountInfo) return null;
+                                const original = pkg.items.reduce(
+                                  (sum, item) => sum + item.service.price,
+                                  0,
                                 );
-                              }
-                              return null;
-                            })()}
+                                if (original > pkg.price) {
+                                  return (
+                                    <span className="text-[10px] text-green-600 font-medium bg-green-50 px-1 rounded-sm">
+                                      Save ₱
+                                      {(original - pkg.price).toLocaleString()}
+                                    </span>
+                                  );
+                                }
+                                return null;
+                              })()}
+                            </div>
                           </div>
-                        </div>
-                      </CommandItem>
-                    );
-                  })}
-            </CommandGroup>
-          </CommandList>
+                        </CommandItem>
+                      );
+                    })}
+              </CommandGroup>
+            </CommandList>
+          </div>
         </Command>
       </PopoverContent>
     </Popover>

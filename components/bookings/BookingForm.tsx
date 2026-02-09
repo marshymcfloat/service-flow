@@ -199,7 +199,6 @@ export default function BookingForm({
         return service;
       });
 
-      // Check if any changed
       const hasChanges = updatedServices.some(
         (s, i) => s.price !== selectedServices[i].price,
       );
@@ -208,13 +207,14 @@ export default function BookingForm({
         form.setValue("services", updatedServices);
       }
     }
-  }, [saleEvents]); // Run only when saleEvents loaded/changed
+  }, [saleEvents]);
 
-  // Callback when a customer is selected from the search input
   const handleCustomerSelect = useCallback(
     (customer: any) => {
-      // If customer has an email, set it to state
-      if (customer && customer.email) {
+      if (customer === null) {
+        setExistingCustomerEmail(null);
+        form.setValue("email", "", { shouldValidate: true });
+      } else if (customer && customer.email) {
         setExistingCustomerEmail(customer.email);
         form.setValue("email", customer.email, { shouldValidate: true });
       } else {

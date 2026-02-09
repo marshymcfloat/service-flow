@@ -46,8 +46,11 @@ export default async function EmployeeDashboardDataContainer({
       service: true,
       package: true,
       booking: {
-        include: {
+        select: {
           customer: true,
+          downpayment: true,
+          downpayment_status: true,
+          grand_total: true,
         },
       },
     },
@@ -69,8 +72,11 @@ export default async function EmployeeDashboardDataContainer({
       service: true,
       package: true,
       booking: {
-        include: {
+        select: {
           customer: true,
+          downpayment: true,
+          downpayment_status: true,
+          grand_total: true,
         },
       },
     },
