@@ -64,16 +64,25 @@ export async function getPayslipDataAction(employeeId: number) {
     const attendanceRecords = await prisma.employeeAttendance.findMany({
       where: {
         employee_id: employeeId,
-        status: AttendanceStatus.PRESENT,
         date: {
           gt: startingDate,
           lte: endingDate,
         },
+        OR: [
+          { status: AttendanceStatus.PRESENT },
+          { status: AttendanceStatus.LEAVE, is_paid_leave: true },
+        ],
       },
     });
 
-    const daysPresent = attendanceRecords.length;
-    const basicSalary = daysPresent * employee.daily_rate;
+    const daysPresent = attendanceRecords.filter(
+      (r) => r.status === AttendanceStatus.PRESENT,
+    ).length;
+    const paidLeaveDays = attendanceRecords.filter(
+      (r) => r.status === AttendanceStatus.LEAVE && r.is_paid_leave,
+    ).length;
+
+    const basicSalary = (daysPresent + paidLeaveDays) * employee.daily_rate;
 
     const commissionServices = await prisma.availedService.findMany({
       where: {
@@ -125,6 +134,7 @@ export async function getPayslipDataAction(employeeId: number) {
         },
         breakdown: {
           days_present: daysPresent,
+          paid_leave_days: paidLeaveDays,
           attendance_dates: attendanceRecords.map((r) => r.date),
           basic_salary: basicSalary,
           commission_services_count: commissionServices.length,

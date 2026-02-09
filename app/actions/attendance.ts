@@ -75,9 +75,38 @@ export async function updateAttendanceStatus(
         },
       });
     }
+
+    revalidatePath("/", "layout"); // Revalidate broadly to ensure cache updates
     return { success: true };
   } catch (error) {
     console.error("Failed to update attendance status:", error);
     return { success: false, error: "Failed to update status" };
+  }
+}
+
+import { unstable_cache } from "next/cache";
+
+export async function getEmployeeAttendanceHistory(employeeId: number) {
+  try {
+    const getCachedHistory = unstable_cache(
+      async (id: number) => {
+        return await prisma.employeeAttendance.findMany({
+          where: { employee_id: id },
+          orderBy: { date: "desc" },
+          take: 90, // Limit to last 3 months ~90 days
+        });
+      },
+      [`attendance-history`],
+      {
+        revalidate: 60 * 60, // 1 hour sort of cache
+        tags: [`attendance-${employeeId}`],
+      },
+    );
+
+    const data = await getCachedHistory(employeeId);
+    return { success: true, data };
+  } catch (error) {
+    console.error("Failed to fetch attendance history:", error);
+    return { success: false, error: "Failed to fetch history" };
   }
 }

@@ -457,10 +457,6 @@ export type BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput = {
   deleteMany?: Prisma.BusinessHoursScalarWhereInput | Prisma.BusinessHoursScalarWhereInput[]
 }
 
-export type BoolFieldUpdateOperationsInput = {
-  set?: boolean
-}
-
 export type BusinessHoursCreateWithoutBusinessInput = {
   day_of_week: number
   open_time: string

@@ -55,15 +55,17 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user, trigger, session }) {
       if (user) {
-        token.email = user.email;
-        token.name = user.name;
-        token.id = user.id;
-        token.role = user.role;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const u = user as any;
+        token.email = u.email;
+        token.name = u.name;
+        token.id = u.id;
+        token.role = u.role;
         token.businessSlug =
-          user.employee?.business.slug ?? user.owner?.business.slug;
-        token.mustChangePassword = user.must_change_password;
+          u.employee?.business.slug ?? u.owner?.business.slug;
+        token.mustChangePassword = u.must_change_password;
         token.tempPasswordExpiresAt =
-          user.temp_password_expires_at?.toISOString() ?? null;
+          u.temp_password_expires_at?.toISOString() ?? null;
       }
 
       if (trigger === "update" && session?.user) {
@@ -71,7 +73,8 @@ export const authOptions: NextAuthOptions = {
           token.mustChangePassword = session.user.mustChangePassword;
         }
         if ("tempPasswordExpiresAt" in session.user) {
-          token.tempPasswordExpiresAt = session.user.tempPasswordExpiresAt ?? null;
+          token.tempPasswordExpiresAt =
+            session.user.tempPasswordExpiresAt ?? null;
         }
       }
       return token;

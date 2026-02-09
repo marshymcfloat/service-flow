@@ -43,7 +43,7 @@ model Business {
   updated_at DateTime @updatedAt
 }
 
-model LeaveRequest {
+/* model LeaveRequest {
   id Int @id @default(autoincrement())
   
   employee_id Int
@@ -60,7 +60,7 @@ model LeaveRequest {
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
-}
+} */
 
 enum Role {
   OWNER
@@ -115,10 +115,39 @@ enum ServiceProviderType {
   OWNER
 }
 
+
 enum LeaveRequestStatus {
   PENDING
   APPROVED
   REJECTED
+}
+
+enum LeaveType {
+  VACATION
+  SICK
+  EMERGENCY
+  OTHER
+}
+
+model LeaveRequest {
+  id Int @id @default(autoincrement())
+  
+  employee_id Int
+  employee Employee @relation(fields: [employee_id], references: [id], onDelete: Cascade)
+
+  business_id String
+  business Business @relation(fields: [business_id], references: [id], onDelete: Cascade)
+
+  start_date DateTime
+  end_date DateTime
+  reason String
+  type LeaveType @default(VACATION)
+  status LeaveRequestStatus @default(PENDING)
+  admin_comment String?
+  is_paid Boolean @default(false)
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 }
 
 model BusinessHours {
@@ -211,6 +240,8 @@ model EmployeeAttendance{
   location_verified Boolean @default(false)
   latitude Float?
   longitude Float?
+  
+  is_paid_leave Boolean @default(false)
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt

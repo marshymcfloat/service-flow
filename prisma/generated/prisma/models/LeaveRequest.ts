@@ -43,8 +43,10 @@ export type LeaveRequestMinAggregateOutputType = {
   start_date: Date | null
   end_date: Date | null
   reason: string | null
+  type: $Enums.LeaveType | null
   status: $Enums.LeaveRequestStatus | null
   admin_comment: string | null
+  is_paid: boolean | null
   created_at: Date | null
   updated_at: Date | null
 }
@@ -56,8 +58,10 @@ export type LeaveRequestMaxAggregateOutputType = {
   start_date: Date | null
   end_date: Date | null
   reason: string | null
+  type: $Enums.LeaveType | null
   status: $Enums.LeaveRequestStatus | null
   admin_comment: string | null
+  is_paid: boolean | null
   created_at: Date | null
   updated_at: Date | null
 }
@@ -69,8 +73,10 @@ export type LeaveRequestCountAggregateOutputType = {
   start_date: number
   end_date: number
   reason: number
+  type: number
   status: number
   admin_comment: number
+  is_paid: number
   created_at: number
   updated_at: number
   _all: number
@@ -94,8 +100,10 @@ export type LeaveRequestMinAggregateInputType = {
   start_date?: true
   end_date?: true
   reason?: true
+  type?: true
   status?: true
   admin_comment?: true
+  is_paid?: true
   created_at?: true
   updated_at?: true
 }
@@ -107,8 +115,10 @@ export type LeaveRequestMaxAggregateInputType = {
   start_date?: true
   end_date?: true
   reason?: true
+  type?: true
   status?: true
   admin_comment?: true
+  is_paid?: true
   created_at?: true
   updated_at?: true
 }
@@ -120,8 +130,10 @@ export type LeaveRequestCountAggregateInputType = {
   start_date?: true
   end_date?: true
   reason?: true
+  type?: true
   status?: true
   admin_comment?: true
+  is_paid?: true
   created_at?: true
   updated_at?: true
   _all?: true
@@ -220,8 +232,10 @@ export type LeaveRequestGroupByOutputType = {
   start_date: Date
   end_date: Date
   reason: string
+  type: $Enums.LeaveType
   status: $Enums.LeaveRequestStatus
   admin_comment: string | null
+  is_paid: boolean
   created_at: Date
   updated_at: Date
   _count: LeaveRequestCountAggregateOutputType | null
@@ -256,8 +270,10 @@ export type LeaveRequestWhereInput = {
   start_date?: Prisma.DateTimeFilter<"LeaveRequest"> | Date | string
   end_date?: Prisma.DateTimeFilter<"LeaveRequest"> | Date | string
   reason?: Prisma.StringFilter<"LeaveRequest"> | string
+  type?: Prisma.EnumLeaveTypeFilter<"LeaveRequest"> | $Enums.LeaveType
   status?: Prisma.EnumLeaveRequestStatusFilter<"LeaveRequest"> | $Enums.LeaveRequestStatus
   admin_comment?: Prisma.StringNullableFilter<"LeaveRequest"> | string | null
+  is_paid?: Prisma.BoolFilter<"LeaveRequest"> | boolean
   created_at?: Prisma.DateTimeFilter<"LeaveRequest"> | Date | string
   updated_at?: Prisma.DateTimeFilter<"LeaveRequest"> | Date | string
   employee?: Prisma.XOR<Prisma.EmployeeScalarRelationFilter, Prisma.EmployeeWhereInput>
@@ -271,8 +287,10 @@ export type LeaveRequestOrderByWithRelationInput = {
   start_date?: Prisma.SortOrder
   end_date?: Prisma.SortOrder
   reason?: Prisma.SortOrder
+  type?: Prisma.SortOrder
   status?: Prisma.SortOrder
   admin_comment?: Prisma.SortOrderInput | Prisma.SortOrder
+  is_paid?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
   employee?: Prisma.EmployeeOrderByWithRelationInput
@@ -289,8 +307,10 @@ export type LeaveRequestWhereUniqueInput = Prisma.AtLeast<{
   start_date?: Prisma.DateTimeFilter<"LeaveRequest"> | Date | string
   end_date?: Prisma.DateTimeFilter<"LeaveRequest"> | Date | string
   reason?: Prisma.StringFilter<"LeaveRequest"> | string
+  type?: Prisma.EnumLeaveTypeFilter<"LeaveRequest"> | $Enums.LeaveType
   status?: Prisma.EnumLeaveRequestStatusFilter<"LeaveRequest"> | $Enums.LeaveRequestStatus
   admin_comment?: Prisma.StringNullableFilter<"LeaveRequest"> | string | null
+  is_paid?: Prisma.BoolFilter<"LeaveRequest"> | boolean
   created_at?: Prisma.DateTimeFilter<"LeaveRequest"> | Date | string
   updated_at?: Prisma.DateTimeFilter<"LeaveRequest"> | Date | string
   employee?: Prisma.XOR<Prisma.EmployeeScalarRelationFilter, Prisma.EmployeeWhereInput>
@@ -304,8 +324,10 @@ export type LeaveRequestOrderByWithAggregationInput = {
   start_date?: Prisma.SortOrder
   end_date?: Prisma.SortOrder
   reason?: Prisma.SortOrder
+  type?: Prisma.SortOrder
   status?: Prisma.SortOrder
   admin_comment?: Prisma.SortOrderInput | Prisma.SortOrder
+  is_paid?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
   _count?: Prisma.LeaveRequestCountOrderByAggregateInput
@@ -325,8 +347,10 @@ export type LeaveRequestScalarWhereWithAggregatesInput = {
   start_date?: Prisma.DateTimeWithAggregatesFilter<"LeaveRequest"> | Date | string
   end_date?: Prisma.DateTimeWithAggregatesFilter<"LeaveRequest"> | Date | string
   reason?: Prisma.StringWithAggregatesFilter<"LeaveRequest"> | string
+  type?: Prisma.EnumLeaveTypeWithAggregatesFilter<"LeaveRequest"> | $Enums.LeaveType
   status?: Prisma.EnumLeaveRequestStatusWithAggregatesFilter<"LeaveRequest"> | $Enums.LeaveRequestStatus
   admin_comment?: Prisma.StringNullableWithAggregatesFilter<"LeaveRequest"> | string | null
+  is_paid?: Prisma.BoolWithAggregatesFilter<"LeaveRequest"> | boolean
   created_at?: Prisma.DateTimeWithAggregatesFilter<"LeaveRequest"> | Date | string
   updated_at?: Prisma.DateTimeWithAggregatesFilter<"LeaveRequest"> | Date | string
 }
@@ -335,8 +359,10 @@ export type LeaveRequestCreateInput = {
   start_date: Date | string
   end_date: Date | string
   reason: string
+  type?: $Enums.LeaveType
   status?: $Enums.LeaveRequestStatus
   admin_comment?: string | null
+  is_paid?: boolean
   created_at?: Date | string
   updated_at?: Date | string
   employee: Prisma.EmployeeCreateNestedOneWithoutLeave_requestsInput
@@ -350,8 +376,10 @@ export type LeaveRequestUncheckedCreateInput = {
   start_date: Date | string
   end_date: Date | string
   reason: string
+  type?: $Enums.LeaveType
   status?: $Enums.LeaveRequestStatus
   admin_comment?: string | null
+  is_paid?: boolean
   created_at?: Date | string
   updated_at?: Date | string
 }
@@ -360,8 +388,10 @@ export type LeaveRequestUpdateInput = {
   start_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   end_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   reason?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumLeaveTypeFieldUpdateOperationsInput | $Enums.LeaveType
   status?: Prisma.EnumLeaveRequestStatusFieldUpdateOperationsInput | $Enums.LeaveRequestStatus
   admin_comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  is_paid?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   employee?: Prisma.EmployeeUpdateOneRequiredWithoutLeave_requestsNestedInput
@@ -375,8 +405,10 @@ export type LeaveRequestUncheckedUpdateInput = {
   start_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   end_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   reason?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumLeaveTypeFieldUpdateOperationsInput | $Enums.LeaveType
   status?: Prisma.EnumLeaveRequestStatusFieldUpdateOperationsInput | $Enums.LeaveRequestStatus
   admin_comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  is_paid?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -388,8 +420,10 @@ export type LeaveRequestCreateManyInput = {
   start_date: Date | string
   end_date: Date | string
   reason: string
+  type?: $Enums.LeaveType
   status?: $Enums.LeaveRequestStatus
   admin_comment?: string | null
+  is_paid?: boolean
   created_at?: Date | string
   updated_at?: Date | string
 }
@@ -398,8 +432,10 @@ export type LeaveRequestUpdateManyMutationInput = {
   start_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   end_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   reason?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumLeaveTypeFieldUpdateOperationsInput | $Enums.LeaveType
   status?: Prisma.EnumLeaveRequestStatusFieldUpdateOperationsInput | $Enums.LeaveRequestStatus
   admin_comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  is_paid?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -411,8 +447,10 @@ export type LeaveRequestUncheckedUpdateManyInput = {
   start_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   end_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   reason?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumLeaveTypeFieldUpdateOperationsInput | $Enums.LeaveType
   status?: Prisma.EnumLeaveRequestStatusFieldUpdateOperationsInput | $Enums.LeaveRequestStatus
   admin_comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  is_paid?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -434,8 +472,10 @@ export type LeaveRequestCountOrderByAggregateInput = {
   start_date?: Prisma.SortOrder
   end_date?: Prisma.SortOrder
   reason?: Prisma.SortOrder
+  type?: Prisma.SortOrder
   status?: Prisma.SortOrder
   admin_comment?: Prisma.SortOrder
+  is_paid?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
 }
@@ -452,8 +492,10 @@ export type LeaveRequestMaxOrderByAggregateInput = {
   start_date?: Prisma.SortOrder
   end_date?: Prisma.SortOrder
   reason?: Prisma.SortOrder
+  type?: Prisma.SortOrder
   status?: Prisma.SortOrder
   admin_comment?: Prisma.SortOrder
+  is_paid?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
 }
@@ -465,8 +507,10 @@ export type LeaveRequestMinOrderByAggregateInput = {
   start_date?: Prisma.SortOrder
   end_date?: Prisma.SortOrder
   reason?: Prisma.SortOrder
+  type?: Prisma.SortOrder
   status?: Prisma.SortOrder
   admin_comment?: Prisma.SortOrder
+  is_paid?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
 }
@@ -518,8 +562,16 @@ export type LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput = {
   deleteMany?: Prisma.LeaveRequestScalarWhereInput | Prisma.LeaveRequestScalarWhereInput[]
 }
 
+export type EnumLeaveTypeFieldUpdateOperationsInput = {
+  set?: $Enums.LeaveType
+}
+
 export type EnumLeaveRequestStatusFieldUpdateOperationsInput = {
   set?: $Enums.LeaveRequestStatus
+}
+
+export type BoolFieldUpdateOperationsInput = {
+  set?: boolean
 }
 
 export type IntFieldUpdateOperationsInput = {
@@ -576,8 +628,10 @@ export type LeaveRequestCreateWithoutBusinessInput = {
   start_date: Date | string
   end_date: Date | string
   reason: string
+  type?: $Enums.LeaveType
   status?: $Enums.LeaveRequestStatus
   admin_comment?: string | null
+  is_paid?: boolean
   created_at?: Date | string
   updated_at?: Date | string
   employee: Prisma.EmployeeCreateNestedOneWithoutLeave_requestsInput
@@ -589,8 +643,10 @@ export type LeaveRequestUncheckedCreateWithoutBusinessInput = {
   start_date: Date | string
   end_date: Date | string
   reason: string
+  type?: $Enums.LeaveType
   status?: $Enums.LeaveRequestStatus
   admin_comment?: string | null
+  is_paid?: boolean
   created_at?: Date | string
   updated_at?: Date | string
 }
@@ -631,8 +687,10 @@ export type LeaveRequestScalarWhereInput = {
   start_date?: Prisma.DateTimeFilter<"LeaveRequest"> | Date | string
   end_date?: Prisma.DateTimeFilter<"LeaveRequest"> | Date | string
   reason?: Prisma.StringFilter<"LeaveRequest"> | string
+  type?: Prisma.EnumLeaveTypeFilter<"LeaveRequest"> | $Enums.LeaveType
   status?: Prisma.EnumLeaveRequestStatusFilter<"LeaveRequest"> | $Enums.LeaveRequestStatus
   admin_comment?: Prisma.StringNullableFilter<"LeaveRequest"> | string | null
+  is_paid?: Prisma.BoolFilter<"LeaveRequest"> | boolean
   created_at?: Prisma.DateTimeFilter<"LeaveRequest"> | Date | string
   updated_at?: Prisma.DateTimeFilter<"LeaveRequest"> | Date | string
 }
@@ -641,8 +699,10 @@ export type LeaveRequestCreateWithoutEmployeeInput = {
   start_date: Date | string
   end_date: Date | string
   reason: string
+  type?: $Enums.LeaveType
   status?: $Enums.LeaveRequestStatus
   admin_comment?: string | null
+  is_paid?: boolean
   created_at?: Date | string
   updated_at?: Date | string
   business: Prisma.BusinessCreateNestedOneWithoutLeave_requestsInput
@@ -654,8 +714,10 @@ export type LeaveRequestUncheckedCreateWithoutEmployeeInput = {
   start_date: Date | string
   end_date: Date | string
   reason: string
+  type?: $Enums.LeaveType
   status?: $Enums.LeaveRequestStatus
   admin_comment?: string | null
+  is_paid?: boolean
   created_at?: Date | string
   updated_at?: Date | string
 }
@@ -692,8 +754,10 @@ export type LeaveRequestCreateManyBusinessInput = {
   start_date: Date | string
   end_date: Date | string
   reason: string
+  type?: $Enums.LeaveType
   status?: $Enums.LeaveRequestStatus
   admin_comment?: string | null
+  is_paid?: boolean
   created_at?: Date | string
   updated_at?: Date | string
 }
@@ -702,8 +766,10 @@ export type LeaveRequestUpdateWithoutBusinessInput = {
   start_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   end_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   reason?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumLeaveTypeFieldUpdateOperationsInput | $Enums.LeaveType
   status?: Prisma.EnumLeaveRequestStatusFieldUpdateOperationsInput | $Enums.LeaveRequestStatus
   admin_comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  is_paid?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   employee?: Prisma.EmployeeUpdateOneRequiredWithoutLeave_requestsNestedInput
@@ -715,8 +781,10 @@ export type LeaveRequestUncheckedUpdateWithoutBusinessInput = {
   start_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   end_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   reason?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumLeaveTypeFieldUpdateOperationsInput | $Enums.LeaveType
   status?: Prisma.EnumLeaveRequestStatusFieldUpdateOperationsInput | $Enums.LeaveRequestStatus
   admin_comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  is_paid?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -727,8 +795,10 @@ export type LeaveRequestUncheckedUpdateManyWithoutBusinessInput = {
   start_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   end_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   reason?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumLeaveTypeFieldUpdateOperationsInput | $Enums.LeaveType
   status?: Prisma.EnumLeaveRequestStatusFieldUpdateOperationsInput | $Enums.LeaveRequestStatus
   admin_comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  is_paid?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -739,8 +809,10 @@ export type LeaveRequestCreateManyEmployeeInput = {
   start_date: Date | string
   end_date: Date | string
   reason: string
+  type?: $Enums.LeaveType
   status?: $Enums.LeaveRequestStatus
   admin_comment?: string | null
+  is_paid?: boolean
   created_at?: Date | string
   updated_at?: Date | string
 }
@@ -749,8 +821,10 @@ export type LeaveRequestUpdateWithoutEmployeeInput = {
   start_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   end_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   reason?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumLeaveTypeFieldUpdateOperationsInput | $Enums.LeaveType
   status?: Prisma.EnumLeaveRequestStatusFieldUpdateOperationsInput | $Enums.LeaveRequestStatus
   admin_comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  is_paid?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   business?: Prisma.BusinessUpdateOneRequiredWithoutLeave_requestsNestedInput
@@ -762,8 +836,10 @@ export type LeaveRequestUncheckedUpdateWithoutEmployeeInput = {
   start_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   end_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   reason?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumLeaveTypeFieldUpdateOperationsInput | $Enums.LeaveType
   status?: Prisma.EnumLeaveRequestStatusFieldUpdateOperationsInput | $Enums.LeaveRequestStatus
   admin_comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  is_paid?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -774,8 +850,10 @@ export type LeaveRequestUncheckedUpdateManyWithoutEmployeeInput = {
   start_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   end_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   reason?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumLeaveTypeFieldUpdateOperationsInput | $Enums.LeaveType
   status?: Prisma.EnumLeaveRequestStatusFieldUpdateOperationsInput | $Enums.LeaveRequestStatus
   admin_comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  is_paid?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -789,8 +867,10 @@ export type LeaveRequestSelect<ExtArgs extends runtime.Types.Extensions.Internal
   start_date?: boolean
   end_date?: boolean
   reason?: boolean
+  type?: boolean
   status?: boolean
   admin_comment?: boolean
+  is_paid?: boolean
   created_at?: boolean
   updated_at?: boolean
   employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
@@ -804,8 +884,10 @@ export type LeaveRequestSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   start_date?: boolean
   end_date?: boolean
   reason?: boolean
+  type?: boolean
   status?: boolean
   admin_comment?: boolean
+  is_paid?: boolean
   created_at?: boolean
   updated_at?: boolean
   employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
@@ -819,8 +901,10 @@ export type LeaveRequestSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   start_date?: boolean
   end_date?: boolean
   reason?: boolean
+  type?: boolean
   status?: boolean
   admin_comment?: boolean
+  is_paid?: boolean
   created_at?: boolean
   updated_at?: boolean
   employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
@@ -834,13 +918,15 @@ export type LeaveRequestSelectScalar = {
   start_date?: boolean
   end_date?: boolean
   reason?: boolean
+  type?: boolean
   status?: boolean
   admin_comment?: boolean
+  is_paid?: boolean
   created_at?: boolean
   updated_at?: boolean
 }
 
-export type LeaveRequestOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "employee_id" | "business_id" | "start_date" | "end_date" | "reason" | "status" | "admin_comment" | "created_at" | "updated_at", ExtArgs["result"]["leaveRequest"]>
+export type LeaveRequestOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "employee_id" | "business_id" | "start_date" | "end_date" | "reason" | "type" | "status" | "admin_comment" | "is_paid" | "created_at" | "updated_at", ExtArgs["result"]["leaveRequest"]>
 export type LeaveRequestInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
@@ -867,8 +953,10 @@ export type $LeaveRequestPayload<ExtArgs extends runtime.Types.Extensions.Intern
     start_date: Date
     end_date: Date
     reason: string
+    type: $Enums.LeaveType
     status: $Enums.LeaveRequestStatus
     admin_comment: string | null
+    is_paid: boolean
     created_at: Date
     updated_at: Date
   }, ExtArgs["result"]["leaveRequest"]>
@@ -1302,8 +1390,10 @@ export interface LeaveRequestFieldRefs {
   readonly start_date: Prisma.FieldRef<"LeaveRequest", 'DateTime'>
   readonly end_date: Prisma.FieldRef<"LeaveRequest", 'DateTime'>
   readonly reason: Prisma.FieldRef<"LeaveRequest", 'String'>
+  readonly type: Prisma.FieldRef<"LeaveRequest", 'LeaveType'>
   readonly status: Prisma.FieldRef<"LeaveRequest", 'LeaveRequestStatus'>
   readonly admin_comment: Prisma.FieldRef<"LeaveRequest", 'String'>
+  readonly is_paid: Prisma.FieldRef<"LeaveRequest", 'Boolean'>
   readonly created_at: Prisma.FieldRef<"LeaveRequest", 'DateTime'>
   readonly updated_at: Prisma.FieldRef<"LeaveRequest", 'DateTime'>
 }

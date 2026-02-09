@@ -104,16 +104,16 @@ export function EmployeesPageClient({
           return state.map((emp) =>
             emp.id === action.employeeId
               ? {
-                ...emp,
-                daily_rate: action.data.daily_rate,
-                commission_percentage: action.data.commission_percentage,
-                specialties: action.data.specialties,
-                user: {
-                  ...emp.user,
-                  name: action.data.name,
-                  email: action.data.email,
-                },
-              }
+                  ...emp,
+                  daily_rate: action.data.daily_rate,
+                  commission_percentage: action.data.commission_percentage,
+                  specialties: action.data.specialties,
+                  user: {
+                    ...emp.user,
+                    name: action.data.name,
+                    email: action.data.email,
+                  },
+                }
               : emp,
           );
         case "delete":
@@ -292,21 +292,21 @@ export function EmployeesPageClient({
             </DialogTrigger>
             <DialogContent className="sm:max-w-[500px] rounded-3xl p-0 gap-0 overflow-hidden">
               <DialogHeader className="p-6 pb-2">
-              <DialogTitle className="text-xl font-bold text-zinc-900">
-                Add New Employee
-              </DialogTitle>
-              <DialogDescription className="text-zinc-500">
-                Create a new employee account. They will receive a temporary
-                password via email and be required to change it.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="px-6 py-4">
-              <EmployeeForm
-                formData={formData}
-                setFormData={setFormData}
-                categories={categories}
-              />
-            </div>
+                <DialogTitle className="text-xl font-bold text-zinc-900">
+                  Add New Employee
+                </DialogTitle>
+                <DialogDescription className="text-zinc-500">
+                  Create a new employee account. They will receive a temporary
+                  password via email and be required to change it.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="px-6 py-4">
+                <EmployeeForm
+                  formData={formData}
+                  setFormData={setFormData}
+                  categories={categories}
+                />
+              </div>
               <DialogFooter className="p-6 pt-2 bg-zinc-50/50 border-t border-zinc-100">
                 <Button
                   variant="outline"

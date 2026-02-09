@@ -141,10 +141,17 @@ export default async function EmployeeDashboardDataContainer({
 
   const totalEstimatedSalary = attendanceSalary + totalCommissions;
 
+  const { getUserLeaveRequests } = await import("@/app/actions/leave-request");
+  const leaveRequestsResult = await getUserLeaveRequests(employee.id);
+  const leaveRequests = leaveRequestsResult.success
+    ? leaveRequestsResult.data || []
+    : [];
+
   return (
     <EmployeeDashboard
       businessName={business.name}
       businessSlug={businessSlug}
+      businessId={business.id}
       servedHistory={servedHistory}
       pendingServices={pendingServices}
       currentEmployeeId={employee.id}
@@ -155,6 +162,7 @@ export default async function EmployeeDashboardDataContainer({
       packages={packages}
       categories={categories}
       saleEvents={saleEvents}
+      leaveRequests={leaveRequests}
     />
   );
 }

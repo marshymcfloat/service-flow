@@ -52,6 +52,8 @@ import {
   updateAttendanceStatus,
 } from "@/app/actions/attendance";
 
+import { EmployeeAttendanceHistoryDialog } from "./EmployeeAttendanceHistoryDialog";
+
 type AttendanceData = {
   employee: Employee & { user: { name: string } };
   attendance: EmployeeAttendance | null;
@@ -70,6 +72,9 @@ export function DailyAttendanceTab({
 }: DailyAttendanceTabProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const [selectedEmployee, setSelectedEmployee] = useState<
+    (Employee & { user: { name: string } }) | null
+  >(null);
 
   // Optimistic data handling
   const [optimisticData, addOptimisticUpdate] = useOptimistic(
@@ -106,12 +111,8 @@ export function DailyAttendanceTab({
 
   const handleDateChange = (newDate: Date) => {
     startTransition(() => {
-      // Use ISO string for consistent parsing, simplified YYYY-MM-DD?
-      // Or just let Date constructor parse? best to be safe with standard formats or just router.push
+      // Use ISO string for consistent parsing
       const dateString = newDate.toISOString();
-      // Actually better to use searchParams to keep current tab?
-      // Tabs state is local controlled in OwnerAttendanceClient but URL does not track tab.
-      // switching params keeps same page layout.
       router.push(`?date=${dateString}`);
     });
   };
@@ -178,6 +179,12 @@ export function DailyAttendanceTab({
 
   return (
     <div className="space-y-6">
+      <EmployeeAttendanceHistoryDialog
+        employee={selectedEmployee}
+        open={!!selectedEmployee}
+        onOpenChange={(open) => !open && setSelectedEmployee(null)}
+      />
+
       {/* Date Navigator */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-1.5 rounded-2xl border border-zinc-200 shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)]">
         <div className="flex items-center gap-1 p-1 bg-zinc-100/80 rounded-xl border border-zinc-200/50">
@@ -302,7 +309,10 @@ export function DailyAttendanceTab({
               className="bg-white rounded-2xl p-4 shadow-sm border border-zinc-100 flex flex-col gap-4"
             >
               <div className="flex justify-between items-start">
-                <div className="flex items-center gap-3">
+                <div
+                  className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
+                  onClick={() => setSelectedEmployee(employee)}
+                >
                   <Avatar
                     className={`${getAvatarColor(employee.user.name)} h-10 w-10 text-white shadow-sm ring-2 ring-white`}
                   >
@@ -314,30 +324,39 @@ export function DailyAttendanceTab({
                     <span className="font-semibold text-zinc-900">
                       {employee.user.name}
                     </span>
-                    <div className="flex items-center gap-1.5 mt-1">
-                      <Select
-                        defaultValue={attendance?.status || "ABSENT"}
-                        value={attendance?.status || "ABSENT"}
-                        onValueChange={(val) =>
-                          handleStatusChange(
-                            employee.id,
-                            val as AttendanceStatus,
-                          )
-                        }
-                      >
-                        <SelectTrigger className="h-7 w-[110px] text-xs bg-zinc-50 border-zinc-200">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="PRESENT">Present</SelectItem>
-                          <SelectItem value="LATE">Late</SelectItem>
-                          <SelectItem value="ABSENT">Absent</SelectItem>
-                          <SelectItem value="LEAVE">On Leave</SelectItem>
-                          <SelectItem value="OFF">Day Off</SelectItem>
-                        </SelectContent>
-                      </Select>
+                    <div
+                      className="flex items-center gap-1.5 mt-1"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {/* Dropdown Logic */}
                     </div>
                   </div>
+                </div>
+              </div>
+
+              <div className="pl-[52px] -mt-2 mb-2">
+                <div
+                  className="flex items-center gap-1.5 mt-1"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <Select
+                    defaultValue={attendance?.status || "ABSENT"}
+                    value={attendance?.status || "ABSENT"}
+                    onValueChange={(val) =>
+                      handleStatusChange(employee.id, val as AttendanceStatus)
+                    }
+                  >
+                    <SelectTrigger className="h-7 w-[110px] text-xs bg-zinc-50 border-zinc-200">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="PRESENT">Present</SelectItem>
+                      <SelectItem value="LATE">Late</SelectItem>
+                      <SelectItem value="ABSENT">Absent</SelectItem>
+                      <SelectItem value="LEAVE">On Leave</SelectItem>
+                      <SelectItem value="OFF">Day Off</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 
@@ -398,10 +417,13 @@ export function DailyAttendanceTab({
               optimisticData.map(({ employee, attendance }) => (
                 <TableRow
                   key={employee.id}
-                  className="hover:bg-zinc-50/50 transition-colors border-zinc-100"
+                  className="hover:bg-zinc-50/50 transition-colors border-zinc-100 group"
                 >
-                  <TableCell className="pl-6 py-4">
-                    <div className="flex items-center gap-3">
+                  <TableCell
+                    className="pl-6 py-4 cursor-pointer"
+                    onClick={() => setSelectedEmployee(employee)}
+                  >
+                    <div className="flex items-center gap-3 group-hover:translate-x-1 transition-transform duration-200">
                       <Avatar
                         className={`${getAvatarColor(employee.user.name)} h-9 w-9 text-white shadow-sm ring-2 ring-white`}
                       >
@@ -409,7 +431,7 @@ export function DailyAttendanceTab({
                           {getInitials(employee.user.name)}
                         </AvatarFallback>
                       </Avatar>
-                      <span className="font-medium text-zinc-900">
+                      <span className="font-medium text-zinc-900 group-hover:text-blue-600 transition-colors">
                         {employee.user.name}
                       </span>
                     </div>

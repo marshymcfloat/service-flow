@@ -1966,8 +1966,10 @@ export const LeaveRequestScalarFieldEnum = {
   start_date: 'start_date',
   end_date: 'end_date',
   reason: 'reason',
+  type: 'type',
   status: 'status',
   admin_comment: 'admin_comment',
+  is_paid: 'is_paid',
   created_at: 'created_at',
   updated_at: 'updated_at'
 } as const
@@ -2042,6 +2044,7 @@ export const EmployeeAttendanceScalarFieldEnum = {
   location_verified: 'location_verified',
   latitude: 'latitude',
   longitude: 'longitude',
+  is_paid_leave: 'is_paid_leave',
   created_at: 'created_at',
   updated_at: 'updated_at'
 } as const
@@ -2376,6 +2379,20 @@ export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'In
  * Reference to a field of type 'Int[]'
  */
 export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+/**
+ * Reference to a field of type 'LeaveType'
+ */
+export type EnumLeaveTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LeaveType'>
+    
+
+
+/**
+ * Reference to a field of type 'LeaveType[]'
+ */
+export type ListEnumLeaveTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LeaveType[]'>
     
 
 

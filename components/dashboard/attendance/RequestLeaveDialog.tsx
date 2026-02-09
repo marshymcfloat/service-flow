@@ -32,10 +32,18 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
 import { createLeaveRequest } from "@/app/actions/leave-request";
 import { toast } from "sonner";
+import { LeaveType } from "@/prisma/generated/prisma/enums";
 
 const formSchema = z.object({
   dateRange: z.object({
@@ -43,17 +51,20 @@ const formSchema = z.object({
     to: z.date(),
   }),
   reason: z.string().min(3, "Reason must be at least 3 characters"),
+  type: z.nativeEnum(LeaveType),
 });
 
 interface RequestLeaveDialogProps {
   employeeId: number;
   businessId: string;
+  businessSlug: string; // Added prop
   onSuccess?: () => void;
 }
 
 export function RequestLeaveDialog({
   employeeId,
   businessId,
+  businessSlug,
   onSuccess,
 }: RequestLeaveDialogProps) {
   const [open, setOpen] = useState(false);
@@ -62,6 +73,7 @@ export function RequestLeaveDialog({
     resolver: zodResolver(formSchema),
     defaultValues: {
       reason: "",
+      type: LeaveType.VACATION,
     },
   });
 
@@ -73,6 +85,8 @@ export function RequestLeaveDialog({
         start_date: values.dateRange.from,
         end_date: values.dateRange.to,
         reason: values.reason,
+        type: values.type,
+        businessSlug: businessSlug, // Passed slug
       });
 
       if (result.success) {
@@ -98,11 +112,39 @@ export function RequestLeaveDialog({
         <DialogHeader>
           <DialogTitle>Request Leave</DialogTitle>
           <DialogDescription>
-            Select the dates and provide a reason for your leave.
+            Select the dates, type, and provide a reason for your leave.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="type"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Leave Type</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a leave type" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {Object.values(LeaveType).map((type) => (
+                        <SelectItem key={type} value={type}>
+                          {type.charAt(0) + type.slice(1).toLowerCase()}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <FormField
               control={form.control}
               name="dateRange"

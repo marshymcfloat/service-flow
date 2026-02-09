@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Loader2 } from "lucide-react";
@@ -27,11 +27,15 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { updateLeaveRequestStatus } from "@/app/actions/leave-request";
 import { toast } from "sonner";
+import { Switch } from "@/components/ui/switch";
 import { LeaveRequestStatus } from "@/prisma/generated/prisma/client";
 
 const formSchema = z.object({
   comment: z.string().optional(),
+  isPaid: z.boolean(),
 });
+
+type FormValues = z.infer<typeof formSchema>;
 
 interface LeaveActionDialogProps {
   requestId: number;
@@ -48,14 +52,15 @@ export function LeaveActionDialog({
 }: LeaveActionDialogProps) {
   const [open, setOpen] = useState(false);
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       comment: "",
+      isPaid: false,
     },
   });
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+  const onSubmit: SubmitHandler<FormValues> = async (values) => {
     try {
       const status: LeaveRequestStatus =
         action === "APPROVE" ? "APPROVED" : "REJECTED";
@@ -64,6 +69,7 @@ export function LeaveActionDialog({
         requestId,
         status,
         values.comment,
+        values.isPaid,
       );
 
       if (result.success) {
@@ -104,6 +110,28 @@ export function LeaveActionDialog({
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            {action === "APPROVE" && (
+              <FormField
+                control={form.control}
+                name="isPaid"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-xs">
+                    <div className="space-y-0.5">
+                      <FormLabel>Paid Leave</FormLabel>
+                      <DialogDescription>
+                        Mark this leave as paid (included in basic salary).
+                      </DialogDescription>
+                    </div>
+                    <FormControl>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+            )}
             <FormField
               control={form.control}
               name="comment"

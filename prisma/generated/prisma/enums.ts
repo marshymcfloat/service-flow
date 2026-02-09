@@ -99,6 +99,16 @@ export const LeaveRequestStatus = {
 export type LeaveRequestStatus = (typeof LeaveRequestStatus)[keyof typeof LeaveRequestStatus]
 
 
+export const LeaveType = {
+  VACATION: 'VACATION',
+  SICK: 'SICK',
+  EMERGENCY: 'EMERGENCY',
+  OTHER: 'OTHER'
+} as const
+
+export type LeaveType = (typeof LeaveType)[keyof typeof LeaveType]
+
+
 export const FlowDelayUnit = {
   DAYS: 'DAYS',
   WEEKS: 'WEEKS',

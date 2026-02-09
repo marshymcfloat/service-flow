@@ -83,6 +83,7 @@ export default async function AttendancePage({
       <EmployeeLeaveClient
         employeeId={employee.id}
         businessId={business.id}
+        businessSlug={businessSlug}
         requests={requests}
       />
     );

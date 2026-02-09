@@ -16,12 +16,19 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { BookingDialog } from "../owner/BookingDialog";
-import { Service, ServicePackage } from "@/prisma/generated/prisma/client";
+
+import { EmployeeLeaveClient } from "../attendance/EmployeeLeaveClient";
+import {
+  Service,
+  ServicePackage,
+  LeaveRequest,
+} from "@/prisma/generated/prisma/client";
 import { PackageWithItems } from "@/components/bookings/BookingForm";
 
 export default function EmployeeDashboard({
   businessName,
   businessSlug,
+  businessId,
   servedHistory,
   pendingServices,
   currentEmployeeId,
@@ -32,9 +39,11 @@ export default function EmployeeDashboard({
   packages,
   categories,
   saleEvents,
+  leaveRequests,
 }: {
   businessName: string | null;
   businessSlug: string;
+  businessId: string;
   servedHistory: any[];
   pendingServices: any[];
   currentEmployeeId: number;
@@ -45,6 +54,7 @@ export default function EmployeeDashboard({
   packages: PackageWithItems[];
   categories: string[];
   saleEvents: any[];
+  leaveRequests: LeaveRequest[];
 }) {
   const handleSignOut = () => {
     signOut({ callbackUrl: "/" });
@@ -194,6 +204,15 @@ export default function EmployeeDashboard({
               </div>
             </div>
           </div>
+        </section>
+
+        <section>
+          <EmployeeLeaveClient
+            employeeId={currentEmployeeId}
+            businessId={businessId}
+            businessSlug={businessSlug}
+            requests={leaveRequests}
+          />
         </section>
 
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 md:gap-10">
