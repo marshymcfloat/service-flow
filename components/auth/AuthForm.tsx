@@ -157,20 +157,6 @@ export default function AuthForm() {
             </span>
             <Separator className="flex-1 bg-slate-200" />
           </div>
-
-          <Button
-            variant={"outline"}
-            type="button"
-            disabled={isPending}
-            className="w-full h-12 bg-white border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-slate-900 hover:border-slate-300 transition-all duration-300"
-          >
-            {isPending ? (
-              <LoaderCircle className="animate-spin mr-2" />
-            ) : (
-              <FaGoogle className="mr-2 h-4 w-4" />
-            )}
-            Google
-          </Button>
         </div>
       </form>
     </Form>

@@ -28,6 +28,15 @@ export async function getCachedBusinessWithHoursAndEmployees(slug: string) {
           },
         },
       },
+      owners: {
+        select: {
+          id: true,
+          user: {
+            select: { name: true },
+          },
+          specialties: true,
+        },
+      },
     },
   });
 }

@@ -229,6 +229,7 @@ export type SpecialDateScalarFieldEnum = (typeof SpecialDateScalarFieldEnum)[key
 export const OwnerScalarFieldEnum = {
   id: 'id',
   user_id: 'user_id',
+  specialties: 'specialties',
   business_id: 'business_id'
 } as const
 

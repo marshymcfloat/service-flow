@@ -6,7 +6,7 @@ import {
 } from "@/lib/server actions/booking";
 import {
   getAvailableSlots,
-  getAvailableEmployees,
+  getAvailableProviders,
 } from "@/lib/server actions/availability";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import {
@@ -486,7 +486,7 @@ export default function BookingForm({
       const endTime = new Date(
         selectedTime.getTime() + totalDuration * 60 * 1000,
       );
-      return getAvailableEmployees({
+      return getAvailableProviders({
         businessSlug,
         startTime: selectedTime,
         endTime,

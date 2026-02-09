@@ -47,7 +47,12 @@ async function main() {
       description:
         "Experience premium beauty and wellness services in a relaxing environment. From rejuvenating facials to expert nail care and soothing massages, BeautyFeel is your sanctuary for self-care.",
 
-      owners: { create: { user_id: bfOwnerUser.id } },
+      owners: {
+        create: {
+          user_id: bfOwnerUser.id,
+          specialties: ["Skin"], // Owner specializes in Skin category
+        },
+      },
       latitude: 9.682940016270514,
       longitude: 118.75246245092016,
     } as any,

@@ -93,8 +93,7 @@ export async function getAvailableSlots({
     if (!businessHours) {
       businessHours = business.business_hours.find(
         (h) =>
-          h.day_of_week === dayOfWeek &&
-          h.category.toLowerCase() === "general",
+          h.day_of_week === dayOfWeek && h.category.toLowerCase() === "general",
       );
     }
 
@@ -227,34 +226,61 @@ export async function getAvailableSlots({
   const bookingIntervals = existingBookings
     .map((booking) => {
       if (!booking.scheduled_at || !booking.estimated_end) return null;
-      const busyIds = booking.availed_services
+      const busyEmployeeIds = booking.availed_services
         .filter((s) => s.served_by_id)
         .map((s) => s.served_by_id!)
+        .filter((id, index, arr) => arr.indexOf(id) === index);
+      const busyOwnerIds = booking.availed_services
+        .filter((s) => s.served_by_owner_id)
+        .map((s) => s.served_by_owner_id!)
         .filter((id, index, arr) => arr.indexOf(id) === index);
       return {
         start: booking.scheduled_at,
         end: booking.estimated_end,
-        busyIds,
+        busyEmployeeIds,
+        busyOwnerIds,
       };
     })
-    .filter(Boolean) as { start: Date; end: Date; busyIds: number[] }[];
+    .filter(Boolean) as {
+    start: Date;
+    end: Date;
+    busyEmployeeIds: number[];
+    busyOwnerIds: number[];
+  }[];
 
   const slots: TimeSlot[] = [];
-  const qualifiedEmployeesByCategory = new Map<string, number[]>();
-  const getQualifiedEmployeeIds = (category: string) => {
+  const qualifiedProvidersByCategory = new Map<
+    string,
+    { employeeIds: number[]; ownerIds: number[]; totalCount: number }
+  >();
+  const getQualifiedProviderIds = (category: string) => {
     const key = category.toLowerCase();
-    const cached = qualifiedEmployeesByCategory.get(key);
+    const cached = qualifiedProvidersByCategory.get(key);
     if (cached) return cached;
 
-    const ids = business.employees
+    const employeeIds = business.employees
       .filter(
         (emp) =>
           emp.specialties.length === 0 ||
           emp.specialties.some((s) => s.toLowerCase() === key),
       )
       .map((emp) => emp.id);
-    qualifiedEmployeesByCategory.set(key, ids);
-    return ids;
+
+    const ownerIds = business.owners
+      .filter(
+        (owner) =>
+          owner.specialties.length === 0 ||
+          owner.specialties.some((s) => s.toLowerCase() === key),
+      )
+      .map((owner) => owner.id);
+
+    const result = {
+      employeeIds,
+      ownerIds,
+      totalCount: employeeIds.length + ownerIds.length,
+    };
+    qualifiedProvidersByCategory.set(key, result);
+    return result;
   };
 
   const isWithinWindows = (
@@ -277,9 +303,7 @@ export async function getAvailableSlots({
   let currentSlotStart = new Date(
     Math.max(dayStart.getTime(), earliestWindowStart),
   );
-  const slotEndLimit = new Date(
-    Math.min(dayEnd.getTime(), latestWindowEnd),
-  );
+  const slotEndLimit = new Date(Math.min(dayEnd.getTime(), latestWindowEnd));
 
   while (currentSlotStart < slotEndLimit) {
     if (isToday && currentSlotStart <= phNowDate) {
@@ -303,27 +327,41 @@ export async function getAvailableSlots({
         break;
       }
 
-      const qualifiedEmployeeIds = getQualifiedEmployeeIds(service.category);
-      if (qualifiedEmployeeIds.length === 0) {
+      const qualifiedProviders = getQualifiedProviderIds(service.category);
+      if (qualifiedProviders.totalCount === 0) {
         slotFits = false;
         break;
       }
 
-      const busyQualifiedIds = new Set<number>();
+      const busyEmployees = new Set<number>();
+      const busyOwners = new Set<number>();
+
       for (const booking of bookingIntervals) {
         const overlaps = cursor < booking.end && serviceEnd > booking.start;
         if (!overlaps) continue;
-        booking.busyIds.forEach((id) => {
-          if (qualifiedEmployeeIds.includes(id)) {
-            busyQualifiedIds.add(id);
+
+        booking.busyEmployeeIds.forEach((id) => {
+          if (qualifiedProviders.employeeIds.includes(id)) {
+            busyEmployees.add(id);
+          }
+        });
+
+        booking.busyOwnerIds.forEach((id) => {
+          if (qualifiedProviders.ownerIds.includes(id)) {
+            busyOwners.add(id);
           }
         });
       }
 
+      const availableEmployees =
+        qualifiedProviders.employeeIds.length - busyEmployees.size;
+      const availableOwners =
+        qualifiedProviders.ownerIds.length - busyOwners.size;
       const availableForSegment = Math.max(
         0,
-        qualifiedEmployeeIds.length - busyQualifiedIds.size,
+        availableEmployees + availableOwners,
       );
+
       availableEmployeeCount = Math.min(
         availableEmployeeCount,
         availableForSegment,
@@ -357,7 +395,7 @@ export async function getAvailableSlots({
   return slots;
 }
 
-export async function getAvailableEmployees({
+export async function getAvailableProviders({
   businessSlug,
   startTime,
   endTime,
@@ -391,10 +429,14 @@ export async function getAvailableEmployees({
   });
 
   const busyEmployeeIds = new Set<number>();
+  const busyOwnerIds = new Set<number>();
   for (const booking of overlappingBookings) {
     for (const service of booking.availed_services) {
       if (service.served_by_id) {
         busyEmployeeIds.add(service.served_by_id);
+      }
+      if (service.served_by_owner_id) {
+        busyOwnerIds.add(service.served_by_owner_id);
       }
     }
   }
@@ -411,12 +453,30 @@ export async function getAvailableEmployees({
     );
   });
 
-  return qualifiedEmployees.map((emp) => ({
+  const qualifiedOwners = business.owners.filter((owner) => {
+    if (owner.specialties.length === 0) return true;
+    return owner.specialties.some((s) =>
+      normalizedCategories.includes(s.toLowerCase()),
+    );
+  });
+
+  const employees = qualifiedEmployees.map((emp) => ({
     id: emp.id,
     name: emp.user.name,
     available: !busyEmployeeIds.has(emp.id),
     specialties: emp.specialties,
+    type: "EMPLOYEE" as const,
   }));
+
+  const owners = qualifiedOwners.map((owner) => ({
+    id: owner.id,
+    name: owner.user.name,
+    available: !busyOwnerIds.has(owner.id),
+    specialties: owner.specialties,
+    type: "OWNER" as const,
+  }));
+
+  return [...employees, ...owners];
 }
 
 export async function checkCategoryAvailability({
@@ -513,10 +573,16 @@ export async function checkCategoryAvailability({
       emp.specialties.some((s) => s.toLowerCase() === normalizedCategory),
   );
 
+  const qualifiedOwners = business.owners.filter(
+    (owner) =>
+      owner.specialties.length === 0 ||
+      owner.specialties.some((s) => s.toLowerCase() === normalizedCategory),
+  );
+
   return {
     hasBusinessHours,
     businessHoursPassed,
-    qualifiedEmployeeCount: qualifiedEmployees.length,
+    qualifiedEmployeeCount: qualifiedEmployees.length + qualifiedOwners.length,
     businessHours: businessHours
       ? {
           open_time: businessHours.open_time,

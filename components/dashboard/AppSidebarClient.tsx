@@ -14,6 +14,7 @@ import {
   ChevronRight,
   Sparkles,
   Percent,
+  Crown,
   type LucideIcon,
 } from "lucide-react";
 import Link from "next/link";
@@ -101,6 +102,7 @@ export function AppSidebarClient({ businessSlug, user }: SidebarProps) {
       activeColor: "bg-emerald-100 dark:bg-emerald-500/20",
       items: [
         { title: "Employees", url: `/app/${slug}/employees`, icon: UserCircle },
+        { title: "Owners", url: `/app/${slug}/owners`, icon: Crown },
         {
           title: "Attendance",
           url: `/app/${slug}/attendance`,

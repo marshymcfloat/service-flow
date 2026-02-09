@@ -6,6 +6,7 @@ import {
   BookingStatus, // Added BookingStatus here as it is used in the query filter
 } from "@/prisma/generated/prisma/client";
 import { requireAuth } from "@/lib/auth/guards";
+import { revalidatePath } from "next/cache";
 
 export async function getPendingServicesAction() {
   const auth = await requireAuth();
@@ -143,5 +144,70 @@ export async function getOwnerClaimedServicesAction() {
   } catch (error) {
     console.error("Error fetching owner claimed services:", error);
     return { success: false, error: "Unable to fetch claimed services." };
+  }
+}
+
+async function getBusinessBySlug(slug: string) {
+  const business = await prisma.business.findUnique({
+    where: { slug },
+    select: { id: true },
+  });
+
+  if (!business) {
+    throw new Error("Business not found");
+  }
+
+  return business;
+}
+
+export async function getOwners(businessSlug: string) {
+  const business = await getBusinessBySlug(businessSlug);
+
+  return await prisma.owner.findMany({
+    where: { business_id: business.id },
+    select: {
+      id: true,
+      specialties: true,
+      user: {
+        select: {
+          name: true,
+          email: true,
+        },
+      },
+    },
+  });
+}
+
+export async function updateOwnerSpecialties(
+  ownerId: number,
+  specialties: string[],
+) {
+  const auth = await requireAuth();
+  if (!auth.success) return { success: false, error: "Unauthorized" };
+
+  try {
+    // Verify owner belongs to business
+    const owner = await prisma.owner.findFirst({
+      where: {
+        id: ownerId,
+        business: { slug: auth.businessSlug },
+      },
+    });
+
+    if (!owner) {
+      return { success: false, error: "Owner not found" };
+    }
+
+    // Update specialties
+    await prisma.owner.update({
+      where: { id: ownerId },
+      data: { specialties },
+    });
+
+    revalidatePath(`/app/${auth.businessSlug}/owners`);
+    return { success: true };
+  } catch (error) {
+    console.error("Error updating owner specialties:", error);
+    return { success: false, error: "Failed to update owner specialties" };
   }
 }
