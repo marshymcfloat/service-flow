@@ -148,16 +148,16 @@ export async function createBooking({
       }
     }
 
-    const totalAfterDiscounts = Math.max(0, subtotal - voucherDiscount);
-    let amountToPay =
-      paymentType === "DOWNPAYMENT"
-        ? totalAfterDiscounts * 0.5
-        : totalAfterDiscounts;
+    // 3. Calculate Final Amount using safe integer math
+    // Import dynamically to avoid circular dependencies if any, or just top-level import
+    const { calculateBookingTotal } = await import("@/lib/utils/pricing");
 
-    // Add 1.5% convenience fee for QR payments
-    if (paymentMethod === "QRPH") {
-      amountToPay += amountToPay * 0.015;
-    }
+    const amountToPay = calculateBookingTotal({
+      subtotal,
+      voucherDiscount,
+      paymentMethod,
+      paymentType,
+    });
 
     const totalDuration = services.reduce(
       (sum, s) => sum + (s.duration || 30) * s.quantity,
@@ -187,7 +187,8 @@ export async function createBooking({
       });
 
       if (!isWalkIn) {
-        await sendBookingConfirmation(booking.id);
+        // Email is handled via Outbox (BOOKING_CONFIRMED event)
+        // await sendBookingConfirmation(booking.id);
       }
 
       revalidatePath(`/app/${businessSlug}`);

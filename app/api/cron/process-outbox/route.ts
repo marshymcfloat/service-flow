@@ -38,16 +38,21 @@ async function handleEvent(
 }
 
 // Event handlers - implement your email/webhook logic here
+// Event handlers - implement your email/webhook logic here
 async function handleBookingCreated(
   payload: Record<string, unknown>,
   _businessId: string,
 ) {
-  const { email, customerName, scheduledAt } = payload;
-  if (email && typeof email === "string") {
-    // TODO: Send confirmation email using your email service (e.g., Resend)
-    console.log(
-      `[Outbox] Would send booking confirmation to ${email} for ${customerName} at ${scheduledAt}`,
-    );
+  const bookingId = payload.bookingId as number;
+  if (bookingId) {
+    const { sendBookingConfirmation } =
+      await import("@/lib/email/send-booking-details");
+    const result = await sendBookingConfirmation(bookingId);
+    if (!result || !result.success) {
+      throw new Error(
+        `Failed to send booking confirmation email: ${result?.error}`,
+      );
+    }
   }
 }
 
@@ -55,11 +60,17 @@ async function handleBookingConfirmed(
   payload: Record<string, unknown>,
   _businessId: string,
 ) {
-  const { email, customerName } = payload;
-  if (email && typeof email === "string") {
-    console.log(
-      `[Outbox] Would send booking confirmed email to ${email} for ${customerName}`,
-    );
+  // exact same logic as created for now, as sendBookingConfirmation handles the template
+  const bookingId = payload.bookingId as number;
+  if (bookingId) {
+    const { sendBookingConfirmation } =
+      await import("@/lib/email/send-booking-details");
+    const result = await sendBookingConfirmation(bookingId);
+    if (!result || !result.success) {
+      throw new Error(
+        `Failed to send booking confirmed email: ${result?.error}`,
+      );
+    }
   }
 }
 
