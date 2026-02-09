@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import OwnerDashboard from "./OwnerDashboard";
 import { prisma } from "@/prisma/prisma";
 import { getEndOfDayPH, getStartOfDayPH } from "@/lib/date-utils";
+import { getThisWeeksFlowRemindersCount } from "@/lib/data/flow-reminder-queries";
 
 export default async function OwnerDashboardDataContainer({
   businessSlug,
@@ -213,6 +214,10 @@ export default async function OwnerDashboardDataContainer({
     },
   });
 
+  const flowRemindersThisWeek = await getThisWeeksFlowRemindersCount(
+    business.id,
+  );
+
   return (
     <OwnerDashboard
       businessName={business.name}
@@ -225,6 +230,7 @@ export default async function OwnerDashboardDataContainer({
       pendingServices={pendingServices}
       ownerClaimedServices={ownerClaimedServices}
       payroll={payrollData}
+      flowRemindersThisWeek={flowRemindersThisWeek}
     />
   );
 }

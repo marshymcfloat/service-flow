@@ -5,7 +5,8 @@ export type OutboxEventType =
   | "BOOKING_CANCELLED"
   | "PAYMENT_CONFIRMED"
   | "REMINDER_DUE"
-  | "PAYSLIP_GENERATED";
+  | "PAYSLIP_GENERATED"
+  | "FLOW_REMINDER_SENT";
 
 export interface OutboxEvent {
   type: OutboxEventType;

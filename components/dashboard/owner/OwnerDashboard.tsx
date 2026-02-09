@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { PhilippinePeso, Plus, Calendar, Users } from "lucide-react";
+import { PhilippinePeso, Plus, Calendar, Users, Bell } from "lucide-react";
 import Link from "next/link";
 import DashboardCard from "../DashboardCard";
 import { SalesChart } from "./SalesChart";
@@ -50,6 +50,7 @@ export default async function OwnerDashboard({
   pendingServices,
   ownerClaimedServices,
   payroll,
+  flowRemindersThisWeek,
 }: {
   businessName: string;
   businessSlug: string;
@@ -71,6 +72,7 @@ export default async function OwnerDashboard({
       };
     };
   }[];
+  flowRemindersThisWeek: number;
 }) {
   const business = await getCachedBusinessBySlug(businessSlug);
   const services = business ? await getCachedServices(business.id) : [];
@@ -101,7 +103,7 @@ export default async function OwnerDashboard({
       </header>
 
       <main className="max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-        <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <DashboardCard
             variant="filled"
             Icon={PhilippinePeso}
@@ -122,6 +124,13 @@ export default async function OwnerDashboard({
             description="Staff currently present"
             title="Active Staff"
             count={presentEmployeesToday}
+          />
+
+          <DashboardCard
+            Icon={Bell}
+            description="Follow-up reminders sent"
+            title="Flow Reminders"
+            count={flowRemindersThisWeek}
           />
         </section>
 

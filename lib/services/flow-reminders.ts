@@ -257,6 +257,27 @@ export async function sendFlowReminders() {
           );
         } else {
           sentCount++;
+
+          // Track this reminder in OutboxMessage for dashboard visibility
+          await prisma.outboxMessage.create({
+            data: {
+              event_type: "FLOW_REMINDER_SENT",
+              aggregate_type: "ServiceFlow",
+              aggregate_id: flow.id,
+              business_id: item.booking.business_id,
+              payload: {
+                customerId: item.booking.customer_id,
+                customerName,
+                customerEmail: item.booking.customer.email,
+                triggerServiceName: serviceName,
+                suggestedServiceName: nextServiceName,
+                flowType: flow.type,
+                sentAt: new Date().toISOString(),
+              },
+              processed: true,
+              processed_at: new Date(),
+            },
+          });
         }
       }
     }
