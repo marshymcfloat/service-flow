@@ -4,7 +4,6 @@ import { prisma } from "@/prisma/prisma";
 import { requireAuth } from "@/lib/auth/guards";
 import {
   AvailedServiceStatus,
-  ServiceProviderType,
 } from "@/prisma/generated/prisma/client";
 
 // Mock dependencies
@@ -35,6 +34,10 @@ vi.mock("@/lib/utils/pricing", () => ({
 }));
 
 describe("Employee Dashboard Actions", () => {
+  const requireAuthMock = vi.mocked(requireAuth);
+  const availedServiceFindUniqueMock = vi.mocked(prisma.availedService.findUnique);
+  const availedServiceUpdateMock = vi.mocked(prisma.availedService.update);
+
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -47,22 +50,28 @@ describe("Employee Dashboard Actions", () => {
     });
 
     it("should claim service successfully", async () => {
-      (requireAuth as any).mockResolvedValue({
+      requireAuthMock.mockResolvedValue({
         success: true,
         businessSlug: "test-business",
-      });
+      } as Awaited<ReturnType<typeof requireAuth>>);
 
-      (prisma.availedService.findUnique as any).mockResolvedValue({
-        id: 1,
-        price: 100,
-        service_id: 1,
-        package_id: null,
-      });
+      availedServiceFindUniqueMock.mockResolvedValue(
+        {
+          id: 1,
+          price: 100,
+          service_id: 1,
+          package_id: null,
+        } as unknown as Awaited<
+          ReturnType<typeof prisma.availedService.findUnique>
+        >,
+      );
 
-      (prisma.availedService.update as any).mockResolvedValue({
-        id: 1,
-        status: AvailedServiceStatus.CLAIMED,
-      });
+      availedServiceUpdateMock.mockResolvedValue(
+        {
+          id: 1,
+          status: AvailedServiceStatus.CLAIMED,
+        } as unknown as Awaited<ReturnType<typeof prisma.availedService.update>>,
+      );
 
       const result = await claimServiceAction(1, 101);
 
@@ -89,20 +98,26 @@ describe("Employee Dashboard Actions", () => {
     });
 
     it("should unclaim service successfully", async () => {
-      (requireAuth as any).mockResolvedValue({
+      requireAuthMock.mockResolvedValue({
         success: true,
         businessSlug: "test-business",
-      });
+      } as Awaited<ReturnType<typeof requireAuth>>);
 
-      (prisma.availedService.findUnique as any).mockResolvedValue({
-        id: 1,
-        price: 100,
-      });
+      availedServiceFindUniqueMock.mockResolvedValue(
+        {
+          id: 1,
+          price: 100,
+        } as unknown as Awaited<
+          ReturnType<typeof prisma.availedService.findUnique>
+        >,
+      );
 
-      (prisma.availedService.update as any).mockResolvedValue({
-        id: 1,
-        status: AvailedServiceStatus.PENDING,
-      });
+      availedServiceUpdateMock.mockResolvedValue(
+        {
+          id: 1,
+          status: AvailedServiceStatus.PENDING,
+        } as unknown as Awaited<ReturnType<typeof prisma.availedService.update>>,
+      );
 
       const result = await unclaimServiceAction(1);
 

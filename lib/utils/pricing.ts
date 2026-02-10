@@ -1,17 +1,27 @@
+export type SaleEventRef = { id: number };
+
+export type SaleEventForPricing = {
+  title: string;
+  discount_type: "PERCENTAGE" | "FLAT";
+  discount_value: number;
+  applicable_services: SaleEventRef[];
+  applicable_packages: SaleEventRef[];
+};
+
 export const getApplicableDiscount = (
   serviceId: number,
   packageId: number | undefined,
   price: number,
-  saleEvents: any[],
+  saleEvents: SaleEventForPricing[],
 ) => {
   if (!saleEvents || saleEvents.length === 0) return null;
 
   const applicableEvent = saleEvents
     .filter((event) => {
       if (packageId) {
-        return event.applicable_packages.some((p: any) => p.id === packageId);
+        return event.applicable_packages.some((p) => p.id === packageId);
       }
-      return event.applicable_services.some((s: any) => s.id === serviceId);
+      return event.applicable_services.some((s) => s.id === serviceId);
     })
     .sort((a, b) => {
       const valA =

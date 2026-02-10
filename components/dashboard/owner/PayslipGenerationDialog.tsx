@@ -7,7 +7,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -27,6 +26,7 @@ import {
 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
+import { useQuery } from "@tanstack/react-query";
 
 interface PayslipGenerationDialogProps {
   employeeId: number | null;
@@ -35,39 +35,77 @@ interface PayslipGenerationDialogProps {
   onSuccess: () => void;
 }
 
+type PayslipData = {
+  employee: {
+    id: number;
+    name: string;
+    daily_rate: number;
+    commission_percentage: number;
+  };
+  period: {
+    start: Date;
+    end: Date;
+  };
+  breakdown: {
+    days_present: number;
+    paid_leave_days: number;
+    attendance_dates: Date[];
+    basic_salary: number;
+    commission_services_count: number;
+    commission_services: Array<{
+      id: number;
+      commission_base: number | null;
+      price: number;
+      package: { name: string } | null;
+      service: { name: string };
+    }>;
+    commission_total: number;
+  };
+  total_salary: number;
+};
+type CommissionService = PayslipData["breakdown"]["commission_services"][number];
+
 export function PayslipGenerationDialog({
   employeeId,
   open,
   onOpenChange,
   onSuccess,
 }: PayslipGenerationDialogProps) {
-  const [loading, setLoading] = useState(false);
   const [generating, setGenerating] = useState(false);
-  const [data, setData] = useState<any>(null);
   const [deduction, setDeduction] = useState(0);
   const [comment, setComment] = useState("");
 
+  const { data, isLoading, isFetching, error } = useQuery<PayslipData, Error>({
+    queryKey: ["payslip-data", employeeId],
+    enabled: open && !!employeeId,
+    queryFn: async (): Promise<PayslipData> => {
+      if (!employeeId) {
+        throw new Error("Employee not found");
+      }
+
+      const res = await getPayslipDataAction(employeeId);
+      if (!res.success || !("data" in res) || !res.data) {
+        throw new Error(("error" in res && res.error) || "Failed to load data");
+      }
+
+      return res.data;
+    },
+  });
+
   useEffect(() => {
-    if (open && employeeId) {
-      fetchData();
+    if (!error) return;
+    toast.error(error.message);
+    onOpenChange(false);
+  }, [error, onOpenChange]);
+
+  const loading = isLoading || isFetching;
+
+  const handleDialogOpenChange = (nextOpen: boolean) => {
+    if (!nextOpen) {
       setDeduction(0);
       setComment("");
-    } else {
-      setData(null);
     }
-  }, [open, employeeId]);
-
-  const fetchData = async () => {
-    if (!employeeId) return;
-    setLoading(true);
-    const res = await getPayslipDataAction(employeeId);
-    setLoading(false);
-    if (res.success) {
-      setData(res.data);
-    } else {
-      toast.error(res.error);
-      onOpenChange(false);
-    }
+    onOpenChange(nextOpen);
   };
 
   const handleGenerate = async () => {
@@ -96,7 +134,7 @@ export function PayslipGenerationDialog({
   if (!employeeId) return null;
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleDialogOpenChange}>
       <DialogContent className="sm:max-w-[425px] md:max-w-[600px]! max-h-[90vh] flex flex-col p-0 gap-0 bg-zinc-50 overflow-hidden">
         <DialogHeader className="p-6 pb-2 bg-white border-b border-zinc-100 shrink-0">
           <DialogTitle className="text-xl font-bold text-zinc-900">
@@ -192,7 +230,7 @@ export function PayslipGenerationDialog({
                     {data.breakdown.commission_services.length > 0 ? (
                       <div className="divide-y divide-zinc-100">
                         {data.breakdown.commission_services.map(
-                          (service: any) => (
+                          (service: CommissionService) => (
                             <div
                               key={service.id}
                               className="px-3 py-2 flex justify-between items-center text-xs"

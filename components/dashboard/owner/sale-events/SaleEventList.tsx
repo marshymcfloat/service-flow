@@ -20,8 +20,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal } from "lucide-react";
 import { DiscountType } from "@/prisma/generated/prisma/enums";
+import type { SaleEventRef } from "@/lib/utils/pricing";
 
-interface SaleEvent {
+export interface SaleEvent {
   id: number;
   title: string;
   description: string | null;
@@ -29,8 +30,8 @@ interface SaleEvent {
   end_date: Date;
   discount_type: DiscountType;
   discount_value: number;
-  applicable_services: any[];
-  applicable_packages: any[];
+  applicable_services: SaleEventRef[];
+  applicable_packages: SaleEventRef[];
 }
 
 interface SaleEventListProps {

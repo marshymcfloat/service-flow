@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -12,9 +12,8 @@ import { Calendar } from "@/components/ui/calendar";
 import { Employee, EmployeeAttendance } from "@/prisma/generated/prisma/client";
 import { getEmployeeAttendanceHistory } from "@/app/actions/attendance";
 import { format, isSameDay } from "date-fns";
-import { Loader2, Clock, MapPin, Calendar as CalendarIcon } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { Loader2, Clock, Calendar as CalendarIcon } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 
 interface EmployeeAttendanceHistoryDialogProps {
   employee: (Employee & { user: { name: string } }) | null;
@@ -27,24 +26,23 @@ export function EmployeeAttendanceHistoryDialog({
   open,
   onOpenChange,
 }: EmployeeAttendanceHistoryDialogProps) {
-  const [history, setHistory] = useState<EmployeeAttendance[]>([]);
-  const [loading, setLoading] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(
     new Date(),
   );
 
-  useEffect(() => {
-    if (open && employee) {
-      setLoading(true);
-      getEmployeeAttendanceHistory(employee.id)
-        .then((res) => {
-          if (res.success && res.data) {
-            setHistory(res.data);
-          }
-        })
-        .finally(() => setLoading(false));
-    }
-  }, [open, employee]);
+  const { data: historyResult, isFetching } = useQuery({
+    queryKey: ["employeeAttendanceHistory", employee?.id],
+    queryFn: async () => {
+      if (!employee) return { success: false as const, data: [] };
+      return getEmployeeAttendanceHistory(employee.id);
+    },
+    enabled: open && !!employee,
+    staleTime: 60 * 1000,
+  });
+
+  const history: EmployeeAttendance[] =
+    historyResult?.success && historyResult.data ? historyResult.data : [];
+  const loading = open && !!employee && isFetching;
 
   const getDayData = (date: Date) => {
     return history.find((h) => isSameDay(new Date(h.date), date));

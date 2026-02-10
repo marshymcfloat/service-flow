@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { MouseEvent } from "react";
 import { createPortal } from "react-dom";
+import Image from "next/image";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -28,12 +29,8 @@ export default function QrPaymentPanel({
   onClose,
   onRetry,
 }: QrPaymentPanelProps) {
-  const [portalRoot, setPortalRoot] = useState<HTMLElement | null>(null);
   const [remaining, setRemaining] = useState<string | null>(null);
-
-  useEffect(() => {
-    setPortalRoot(document.body);
-  }, []);
+  const portalRoot = typeof document !== "undefined" ? document.body : null;
 
   useEffect(() => {
     if (!expiresAt) return;
@@ -113,9 +110,12 @@ export default function QrPaymentPanel({
             Amount to pay: <span className="font-semibold">{amountLabel}</span>
           </div>
           <div className="mx-auto w-56 rounded-2xl border border-black/10 bg-white p-3 shadow-sm">
-            <img
+            <Image
               src={getImageSrc(qrImage)}
               alt="QR payment code"
+              width={224}
+              height={224}
+              unoptimized
               className={cn(
                 "w-full",
                 status === "paid" && "opacity-60 grayscale",

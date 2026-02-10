@@ -4,7 +4,6 @@ import {
   LeaveRequest,
   Employee,
   User,
-  LeaveRequestStatus,
 } from "@/prisma/generated/prisma/client";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -18,7 +17,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { LeaveActionDialog } from "./LeaveActionDialog";
-import { User as UserIcon, Calendar, MessageSquare, Clock } from "lucide-react";
+import { User as UserIcon, Calendar, MessageSquare } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 // Helper functions for avatars

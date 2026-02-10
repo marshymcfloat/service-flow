@@ -159,9 +159,9 @@ export function EmployeeList({
                         <AlertDialogHeader>
                           <AlertDialogTitle>Delete Employee</AlertDialogTitle>
                           <AlertDialogDescription>
-                            Are you sure you want to delete "
+                            Are you sure you want to delete &quot;
                             {employee.user.name}
-                            "? This will remove their employee record. Their
+                            &quot;? This will remove their employee record. Their
                             attendance and payslip history will also be deleted.
                           </AlertDialogDescription>
                         </AlertDialogHeader>
@@ -368,8 +368,8 @@ export function EmployeeList({
                                 Delete Employee
                               </AlertDialogTitle>
                               <AlertDialogDescription>
-                                Are you sure you want to delete "
-                                {employee.user.name}"? This will remove their
+                                Are you sure you want to delete &quot;
+                                {employee.user.name}&quot;? This will remove their
                                 employee record. Their attendance and payslip
                                 history will also be deleted.
                               </AlertDialogDescription>

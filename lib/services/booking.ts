@@ -1,24 +1,23 @@
 import { prisma } from "@/prisma/prisma";
 import { publishEvent } from "./outbox";
 import { Prisma } from "@/prisma/generated/prisma/client";
+import {
+  BookingServiceInput,
+  buildBookingPricingSnapshot,
+} from "./booking-pricing";
 
 export type BookingServiceParams = {
   businessSlug: string;
   customerId?: string;
   customerName: string;
-  services: {
-    id: number;
-    name: string;
-    price: number;
-    quantity: number;
-    duration?: number;
-    claimedByCurrentEmployee?: boolean;
-    packageId?: number;
+  services: (BookingServiceInput & {
+    name?: string;
+    price?: number;
     originalPrice?: number;
     discount?: number;
     discountReason?: string | null;
     commissionBase?: number;
-  }[];
+  })[];
   scheduledAt: Date;
   estimatedEnd: Date;
   employeeId?: number | null;
@@ -42,7 +41,6 @@ export async function createBookingInDb({
   customerName,
   services,
   scheduledAt,
-  estimatedEnd,
   employeeId,
   currentEmployeeId,
   paymentMethod,
@@ -50,7 +48,6 @@ export async function createBookingInDb({
   paymentType,
   email,
   voucherCode,
-  totalDiscount = 0,
   paymentConfirmed = false,
   paymongoCheckoutSessionId,
   paymongoPaymentIntentId,
@@ -58,13 +55,17 @@ export async function createBookingInDb({
   paymongoPaymentId,
 }: BookingServiceParams) {
   return await prisma.$transaction(async (tx) => {
-    const business = await tx.business.findUnique({
-      where: { slug: businessSlug },
+    const pricing = await buildBookingPricingSnapshot({
+      db: tx,
+      businessSlug,
+      scheduledAt,
+      services,
+      paymentMethod,
+      paymentType,
+      voucherCode,
     });
-
-    if (!business) {
-      throw new Error(`Business with slug ${businessSlug} not found`);
-    }
+    const { business } = pricing;
+    const validatedServices = pricing.services;
 
     let finalCustomerId = customerId;
 
@@ -77,7 +78,7 @@ export async function createBookingInDb({
       if (existingCustomer) {
         // Update email if provided and not set
         if (email && !existingCustomer.email) {
-          await prisma.customer.update({
+          await tx.customer.update({
             where: { id: existingCustomer.id },
             data: { email },
           });
@@ -114,141 +115,6 @@ export async function createBookingInDb({
       }
     }
 
-    // Fetch active sale events for validation
-    const now = new Date();
-    const activeSaleEvents = await tx.saleEvent.findMany({
-      where: {
-        business: { slug: businessSlug },
-        start_date: { lte: now },
-        end_date: { gte: now },
-      },
-      include: {
-        applicable_services: { select: { id: true } },
-        applicable_packages: { select: { id: true } },
-      },
-    });
-
-    // Recalculate prices and validate
-    const validatedServices = services.map((service) => {
-      let finalPrice = service.originalPrice || service.price;
-      let discountAmount = 0;
-      let discountReason = service.discountReason;
-
-      // Check for applicable sale events
-      const applicableEvent = activeSaleEvents
-        .filter((event) => {
-          if (service.packageId) {
-            return event.applicable_packages.some(
-              (p) => p.id === service.packageId,
-            );
-          }
-          return event.applicable_services.some((s) => s.id === service.id);
-        })
-        .sort((a, b) => {
-          // Sort by highest discount value (approximation for mixed types)
-          const valA =
-            a.discount_type === "PERCENTAGE"
-              ? (service.originalPrice || service.price) *
-                (a.discount_value / 100)
-              : a.discount_value;
-          const valB =
-            b.discount_type === "PERCENTAGE"
-              ? (service.originalPrice || service.price) *
-                (b.discount_value / 100)
-              : b.discount_value;
-          return valB - valA;
-        })[0];
-
-      if (applicableEvent) {
-        let eventDiscount = 0;
-        if (applicableEvent.discount_type === "PERCENTAGE") {
-          eventDiscount =
-            ((service.originalPrice || service.price) *
-              applicableEvent.discount_value) /
-            100;
-        } else {
-          eventDiscount = applicableEvent.discount_value;
-        }
-
-        // Ensure we don't discount more than the price
-        eventDiscount = Math.min(
-          eventDiscount,
-          service.originalPrice || service.price,
-        );
-
-        if (eventDiscount > 0) {
-          finalPrice = (service.originalPrice || service.price) - eventDiscount;
-          discountAmount = eventDiscount;
-          discountReason = applicableEvent.title;
-        }
-      }
-
-      return {
-        ...service,
-        price: finalPrice, // Override with server-calculated price
-        originalPrice: service.originalPrice || service.price,
-        discount: discountAmount,
-        discountReason,
-      };
-    });
-
-    // Use validated services (server-calculated prices) for the total
-    const total = validatedServices.reduce(
-      (acc, s) => acc + s.price * s.quantity,
-      0,
-    );
-
-    let voucherId: number | undefined;
-    let discountAmount = 0;
-
-    // Check voucher against the VALIDATED total (already sale-discounted)
-    const totalToCheck = total;
-
-    if (voucherCode) {
-      const voucher = await tx.voucher.findUnique({
-        where: { code: voucherCode },
-        include: { business: true },
-      });
-
-      if (!voucher) {
-        throw new Error(`Voucher code ${voucherCode} not found`);
-      }
-
-      if (voucher.business.slug !== businessSlug) {
-        throw new Error("Voucher not valid for this business");
-      }
-
-      if (!voucher.is_active) {
-        throw new Error("Voucher is not active");
-      }
-
-      if (new Date() > voucher.expires_at) {
-        throw new Error("Voucher has expired");
-      }
-
-      if (voucher.used_by_id) {
-        throw new Error("Voucher has already been used");
-      }
-
-      if (total < voucher.minimum_amount) {
-        throw new Error(
-          `Minimum spend of ${voucher.minimum_amount} required to use this voucher`,
-        );
-      }
-
-      if (voucher.type === "PERCENTAGE") {
-        discountAmount = (total * voucher.value) / 100;
-      } else {
-        discountAmount = voucher.value;
-      }
-
-      // Ensure discount doesn't exceed total
-      discountAmount = Math.min(discountAmount, total);
-      voucherId = voucher.id;
-    } else if (totalDiscount > 0) {
-      // Logic for pre-calculated voucher discount
-    }
-
     const isDownpayment = paymentType === "DOWNPAYMENT";
     const isOnlinePayment = paymentMethod === "QRPH";
 
@@ -261,12 +127,11 @@ export async function createBookingInDb({
         ? new Date(Date.now() + 10 * 60 * 1000) // 10 minute hold
         : null;
 
-    // Use calculated discountAmount if this function calculated it, otherwise use passed totalDiscount
-    const finalVoucherDiscount =
-      discountAmount > 0 ? discountAmount : totalDiscount;
-
-    const grandTotal = Math.max(0, total - finalVoucherDiscount);
-    const downpaymentAmount = isDownpayment ? grandTotal * 0.5 : null;
+    const finalVoucherDiscount = pricing.voucherDiscount;
+    const grandTotal = pricing.grandTotal;
+    const downpaymentAmount = isDownpayment
+      ? pricing.downpaymentAmount
+      : null;
 
     const booking = await tx.booking.create({
       data: {
@@ -282,7 +147,7 @@ export async function createBookingInDb({
         status: bookingStatus,
         hold_expires_at: holdExpiresAt,
         scheduled_at: scheduledAt,
-        estimated_end: estimatedEnd,
+        estimated_end: pricing.estimatedEnd,
         downpayment: downpaymentAmount,
         availed_services: {
           create: validatedServices.map((s, index) => {
@@ -307,9 +172,9 @@ export async function createBookingInDb({
             const claimedAt = isClaimed ? new Date() : null;
 
             // Logic for packages
-            const originalPrice = s.originalPrice || s.price;
+            const originalPrice = s.originalPrice;
             const finalPrice = s.price;
-            const discount = s.discount || originalPrice - finalPrice;
+            const discount = s.discount;
             const discountReason =
               s.discountReason || (discount > 0 ? "PACKAGE_OR_MANUAL" : null);
 
@@ -333,14 +198,22 @@ export async function createBookingInDb({
       },
     });
 
-    if (voucherId) {
-      await tx.voucher.update({
-        where: { id: voucherId },
+    if (pricing.voucher?.id) {
+      const reserveVoucher = await tx.voucher.updateMany({
+        where: {
+          id: pricing.voucher.id,
+          is_active: true,
+          used_by_id: null,
+        },
         data: {
-          used_by: { connect: { id: booking.id } },
-          is_active: false, // Mark as inactive after use
+          used_by_id: booking.id,
+          is_active: false,
         },
       });
+
+      if (reserveVoucher.count === 0) {
+        throw new Error("Voucher is no longer available");
+      }
     }
 
     // Publish outbox event for async processing (emails, etc.)
@@ -357,7 +230,7 @@ export async function createBookingInDb({
         customerName,
         email,
         scheduledAt: scheduledAt.toISOString(),
-        estimatedEnd: estimatedEnd.toISOString(),
+        estimatedEnd: pricing.estimatedEnd.toISOString(),
         grandTotal,
         status: bookingStatus,
       },

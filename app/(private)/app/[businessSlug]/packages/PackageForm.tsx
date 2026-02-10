@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, memo, useCallback } from "react";
+import { useState, useMemo, memo, useCallback } from "react";
 import { ServiceItem } from "./ServiceItem";
 import { Service, ServicePackage } from "@/prisma/generated/prisma/client";
 import { Input } from "@/components/ui/input";
@@ -8,7 +8,6 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -21,8 +20,7 @@ import {
   createPackageAction,
   updatePackageAction,
 } from "@/lib/server actions/packages";
-import { Clock, PhilippinePeso, Search } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Search } from "lucide-react";
 
 type ServicePackageWithItems = ServicePackage & {
   items: {
@@ -192,7 +190,7 @@ export function PackageForm({
       } else {
         toast.error(result.error || "Failed to save package");
       }
-    } catch (error) {
+    } catch {
       toast.error("An unexpected error occurred");
     } finally {
       setIsLoading(false);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState } from "react";
 import {
   Bar,
   BarChart,
@@ -59,6 +59,15 @@ interface PayrollRecord {
   ending_date: Date;
 }
 
+type ChartBucket = {
+  name: string;
+  total: number;
+  expenses: number;
+  net: number;
+  originalIndex?: number;
+  [key: string]: number | string | undefined;
+};
+
 export function SalesChart({
   bookings,
   allBookings = [],
@@ -73,19 +82,14 @@ export function SalesChart({
   variant?: "card" | "embedded";
 }) {
   const [range, setRange] = useState("monthly");
-  const [isMounted, setIsMounted] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
+  const isMounted = true;
 
   const {
     data,
     totalRevenue,
     totalPayroll,
     netRevenue,
-    totalOrders,
     averageOrderValue,
     categoryBreakdown,
   } = useMemo(() => {
@@ -198,8 +202,12 @@ export function SalesChart({
       return 0;
     };
 
-    const initBuckets = () => {
-      let bucketArray: any[] = [];
+    const initBuckets = (): ChartBucket[] => {
+      let bucketArray: Array<{
+        name: string;
+        total: number;
+        originalIndex?: number;
+      }> = [];
       if (range === "daily")
         bucketArray = Array.from({ length: 24 }, (_, i) => ({
           name: `${i}:00`,
@@ -207,7 +215,11 @@ export function SalesChart({
         }));
       else if (range === "weekly") {
         const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-        const ordered: any[] = [];
+        const ordered: Array<{
+          name: string;
+          total: number;
+          originalIndex: number;
+        }> = [];
         for (let i = 0; i < 7; i++) {
           const d = new Date(now);
           d.setDate(d.getDate() - (6 - i));
@@ -249,14 +261,14 @@ export function SalesChart({
       return bucketArray.map((b) => ({ ...b, expenses: 0, net: 0 }));
     };
 
-    let buckets = initBuckets();
+    const buckets = initBuckets();
 
     filteredPayroll.forEach((p) => {
       const pKey = getBucketKey(p.ending_date);
       let bucket;
       if (range === "weekly") {
         const dayIndex = new Date(p.ending_date).getDay();
-        bucket = buckets.find((item: any) => item.originalIndex === dayIndex);
+        bucket = buckets.find((item) => item.originalIndex === dayIndex);
       } else if (range === "daily") {
         bucket = buckets[pKey];
       } else if (range === "monthly") {
@@ -275,7 +287,7 @@ export function SalesChart({
       let bucket;
       if (range === "weekly") {
         const dayIndex = new Date(b.created_at).getDay();
-        bucket = buckets.find((item: any) => item.originalIndex === dayIndex);
+        bucket = buckets.find((item) => item.originalIndex === dayIndex);
       } else if (range === "daily") {
         bucket = buckets[bKey];
       } else if (range === "monthly") {
@@ -297,7 +309,7 @@ export function SalesChart({
     });
 
     // Calculate Net
-    buckets.forEach((b: any) => {
+    buckets.forEach((b) => {
       b.net = b.total - b.expenses;
     });
 
@@ -308,7 +320,6 @@ export function SalesChart({
       totalRevenue: tRevenue,
       totalPayroll: tPayroll,
       netRevenue: nRevenue,
-      totalOrders: tOrders,
       averageOrderValue: avgOrder,
       categoryBreakdown: catBreakdown,
     };
@@ -319,7 +330,7 @@ export function SalesChart({
   // Get all unique categories for Stacked Bar colors
   const categories = useMemo(() => {
     const cats = new Set<string>();
-    data.forEach((d: any) => {
+    data.forEach((d) => {
       Object.keys(d).forEach((k) => {
         if (k !== "name" && k !== "total" && k !== "originalIndex") cats.add(k);
       });
@@ -619,12 +630,21 @@ export function SalesChart({
                 cursor={{ fill: "#f4f4f5", radius: 8 }}
                 content={({ active, payload, label }) => {
                   if (active && payload && payload.length) {
+                    const tooltipItems = payload as Array<{
+                      name?: string;
+                      color?: string;
+                      value?: number | string;
+                    }>;
+                    const totalValue = tooltipItems.reduce(
+                      (acc, curr) => acc + Number(curr.value ?? 0),
+                      0,
+                    );
                     return (
                       <div className="rounded-xl border-none bg-zinc-900 p-4 shadow-xl text-white ring-1 ring-white/10 min-w-[150px]">
                         <div className="font-bold text-sm mb-2 text-zinc-300">
                           {label}
                         </div>
-                        {payload.map((p: any) => (
+                        {tooltipItems.map((p) => (
                           <div
                             key={p.name}
                             className="flex items-center justify-between gap-4 text-xs"
@@ -639,7 +659,7 @@ export function SalesChart({
                               </span>
                             </div>
                             <span className="font-semibold">
-                              ₱{p.value.toLocaleString()}
+                              ₱{Number(p.value ?? 0).toLocaleString()}
                             </span>
                           </div>
                         ))}
@@ -649,12 +669,7 @@ export function SalesChart({
                           </span>
                           <span className="font-bold text-emerald-400">
                             ₱
-                            {payload
-                              .reduce(
-                                (acc: number, curr: any) => acc + curr.value,
-                                0,
-                              )
-                              .toLocaleString()}
+                            {totalValue.toLocaleString()}
                           </span>
                         </div>
                       </div>

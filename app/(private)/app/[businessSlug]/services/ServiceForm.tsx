@@ -85,7 +85,11 @@ export function ServiceForm({
     setFormData({ ...formData, flows: newFlows });
   };
 
-  const updateFlow = (index: number, field: string, value: any) => {
+  const updateFlow = <K extends keyof ServiceFlowData>(
+    index: number,
+    field: K,
+    value: ServiceFlowData[K],
+  ) => {
     const newFlows = [...formData.flows];
     newFlows[index] = { ...newFlows[index], [field]: value };
     setFormData({ ...formData, flows: newFlows });
@@ -315,7 +319,11 @@ export function ServiceForm({
                     <Select
                       value={flow.delay_unit}
                       onValueChange={(value) =>
-                        updateFlow(index, "delay_unit", value)
+                        updateFlow(
+                          index,
+                          "delay_unit",
+                          value as ServiceFlowData["delay_unit"],
+                        )
                       }
                     >
                       <SelectTrigger className="w-24 h-7 rounded-md border-zinc-200">
@@ -336,7 +344,11 @@ export function ServiceForm({
                         <Select
                           value={flow.type}
                           onValueChange={(value) =>
-                            updateFlow(index, "type", value)
+                            updateFlow(
+                              index,
+                              "type",
+                              value as ServiceFlowData["type"],
+                            )
                           }
                         >
                           <SelectTrigger className="w-28 h-6 text-xs border-zinc-200 bg-white">

@@ -3,7 +3,6 @@
 import { prisma } from "@/prisma/prisma";
 import {
   AvailedServiceStatus,
-  BookingStatus, // Added BookingStatus here as it is used in the query filter
 } from "@/prisma/generated/prisma/client";
 import { requireAuth } from "@/lib/auth/guards";
 import { revalidatePath } from "next/cache";

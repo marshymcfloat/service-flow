@@ -55,7 +55,7 @@ async function main() {
       },
       latitude: 9.682940016270514,
       longitude: 118.75246245092016,
-    } as any,
+    },
   });
 
   const days = Array.from({ length: 7 }, (_, i) => i);

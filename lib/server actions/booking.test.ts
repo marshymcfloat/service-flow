@@ -1,12 +1,9 @@
-import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createBooking } from "./booking";
 
-// Mock dependencies
 vi.mock("@/prisma/prisma", () => ({
   prisma: {
-    business: {
-      findUnique: vi.fn(),
-    },
+    business: {},
   },
 }));
 
@@ -26,85 +23,232 @@ vi.mock("next/cache", () => ({
   revalidatePath: vi.fn(),
 }));
 
+vi.mock("next-auth", () => ({
+  getServerSession: vi.fn(),
+}));
+
+vi.mock("@/lib/rate-limit", () => ({
+  rateLimit: vi.fn(),
+}));
+
 vi.mock("@/lib/utils/pricing", () => ({
   calculateBookingTotal: vi.fn(
     ({ subtotal, voucherDiscount }) => subtotal - voucherDiscount,
   ),
 }));
 
-// Mock dynamic imports if possible, or just the modules they resolve to
-vi.mock("./vouchers", () => ({
-  verifyVoucherAction: vi.fn(),
+vi.mock("@/lib/services/booking-pricing", () => ({
+  buildBookingPricingSnapshot: vi.fn(),
 }));
 
-import { prisma } from "@/prisma/prisma";
+import { headers } from "next/headers";
+import { getServerSession } from "next-auth";
+import { rateLimit } from "@/lib/rate-limit";
 import { createBookingInDb } from "@/lib/services/booking";
-import { PaymentMethod, PaymentType } from "@/lib/zod schemas/bookings";
+import { createPayMongoQrPaymentIntent } from "./paymongo";
+import { buildBookingPricingSnapshot } from "@/lib/services/booking-pricing";
+
+const mockedHeaders = vi.mocked(headers);
+const mockedGetServerSession = vi.mocked(getServerSession);
+const mockedRateLimit = vi.mocked(rateLimit);
+const mockedBuildBookingPricingSnapshot = vi.mocked(buildBookingPricingSnapshot);
+const mockedCreateBookingInDb = vi.mocked(createBookingInDb);
+const mockedCreatePayMongoQrPaymentIntent = vi.mocked(
+  createPayMongoQrPaymentIntent,
+);
 
 describe("createBooking Server Action", () => {
   const mockDate = new Date("2024-01-01T10:00:00Z");
 
   beforeEach(() => {
     vi.resetAllMocks();
+    process.env.BOOKING_SUCCESS_TOKEN_SECRET = "booking-test-secret";
+    process.env.NEXT_PUBLIC_APP_URL = "https://demo.serviceflow.test";
+
+    mockedHeaders.mockResolvedValue({
+      get: vi.fn((key: string) => {
+        if (key === "x-forwarded-for") return "203.0.113.10";
+        if (key === "host") return "malicious.example.com";
+        if (key === "x-forwarded-proto") return "http";
+        return null;
+      }),
+    } as never);
+
+    mockedGetServerSession.mockResolvedValue({ user: { id: "owner_1" } } as never);
+    mockedRateLimit.mockReturnValue({
+      success: true,
+      limit: 8,
+      remaining: 7,
+      reset: Date.now() + 1_000,
+    });
   });
 
   it("should create a CASH booking successfully", async () => {
-    // Setup Mocks
     const mockBusiness = {
+      id: "biz_1",
       slug: "demo-business",
       name: "Demo Business",
-      commission_calculation_basis: "ORIGINAL_PRICE",
-      sale_events: [],
+      commission_calculation_basis: "ORIGINAL_PRICE" as const,
     };
 
-    (prisma.business.findUnique as any).mockResolvedValue(mockBusiness);
-
-    (createBookingInDb as any).mockResolvedValue({
-      id: 123,
+    mockedBuildBookingPricingSnapshot.mockResolvedValue({
+      business: mockBusiness,
+      services: [
+        {
+          id: 1,
+          name: "Haircut",
+          quantity: 1,
+          duration: 30,
+          price: 500,
+          originalPrice: 500,
+          discount: 0,
+          discountReason: null,
+          commissionBase: 500,
+        },
+      ],
+      subtotal: 500,
+      voucherDiscount: 0,
+      grandTotal: 500,
+      downpaymentAmount: null,
+      amountToPay: 500,
+      totalDuration: 30,
+      estimatedEnd: new Date(mockDate.getTime() + 30 * 60 * 1000),
+      voucher: null,
     });
 
-    const services = [
-      {
-        id: 1,
-        name: "Haircut",
-        price: 500,
-        quantity: 1,
-        originalPrice: 500,
-      },
-    ];
+    mockedCreateBookingInDb.mockResolvedValue({
+      id: 123,
+    } as never);
 
-    // Execute
     const result = await createBooking({
       customerName: "John Doe",
       businessSlug: "demo-business",
       scheduledAt: mockDate,
       paymentMethod: "CASH",
       paymentType: "FULL",
-      services: services,
+      services: [
+        {
+          id: 1,
+          name: "Haircut",
+          price: 500,
+          quantity: 1,
+          originalPrice: 500,
+        },
+      ],
       email: "john@example.com",
     });
 
-    // Verify
-    expect(prisma.business.findUnique).toHaveBeenCalledWith({
-      where: { slug: "demo-business" },
-      include: expect.any(Object),
-    });
-
+    expect(buildBookingPricingSnapshot).toHaveBeenCalled();
     expect(createBookingInDb).toHaveBeenCalledWith(
       expect.objectContaining({
         paymentMethod: "CASH",
         email: "john@example.com",
       }),
     );
-
     expect(result).toEqual({
       type: "internal",
       url: "/app/demo-business/bookings/123?created=true",
     });
   });
 
+  it("should use configured app URL for PayMongo return URL", async () => {
+    const mockBusiness = {
+      id: "biz_1",
+      slug: "demo-business",
+      name: "Demo Business",
+      commission_calculation_basis: "ORIGINAL_PRICE" as const,
+    };
+
+    mockedBuildBookingPricingSnapshot.mockResolvedValue({
+      business: mockBusiness,
+      services: [
+        {
+          id: 1,
+          name: "Haircut",
+          quantity: 1,
+          duration: 30,
+          price: 500,
+          originalPrice: 500,
+          discount: 0,
+          discountReason: null,
+          commissionBase: 500,
+        },
+      ],
+      subtotal: 500,
+      voucherDiscount: 0,
+      grandTotal: 500,
+      downpaymentAmount: null,
+      amountToPay: 500,
+      totalDuration: 30,
+      estimatedEnd: new Date(mockDate.getTime() + 30 * 60 * 1000),
+      voucher: null,
+    });
+
+    mockedCreatePayMongoQrPaymentIntent.mockResolvedValue({
+      paymentIntentId: "pi_123",
+      paymentMethodId: "pm_123",
+      qrImage: "qr-img",
+      expiresAt: "2026-02-10T00:10:00.000Z",
+    });
+
+    mockedCreateBookingInDb.mockResolvedValue({ id: 321 } as never);
+
+    const result = await createBooking({
+      customerName: "John Doe",
+      businessSlug: "demo-business",
+      scheduledAt: mockDate,
+      paymentMethod: "QRPH",
+      paymentType: "FULL",
+      services: [
+        { id: 1, name: "Haircut", price: 500, quantity: 1 },
+      ],
+      email: "john@example.com",
+    });
+
+    expect(mockedCreatePayMongoQrPaymentIntent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        returnUrl: "https://demo.serviceflow.test/demo-business/booking/success",
+      }),
+    );
+
+    expect(result).toEqual(
+      expect.objectContaining({
+        type: "qrph",
+        paymentIntentId: "pi_123",
+        paymentMethodId: "pm_123",
+        bookingId: 321,
+      }),
+    );
+  });
+
+  it("should rate-limit unauthenticated booking attempts", async () => {
+    mockedGetServerSession.mockResolvedValue(null);
+    mockedRateLimit.mockReturnValue({
+      success: false,
+      limit: 8,
+      remaining: 0,
+      reset: Date.now() + 60_000,
+    });
+
+    await expect(
+      createBooking({
+        customerName: "John Doe",
+        businessSlug: "demo-business",
+        scheduledAt: mockDate,
+        paymentMethod: "QRPH",
+        paymentType: "FULL",
+        services: [{ id: 1, name: "Haircut", price: 500, quantity: 1 }],
+        email: "john@example.com",
+      }),
+    ).rejects.toThrow("Too many booking attempts");
+
+    expect(mockedBuildBookingPricingSnapshot).not.toHaveBeenCalled();
+  });
+
   it("should throw error if business not found", async () => {
-    (prisma.business.findUnique as any).mockResolvedValue(null);
+    mockedBuildBookingPricingSnapshot.mockRejectedValue(
+      new Error("Business not found"),
+    );
 
     await expect(
       createBooking({

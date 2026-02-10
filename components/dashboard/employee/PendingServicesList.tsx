@@ -3,7 +3,6 @@
 import { formatPH } from "@/lib/date-utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Inbox, Clock as ClockIcon } from "lucide-react";
 import {
   Dialog,
@@ -20,9 +19,12 @@ import {
   getPendingServicesAction,
 } from "@/lib/server actions/dashboard";
 
-import { getApplicableDiscount } from "@/lib/utils/pricing";
+import {
+  getApplicableDiscount,
+  type SaleEventForPricing,
+} from "@/lib/utils/pricing";
 
-interface PendingService {
+export interface PendingService {
   id: number;
   service: {
     id: number; // Ensure ID is present
@@ -54,7 +56,7 @@ export default function PendingServicesList({
   services: PendingService[];
   businessSlug: string;
   currentEmployeeId: number;
-  saleEvents?: any[];
+  saleEvents?: SaleEventForPricing[];
 }) {
   const [selectedService, setSelectedService] = useState<PendingService | null>(
     null,

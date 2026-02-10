@@ -12,9 +12,6 @@ import { useState } from "react";
 import {
   Loader2,
   History,
-  CheckCircle2,
-  User,
-  Calendar,
   RotateCcw,
 } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -36,8 +33,9 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-interface ServedService {
+export interface ServedService {
   id: number;
+  updated_at: Date;
   service: {
     name: string;
     duration: number | null;

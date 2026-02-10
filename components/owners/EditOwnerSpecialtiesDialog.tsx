@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { Owner, User } from "@/prisma/generated/prisma/client";
 import {
   Dialog,
@@ -34,15 +34,15 @@ export function EditOwnerSpecialtiesDialog({
   onOpenChange,
   onSuccess,
 }: EditOwnerSpecialtiesDialogProps) {
-  const [specialties, setSpecialties] = useState<string[]>(
-    owner?.specialties || [],
-  );
+  const [specialtiesByOwnerId, setSpecialtiesByOwnerId] = useState<
+    Record<number, string[]>
+  >({});
   const [isPending, startTransition] = useTransition();
-
-  // Sync specialties state when owner changes
-  useEffect(() => {
-    setSpecialties(owner?.specialties || []);
-  }, [owner]);
+  const ownerId = owner?.id;
+  const specialties =
+    ownerId !== undefined
+      ? specialtiesByOwnerId[ownerId] ?? owner?.specialties ?? []
+      : [];
 
   const isGeneralist = specialties.length === 0;
 
@@ -51,7 +51,8 @@ export function EditOwnerSpecialtiesDialog({
     const updated = exists
       ? specialties.filter((item) => item !== category)
       : [...specialties, category];
-    setSpecialties(updated);
+    if (ownerId === undefined) return;
+    setSpecialtiesByOwnerId((prev) => ({ ...prev, [ownerId]: updated }));
   };
 
   const handleSave = () => {
@@ -91,7 +92,13 @@ export function EditOwnerSpecialtiesDialog({
                   type="button"
                   size="sm"
                   variant={isGeneralist ? "default" : "outline"}
-                  onClick={() => setSpecialties([])}
+                  onClick={() => {
+                    if (ownerId === undefined) return;
+                    setSpecialtiesByOwnerId((prev) => ({
+                      ...prev,
+                      [ownerId]: [],
+                    }));
+                  }}
                   className="rounded-full"
                 >
                   Generalist (All)

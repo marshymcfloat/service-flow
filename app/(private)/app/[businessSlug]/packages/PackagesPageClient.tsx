@@ -11,7 +11,6 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  DialogFooter,
 } from "@/components/ui/dialog";
 import {
   AlertDialog,
@@ -22,17 +21,9 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import {
-  Empty,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-  EmptyDescription,
-} from "@/components/ui/empty";
 import { Search, Plus, Package, RefreshCcw, Filter } from "lucide-react";
 import { deletePackageAction } from "@/lib/server actions/packages";
 import { toast } from "sonner";
@@ -43,7 +34,6 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from "@/components/ui/select";
 
 type ServicePackageWithItems = ServicePackage & {
@@ -79,7 +69,7 @@ export function PackagesPageClient({
   const [editingPackage, setEditingPackage] =
     useState<ServicePackageWithItems | null>(null);
   const [packageToDelete, setPackageToDelete] = useState<number | null>(null);
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
 
   const [optimisticPackages, addOptimisticUpdate] = useOptimistic(
     packages,

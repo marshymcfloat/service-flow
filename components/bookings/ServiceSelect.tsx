@@ -16,7 +16,7 @@ import {
   ServicePackage,
   PackageItem,
 } from "@/prisma/generated/prisma/client";
-import { UseFormReturn, useWatch } from "react-hook-form";
+import { Control, useWatch } from "react-hook-form";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import {
   Command,
@@ -25,7 +25,6 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-  CommandSeparator,
 } from "../ui/command";
 import { Badge } from "../ui/badge";
 
@@ -33,8 +32,35 @@ type PackageWithItems = ServicePackage & {
   items: (PackageItem & { service: Service })[];
 };
 
-import { getApplicableDiscount } from "@/lib/utils/pricing";
+import {
+  getApplicableDiscount,
+  type SaleEventForPricing,
+} from "@/lib/utils/pricing";
 import { checkCategoryAvailability } from "@/lib/server actions/availability";
+
+type SelectedServiceItem = Service & {
+  quantity?: number;
+  packageId?: number;
+  packageName?: string;
+  originalPrice?: number;
+  discount?: number;
+  discountReason?: string | null;
+};
+
+type CategoryAvailability = {
+  hasBusinessHours: boolean;
+  businessHoursPassed: boolean;
+  qualifiedEmployeeCount: number;
+};
+
+type FormLike = {
+  control: unknown;
+  setValue: (
+    name: "services",
+    value: SelectedServiceItem[],
+    options?: { shouldDirty?: boolean; shouldValidate?: boolean },
+  ) => void;
+};
 
 const ServiceSelect = React.memo(function ServiceSelect({
   services,
@@ -48,8 +74,8 @@ const ServiceSelect = React.memo(function ServiceSelect({
   services: Service[];
   packages?: PackageWithItems[];
   categories: string[];
-  form: UseFormReturn<any>;
-  saleEvents?: any[];
+  form: FormLike;
+  saleEvents?: SaleEventForPricing[];
   businessSlug: string;
   selectedDate?: Date;
 }) {
@@ -60,10 +86,10 @@ const ServiceSelect = React.memo(function ServiceSelect({
   );
 
   const selectedServices = useWatch({
-    control: form.control,
+    control: form.control as Control,
     name: "services",
     defaultValue: [],
-  }) as any[];
+  }) as SelectedServiceItem[];
 
   const serviceCategories = React.useMemo(() => {
     return Array.from(new Set(services.map((s) => s.category)));
@@ -96,7 +122,7 @@ const ServiceSelect = React.memo(function ServiceSelect({
   }, [selectedCategory, services]);
 
   const setSelectedServices = React.useCallback(
-    (nextServices: any[]) => {
+    (nextServices: SelectedServiceItem[]) => {
       form.setValue("services", nextServices, {
         shouldDirty: true,
         shouldValidate: true,
@@ -113,7 +139,7 @@ const ServiceSelect = React.memo(function ServiceSelect({
       selectedDate?.toISOString(),
     ],
     queryFn: async () => {
-      const results: Record<string, any> = {};
+      const results: Record<string, CategoryAvailability> = {};
       for (const category of serviceCategories) {
         try {
           results[category] = await checkCategoryAvailability({
@@ -339,6 +365,8 @@ const ServiceSelect = React.memo(function ServiceSelect({
                       const noBusinessHours =
                         dataLoaded && availability?.hasBusinessHours === false;
                       const isDisabled = noStaff || noBusinessHours;
+                      const qualifiedEmployeeCount =
+                        availability?.qualifiedEmployeeCount ?? 0;
 
                       return (
                         <CommandItem
@@ -420,11 +448,11 @@ const ServiceSelect = React.memo(function ServiceSelect({
                               </div>
                               <span className="text-xs text-muted-foreground capitalize">
                                 {service.category}
-                                {availability?.qualifiedEmployeeCount > 0 &&
+                                {qualifiedEmployeeCount > 0 &&
                                   !outsideHours &&
                                   !noBusinessHours && (
                                     <span className="ml-2 text-green-600">
-                                      • {availability.qualifiedEmployeeCount}{" "}
+                                      • {qualifiedEmployeeCount}{" "}
                                       staff available
                                     </span>
                                   )}

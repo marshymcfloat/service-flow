@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { TimeSlot } from "@/lib/server actions/availability";
-import { Clock, Users, Info } from "lucide-react";
+import { Clock, Info } from "lucide-react";
 
 interface TimeSlotPickerProps {
   slots: TimeSlot[];

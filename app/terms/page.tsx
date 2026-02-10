@@ -54,10 +54,10 @@ export default function TermsOfServicePage() {
 
           <div className="prose prose-zinc max-w-none prose-headings:font-semibold prose-h2:text-xl prose-h2:mt-8 prose-h2:mb-4 prose-p:text-zinc-600 prose-li:text-zinc-600">
             <p>
-              Welcome to ServiceFlow. These Terms of Service ("Terms") govern
+              Welcome to ServiceFlow. These Terms of Service (&quot;Terms&quot;) govern
               your access to and use of our booking management platform,
               including our website, applications, and services (collectively,
-              the "Service"). By accessing or using ServiceFlow, you agree to be
+              the &quot;Service&quot;). By accessing or using ServiceFlow, you agree to be
               bound by these Terms.
             </p>
 
@@ -127,7 +127,7 @@ export default function TermsOfServicePage() {
             <ul>
               <li>You agree to provide accurate contact information</li>
               <li>
-                You understand that bookings are subject to the business's
+                You understand that bookings are subject to the business&apos;s
                 cancellation policy
               </li>
               <li>
@@ -219,7 +219,7 @@ export default function TermsOfServicePage() {
 
             <h2>12. Disclaimer of Warranties</h2>
             <p>
-              The Service is provided "as is" and "as available" without any
+              The Service is provided &quot;as is&quot; and &quot;as available&quot; without any
               warranties of any kind, either express or implied, including but
               not limited to implied warranties of merchantability, fitness for
               a particular purpose, or non-infringement.

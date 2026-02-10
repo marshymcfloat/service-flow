@@ -261,7 +261,6 @@ export async function resetEmployeePasswordAction(
 ) {
   const auth = await requireAuth();
   if (!auth.success) return auth;
-  const { businessSlug } = auth;
 
   try {
     const employee = await prisma.employee.findUnique({

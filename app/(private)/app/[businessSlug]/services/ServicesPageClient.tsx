@@ -18,18 +18,9 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import {
-  Empty,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-  EmptyDescription,
-  EmptyContent,
-} from "@/components/ui/empty";
 import { Search, Plus, Package, Filter, RefreshCcw } from "lucide-react";
 import {
   createServiceAction,
@@ -40,8 +31,17 @@ import { toast } from "sonner";
 import { ServiceList } from "./ServiceList";
 import { ServiceForm, ServiceFormData, ServiceFlowData } from "./ServiceForm";
 
+type ServiceWithFlows = Service & {
+  flow_triggers?: Array<{
+    suggested_service_id: number;
+    delay_duration: number;
+    delay_unit: ServiceFlowData["delay_unit"];
+    type: ServiceFlowData["type"];
+  }>;
+};
+
 interface ServicesPageClientProps {
-  services: Service[];
+  services: ServiceWithFlows[];
   categories: string[];
   businessSlug: string;
 }
@@ -83,7 +83,7 @@ export function ServicesPageClient({
   const [formData, setFormData] = useState<ServiceFormData>(initialFormData);
   const [isLoading, setIsLoading] = useState(false);
   const [newCategory, setNewCategory] = useState("");
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
 
   // Optimistic state for instant UI updates
   const [optimisticServices, addOptimisticUpdate] = useOptimistic(
@@ -232,7 +232,7 @@ export function ServicesPageClient({
     });
   };
 
-  const openEditDialog = (service: Service) => {
+  const openEditDialog = (service: ServiceWithFlows) => {
     setSelectedService(service);
     setFormData({
       name: service.name,
@@ -241,7 +241,7 @@ export function ServicesPageClient({
       duration: service.duration?.toString() || "",
       category: service.category,
       flows:
-        (service as any).flow_triggers?.map((f: any) => ({
+        service.flow_triggers?.map((f) => ({
           suggested_service_id: f.suggested_service_id.toString(),
           delay_duration: f.delay_duration.toString(),
           delay_unit: f.delay_unit,
@@ -252,7 +252,10 @@ export function ServicesPageClient({
   };
 
   return (
-    <div className="flex flex-col p-4 md:p-8 bg-zinc-50/50 min-h-screen">
+    <div
+      className="flex flex-col p-4 md:p-8 bg-zinc-50/50 min-h-screen"
+      data-business-slug={businessSlug}
+    >
       <section className="flex-1 flex flex-col max-w-7xl mx-auto w-full">
         <PageHeader
           title="Services"

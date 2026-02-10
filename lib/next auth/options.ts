@@ -12,8 +12,10 @@ export const authOptions: NextAuthOptions = {
         password: { label: "password", type: "password" },
       },
       async authorize(credentials) {
+        const invalidCredentialsError = new Error("Invalid credentials");
+
         if (!credentials?.email || !credentials.password)
-          throw new Error("Email and password are required");
+          throw invalidCredentialsError;
 
         const user = await prisma.user.findUnique({
           where: { email: credentials.email },
@@ -31,21 +33,21 @@ export const authOptions: NextAuthOptions = {
           },
         });
 
-        if (!user) throw new Error("No user found with this email");
+        if (!user) throw invalidCredentialsError;
 
         const isPasswordValid = await bcrypt.compare(
           credentials.password,
           user.hashed_password,
         );
 
-        if (!isPasswordValid) throw new Error("Invalid password");
+        if (!isPasswordValid) throw invalidCredentialsError;
 
         if (
           user.must_change_password &&
           user.temp_password_expires_at &&
           new Date() > user.temp_password_expires_at
         ) {
-          throw new Error("Temporary password expired");
+          throw invalidCredentialsError;
         }
 
         return user;

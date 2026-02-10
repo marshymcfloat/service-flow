@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Loader2, Save, Copy, Check } from "lucide-react";
+import { Loader2, Save, Copy } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -152,7 +152,7 @@ export function BusinessHoursClient({
       await updateBusinessHours(businessSlug, hours);
       toast.success("Business hours saved");
       router.refresh();
-    } catch (error) {
+    } catch {
       toast.error("Failed to save changes");
     } finally {
       setIsSaving(false);

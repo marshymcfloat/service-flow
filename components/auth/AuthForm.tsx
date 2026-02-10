@@ -12,13 +12,12 @@ import {
 import { loginSchema, LoginSchemaType } from "@/lib/zod schemas/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "../ui/input";
-import { FaGoogle } from "react-icons/fa6";
 import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
 import { signIn, getSession } from "next-auth/react";
 import { useMutation } from "@tanstack/react-query";
 import { LoaderCircle, Mail, Lock } from "lucide-react";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 
@@ -57,17 +56,10 @@ export default function AuthForm() {
     });
 
     if (result?.error) {
-      if (result.error.includes("password")) {
-        form.setError("password", { message: result.error });
-      } else if (
-        result.error.includes("email") ||
-        result.error.includes("user")
-      ) {
-        form.setError("email", { message: result.error });
-      } else {
-        form.setError("root", { message: result.error });
-      }
-      throw new Error(result.error);
+      const message = "Invalid credentials";
+      form.setError("email", { message });
+      form.setError("password", { message });
+      throw new Error(message);
     }
 
     return await getSession();
@@ -111,7 +103,7 @@ export default function AuthForm() {
                       <Input
                         {...field}
                         type={input}
-                        onFocus={(e) => {
+                        onFocus={() => {
                           setFocusedField(input);
                           field.onBlur();
                         }}

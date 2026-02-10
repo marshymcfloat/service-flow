@@ -1,5 +1,4 @@
 import { Skeleton } from "@/components/ui/skeleton";
-import { PageHeaderSkeleton } from "@/components/dashboard/PageHeader";
 
 export default function Loading() {
   return (

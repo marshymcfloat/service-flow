@@ -40,26 +40,20 @@ async function handleEvent(
 // Event handlers - implement your email/webhook logic here
 // Event handlers - implement your email/webhook logic here
 async function handleBookingCreated(
-  payload: Record<string, unknown>,
+  _payload: Record<string, unknown>,
   _businessId: string,
 ) {
-  const bookingId = payload.bookingId as number;
-  if (bookingId) {
-    const { sendBookingConfirmation } =
-      await import("@/lib/email/send-booking-details");
-    const result = await sendBookingConfirmation(bookingId);
-    if (!result || !result.success) {
-      throw new Error(
-        `Failed to send booking confirmation email: ${result?.error}`,
-      );
-    }
-  }
+  // HOLD bookings should not trigger a confirmation email.
+  // Confirmation is emitted only after payment transitions the booking to ACCEPTED.
+  void _payload;
+  void _businessId;
 }
 
 async function handleBookingConfirmed(
   payload: Record<string, unknown>,
   _businessId: string,
 ) {
+  void _businessId;
   // exact same logic as created for now, as sendBookingConfirmation handles the template
   const bookingId = payload.bookingId as number;
   if (bookingId) {
@@ -78,6 +72,7 @@ async function handleBookingCancelled(
   payload: Record<string, unknown>,
   _businessId: string,
 ) {
+  void _businessId;
   const { email, customerName, reason } = payload;
   if (email && typeof email === "string") {
     console.log(
@@ -90,6 +85,7 @@ async function handlePaymentConfirmed(
   payload: Record<string, unknown>,
   _businessId: string,
 ) {
+  void _businessId;
   const { email, amount } = payload;
   if (email && typeof email === "string") {
     console.log(
@@ -102,6 +98,7 @@ async function handleReminderDue(
   payload: Record<string, unknown>,
   _businessId: string,
 ) {
+  void _businessId;
   const { email, customerName, scheduledAt } = payload;
   if (email && typeof email === "string") {
     console.log(
@@ -114,7 +111,9 @@ async function handlePayslipGenerated(
   payload: Record<string, unknown>,
   _businessId: string,
 ) {
+  void _businessId;
   const { employeeEmail, period } = payload;
+  void period;
   if (employeeEmail && typeof employeeEmail === "string") {
     // console.log("Email sent successfully");
   }

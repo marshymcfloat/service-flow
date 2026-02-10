@@ -173,7 +173,7 @@ export async function sendBookingReminders() {
 </html>
       `;
 
-        const { data, error } = await resend.emails.send({
+        const { error } = await resend.emails.send({
           from: "ServiceFlow <reminders@serviceflow.store>",
           to: [booking.customer.email],
           subject: `Reminder: Appointment at ${businessName} - ${scheduledTime}`,

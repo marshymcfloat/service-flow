@@ -80,7 +80,7 @@ export default function HeroSection() {
                   </div>
                   <div>
                     <p className="text-sm font-semibold text-foreground">
-                      Today's Bookings
+                      Today&apos;s Bookings
                     </p>
                     <p className="text-xs text-muted-foreground">March 15</p>
                   </div>

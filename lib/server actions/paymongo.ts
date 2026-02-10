@@ -1,4 +1,7 @@
 "use server";
+import { headers } from "next/headers";
+import { prisma } from "@/prisma/prisma";
+import { rateLimit } from "@/lib/rate-limit";
 
 interface LineItem {
   name: string;
@@ -14,8 +17,22 @@ interface CreateCheckoutSessionParams {
   description?: string;
   success_url?: string;
   cancel_url?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   allowed_payment_methods?: string[];
+}
+
+type PayMongoError = { detail?: string };
+type PayMongoApiResponse<T extends Record<string, unknown> = Record<string, unknown>> =
+  T & {
+    errors?: PayMongoError[];
+  };
+
+function getPayMongoSecretKey() {
+  const secretKey = process.env.PAYMONGO_SECRET_KEY;
+  if (!secretKey) {
+    throw new Error("PAYMONGO_SECRET_KEY is not configured");
+  }
+  return secretKey;
 }
 
 export async function createPayMongoCheckoutSession({
@@ -33,7 +50,7 @@ export async function createPayMongoCheckoutSession({
     headers: {
       accept: "application/json",
       "Content-Type": "application/json",
-      authorization: `Basic ${Buffer.from(process.env.PAYMONGO_SECRET_KEY || "").toString("base64")}`,
+      authorization: `Basic ${Buffer.from(getPayMongoSecretKey()).toString("base64")}`,
     },
     body: JSON.stringify({
       data: {
@@ -57,7 +74,13 @@ export async function createPayMongoCheckoutSession({
       "https://api.paymongo.com/v1/checkout_sessions",
       options,
     );
-    const data = await response.json();
+    const data = (await response.json()) as PayMongoApiResponse<{
+      data?: {
+        attributes?: {
+          checkout_url?: string;
+        };
+      };
+    }>;
 
     if (data.errors) {
       console.error("PayMongo Error:", data.errors);
@@ -66,7 +89,12 @@ export async function createPayMongoCheckoutSession({
       );
     }
 
-    return data.data.attributes.checkout_url;
+    const checkoutUrl = data.data?.attributes?.checkout_url;
+    if (!checkoutUrl) {
+      throw new Error("Failed to create checkout session");
+    }
+
+    return checkoutUrl;
   } catch (err) {
     console.error(err);
     throw err;
@@ -76,7 +104,7 @@ export async function createPayMongoCheckoutSession({
 const PAYMONGO_BASE_URL = "https://api.paymongo.com/v1";
 
 const getPayMongoAuthHeader = () =>
-  `Basic ${Buffer.from(process.env.PAYMONGO_SECRET_KEY || "").toString(
+  `Basic ${Buffer.from(getPayMongoSecretKey()).toString(
     "base64",
   )}`;
 
@@ -85,14 +113,16 @@ const paymongoRequest = async <T>(
   options: RequestInit,
 ): Promise<T> => {
   const response = await fetch(`${PAYMONGO_BASE_URL}${endpoint}`, options);
-  const data = await response.json();
+  const data = (await response.json()) as PayMongoApiResponse<
+    T extends Record<string, unknown> ? T : Record<string, unknown>
+  >;
 
   if (data.errors) {
     console.error("PayMongo Error:", data.errors);
     throw new Error(data.errors[0]?.detail || "PayMongo request failed");
   }
 
-  return data;
+  return data as unknown as T;
 };
 
 export interface PayMongoBillingDetails {
@@ -104,7 +134,7 @@ export interface PayMongoBillingDetails {
 export interface CreateQrPaymentIntentParams {
   amount: number;
   description?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   billing: PayMongoBillingDetails;
   expirySeconds?: number;
   returnUrl?: string;
@@ -139,7 +169,14 @@ export async function createPayMongoQrPaymentIntent({
     },
   };
 
-  const paymentIntentResponse: any = await paymongoRequest(
+  const paymentIntentResponse = await paymongoRequest<{
+    data?: {
+      id?: string;
+      attributes?: {
+        client_key?: string;
+      };
+    };
+  }>(
     "/payment_intents",
     {
       method: "POST",
@@ -173,7 +210,11 @@ export async function createPayMongoQrPaymentIntent({
     },
   };
 
-  const paymentMethodResponse: any = await paymongoRequest(
+  const paymentMethodResponse = await paymongoRequest<{
+    data?: {
+      id?: string;
+    };
+  }>(
     "/payment_methods",
     {
       method: "POST",
@@ -202,7 +243,22 @@ export async function createPayMongoQrPaymentIntent({
     },
   };
 
-  const attachResponse: any = await paymongoRequest(
+  const attachResponse = await paymongoRequest<{
+    data?: {
+      attributes?: {
+        next_action?: {
+          code?: {
+            image_url?: string;
+            expires_at?: string;
+          };
+          redirect?: {
+            url?: string;
+            checkout_url?: string;
+          };
+        };
+      };
+    };
+  }>(
     `/payment_intents/${paymentIntent.id}/attach`,
     {
       method: "POST",
@@ -233,8 +289,46 @@ export async function createPayMongoQrPaymentIntent({
   };
 }
 
-export async function getPayMongoPaymentIntentStatus(paymentIntentId: string) {
-  const response: any = await paymongoRequest(
+export async function getPayMongoPaymentIntentStatus(
+  paymentIntentId: string,
+  businessSlug: string,
+) {
+  const requestHeaders = await headers();
+  const forwardedFor = requestHeaders.get("x-forwarded-for") || "unknown";
+  const clientIp = forwardedFor.split(",")[0]?.trim() || "unknown";
+
+  const limiter = rateLimit(`${clientIp}:${businessSlug}:paymongo-status`, {
+    windowMs: 60_000,
+    maxRequests: 60,
+  });
+
+  if (!limiter.success) {
+    throw new Error("Too many status checks. Please slow down.");
+  }
+
+  const booking = await prisma.booking.findFirst({
+    where: {
+      paymongo_payment_intent_id: paymentIntentId,
+      business: { slug: businessSlug },
+    },
+    select: { id: true },
+  });
+
+  if (!booking) {
+    throw new Error("Payment intent not found for this booking context.");
+  }
+
+  const response = await paymongoRequest<{
+    data?: {
+      id?: string;
+      attributes?: {
+        status?: string;
+        amount?: number;
+        currency?: string;
+        last_payment_error?: unknown;
+      };
+    };
+  }>(
     `/payment_intents/${paymentIntentId}`,
     {
       method: "GET",
@@ -257,7 +351,12 @@ export async function getPayMongoPaymentIntentStatus(paymentIntentId: string) {
 }
 
 export async function getPayMongoPaymentIntentById(paymentIntentId: string) {
-  const response: any = await paymongoRequest(
+  const response = await paymongoRequest<{
+    data?: {
+      id?: string;
+      attributes?: Record<string, unknown>;
+    };
+  }>(
     `/payment_intents/${paymentIntentId}`,
     {
       method: "GET",

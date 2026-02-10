@@ -60,6 +60,9 @@ export type OwnerClaimedService = OwnerPendingService & {
 type OwnerClaimedResponse =
   | { success: true; data: OwnerClaimedService[] }
   | { success: false; error: string };
+type OwnerClaimedQueryResponse =
+  | OwnerClaimedResponse
+  | { success: boolean; error?: string; data?: OwnerClaimedService[] };
 
 /**
  * Usage:
@@ -100,7 +103,7 @@ export default function OwnerServiceQueue({
     refetchInterval: 5000,
   });
 
-  const { data: claimedResponse } = useQuery<OwnerClaimedResponse | any>({
+  const { data: claimedResponse } = useQuery<OwnerClaimedQueryResponse>({
     queryKey: claimedKey,
     queryFn: () => getOwnerClaimedServicesAction(),
     initialData: { success: true, data: initialClaimed },
@@ -113,9 +116,10 @@ export default function OwnerServiceQueue({
       typeof claimedResponse === "object" &&
       "success" in claimedResponse &&
       "data" in claimedResponse &&
-      claimedResponse.success
+      claimedResponse.success &&
+      Array.isArray(claimedResponse.data)
     ) {
-      return claimedResponse.data as OwnerClaimedService[];
+      return claimedResponse.data;
     }
     return [];
   }, [claimedResponse]);
@@ -197,7 +201,15 @@ export default function OwnerServiceQueue({
 
     setAction(serviceId, "unclaim");
     if (target) {
-      const { claimed_at, status, ...pendingItem } = target;
+      const pendingItem: OwnerPendingService = {
+        id: target.id,
+        service: target.service,
+        booking: target.booking,
+        scheduled_at: target.scheduled_at,
+        price: target.price,
+        package_id: target.package_id,
+        package: target.package,
+      };
       setClaimedCache(previousClaimed.filter((item) => item.id !== serviceId));
       setPendingCache([pendingItem, ...previousPending]);
     }
@@ -305,7 +317,14 @@ export default function OwnerServiceQueue({
           isEmbedded ? "px-0" : "px-2 md:px-6",
         )}
       >
-        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)}>
+        <Tabs
+          value={activeTab}
+          onValueChange={(value) => {
+            if (value === "pending" || value === "claimed") {
+              setActiveTab(value);
+            }
+          }}
+        >
           <TabsList className="w-full grid grid-cols-2 rounded-2xl bg-zinc-50 border border-zinc-100 p-1 shadow-sm h-12 overflow-hidden items-stretch">
             <TabsTrigger
               value="pending"

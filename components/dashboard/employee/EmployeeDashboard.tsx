@@ -20,10 +20,17 @@ import { BookingDialog } from "../owner/BookingDialog";
 import { EmployeeLeaveClient } from "../attendance/EmployeeLeaveClient";
 import {
   Service,
-  ServicePackage,
   LeaveRequest,
 } from "@/prisma/generated/prisma/client";
 import { PackageWithItems } from "@/components/bookings/BookingForm";
+import type { ServedService } from "./EmployeeServedHistory";
+import type { PendingService } from "./PendingServicesList";
+import type { SaleEventForPricing } from "@/lib/utils/pricing";
+
+type TodayAttendance = {
+  time_in: Date | null;
+  time_out: Date | null;
+} | null | undefined;
 
 export default function EmployeeDashboard({
   businessName,
@@ -44,16 +51,16 @@ export default function EmployeeDashboard({
   businessName: string | null;
   businessSlug: string;
   businessId: string;
-  servedHistory: any[];
-  pendingServices: any[];
+  servedHistory: ServedService[];
+  pendingServices: PendingService[];
   currentEmployeeId: number;
   currentEmployeeCommission: number;
   currentEmployeeSalary: number;
-  todayAttendance: any;
+  todayAttendance: TodayAttendance;
   services: Service[];
   packages: PackageWithItems[];
   categories: string[];
-  saleEvents: any[];
+  saleEvents: SaleEventForPricing[];
   leaveRequests: LeaveRequest[];
 }) {
   const handleSignOut = () => {
@@ -131,7 +138,7 @@ export default function EmployeeDashboard({
             <AttendanceCard
               employeeId={currentEmployeeId}
               businessSlug={businessSlug}
-              todayAttendance={todayAttendance}
+              todayAttendance={todayAttendance ?? null}
               className="h-full shadow-lg shadow-slate-200/50 border-0"
             />
           </div>

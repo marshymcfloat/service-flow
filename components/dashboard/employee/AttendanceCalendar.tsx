@@ -9,7 +9,6 @@ import {
   isSameMonth,
   isToday,
   startOfMonth,
-  startOfToday,
 } from "date-fns";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useState, useEffect } from "react";

@@ -52,7 +52,10 @@ export function OwnersPageClient({
   };
 
   return (
-    <div className="flex flex-col p-4 md:p-8 bg-zinc-50/50 min-h-screen">
+    <div
+      className="flex flex-col p-4 md:p-8 bg-zinc-50/50 min-h-screen"
+      data-business-slug={businessSlug}
+    >
       <section className="flex-1 flex flex-col max-w-7xl mx-auto w-full">
         <PageHeader
           title="Business Owners"

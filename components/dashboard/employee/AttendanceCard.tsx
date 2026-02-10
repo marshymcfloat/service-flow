@@ -15,6 +15,7 @@ import {
   clockOutAction,
   getMonthlyAttendanceAction,
 } from "@/lib/server actions/attendance";
+import type { EmployeeAttendance } from "@/prisma/generated/prisma/client";
 import AttendanceCalendar from "./AttendanceCalendar";
 import { motion, AnimatePresence } from "motion/react";
 
@@ -35,7 +36,9 @@ export default function AttendanceCard({
 }: AttendanceCardProps & { className?: string }) {
   const [loading, setLoading] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
-  const [monthlyAttendance, setMonthlyAttendance] = useState<any[]>([]);
+  const [monthlyAttendance, setMonthlyAttendance] = useState<
+    EmployeeAttendance[]
+  >([]);
   const [calendarDate, setCalendarDate] = useState(new Date());
 
   const isClockedIn = !!todayAttendance?.time_in && !todayAttendance.time_out;
@@ -148,7 +151,7 @@ export default function AttendanceCard({
       <div className="flex justify-between items-start w-full relative z-10 mb-6">
         <div>
           <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">
-            Today's Attendance
+            Today&apos;s Attendance
           </h3>
           <p className="text-2xl font-bold tracking-tight text-slate-900">
             {new Date().toLocaleDateString("en-US", {

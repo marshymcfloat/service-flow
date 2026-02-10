@@ -9,8 +9,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
-import { Check, Copy, Trash2, Ticket, Calendar, Banknote } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Check, Copy, Trash2, Ticket, Calendar } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,

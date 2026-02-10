@@ -5,11 +5,9 @@ import { format, addDays, subDays, isSameDay } from "date-fns";
 import {
   ChevronLeft,
   ChevronRight,
-  Loader2,
   RefreshCw,
   Calendar as CalendarIcon,
   Clock,
-  MapPin,
   User,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -21,7 +19,6 @@ import {
 } from "@/prisma/generated/prisma/client";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -31,7 +28,6 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -48,7 +44,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
-  getDailyAttendance,
   updateAttendanceStatus,
 } from "@/app/actions/attendance";
 
@@ -178,7 +173,7 @@ export function DailyAttendanceTab({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-business-id={businessId}>
       <EmployeeAttendanceHistoryDialog
         employee={selectedEmployee}
         open={!!selectedEmployee}

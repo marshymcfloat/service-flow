@@ -7,7 +7,11 @@ import { prisma } from "@/prisma/prisma";
 import { PaymentMethod, PaymentType } from "@/lib/zod schemas/bookings";
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
-import { sendBookingConfirmation } from "@/lib/email/send-booking-details";
+import { buildBookingPricingSnapshot } from "@/lib/services/booking-pricing";
+import { createBookingSuccessToken } from "@/lib/security/booking-success-token";
+import { rateLimit } from "@/lib/rate-limit";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/next auth/options";
 
 interface CreateBookingParams {
   customerId?: string;
@@ -40,9 +44,26 @@ export type CreateBookingResult =
       paymentMethodId: string;
       bookingId: number;
       qrImage: string;
+      successToken: string;
       expiresAt?: string;
     }
   | { type: "internal"; url: string };
+
+function getPublicAppUrl() {
+  const configuredAppUrl =
+    process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL;
+
+  if (!configuredAppUrl) {
+    return "http://localhost:3000";
+  }
+
+  try {
+    const url = new URL(configuredAppUrl);
+    return url.toString().replace(/\/$/, "");
+  } catch {
+    throw new Error("NEXT_PUBLIC_APP_URL must be a valid absolute URL");
+  }
+}
 
 export async function createBooking({
   customerId,
@@ -61,111 +82,36 @@ export async function createBooking({
   currentEmployeeId?: number;
 }): Promise<CreateBookingResult> {
   try {
-    const business = await prisma.business.findUnique({
-      where: { slug: businessSlug },
-      include: {
-        sale_events: {
-          where: {
-            start_date: { lte: scheduledAt },
-            end_date: { gte: scheduledAt },
-          },
-          include: {
-            applicable_services: true,
-            applicable_packages: true,
-          },
-        },
-      },
-    });
+    const headersList = await headers();
+    const forwardedFor = headersList.get("x-forwarded-for") || "";
+    const clientIp = forwardedFor.split(",")[0]?.trim() || "unknown";
+    const session = await getServerSession(authOptions);
 
-    if (!business) {
-      throw new Error("Business not found");
-    }
+    if (!session) {
+      const limiter = rateLimit(`public-booking:${businessSlug}:${clientIp}`, {
+        windowMs: 10 * 60 * 1000,
+        maxRequests: 8,
+      });
 
-    // 1. Calculate prices and commissions based on active sales
-    const processedServices = services.map((service) => {
-      let finalPrice = service.originalPrice || service.price;
-      let discount = 0;
-      let discountReason = null;
-
-      // Find applicable sale
-      const applicableSale = business.sale_events.find(
-        (sale) =>
-          sale.applicable_services.some((s) => s.id === service.id) ||
-          (service.packageId &&
-            sale.applicable_packages.some((p) => p.id === service.packageId)),
-      );
-
-      if (applicableSale) {
-        if (applicableSale.discount_type === "PERCENTAGE") {
-          discount =
-            (service.originalPrice || service.price) *
-            (applicableSale.discount_value / 100);
-        } else {
-          discount = applicableSale.discount_value;
-        }
-        finalPrice = Math.max(
-          0,
-          (service.originalPrice || service.price) - discount,
+      if (!limiter.success) {
+        throw new Error(
+          "Too many booking attempts. Please wait a few minutes and try again.",
         );
-        discountReason = `SALE_EVENT: ${applicableSale.title}`;
-      }
-
-      // Determine commission base
-      const commissionBase =
-        business.commission_calculation_basis === "ORIGINAL_PRICE"
-          ? service.originalPrice || service.price // Original price before sale
-          : finalPrice; // Discounted price
-
-      return {
-        ...service,
-        price: finalPrice, // Update price to be the final price for the booking
-        originalPrice: service.originalPrice || service.price, // Keep track of original
-        discount,
-        discountReason,
-        commissionBase,
-      };
-    });
-
-    // 2. Verify voucher if provided (applied on top of sales?)
-    // Usually vouchers are applied on the GRAND TOTAL.
-    // Let's calculate total from processedServices
-    const subtotal = processedServices.reduce(
-      (sum, s) => s.price * s.quantity + sum,
-      0,
-    );
-
-    let voucherDiscount = 0;
-    if (voucherCode) {
-      const { verifyVoucherAction } = await import("./vouchers");
-      const result = await verifyVoucherAction(
-        voucherCode,
-        businessSlug,
-        subtotal,
-      );
-
-      if (result.success && result.data) {
-        voucherDiscount = result.data.discountAmount;
       }
     }
 
-    // 3. Calculate Final Amount using safe integer math
-    // Import dynamically to avoid circular dependencies if any, or just top-level import
-    const { calculateBookingTotal } = await import("@/lib/utils/pricing");
-
-    const amountToPay = calculateBookingTotal({
-      subtotal,
-      voucherDiscount,
+    const pricing = await buildBookingPricingSnapshot({
+      db: prisma,
+      businessSlug,
+      scheduledAt,
+      services,
       paymentMethod,
       paymentType,
+      voucherCode,
     });
-
-    const totalDuration = services.reduce(
-      (sum, s) => sum + (s.duration || 30) * s.quantity,
-      0,
-    );
-    const estimatedEnd = new Date(
-      scheduledAt.getTime() + totalDuration * 60 * 1000,
-    );
+    const processedServices = pricing.services;
+    const amountToPay = pricing.amountToPay;
+    const estimatedEnd = pricing.estimatedEnd;
 
     if (paymentMethod === "CASH") {
       const booking = await createBookingInDb({
@@ -180,10 +126,8 @@ export async function createBooking({
         paymentMethod: "CASH",
         paymentType,
         email,
-        voucherCode,
-        totalDiscount: voucherDiscount, // Only voucher discount goes here for now?
-        // Wait, createBookingInDb needs to know about per-service details too.
-        // I will need to update createBookingInDb signature to accept the extra fields.
+        voucherCode: pricing.voucher?.code,
+        totalDiscount: pricing.voucherDiscount,
       });
 
       if (!isWalkIn) {
@@ -204,7 +148,7 @@ export async function createBooking({
 
     const metadata = {
       businessSlug,
-      businessName: business.name,
+      businessName: pricing.business.name,
       customerId,
       customerName,
       email,
@@ -214,7 +158,7 @@ export async function createBooking({
       currentEmployeeId: currentEmployeeId?.toString(),
       paymentMethod,
       paymentType,
-      voucherCode,
+      voucherCode: pricing.voucher?.code,
       isWalkIn: isWalkIn ? "true" : "false",
       services: JSON.stringify(
         processedServices.map((s) => ({
@@ -233,12 +177,13 @@ export async function createBooking({
       ),
     };
 
-    const headersList = await headers();
-    const host = headersList.get("host") || "localhost:3000";
-    const protocol = headersList.get("x-forwarded-proto") || "http";
-    const baseUrl = `${protocol}://${host}`;
+    const publicAppUrl = getPublicAppUrl();
+    const returnUrl = new URL(
+      `/${businessSlug}/booking/success`,
+      `${publicAppUrl}/`,
+    ).toString();
 
-    const paymongoDescription = `${business.name} (${business.slug}) - ${paymentType === "DOWNPAYMENT" ? "Downpayment for " : ""}Booking for ${customerName}`;
+    const paymongoDescription = `${pricing.business.name} (${pricing.business.slug}) - ${paymentType === "DOWNPAYMENT" ? "Downpayment for " : ""}Booking for ${customerName}`;
 
     const qrPayment = await createPayMongoQrPaymentIntent({
       amount: Math.round(amountToPay * 100),
@@ -248,7 +193,7 @@ export async function createBooking({
         name: customerName,
         email,
       },
-      returnUrl: `${baseUrl}/${businessSlug}/booking/success`,
+      returnUrl,
       expirySeconds: 600,
     });
 
@@ -264,8 +209,8 @@ export async function createBooking({
       paymentMethod: "QRPH",
       paymentType,
       email,
-      voucherCode,
-      totalDiscount: voucherDiscount,
+      voucherCode: pricing.voucher?.code,
+      totalDiscount: pricing.voucherDiscount,
       paymongoPaymentIntentId: qrPayment.paymentIntentId,
       paymongoPaymentMethodId: qrPayment.paymentMethodId,
     });
@@ -278,6 +223,10 @@ export async function createBooking({
       paymentMethodId: qrPayment.paymentMethodId,
       bookingId: booking.id,
       qrImage: qrPayment.qrImage,
+      successToken: createBookingSuccessToken({
+        bookingId: booking.id,
+        businessSlug,
+      }),
       expiresAt: qrPayment.expiresAt,
     };
   } catch (err) {

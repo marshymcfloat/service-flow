@@ -15,10 +15,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Clock, MoreHorizontal, Pencil, Trash2, Package } from "lucide-react";
+import { Clock, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import { cn } from "@/lib/utils";
-import { Card, CardContent } from "@/components/ui/card";
 
 type ServicePackageWithItems = ServicePackage & {
   items: {

@@ -26,7 +26,6 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { signOut } from "next-auth/react";
-import { User } from "next-auth";
 
 interface SidebarUserFooterProps {
   user: {

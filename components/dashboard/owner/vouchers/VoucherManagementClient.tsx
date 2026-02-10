@@ -16,13 +16,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import {
-  Empty,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-  EmptyDescription,
-} from "@/components/ui/empty";
-import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -84,7 +77,7 @@ export function VoucherManagementClient({
         } else {
           toast.error(res.error || "Failed to delete voucher");
         }
-      } catch (error) {
+      } catch {
         toast.error("An error occurred");
       }
       setVoucherToDelete(null);
@@ -98,7 +91,10 @@ export function VoucherManagementClient({
   }, [vouchers, search]);
 
   return (
-    <div className="flex flex-col p-4 md:p-8 bg-zinc-50/50 min-h-screen">
+    <div
+      className="flex flex-col p-4 md:p-8 bg-zinc-50/50 min-h-screen"
+      data-business-slug={businessSlug}
+    >
       <section className="flex-1 flex flex-col max-w-7xl mx-auto w-full">
         <PageHeader
           title="Vouchers"

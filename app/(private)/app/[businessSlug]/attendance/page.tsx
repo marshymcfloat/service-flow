@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import { notFound, redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/next auth/options";
@@ -10,7 +9,6 @@ import {
   getUserLeaveRequests,
 } from "@/app/actions/leave-request";
 import { getDailyAttendance } from "@/app/actions/attendance";
-import { Loader2 } from "lucide-react";
 import { prisma } from "@/prisma/prisma";
 
 export default async function AttendancePage({

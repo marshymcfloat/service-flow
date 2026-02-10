@@ -41,8 +41,7 @@ describe("createPayMongoQrPaymentIntent", () => {
         }),
       });
 
-    // @ts-ignore
-    global.fetch = fetchMock;
+    global.fetch = fetchMock as typeof fetch;
 
     const result = await createPayMongoQrPaymentIntent({
       amount: 30000,
@@ -55,5 +54,21 @@ describe("createPayMongoQrPaymentIntent", () => {
     expect(result.paymentMethodId).toBe("pm_test_123");
     expect(result.qrImage).toContain("data:image/png");
     expect(fetchMock).toHaveBeenCalledTimes(3);
+  });
+
+  it("fails fast when PAYMONGO_SECRET_KEY is missing", async () => {
+    delete process.env.PAYMONGO_SECRET_KEY;
+    const fetchMock = vi.fn();
+    global.fetch = fetchMock as typeof fetch;
+
+    await expect(
+      createPayMongoQrPaymentIntent({
+        amount: 30000,
+        description: "Test booking",
+        billing: { name: "Test User", email: "test@example.com" },
+      }),
+    ).rejects.toThrow("PAYMONGO_SECRET_KEY is not configured");
+
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 });

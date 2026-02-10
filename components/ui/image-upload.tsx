@@ -1,10 +1,9 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { ImagePlus, X } from "lucide-react";
 import Image from "next/image";
-import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
 interface ImageUploadProps {
@@ -20,13 +19,6 @@ export function ImageUpload({
 }: ImageUploadProps) {
   const [preview, setPreview] = useState<string | null>(defaultValue || null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  // Update preview when defaultValue changes (if needed, though mostly initial)
-  useEffect(() => {
-    if (defaultValue) {
-      setPreview(defaultValue);
-    }
-  }, [defaultValue]);
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (!event.target.files || event.target.files.length === 0) {

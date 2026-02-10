@@ -12,15 +12,14 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Plus, Loader2, Check, ChevronsUpDown } from "lucide-react";
+import { Plus, Loader2, Check } from "lucide-react";
 import { useState, useMemo } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -42,7 +41,6 @@ import { DiscountType } from "@/prisma/generated/prisma/enums";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { cn } from "@/lib/utils";
 
 const saleEventSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -65,6 +63,13 @@ interface CreateSaleEventDialogProps {
   packages: { id: number; name: string }[];
 }
 
+const initialStartDate = new Date().toISOString().slice(0, 16);
+const initialEndDate = new Date(
+  new Date().getTime() + 7 * 24 * 60 * 60 * 1000,
+)
+  .toISOString()
+  .slice(0, 16);
+
 export function CreateSaleEventDialog({
   businessSlug,
   services,
@@ -78,10 +83,8 @@ export function CreateSaleEventDialog({
     defaultValues: {
       title: "",
       description: "",
-      startDate: new Date().toISOString().slice(0, 16),
-      endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-        .toISOString()
-        .slice(0, 16),
+      startDate: initialStartDate,
+      endDate: initialEndDate,
       discountType: "PERCENTAGE" as DiscountType,
       discountValue: 10,
       serviceIds: [],
@@ -124,13 +127,15 @@ export function CreateSaleEventDialog({
       } else {
         toast.error(result.error || "Failed to create sale event");
       }
-    } catch (error) {
+    } catch {
       toast.error("An unexpected error occurred");
     }
   };
 
-  const selectedServiceIds = form.watch("serviceIds");
-  const selectedPackageIds = form.watch("packageIds");
+  const selectedServiceIds =
+    useWatch({ control: form.control, name: "serviceIds" }) ?? [];
+  const selectedPackageIds =
+    useWatch({ control: form.control, name: "packageIds" }) ?? [];
 
   // Helper functions for services
   const toggleService = (id: number) => {

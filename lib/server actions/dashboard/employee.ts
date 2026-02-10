@@ -55,24 +55,25 @@ export async function claimServiceAction(
       saleEvents,
     );
 
-    const updateData: any = {
+    const updateData = {
       status: AvailedServiceStatus.CLAIMED,
       served_by_id: employeeId,
       served_by_type: ServiceProviderType.EMPLOYEE,
       claimed_at: new Date(),
+      ...(discountInfo
+        ? {
+            final_price: discountInfo.finalPrice,
+            discount: discountInfo.discount,
+            discount_reason: discountInfo.reason,
+            commission_base: discountInfo.finalPrice,
+          }
+        : {
+            final_price: serviceToClaim.price,
+            discount: 0,
+            discount_reason: null,
+            commission_base: serviceToClaim.price,
+          }),
     };
-
-    if (discountInfo) {
-      updateData.final_price = discountInfo.finalPrice;
-      updateData.discount = discountInfo.discount;
-      updateData.discount_reason = discountInfo.reason;
-      updateData.commission_base = discountInfo.finalPrice;
-    } else {
-      updateData.final_price = serviceToClaim.price;
-      updateData.discount = 0;
-      updateData.discount_reason = null;
-      updateData.commission_base = serviceToClaim.price;
-    }
 
     const result = await prisma.availedService.update({
       where: {

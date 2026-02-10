@@ -1,8 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import { CreateSaleEventDialog } from "./CreateSaleEventDialog";
-import { SaleEventList } from "./SaleEventList";
+import { SaleEventList, type SaleEvent } from "./SaleEventList";
 import { deleteSaleEvent } from "@/lib/server actions/sale-event";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
@@ -10,7 +9,7 @@ import { Percent } from "lucide-react";
 
 interface SaleEventsPageClientProps {
   businessSlug: string;
-  initialEvents: any[]; // Type already defined in List, keeping generic here or match
+  initialEvents: SaleEvent[];
   services: { id: number; name: string; category: string }[];
   packages: { id: number; name: string }[];
 }
@@ -32,7 +31,7 @@ export function SaleEventsPageClient({
       } else {
         toast.error(result.error || "Failed to delete sale event");
       }
-    } catch (error) {
+    } catch {
       toast.error("An unexpected error occurred");
     }
   };

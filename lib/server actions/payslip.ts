@@ -4,7 +4,6 @@ import { prisma } from "@/prisma/prisma";
 import {
   AttendanceStatus,
   AvailedServiceStatus,
-  BookingStatus,
   PayslipStatus,
 } from "@/prisma/generated/prisma/client";
 import { getStartOfDayPH } from "@/lib/date-utils";

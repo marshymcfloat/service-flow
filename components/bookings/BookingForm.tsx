@@ -27,7 +27,10 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { verifyVoucherAction } from "@/lib/server actions/vouchers";
 
 import { getActiveSaleEvents } from "@/lib/server actions/sale-event";
-import { getApplicableDiscount } from "@/lib/utils/pricing";
+import {
+  getApplicableDiscount,
+  type SaleEventForPricing,
+} from "@/lib/utils/pricing";
 
 const capitalizeWords = (str: string) => {
   return str.replace(/\b\w/g, (char) => char.toUpperCase());
@@ -54,7 +57,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Separator } from "../ui/separator";
 import { Badge } from "../ui/badge";
-import { User, Wallet } from "lucide-react";
+import { User } from "lucide-react";
 import CustomerSearchInput from "./CustomerSearchInput";
 import ServiceSelect from "./ServiceSelect";
 import SelectedServiceList from "./SelectedServiceList";
@@ -87,8 +90,27 @@ import {
   PendingFlow,
 } from "@/lib/server actions/flow-actions";
 import { format } from "date-fns";
-import { Sparkles, Calendar, ArrowRight, Ticket, X } from "lucide-react";
+import { Sparkles, Calendar, Ticket, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+type SelectedService = {
+  id: number;
+  name: string;
+  price: number;
+  quantity?: number;
+  duration?: number | null;
+  originalPrice?: number;
+  discount?: number;
+  discountReason?: string;
+  packageId?: number;
+  packageName?: string;
+  category?: string | null;
+  claimedByCurrentEmployee?: boolean;
+};
+
+type SelectedCustomer = {
+  email?: string | null;
+};
 
 export default function BookingForm({
   services,
@@ -96,12 +118,11 @@ export default function BookingForm({
   categories,
   isEmployee = false,
   currentEmployeeId,
-  isModal = false,
   onSuccess,
 }: BookingFormProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const form = useForm<any>({
+  const form = useForm({
     resolver: zodResolver(createBookingSchema),
     defaultValues: {
       customerId: "",
@@ -126,13 +147,16 @@ export default function BookingForm({
     queryFn: () => getActiveSaleEvents(businessSlug),
     enabled: !!businessSlug,
   });
-  const saleEvents = (saleEventsResult?.success && saleEventsResult.data) || [];
+  const saleEvents = useMemo<SaleEventForPricing[]>(
+    () => (saleEventsResult?.success && saleEventsResult.data) || [],
+    [saleEventsResult],
+  );
 
   const selectedServices = useWatch({
     control: form.control,
     name: "services",
     defaultValue: [],
-  }) as any[];
+  }) as SelectedService[];
   const selectedDate = useWatch({
     control: form.control,
     name: "scheduledAt",
@@ -158,7 +182,6 @@ export default function BookingForm({
     string | null
   >(null);
   const [pendingFlows, setPendingFlows] = useState<PendingFlow[]>([]);
-  const [isLoadingFlows, setIsLoadingFlows] = useState(false);
   const [claimedUniqueIds, setClaimedUniqueIds] = useState<string[]>([]);
 
   useEffect(() => {
@@ -167,10 +190,8 @@ export default function BookingForm({
         setPendingFlows([]);
         return;
       }
-      setIsLoadingFlows(true);
       const flows = await getCustomerPendingFlows(customerId);
       setPendingFlows(flows);
-      setIsLoadingFlows(false);
     }
     fetchFlows();
   }, [customerId]);
@@ -206,10 +227,10 @@ export default function BookingForm({
         form.setValue("services", updatedServices);
       }
     }
-  }, [saleEvents]);
+  }, [saleEvents, selectedServices, form]);
 
   const handleCustomerSelect = useCallback(
-    (customer: any) => {
+    (customer: SelectedCustomer | null) => {
       if (customer === null) {
         setExistingCustomerEmail(null);
         form.setValue("email", "", { shouldValidate: true });
@@ -229,6 +250,7 @@ export default function BookingForm({
     paymentIntentId: string;
     bookingId: number;
     qrImage: string;
+    successToken: string;
     expiresAt?: string;
   } | null>(null);
   const [qrStatus, setQrStatus] = useState<
@@ -249,7 +271,7 @@ export default function BookingForm({
     queryKey: ["paymongoIntentStatus", qrPayment?.paymentIntentId],
     queryFn: () =>
       qrPayment
-        ? getPayMongoPaymentIntentStatus(qrPayment.paymentIntentId)
+        ? getPayMongoPaymentIntentStatus(qrPayment.paymentIntentId, businessSlug)
         : Promise.resolve(null),
     enabled: !!qrPayment && qrStatus === "pending",
     refetchInterval: qrPayment && qrStatus === "pending" ? 5000 : false,
@@ -276,8 +298,9 @@ export default function BookingForm({
           setHasRedirected(true);
           setTimeout(() => {
             const bookingId = qrPayment?.bookingId;
+            const successToken = qrPayment?.successToken;
             const successUrl = bookingId
-              ? `/${businessSlug}/booking/success?bookingId=${bookingId}`
+              ? `/${businessSlug}/booking/success?bookingId=${bookingId}${successToken ? `&token=${encodeURIComponent(successToken)}` : ""}`
               : `/${businessSlug}/booking/success`;
             // Use window.location.href to ensure full page reload and clear any open modals
             window.location.href = successUrl;
@@ -298,7 +321,15 @@ export default function BookingForm({
         setQrStatus("expired");
       }
     }
-  }, [paymentIntentStatus, qrPayment, businessSlug, hasRedirected, router]);
+  }, [
+    paymentIntentStatus,
+    qrPayment,
+    businessSlug,
+    hasRedirected,
+    form,
+    isEmployee,
+    onSuccess,
+  ]);
 
   const handleWalkInToggle = useCallback(() => {
     const newState = !isWalkIn;
@@ -560,6 +591,7 @@ export default function BookingForm({
           paymentIntentId: result.paymentIntentId,
           bookingId: result.bookingId,
           qrImage: result.qrImage,
+          successToken: result.successToken,
           expiresAt: result.expiresAt,
         });
         setQrStatus("pending");
@@ -572,7 +604,17 @@ export default function BookingForm({
   });
 
   const onSubmit = useCallback(
-    (data: any) => {
+    (formData: unknown) => {
+      const data = formData as {
+        customerId?: string;
+        customerName?: string;
+        services: SelectedService[];
+        scheduledAt?: Date;
+        selectedTime?: Date;
+        paymentMethod: PaymentMethod;
+        paymentType: PaymentType;
+        email?: string;
+      };
       if (!businessSlug) {
         console.error("Business slug not found in URL");
         toast.error("Business info missing. Please refresh the page.");
@@ -585,8 +627,12 @@ export default function BookingForm({
       const scheduledAt = isWalkIn
         ? new Date()
         : data.selectedTime || data.scheduledAt;
+      if (!scheduledAt) {
+        toast.error("Please select a date and time.");
+        return;
+      }
 
-      const flatServicesPayload = data.services.flatMap((s: any) =>
+      const flatServicesPayload = data.services.flatMap((s: SelectedService) =>
         Array.from({ length: s.quantity || 1 }).map((_, i) => {
           const uniqueId = `${s.id}-${i}`;
           return {
@@ -608,7 +654,7 @@ export default function BookingForm({
         customerId: data.customerId || undefined,
         customerName: capitalizedCustomerName,
         businessSlug,
-        scheduledAt,
+        scheduledAt: new Date(scheduledAt),
         currentEmployeeId: isEmployee ? currentEmployeeId : undefined,
         paymentMethod: data.paymentMethod,
         paymentType: data.paymentType,
@@ -841,7 +887,7 @@ export default function BookingForm({
 
                           if (
                             !currentServices.some(
-                              (s: any) => s.id === serviceToAdd.id,
+                              (s: SelectedService) => s.id === serviceToAdd.id,
                             )
                           ) {
                             form.setValue("services", [
@@ -956,7 +1002,7 @@ export default function BookingForm({
                     </FormLabel>
                     <FormControl>
                       <DatePicker
-                        value={field.value}
+                        value={field.value as Date | undefined}
                         onChange={(date) => {
                           field.onChange(date);
                           form.setValue("selectedTime", undefined);
@@ -1051,7 +1097,7 @@ export default function BookingForm({
                           uniqueId: `${s.id}-${s.packageId ? `pkg${s.packageId}` : "std"}-${i}`,
                           name: s.name,
                           price: s.price,
-                          duration: s.duration,
+                          duration: s.duration ?? null,
                           quantity: 1,
                         })),
                       )}
@@ -1082,7 +1128,6 @@ export default function BookingForm({
                 <div className="max-h-[300px] overflow-y-auto pr-1 -mr-2">
                   <SelectedServiceList
                     form={form}
-                    saleEvents={saleEvents}
                     services={selectedServices}
                   />
                 </div>

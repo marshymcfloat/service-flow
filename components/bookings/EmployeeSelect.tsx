@@ -27,6 +27,11 @@ const EmployeeSelect = React.memo(function EmployeeSelect({
   isLoading = false,
   serviceCategories,
 }: EmployeeSelectProps) {
+  const categorySet = React.useMemo(() => {
+    if (!serviceCategories || serviceCategories.length === 0) return null;
+    return new Set(serviceCategories.map((category) => category.toLowerCase()));
+  }, [serviceCategories]);
+
   if (isLoading) {
     return (
       <div className="flex flex-wrap gap-2">
@@ -39,11 +44,6 @@ const EmployeeSelect = React.memo(function EmployeeSelect({
       </div>
     );
   }
-
-  const categorySet = React.useMemo(() => {
-    if (!serviceCategories || serviceCategories.length === 0) return null;
-    return new Set(serviceCategories.map((category) => category.toLowerCase()));
-  }, [serviceCategories]);
 
   const matchesCategories = (employee: Employee) => {
     if (!categorySet) return true;

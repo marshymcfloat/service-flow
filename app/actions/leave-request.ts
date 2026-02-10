@@ -21,7 +21,6 @@ export async function createLeaveRequest(
     type: LeaveType;
     businessSlug: string;
   },
-  prevState?: any,
 ) {
   try {
     const validatedData = createLeaveRequestSchema.safeParse(data);
@@ -185,7 +184,7 @@ export async function updateLeaveRequestStatus(
                 is_paid_leave: isPaid ?? false,
               },
             });
-          } catch (e) {
+          } catch {
             // Ignore unique constraint violation if race condition occurs
           }
         }

@@ -72,13 +72,6 @@ export function VoucherForm({ onSuccess, initials }: VoucherFormProps) {
     startTransition(async () => {
       try {
         const fullCode = `${initials}-${values.suffix}`;
-        const payload = {
-          ...values,
-          code: fullCode,
-        };
-        // removing suffix from payload passed to action is not strictly necessary if action ignores unknown props,
-        // but TS might complain if I pass "suffix" to createVoucherAction which expects "code".
-        // I need to map it.
 
         const res = await createVoucherAction({
           code: fullCode,
@@ -94,7 +87,7 @@ export function VoucherForm({ onSuccess, initials }: VoucherFormProps) {
         } else {
           toast.error(res.error || "Failed to create voucher");
         }
-      } catch (error) {
+      } catch {
         toast.error("An error occurred");
       }
     });
@@ -117,7 +110,7 @@ export function VoucherForm({ onSuccess, initials }: VoucherFormProps) {
         } else {
           toast.error(res.error || "Failed to generate code");
         }
-      } catch (error) {
+      } catch {
         toast.error("Error generating code");
       }
     });

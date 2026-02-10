@@ -46,7 +46,7 @@ export function BookingDialog({
         <DialogHeader className="px-6 py-4 border-b sticky top-0 bg-white z-10">
           <DialogTitle>Create New Booking</DialogTitle>
         </DialogHeader>
-        <div className="p-6">
+        <div className="p-6" data-business-slug={businessSlug}>
           <BookingForm
             services={services}
             packages={packages}

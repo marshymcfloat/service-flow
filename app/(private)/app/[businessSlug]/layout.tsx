@@ -86,7 +86,7 @@ export default function AppLayout({
 }) {
   return (
     <React.Suspense fallback={<SidebarSkeleton />}>
-      <AppLayoutContent children={children} modal={modal} />
+      <AppLayoutContent modal={modal}>{children}</AppLayoutContent>
     </React.Suspense>
   );
 }

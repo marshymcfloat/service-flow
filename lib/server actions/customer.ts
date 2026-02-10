@@ -23,7 +23,7 @@ export async function searchCustomer(name: string, businessSlug: string) {
     });
 
     return { success: true, data: customers };
-  } catch (err) {
+  } catch {
     return { success: false, error: "Failed to search customers" };
   }
 }

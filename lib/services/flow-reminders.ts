@@ -37,10 +37,6 @@ export async function sendFlowReminders() {
       // Better Query: Find "AvailedService" items where service_id == trigger_service_id
       // and status == COMPLETED.
 
-      // Optimization: Calculate the specific date range based on the unit
-      let targetDateStart: Date;
-      let targetDateEnd: Date;
-
       // We want: completed_at + delay == today
       // So: completed_at == today - delay
       const lookbackDate = today;
@@ -130,8 +126,6 @@ export async function sendFlowReminders() {
 
         // 3. Dynamic Labels for the Green Box
         const boxLabel = isRequired ? "ACTION REQUIRED" : "RECOMMENDED FOR YOU";
-        const boxSubText = isRequired ? "Due for booking" : "perfect follow-up";
-
         // 4. The HTML Template (Matches the "BeautyFeel" Screenshot)
         const emailHtml = `
             <!DOCTYPE html>

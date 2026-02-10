@@ -91,8 +91,8 @@ export default function ServiceClaimSelector({
       </div>
       {claimedUniqueIds.length === 0 && (
         <p className="text-sm text-amber-600">
-          You haven't claimed any services. The booking will be created with all
-          services pending.
+          You haven&apos;t claimed any services. The booking will be created
+          with all services pending.
         </p>
       )}
     </div>

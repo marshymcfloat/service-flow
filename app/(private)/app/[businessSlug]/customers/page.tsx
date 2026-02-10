@@ -4,10 +4,8 @@ import { CustomersClient } from "@/components/dashboard/customers/CustomersClien
 
 export default async function CustomersPage({
   params,
-  searchParams,
 }: {
   params: Promise<{ businessSlug: string }>;
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   const { businessSlug } = await params;
 

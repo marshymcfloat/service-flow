@@ -5,13 +5,6 @@ import {
   getCachedServices,
   getCachedPackages,
 } from "@/lib/data/cached";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default async function BookingDataContainer({

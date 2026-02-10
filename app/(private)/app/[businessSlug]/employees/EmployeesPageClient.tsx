@@ -93,7 +93,7 @@ export function EmployeesPageClient({
   const [formData, setFormData] = useState<EmployeeFormData>(initialFormData);
   const [newPassword, setNewPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
 
   // Optimistic state for instant UI updates
   const [optimisticEmployees, addOptimisticUpdate] = useOptimistic(
@@ -276,7 +276,10 @@ export function EmployeesPageClient({
   };
 
   return (
-    <div className="flex flex-col p-4 md:p-8 bg-zinc-50/50 min-h-screen">
+    <div
+      className="flex flex-col p-4 md:p-8 bg-zinc-50/50 min-h-screen"
+      data-business-slug={businessSlug}
+    >
       <section className="flex-1 flex flex-col max-w-7xl mx-auto w-full">
         <PageHeader
           title="Employees"

@@ -54,8 +54,17 @@ export const BookingConfirmationEmail = ({
                 Hello, <strong>{customerName}</strong>
               </Text>
               <Text style={textBody}>
-                Your booking has been successfully confirmed. We're looking
+                Your booking has been successfully confirmed. We&apos;re looking
                 forward to seeing you!
+              </Text>
+              <Text style={metaText}>
+                Primary service: <strong>{serviceName}</strong>
+                {location ? (
+                  <>
+                    {" "}
+                    &middot; Location: <strong>{location}</strong>
+                  </>
+                ) : null}
               </Text>
 
               {/* Highlight Card */}
@@ -209,8 +218,15 @@ const greeting = {
 const textBody = {
   color: "#4b5563",
   fontSize: "16px",
-  marginBottom: "32px",
+  marginBottom: "12px",
   lineHeight: "1.6",
+};
+
+const metaText = {
+  color: "#6b7280",
+  fontSize: "13px",
+  marginBottom: "24px",
+  marginTop: "0",
 };
 
 /* Highlight Card */

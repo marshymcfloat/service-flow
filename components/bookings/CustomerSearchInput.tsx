@@ -6,10 +6,23 @@ import {
 } from "../ui/input-group";
 import { Search } from "lucide-react";
 import { searchCustomer } from "@/lib/server actions/customer";
-import { UseFormReturn } from "react-hook-form";
 import React, { useState, useRef, useEffect } from "react";
 import { Button } from "../ui/button";
 import { useDebounce } from "@/hooks/use-debounce";
+
+type CustomerOption = {
+  id: string;
+  name: string;
+  email?: string | null;
+};
+
+type FormLike = {
+  setValue: (
+    name: "customerId" | "customerName" | "email",
+    value: string,
+    options?: { shouldValidate?: boolean; shouldDirty?: boolean },
+  ) => void;
+};
 
 const CustomerSearchInput = React.memo(function CustomerSearchInput({
   form,
@@ -17,9 +30,9 @@ const CustomerSearchInput = React.memo(function CustomerSearchInput({
   onCustomerSelect,
   ...props
 }: {
-  form: UseFormReturn<any>;
+  form: FormLike;
   businessSlug: string;
-  onCustomerSelect?: (customer: any) => void;
+  onCustomerSelect?: (customer: CustomerOption | null) => void;
   value?: string;
   onChange?: (value: string) => void;
   onBlur?: () => void;
@@ -51,11 +64,7 @@ const CustomerSearchInput = React.memo(function CustomerSearchInput({
     };
   }, []);
 
-  const handleSelectCustomer = (customer: {
-    id: string;
-    name: string;
-    email?: string | null;
-  }) => {
+  const handleSelectCustomer = (customer: CustomerOption) => {
     form.setValue("customerId", customer.id);
     // Call parent onChange to update customerName
     if (props.onChange) {
@@ -106,7 +115,7 @@ const CustomerSearchInput = React.memo(function CustomerSearchInput({
             <div className="p-2 text-sm text-muted-foreground">Loading...</div>
           ) : data?.success && data?.data && data.data.length > 0 ? (
             <div className="flex flex-col">
-              {data.data.map((customer: any) => (
+              {data.data.map((customer: CustomerOption) => (
                 <Button
                   key={customer.id}
                   variant="ghost"

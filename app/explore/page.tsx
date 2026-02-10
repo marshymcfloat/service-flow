@@ -1,7 +1,7 @@
 import { prisma } from "@/prisma/prisma";
 import Link from "next/link";
 import { ArrowRight, MapPin, Search, Sparkles } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import Image from "next/image";
 import { connection } from "next/server";
 import { Suspense } from "react";
 import { constructMetadata } from "@/lib/metadata";
@@ -69,7 +69,8 @@ async function BusinessList() {
           No businesses found
         </h3>
         <p className="text-slate-500 max-w-sm mt-2">
-          We couldn't find any businesses listed publicly yet. Check back soon!
+          We couldn&apos;t find any businesses listed publicly yet. Check back
+          soon!
         </p>
       </div>
     );
@@ -94,10 +95,12 @@ async function BusinessList() {
             <div className="-mt-10 mb-4 inline-flex">
               <div className="h-20 w-20 rounded-2xl bg-white p-1.5 shadow-md shadow-slate-200 ring-1 ring-slate-100 overflow-hidden relative">
                 {business.imageUrl ? (
-                  <img
+                  <Image
                     src={business.imageUrl}
                     alt={business.name}
-                    className="h-full w-full rounded-xl object-cover"
+                    fill
+                    sizes="80px"
+                    className="rounded-xl object-cover"
                   />
                 ) : (
                   <div className="h-full w-full rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-2xl font-bold text-white shadow-inner">

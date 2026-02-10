@@ -99,7 +99,7 @@ export function CustomersClient({
   const [historyCustomer, setHistoryCustomer] = useState<Customer | null>(null);
   const [formData, setFormData] = useState<CustomerFormData>(initialFormData);
   const [isLoading, setIsLoading] = useState(false);
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
 
   const [optimisticCustomers, addOptimisticUpdate] = useOptimistic(
     customers,
@@ -477,8 +477,8 @@ export function CustomersClient({
                                   Delete Customer
                                 </AlertDialogTitle>
                                 <AlertDialogDescription>
-                                  Are you sure you want to delete "
-                                  {customer.name}"? This action cannot be
+                                  Are you sure you want to delete &quot;
+                                  {customer.name}&quot;? This action cannot be
                                   undone.
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
@@ -625,8 +625,8 @@ export function CustomersClient({
                                       Delete Customer
                                     </AlertDialogTitle>
                                     <AlertDialogDescription>
-                                      Are you sure you want to delete "
-                                      {customer.name}"? This action cannot be
+                                      Are you sure you want to delete &quot;
+                                      {customer.name}&quot;? This action cannot be
                                       undone.
                                     </AlertDialogDescription>
                                   </AlertDialogHeader>

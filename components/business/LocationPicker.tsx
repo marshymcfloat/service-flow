@@ -12,7 +12,7 @@ import {
 } from "react-leaflet";
 
 if (typeof window !== "undefined") {
-  delete L.Icon.Default.prototype._getIconUrl;
+  delete (L.Icon.Default.prototype as { _getIconUrl?: unknown })._getIconUrl;
   L.Icon.Default.mergeOptions({
     iconRetinaUrl:
       "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png",
@@ -30,9 +30,9 @@ function LocationMarker({
   position: { lat: number; lng: number } | null;
   setPosition: (pos: { lat: number; lng: number }) => void;
 }) {
+  type MapClickEvent = { latlng: { lat: number; lng: number } };
   const map = useMapEvents({
-    // @ts-ignore
-    click(e: any) {
+    click(e: MapClickEvent) {
       setPosition(e.latlng);
       map.flyTo(e.latlng, map.getZoom());
     },
@@ -74,15 +74,14 @@ export default function LocationPicker({
   return (
     <div className="h-[400px] w-full rounded-md overflow-hidden border border-zinc-200 z-0 relative">
       <MapContainer
-        // @ts-ignore
+        // @ts-expect-error react-leaflet type mismatch with current React/TS setup
         center={position || defaultCenter}
         zoom={13}
         scrollWheelZoom={false}
         className="h-full w-full z-0"
       >
         <TileLayer
-          // @ts-ignore
-
+          // @ts-expect-error react-leaflet type mismatch with current React/TS setup
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />

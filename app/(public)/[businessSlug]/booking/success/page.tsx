@@ -8,14 +8,14 @@ import {
   Card,
   CardContent,
   CardFooter,
-  CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
+import { verifyBookingSuccessToken } from "@/lib/security/booking-success-token";
 
 type BookingSuccessSearchParams = {
   bookingId?: string | string[];
+  token?: string | string[];
 };
 
 const formatIcsDate = (date: Date) =>
@@ -54,13 +54,29 @@ async function BookingSuccessContent({
   const bookingIdParam = Array.isArray(resolvedSearchParams?.bookingId)
     ? resolvedSearchParams?.bookingId[0]
     : resolvedSearchParams?.bookingId;
+  const tokenParam = Array.isArray(resolvedSearchParams?.token)
+    ? resolvedSearchParams?.token[0]
+    : resolvedSearchParams?.token;
   const bookingId = bookingIdParam ? Number(bookingIdParam) : null;
+  const validBookingId =
+    bookingId !== null && Number.isFinite(bookingId) ? bookingId : null;
+  const token = tokenParam || "";
+
+  const canShowBookingDetails = Boolean(
+    validBookingId !== null &&
+    token &&
+    verifyBookingSuccessToken({
+      token,
+      bookingId: validBookingId,
+      businessSlug,
+    }),
+  );
 
   const booking =
-    bookingId && Number.isFinite(bookingId)
+    canShowBookingDetails
       ? await prisma.booking.findFirst({
           where: {
-            id: bookingId,
+            id: validBookingId!,
             business: { slug: businessSlug },
           },
           select: {
@@ -85,7 +101,7 @@ async function BookingSuccessContent({
     (scheduledAt ? new Date(scheduledAt.getTime() + 60 * 60 * 1000) : null);
   const serviceNames =
     booking?.availed_services
-      ?.map((item) => item.service?.name)
+      ?.map((item: { service: { name: string } }) => item.service?.name)
       .filter(Boolean) ?? [];
   const businessName = booking?.business?.name || "Service Flow";
 
@@ -178,7 +194,7 @@ async function BookingSuccessContent({
                   Services
                 </p>
                 <div className="flex flex-wrap gap-1.5">
-                  {serviceNames.map((name, i) => (
+                  {serviceNames.map((name: string, i: number) => (
                     <Badge key={i} variant="secondary" className="font-normal">
                       {name}
                     </Badge>

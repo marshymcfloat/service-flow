@@ -19,7 +19,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Employee, User, Payslip } from "@/prisma/generated/prisma/client";
 import { formatPH } from "@/lib/date-utils";
-import { FileText, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { useState } from "react";
 import { PayslipGenerationDialog } from "./PayslipGenerationDialog";
 import { useRouter } from "next/navigation";

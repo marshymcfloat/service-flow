@@ -36,17 +36,10 @@ export async function getThisWeeksFlowRemindersCount(
 function getStartOfWeekPH(date: Date): Date {
   const formatter = new Intl.DateTimeFormat("en-US", {
     timeZone: "Asia/Manila",
-    year: "numeric",
-    month: "numeric",
-    day: "numeric",
     weekday: "short",
   });
 
   const parts = formatter.formatToParts(date);
-  const year = parseInt(parts.find((p) => p.type === "year")?.value || "0");
-  const month =
-    parseInt(parts.find((p) => p.type === "month")?.value || "0") - 1;
-  const day = parseInt(parts.find((p) => p.type === "day")?.value || "0");
   const weekday = parts.find((p) => p.type === "weekday")?.value;
 
   // Get day of week (0 = Sunday, 1 = Monday, ..., 6 = Saturday)

@@ -71,7 +71,7 @@ export default function TestimonialsSection() {
               </div>
 
               <p className="text-foreground/90 leading-relaxed mb-6 text-base">
-                "{testimonial.quote}"
+                &quot;{testimonial.quote}&quot;
               </p>
 
               <div className="flex items-center gap-3">

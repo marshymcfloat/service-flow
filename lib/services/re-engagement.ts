@@ -92,7 +92,7 @@ export async function sendReEngagementEmails() {
         );
 
         try {
-          const { data, error } = await resend.emails.send({
+          const { error } = await resend.emails.send({
             from: "ServiceFlow <reminders@serviceflow.store>",
             to: [customer.email],
             subject: `We Miss You at ${business.name}!`,

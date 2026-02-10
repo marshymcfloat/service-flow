@@ -1,29 +1,31 @@
 import React, { useMemo } from "react";
-import { UseFormReturn } from "react-hook-form";
 import { Button } from "../ui/button";
-import { Minus, Plus, X, Package, Sparkles, ArrowRight } from "lucide-react";
+import { Minus, Plus, X, Package, Sparkles } from "lucide-react";
 import { Badge } from "../ui/badge";
+
+type SelectedServiceItem = {
+  id: number;
+  name: string;
+  price: number;
+  quantity?: number;
+  packageId?: number;
+  packageName?: string;
+  originalPrice?: number;
+  discountReason?: string;
+  flow_triggers?: unknown[];
+};
+
+type SelectedServiceListProps = {
+  form: {
+    setValue: (name: "services", value: SelectedServiceItem[]) => void;
+  };
+  services: SelectedServiceItem[];
+};
 
 const SelectedServiceList = React.memo(function SelectedServiceList({
   form,
-  saleEvents,
   services: selectedServices,
-}: {
-  form: UseFormReturn<any>;
-  saleEvents?: any[];
-  services: any[];
-}) {
-  if (!selectedServices || selectedServices.length === 0) {
-    return (
-      <div className="text-center p-8 border-2 border-dashed border-muted-foreground/10 rounded-xl bg-muted/20">
-        <Package className="w-10 h-10 mx-auto text-muted-foreground/30 mb-2" />
-        <p className="text-sm text-muted-foreground font-medium">
-          No services selected
-        </p>
-      </div>
-    );
-  }
-
+}: SelectedServiceListProps) {
   const updateQuantity = (
     serviceId: number,
     delta: number,
@@ -52,8 +54,8 @@ const SelectedServiceList = React.memo(function SelectedServiceList({
   };
 
   const groupedServices = useMemo(() => {
-    const groups: { [key: string]: any[] } = {};
-    const standalone: any[] = [];
+    const groups: Record<string, SelectedServiceItem[]> = {};
+    const standalone: SelectedServiceItem[] = [];
 
     selectedServices.forEach((service) => {
       if (service.packageId) {
@@ -68,6 +70,17 @@ const SelectedServiceList = React.memo(function SelectedServiceList({
 
     return { groups, standalone };
   }, [selectedServices]);
+
+  if (!selectedServices || selectedServices.length === 0) {
+    return (
+      <div className="text-center p-8 border-2 border-dashed border-muted-foreground/10 rounded-xl bg-muted/20">
+        <Package className="w-10 h-10 mx-auto text-muted-foreground/30 mb-2" />
+        <p className="text-sm text-muted-foreground font-medium">
+          No services selected
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -112,9 +125,9 @@ const SelectedServiceList = React.memo(function SelectedServiceList({
                     className="flex justify-between items-center text-xs pl-2 border-l-2 border-primary/20 ml-1"
                   >
                     <span className="text-muted-foreground">
-                      {service.quantity > 1 && (
+                      {(service.quantity ?? 1) > 1 && (
                         <span className="font-medium text-foreground mr-1">
-                          {service.quantity}x
+                          {service.quantity ?? 1}x
                         </span>
                       )}
                       {service.name}
@@ -191,16 +204,15 @@ const SelectedServiceList = React.memo(function SelectedServiceList({
                   <span className="font-medium text-sm text-foreground/90">
                     {service.name}
                   </span>
-                  {(service as any).flow_triggers &&
-                    (service as any).flow_triggers.length > 0 && (
-                      <Badge
-                        variant="secondary"
-                        className="text-[10px] h-4 px-1 bg-indigo-50/50 text-indigo-600 border-indigo-100"
-                      >
-                        <Sparkles className="w-2 h-2 mr-1" />
-                        Flow
-                      </Badge>
-                    )}
+                  {service.flow_triggers && service.flow_triggers.length > 0 && (
+                    <Badge
+                      variant="secondary"
+                      className="text-[10px] h-4 px-1 bg-indigo-50/50 text-indigo-600 border-indigo-100"
+                    >
+                      <Sparkles className="w-2 h-2 mr-1" />
+                      Flow
+                    </Badge>
+                  )}
                 </div>
 
                 {service.discountReason ? (
@@ -212,10 +224,10 @@ const SelectedServiceList = React.memo(function SelectedServiceList({
                         maximumFractionDigits: 2,
                       })}
                     </span>
-                    {service.originalPrice > service.price && (
+                    {(service.originalPrice ?? service.price) > service.price && (
                       <span className="text-[10px] text-muted-foreground line-through decoration-muted-foreground/50">
                         ₱
-                        {service.originalPrice.toLocaleString(undefined, {
+                        {(service.originalPrice ?? service.price).toLocaleString(undefined, {
                           minimumFractionDigits: 2,
                           maximumFractionDigits: 2,
                         })}
@@ -292,12 +304,11 @@ const SelectedServiceList = React.memo(function SelectedServiceList({
               )}
             </div>
 
-            {(service as any).flow_triggers &&
-              (service as any).flow_triggers.length > 0 && (
-                <div className="absolute right-3 bottom-3 opacity-5 pointer-events-none">
-                  <Sparkles className="w-8 h-8 text-indigo-500" />
-                </div>
-              )}
+            {service.flow_triggers && service.flow_triggers.length > 0 && (
+              <div className="absolute right-3 bottom-3 opacity-5 pointer-events-none">
+                <Sparkles className="w-8 h-8 text-indigo-500" />
+              </div>
+            )}
           </div>
         ))}
       </div>

@@ -109,7 +109,7 @@ async function FacingWebsiteContent({ params }: Props) {
     ? generalHours
     : business.business_hours;
 
-  const jsonLd: Record<string, any> = {
+  const jsonLd: Record<string, unknown> = {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
     name: business.name,

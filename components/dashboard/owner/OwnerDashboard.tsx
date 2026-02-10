@@ -1,7 +1,5 @@
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { PhilippinePeso, Plus, Calendar, Users, Bell } from "lucide-react";
-import Link from "next/link";
+import { PhilippinePeso, Calendar, Users, Bell } from "lucide-react";
 import DashboardCard from "../DashboardCard";
 import { SalesChart } from "./SalesChart";
 
@@ -15,7 +13,6 @@ import {
   User,
   Voucher,
   Owner,
-  ServicePackage,
 } from "@/prisma/generated/prisma/client";
 import { BookingList } from "./BookingList";
 import { BookingDialog } from "./BookingDialog";
@@ -79,7 +76,6 @@ export default async function OwnerDashboard({
   const packages = business ? await getCachedPackages(business.id) : [];
   const categories = Array.from(new Set(services.map((s) => s.category)));
 
-  const todayLabel = formatPH(new Date(), "MMM d, yyyy");
   return (
     <div className="min-h-screen bg-gradient-to-b from-zinc-50 via-white to-zinc-50">
       <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-slate-200/60 px-4 py-3 flex items-center justify-between md:px-8 md:py-4 shadow-[0_2px_20px_-12px_rgba(0,0,0,0.1)] transition-all duration-300">

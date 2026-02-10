@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import dynamic from "next/dynamic";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -31,11 +31,6 @@ export default function LocationInputGroup({
 }: LocationInputGroupProps) {
   const [lat, setLat] = useState<number | null>(initialLat);
   const [lng, setLng] = useState<number | null>(initialLng);
-
-  useEffect(() => {
-    setLat(initialLat);
-    setLng(initialLng);
-  }, [initialLat, initialLng]);
 
   return (
     <div className="space-y-4">

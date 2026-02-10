@@ -1,10 +1,8 @@
 import { describe, it, expect } from "vitest";
 import { GET } from "./route";
-import { NextRequest } from "next/server";
 
 describe("Health Check API", () => {
   it("should return 200 OK", async () => {
-    const req = new NextRequest("http://localhost/api/health");
     const response = await GET();
 
     expect(response.status).toBe(200);

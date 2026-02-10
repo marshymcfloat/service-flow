@@ -53,8 +53,9 @@ export async function proxy(request: NextRequest) {
   );
 
   if (pathname.startsWith("/api")) {
-    const ip = request.headers.get("x-forwarded-for") ?? "127.0.0.1";
-    const result = rateLimit(ip);
+    const forwardedFor = request.headers.get("x-forwarded-for") ?? "127.0.0.1";
+    const ip = forwardedFor.split(",")[0]?.trim() || "127.0.0.1";
+    const result = rateLimit(`${pathname}:${ip}`);
 
     if (!result.success) {
       return NextResponse.json(

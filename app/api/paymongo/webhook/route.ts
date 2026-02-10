@@ -1,9 +1,12 @@
 import crypto from "crypto";
+import { Prisma } from "@/prisma/generated/prisma/client";
 import { createBookingInDb } from "@/lib/services/booking";
 import { prisma } from "@/prisma/prisma";
 import { getPayMongoPaymentIntentById } from "@/lib/server actions/paymongo";
 import { extractPaymentIntentReferences } from "@/lib/paymongo/webhook-utils";
-import { sendBookingConfirmation } from "@/lib/email/send-booking-details";
+import { publishEvent } from "@/lib/services/outbox";
+
+const WEBHOOK_TIMESTAMP_TOLERANCE_SECONDS = 5 * 60;
 
 // Handle preflight requests (CORS)
 export async function OPTIONS() {
@@ -41,7 +44,6 @@ function verifyPayMongoSignature(
     return false;
   }
 
-  // Parse the signature header: t=timestamp,te=testsig,li=livesig
   const parts = signatureHeader.split(",");
   const signatureParts: Record<string, string> = {};
   for (const part of parts) {
@@ -51,50 +53,163 @@ function verifyPayMongoSignature(
     }
   }
 
-  const timestamp = signatureParts["t"];
-  const testSignature = signatureParts["te"];
-  const liveSignature = signatureParts["li"];
+  const timestamp = signatureParts.t;
+  const providedSignature = signatureParts.li || signatureParts.te;
 
-  if (!timestamp) {
-    console.error("No timestamp in signature header");
+  if (!timestamp || !providedSignature) {
+    console.error("Missing timestamp or signature in header");
     return false;
   }
 
-  // Create the signature string: timestamp.rawBody
-  const signatureString = `${timestamp}.${rawBody}`;
+  const timestampSeconds = Number(timestamp);
+  if (!Number.isFinite(timestampSeconds)) {
+    console.error("Invalid timestamp in signature header");
+    return false;
+  }
 
-  // Generate HMAC-SHA256
+  const nowSeconds = Math.floor(Date.now() / 1000);
+  if (Math.abs(nowSeconds - timestampSeconds) > WEBHOOK_TIMESTAMP_TOLERANCE_SECONDS) {
+    console.error("Webhook signature timestamp outside tolerance window");
+    return false;
+  }
+
+  const signatureString = `${timestamp}.${rawBody}`;
   const expectedSignature = crypto
     .createHmac("sha256", webhookSecret)
     .update(signatureString)
     .digest("hex");
 
-  // Check against test or live signature based on which is present
-  const providedSignature = liveSignature || testSignature;
-
-  if (!providedSignature) {
-    console.error("No signature found in header");
-    return false;
-  }
-
-  // Use timing-safe comparison
   try {
     return crypto.timingSafeEqual(
-      Buffer.from(expectedSignature),
-      Buffer.from(providedSignature),
+      Buffer.from(expectedSignature, "utf8"),
+      Buffer.from(providedSignature, "utf8"),
     );
   } catch {
     return false;
   }
 }
 
+function resolveWebhookEventId(body: Record<string, unknown>, rawBody: string) {
+  const bodyData = body?.data as Record<string, unknown> | undefined;
+  const eventId =
+    (typeof bodyData?.id === "string" && bodyData.id) ||
+    (typeof body?.id === "string" && body.id) ||
+    crypto.createHash("sha256").update(rawBody).digest("hex");
+
+  return eventId;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+async function acquireWebhookLock(eventId: string) {
+  const lockKey = `paymongo:webhook:${eventId}`;
+  const [result] = await prisma.$queryRaw<Array<{ locked: boolean }>>`
+    SELECT pg_try_advisory_lock(hashtext(${lockKey})) AS locked
+  `;
+
+  return Boolean(result?.locked);
+}
+
+async function releaseWebhookLock(eventId: string) {
+  const lockKey = `paymongo:webhook:${eventId}`;
+  await prisma.$queryRaw`
+    SELECT pg_advisory_unlock(hashtext(${lockKey}))
+  `;
+}
+
+async function wasWebhookProcessed(eventId: string) {
+  const existing = await prisma.auditLog.findFirst({
+    where: {
+      entity_type: "PAYMONGO_WEBHOOK_EVENT",
+      entity_id: eventId,
+      action: "PROCESSED",
+    },
+    select: { id: true },
+  });
+
+  return Boolean(existing);
+}
+
+async function markWebhookProcessed(
+  eventId: string,
+  eventType: string,
+  businessId = "system",
+) {
+  await prisma.auditLog.create({
+    data: {
+      entity_type: "PAYMONGO_WEBHOOK_EVENT",
+      entity_id: eventId,
+      action: "PROCESSED",
+      actor_type: "WEBHOOK",
+      business_id: businessId,
+      changes: {
+        eventType,
+        processedAt: new Date().toISOString(),
+      } as Prisma.JsonObject,
+    },
+  });
+}
+
+async function cancelHeldBookingByPaymentIntent(
+  paymentIntentId: string,
+  reason: string,
+) {
+  return prisma.$transaction(async (tx) => {
+    const booking = await tx.booking.findFirst({
+      where: { paymongo_payment_intent_id: paymentIntentId },
+      select: {
+        id: true,
+        business_id: true,
+        status: true,
+      },
+    });
+
+    if (!booking || booking.status !== "HOLD") {
+      return booking?.business_id;
+    }
+
+    await tx.booking.update({
+      where: { id: booking.id },
+      data: {
+        status: "CANCELLED",
+        hold_expires_at: null,
+      },
+    });
+
+    await tx.voucher.updateMany({
+      where: { used_by_id: booking.id },
+      data: {
+        used_by_id: null,
+        is_active: true,
+      },
+    });
+
+    await publishEvent(tx as Prisma.TransactionClient, {
+      type: "BOOKING_CANCELLED",
+      aggregateType: "Booking",
+      aggregateId: String(booking.id),
+      businessId: booking.business_id,
+      payload: {
+        bookingId: booking.id,
+        reason,
+        status: "CANCELLED",
+      },
+    });
+
+    return booking.business_id;
+  });
+}
+
 export async function POST(req: Request) {
+  let eventId = "";
+  let lockAcquired = false;
+
   try {
-    // Get raw body for signature verification
     const rawBody = await req.text();
     const signatureHeader = req.headers.get("paymongo-signature");
 
-    // Verify signature
     if (!verifyPayMongoSignature(rawBody, signatureHeader)) {
       console.error("Invalid webhook signature");
       return new Response("Invalid signature", { status: 401 });
@@ -107,9 +222,22 @@ export async function POST(req: Request) {
       return new Response("Missing event type", { status: 400 });
     }
 
+    eventId = resolveWebhookEventId(body, rawBody);
+    lockAcquired = await acquireWebhookLock(eventId);
+
+    if (!lockAcquired) {
+      return new Response("Webhook already being processed", { status: 200 });
+    }
+
+    if (await wasWebhookProcessed(eventId)) {
+      return new Response("Webhook already processed", { status: 200 });
+    }
+
+    let businessIdForAudit = "system";
+
     if (eventType === "checkout_session.payment.paid") {
-      const attributes = body.data.attributes.data.attributes;
-      const metadata = attributes.metadata;
+      const attributes = body?.data?.attributes?.data?.attributes;
+      const metadata = attributes?.metadata;
       const checkoutSessionId = body?.data?.attributes?.data?.id;
 
       if (!metadata) {
@@ -130,18 +258,15 @@ export async function POST(req: Request) {
         paymentMethod,
         paymentType,
         voucherCode,
-        isWalkIn: isWalkInStr,
       } = metadata;
 
-      if (!businessSlug) {
-        console.error("Missing required metadata fields: businessSlug");
+      if (!businessSlug || !servicesJson) {
+        console.error("Missing required metadata fields");
         return new Response("Missing metadata", { status: 400 });
       }
 
       const services = JSON.parse(servicesJson);
-      const scheduledAt = scheduledAtStr
-        ? new Date(scheduledAtStr)
-        : new Date();
+      const scheduledAt = scheduledAtStr ? new Date(scheduledAtStr) : new Date();
       const estimatedEnd = estimatedEndStr
         ? new Date(estimatedEndStr)
         : new Date();
@@ -152,31 +277,41 @@ export async function POST(req: Request) {
         ? parseInt(currentEmployeeIdStr, 10)
         : undefined;
 
-      const booking = await createBookingInDb({
-        businessSlug,
-        customerId,
-        customerName,
-        email,
-        services,
-        scheduledAt,
-        estimatedEnd,
-        employeeId,
-        currentEmployeeId,
-        paymentMethod: paymentMethod as "QRPH",
-        paymentType: paymentType as "FULL" | "DOWNPAYMENT",
-        voucherCode,
-        paymentConfirmed: true,
-        paymongoCheckoutSessionId: checkoutSessionId,
-      });
-
-      console.log(
-        `Booking created successfully: ${booking.id} (${booking.status})`,
-      );
-
-      if (isWalkInStr !== "true") {
-        await sendBookingConfirmation(booking.id);
+      try {
+        const booking = await createBookingInDb({
+          businessSlug,
+          customerId,
+          customerName,
+          email,
+          services,
+          scheduledAt,
+          estimatedEnd,
+          employeeId,
+          currentEmployeeId,
+          paymentMethod: paymentMethod as "QRPH",
+          paymentType: paymentType as "FULL" | "DOWNPAYMENT",
+          voucherCode,
+          paymentConfirmed: true,
+          paymongoCheckoutSessionId: checkoutSessionId,
+        });
+        businessIdForAudit = booking.business_id;
+      } catch (error) {
+        if (
+          error instanceof Prisma.PrismaClientKnownRequestError &&
+          error.code === "P2002" &&
+          checkoutSessionId
+        ) {
+          const existing = await prisma.booking.findFirst({
+            where: { paymongo_checkout_session_id: checkoutSessionId },
+            select: { business_id: true },
+          });
+          businessIdForAudit = existing?.business_id || "system";
+        } else {
+          throw error;
+        }
       }
 
+      await markWebhookProcessed(eventId, eventType, businessIdForAudit);
       return new Response("Webhook processed", { status: 200 });
     }
 
@@ -189,13 +324,23 @@ export async function POST(req: Request) {
         return new Response("Missing payment intent ID", { status: 400 });
       }
 
-      const existingBooking = await prisma.booking.findFirst({
-        where: { paymongo_payment_intent_id: paymentIntentId },
-      });
+      const result = await prisma.$transaction(async (tx) => {
+        const existingBooking = await tx.booking.findFirst({
+          where: { paymongo_payment_intent_id: paymentIntentId },
+          select: {
+            id: true,
+            business_id: true,
+            status: true,
+            paymongo_payment_method_id: true,
+          },
+        });
 
-      if (existingBooking) {
-        if (existingBooking.status !== "ACCEPTED") {
-          await prisma.booking.update({
+        if (!existingBooking) {
+          return { kind: "missing" as const, businessId: "system" };
+        }
+
+        if (existingBooking.status === "HOLD") {
+          await tx.booking.update({
             where: { id: existingBooking.id },
             data: {
               status: "ACCEPTED",
@@ -205,50 +350,96 @@ export async function POST(req: Request) {
                 paymentMethodId || existingBooking.paymongo_payment_method_id,
             },
           });
+
+          await publishEvent(tx as Prisma.TransactionClient, {
+            type: "BOOKING_CONFIRMED",
+            aggregateType: "Booking",
+            aggregateId: String(existingBooking.id),
+            businessId: existingBooking.business_id,
+            payload: {
+              bookingId: existingBooking.id,
+              status: "ACCEPTED",
+            },
+          });
         }
 
-        // Send email if not walk-in (fetch metadata to check)
-        if (existingBooking.payment_method === "QRPH") {
-          const metadata = await resolvePaymentIntentMetadata(paymentIntentId);
-          const isWalkIn = metadata?.isWalkIn === "true";
+        return {
+          kind: "found" as const,
+          businessId: existingBooking.business_id,
+        };
+      });
 
-          if (!isWalkIn) {
-            await sendBookingConfirmation(existingBooking.id);
+      if (result.kind === "missing") {
+        const metadata = await resolvePaymentIntentMetadata(paymentIntentId);
+
+        if (isRecord(metadata)) {
+          try {
+            const booking = await createBookingFromMetadata({
+              metadata,
+              paymentIntentId,
+              paymentMethodId,
+              paymentId,
+            });
+            businessIdForAudit = booking.business_id;
+          } catch (error) {
+            if (
+              error instanceof Prisma.PrismaClientKnownRequestError &&
+              error.code === "P2002"
+            ) {
+              const existing = await prisma.booking.findFirst({
+                where: { paymongo_payment_intent_id: paymentIntentId },
+                select: { business_id: true },
+              });
+              businessIdForAudit = existing?.business_id || "system";
+            } else {
+              throw error;
+            }
           }
+        } else {
+          console.error(
+            `[Webhook] Payment ${paymentIntentId} successful but metadata was unavailable.`,
+          );
+          throw new Error(
+            `Missing metadata for paid payment intent ${paymentIntentId}`,
+          );
         }
-
-        return new Response("Webhook processed", { status: 200 });
+      } else {
+        businessIdForAudit = result.businessId;
       }
 
-      console.error(
-        `[Webhook] Payment ${paymentIntentId} successful but no matching booking found.`,
-      );
-      return new Response("Booking not found", { status: 404 });
+      await markWebhookProcessed(eventId, eventType, businessIdForAudit);
+      return new Response("Webhook processed", { status: 200 });
     }
 
     if (eventType === "payment.failed" || eventType === "qrph.expired") {
       const { paymentIntentId } = extractPaymentIntentReferences(body);
-
       if (paymentIntentId) {
-        const booking = await prisma.booking.findFirst({
-          where: { paymongo_payment_intent_id: paymentIntentId },
-        });
-
-        if (booking && booking.status !== "CANCELLED") {
-          await prisma.booking.update({
-            where: { id: booking.id },
-            data: { status: "CANCELLED" },
-          });
+        const bookingBusinessId = await cancelHeldBookingByPaymentIntent(
+          paymentIntentId,
+          eventType,
+        );
+        if (bookingBusinessId) {
+          businessIdForAudit = bookingBusinessId;
         }
       }
 
+      await markWebhookProcessed(eventId, eventType, businessIdForAudit);
       return new Response("Webhook processed", { status: 200 });
     }
 
+    await markWebhookProcessed(eventId, eventType, businessIdForAudit);
     return new Response("Event ignored", { status: 200 });
   } catch (error) {
     console.error("Webhook processing error:", error);
     return new Response("Internal Server Error", { status: 500 });
+  } finally {
+    if (lockAcquired && eventId) {
+      try {
+        await releaseWebhookLock(eventId);
+      } catch (error) {
+        console.error("Failed to release webhook lock:", error);
+      }
+    }
   }
 }
 
@@ -263,11 +454,13 @@ async function createBookingFromMetadata({
   paymentMethodId,
   paymentId,
 }: {
-  metadata: Record<string, any>;
+  metadata: Record<string, unknown>;
   paymentIntentId?: string;
   paymentMethodId?: string;
   paymentId?: string;
 }) {
+  const metadataRecord = metadata as Record<string, string | undefined>;
+
   const {
     businessSlug,
     customerName,
@@ -281,11 +474,10 @@ async function createBookingFromMetadata({
     paymentMethod,
     paymentType,
     voucherCode,
-    isWalkIn: isWalkInStr,
-  } = metadata;
+  } = metadataRecord;
 
-  if (!businessSlug) {
-    throw new Error("Missing required metadata fields: businessSlug");
+  if (!businessSlug || !servicesJson || !customerName) {
+    throw new Error("Missing required metadata fields");
   }
 
   const services = JSON.parse(servicesJson);
