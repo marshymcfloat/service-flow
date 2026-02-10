@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { BeautyFeelMapProps } from "./BeautyFeelMap";
+import type { BeautyFeelMapProps } from "./BeautyFeelMap";
 
 const BeautyFeelMap = dynamic(() => import("./BeautyFeelMap"), {
   ssr: false,

@@ -7,7 +7,7 @@ import {
 } from "@/prisma/generated/prisma/client";
 import { beautyFeelContent } from "./content";
 import BeautyFeelShell from "./BeautyFeelShell";
-import BeautyFeelMap from "./BeautyFeelMap";
+import BeautyFeelMap from "./BeautyFeelMapWrapper";
 import BeautyFeelSectionSeam from "./BeautyFeelSectionSeam";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -316,7 +316,7 @@ export default function BeautyFeelLanding({
                     ))}
                   </div>
                   <p className="mt-4 text-sm text-[color:var(--bf-ink)]">
-                    "{testimonial.quote}"
+                    &ldquo;{testimonial.quote}&rdquo;
                   </p>
                   <p className="mt-4 text-xs uppercase tracking-[0.2em] text-[color:var(--bf-muted)]">
                     {testimonial.name} - {testimonial.service}

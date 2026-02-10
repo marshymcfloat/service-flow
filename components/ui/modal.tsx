@@ -9,7 +9,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useRouter } from "next/navigation";
-import { ReactNode } from "react";
+import { ReactNode, useRef } from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -33,8 +33,15 @@ export function Modal({
   closeOnBackdrop?: boolean;
 }) {
   const router = useRouter();
+  const lastDismissAtRef = useRef(0);
 
   function onDismiss() {
+    // Dismiss events can fire twice in quick succession (e.g. pointer + open state).
+    // Guard only the current interaction, but allow future open/close cycles.
+    const now = Date.now();
+    if (now - lastDismissAtRef.current < 300) return;
+    lastDismissAtRef.current = now;
+
     router.back();
   }
 

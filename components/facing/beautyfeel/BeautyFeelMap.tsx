@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import * as L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
 export interface BeautyFeelMapProps {
@@ -16,24 +15,28 @@ export default function BeautyFeelMap({
   label,
 }: BeautyFeelMapProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
-  const mapInstanceRef = useRef<any>(null);
+  const mapInstanceRef = useRef<{ remove: () => void } | null>(null);
 
   useEffect(() => {
-    delete (L.Icon.Default.prototype as any)._getIconUrl;
-    L.Icon.Default.mergeOptions({
-      iconRetinaUrl:
-        "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png",
-      iconUrl:
-        "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
-      shadowUrl:
-        "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
-    });
+    let isDisposed = false;
 
-    if (mapContainerRef.current && !mapInstanceRef.current) {
-      const map = L.map(mapContainerRef.current).setView(
-        [latitude, longitude],
-        14,
-      );
+    async function initMap() {
+      const L = await import("leaflet");
+      if (isDisposed || !mapContainerRef.current || mapInstanceRef.current) {
+        return;
+      }
+
+      delete (L.Icon.Default.prototype as { _getIconUrl?: string })._getIconUrl;
+      L.Icon.Default.mergeOptions({
+        iconRetinaUrl:
+          "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png",
+        iconUrl:
+          "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
+        shadowUrl:
+          "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
+      });
+
+      const map = L.map(mapContainerRef.current).setView([latitude, longitude], 14);
 
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         attribution:
@@ -47,7 +50,10 @@ export default function BeautyFeelMap({
       mapInstanceRef.current = map;
     }
 
+    void initMap();
+
     return () => {
+      isDisposed = true;
       if (mapInstanceRef.current) {
         mapInstanceRef.current.remove();
         mapInstanceRef.current = null;
