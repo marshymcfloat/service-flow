@@ -2,8 +2,9 @@
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { TimeSlot } from "@/lib/server actions/availability";
+import type { TimeSlot } from "@/lib/services/booking-availability";
 import { Clock, Info } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 interface TimeSlotPickerProps {
   slots: TimeSlot[];
@@ -15,6 +16,7 @@ interface TimeSlotPickerProps {
   disabled?: boolean;
   emptyTitle?: string;
   emptyDescription?: string;
+  alternativeSlots?: TimeSlot[];
 }
 
 export default function TimeSlotPicker({
@@ -27,6 +29,7 @@ export default function TimeSlotPicker({
   disabled = false,
   emptyTitle = "No available slots for the selected services",
   emptyDescription = "No available providers for this day/time. Try a different day.",
+  alternativeSlots = [],
 }: TimeSlotPickerProps) {
   if (isLoading) {
     return (
@@ -54,6 +57,32 @@ export default function TimeSlotPicker({
         <Clock className="h-8 w-8 mx-auto mb-2 opacity-50" />
         <p>{emptyTitle}</p>
         <p className="text-sm">{emptyDescription}</p>
+        {alternativeSlots.length > 0 && (
+          <div className="mt-4 space-y-2">
+            <p className="text-xs font-medium text-foreground">Next available</p>
+            <div className="flex flex-wrap justify-center gap-2">
+              {alternativeSlots.slice(0, 4).map((slot) => (
+                <Button
+                  key={slot.startTime.toISOString()}
+                  size="sm"
+                  type="button"
+                  variant="outline"
+                  onClick={() => onChange(slot.startTime)}
+                  className="h-8 px-2.5 text-xs"
+                >
+                  {new Date(slot.startTime).toLocaleString("en-US", {
+                    timeZone: "Asia/Manila",
+                    month: "short",
+                    day: "numeric",
+                    hour: "numeric",
+                    minute: "2-digit",
+                    hour12: true,
+                  })}
+                </Button>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     );
   }
@@ -68,6 +97,14 @@ export default function TimeSlotPicker({
 
   return (
     <div className="space-y-3">
+      <div className="flex flex-wrap gap-1.5">
+        <Badge variant="secondary" className="text-[10px]">
+          Confirmed = attendance-backed
+        </Badge>
+        <Badge variant="secondary" className="text-[10px]">
+          Tentative = roster projection
+        </Badge>
+      </div>
       {businessHours && category && (
         <div className="flex items-center gap-2 p-2.5 rounded-lg bg-emerald-50/50 border border-emerald-200/60">
           <Info className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
@@ -124,7 +161,7 @@ export default function TimeSlotPicker({
               </span>
               <span
                 className={cn(
-                  "text-[10px] uppercase tracking-wider font-medium flex items-center gap-1",
+                  "text-[10px] uppercase tracking-wider font-medium flex items-center gap-1 text-center",
                   isSelected
                     ? "text-primary-foreground/80"
                     : availabilityLevel === "high"
@@ -139,6 +176,15 @@ export default function TimeSlotPicker({
                   : slot.availableOwnerCount > 0
                     ? "Available"
                     : "Unavailable"}
+              </span>
+              <span
+                className={cn(
+                  "text-[9px] leading-none",
+                  isSelected ? "text-primary-foreground/70" : "text-muted-foreground",
+                )}
+              >
+                {slot.confidence === "CONFIRMED" ? "Confirmed" : "Tentative"} -{" "}
+                {slot.source === "ATTENDANCE" ? "Attendance" : "Roster"}
               </span>
             </Button>
           );

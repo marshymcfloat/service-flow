@@ -151,7 +151,8 @@ const ServiceSelect = React.memo(function ServiceSelect({
             businessSlug,
             category,
             date: selectedDate,
-            enforceAttendanceForToday: !!selectedDate,
+            // Keep service browsing permissive; strictness is enforced at slot and submit validation.
+            enforceAttendanceForToday: false,
           });
         } catch (error) {
           console.error(`Error checking availability for ${category}:`, error);
@@ -385,7 +386,8 @@ const ServiceSelect = React.memo(function ServiceSelect({
                         !!selectedDate && outsideHours;
                       const isUnavailable =
                         noStaff || noBusinessHours || isClosedForSelectedDate;
-                      const isDisabled = isUnavailable && !isSelected;
+                      const isDisabled =
+                        !!selectedDate && isUnavailable && !isSelected;
                       const qualifiedEmployeeCount =
                         availability?.qualifiedEmployeeCount ?? 0;
                       const usesAttendance =
@@ -452,6 +454,14 @@ const ServiceSelect = React.memo(function ServiceSelect({
                                     {usesAttendance
                                       ? "No One Clocked In"
                                       : "No Staff"}
+                                  </Badge>
+                                )}
+                                {!selectedDate && dataLoaded && (
+                                  <Badge
+                                    variant="secondary"
+                                    className="h-4 px-1.5 text-[10px] bg-emerald-50 text-emerald-700 border-emerald-200 shadow-none"
+                                  >
+                                    Preview
                                   </Badge>
                                 )}
                                 {noEmployeesButOwner && (
@@ -562,7 +572,8 @@ const ServiceSelect = React.memo(function ServiceSelect({
                       );
                       const isUnavailable =
                         noStaff || noBusinessHours || isClosedForSelectedDate;
-                      const isDisabled = isUnavailable && !isSelected;
+                      const isDisabled =
+                        !!selectedDate && isUnavailable && !isSelected;
                       const usesAttendance =
                         availability?.availabilitySource === "ATTENDANCE";
 
@@ -630,6 +641,14 @@ const ServiceSelect = React.memo(function ServiceSelect({
                                     {usesAttendance
                                       ? "No One Clocked In"
                                       : "No Staff"}
+                                  </Badge>
+                                )}
+                                {!selectedDate && dataLoaded && (
+                                  <Badge
+                                    variant="secondary"
+                                    className="h-4 px-1.5 text-[10px] bg-emerald-50 text-emerald-700 border-emerald-200 shadow-none"
+                                  >
+                                    Preview
                                   </Badge>
                                 )}
                                 {noEmployeesButOwner && (

@@ -8,6 +8,12 @@ import { prisma } from "@/prisma/prisma";
 import { getEndOfDayPH, getStartOfDayPH } from "@/lib/date-utils";
 import { getThisWeeksFlowRemindersCount } from "@/lib/data/flow-reminder-queries";
 
+function toObjectRecord(value: unknown): Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : {};
+}
+
 export default async function OwnerDashboardDataContainer({
   businessSlug,
 }: {
@@ -223,6 +229,107 @@ export default async function OwnerDashboardDataContainer({
     business.id,
   );
 
+  const metricWindowStart = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+  const bookingMetricLogs = await prisma.auditLog.findMany({
+    where: {
+      business_id: business.id,
+      entity_type: "BookingMetric",
+      created_at: {
+        gte: metricWindowStart,
+      },
+      action: {
+        in: [
+          "BOOKING_SLOT_LOOKUP",
+          "BOOKING_SUBMIT_ATTEMPT",
+          "BOOKING_SUBMIT_SUCCESS",
+          "BOOKING_SUBMIT_REJECTION",
+          "PUBLIC_BOOKING_STARTED",
+          "PUBLIC_BOOKING_COMPLETED",
+        ],
+      },
+    },
+    select: {
+      action: true,
+      changes: true,
+    },
+  });
+
+  let slotLookupTotal = 0;
+  let slotLookupSuccess = 0;
+  let submitAttempts = 0;
+  let submitSuccess = 0;
+  let slotJustTakenRejections = 0;
+  let publicStarted = 0;
+  let publicCompleted = 0;
+
+  for (const log of bookingMetricLogs) {
+    const changes = toObjectRecord(log.changes);
+    const outcome = String(changes.outcome || "");
+    const reason = String(changes.reason || "");
+
+    if (log.action === "BOOKING_SLOT_LOOKUP") {
+      slotLookupTotal += 1;
+      if (outcome === "SUCCESS") {
+        slotLookupSuccess += 1;
+      }
+    } else if (log.action === "BOOKING_SUBMIT_ATTEMPT") {
+      submitAttempts += 1;
+    } else if (log.action === "BOOKING_SUBMIT_SUCCESS") {
+      submitSuccess += 1;
+    } else if (
+      log.action === "BOOKING_SUBMIT_REJECTION" &&
+      reason === "SLOT_JUST_TAKEN"
+    ) {
+      slotJustTakenRejections += 1;
+    } else if (log.action === "PUBLIC_BOOKING_STARTED") {
+      publicStarted += 1;
+    } else if (log.action === "PUBLIC_BOOKING_COMPLETED") {
+      publicCompleted += 1;
+    }
+  }
+
+  const slotLookupSuccessRate =
+    slotLookupTotal > 0 ? (slotLookupSuccess / slotLookupTotal) * 100 : 0;
+  const bookingSubmitSuccessRate =
+    submitAttempts > 0 ? (submitSuccess / submitAttempts) * 100 : 0;
+  const conflictRejectionRate =
+    submitAttempts > 0 ? (slotJustTakenRejections / submitAttempts) * 100 : 0;
+  const publicConversionRate =
+    publicStarted > 0 ? (publicCompleted / publicStarted) * 100 : 0;
+
+  const rawConflictSignals = await prisma.outboxMessage.findMany({
+    where: {
+      business_id: business.id,
+      event_type: "BOOKING_STAFFING_CONFLICT_DETECTED",
+      created_at: {
+        gte: metricWindowStart,
+      },
+    },
+    orderBy: {
+      created_at: "desc",
+    },
+    take: 6,
+    select: {
+      id: true,
+      aggregate_id: true,
+      payload: true,
+      created_at: true,
+    },
+  });
+
+  const staffingConflictAlerts = rawConflictSignals.map((signal) => {
+    const payload = toObjectRecord(signal.payload);
+    return {
+      id: signal.id,
+      bookingId: Number.parseInt(signal.aggregate_id, 10),
+      customerName: String(payload.customerName || "Customer"),
+      scheduledAt: String(payload.scheduledAt || ""),
+      trigger: String(payload.trigger || "MANUAL_REVALIDATION"),
+      reason: String(payload.reason || "Staffing conflict detected."),
+      detectedAt: signal.created_at,
+    };
+  });
+
   return (
     <OwnerDashboard
       businessName={business.name}
@@ -236,6 +343,17 @@ export default async function OwnerDashboardDataContainer({
       ownerClaimedServices={ownerClaimedServices}
       payroll={payrollData}
       flowRemindersThisWeek={flowRemindersThisWeek}
+      bookingMetrics={{
+        slotLookupSuccessRate,
+        bookingSubmitSuccessRate,
+        conflictRejectionRate,
+        publicConversionRate,
+        slotLookupTotal,
+        submitAttempts,
+        publicStarted,
+        publicCompleted,
+      }}
+      staffingConflictAlerts={staffingConflictAlerts}
     />
   );
 }

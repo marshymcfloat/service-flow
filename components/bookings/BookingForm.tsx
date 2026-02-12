@@ -6,8 +6,10 @@ import {
 } from "@/lib/server actions/booking";
 import {
   getAvailableSlots,
+  getAlternativeSlots,
   getAvailableProviders,
 } from "@/lib/server actions/availability";
+import { getBookingPolicy } from "@/lib/server actions/booking-policy";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import {
   Service,
@@ -23,7 +25,7 @@ import {
 } from "@/lib/zod schemas/bookings";
 import { toast } from "sonner";
 import { useEffect, useMemo, useState, useCallback } from "react";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { verifyVoucherAction } from "@/lib/server actions/vouchers";
 
 import { getActiveSaleEvents } from "@/lib/server actions/sale-event";
@@ -111,6 +113,8 @@ import {
 import { format } from "date-fns";
 import { Sparkles, Calendar, Ticket, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { BookingPolicy } from "@/lib/types/booking-policy";
+import { getMaxBookingDate, getSlotEmptyState } from "./booking-form-utils";
 
 type SelectedService = {
   id: number;
@@ -143,6 +147,7 @@ export default function BookingForm({
   onSuccess,
 }: BookingFormProps) {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const searchParams = useSearchParams();
   const form = useForm({
     resolver: zodResolver(createBookingSchema),
@@ -176,6 +181,12 @@ export default function BookingForm({
     () => (saleEventsResult?.success && saleEventsResult.data) || [],
     [saleEventsResult],
   );
+
+  const { data: bookingPolicy } = useQuery<BookingPolicy>({
+    queryKey: ["bookingPolicy", businessSlug],
+    queryFn: () => getBookingPolicy(businessSlug),
+    enabled: !!businessSlug,
+  });
 
   const selectedServices = useWatch({
     control: form.control,
@@ -523,6 +534,17 @@ export default function BookingForm({
     !!selectedDatePHString && selectedDatePHString === todayPHString;
   const isSelectedDateInFuture =
     !!selectedDatePHString && selectedDatePHString > todayPHString;
+  const bookingHorizonDays = bookingPolicy?.bookingHorizonDays ?? 14;
+  const bookingMinLeadMinutes = bookingPolicy?.minLeadMinutes ?? 30;
+  const bookingV2Enabled = bookingPolicy?.bookingV2Enabled ?? true;
+  const maxBookingDate = useMemo(
+    () =>
+      getMaxBookingDate({
+        bookingV2Enabled,
+        bookingHorizonDays,
+      }),
+    [bookingHorizonDays, bookingV2Enabled],
+  );
 
   const { data: timeSlots = [], isLoading: isLoadingSlots } = useQuery({
     queryKey: [
@@ -530,14 +552,15 @@ export default function BookingForm({
       businessSlug,
       selectedDate?.toISOString(),
       slotServiceKey,
+      bookingHorizonDays,
+      bookingV2Enabled,
     ],
     queryFn: async () => {
       if (
         !selectedDate ||
         !businessSlug ||
         selectedServices.length === 0 ||
-        effectiveIsWalkIn ||
-        !isSelectedDateToday // Show slots only for today's attendance
+        effectiveIsWalkIn
       ) {
         return [];
       }
@@ -545,14 +568,41 @@ export default function BookingForm({
         businessSlug,
         date: selectedDate,
         services: slotServiceInputs,
+        slotIntervalMinutes: bookingPolicy?.slotIntervalMinutes,
       });
     },
     enabled:
       !!selectedDate &&
       !!businessSlug &&
       selectedServices.length > 0 &&
+      !effectiveIsWalkIn,
+  });
+
+  const { data: alternativeSlots = [] } = useQuery({
+    queryKey: [
+      "alternativeSlots",
+      businessSlug,
+      selectedDate?.toISOString(),
+      slotServiceKey,
+      timeSlots.length,
+    ],
+    queryFn: async () => {
+      if (!selectedDate || !businessSlug || slotServiceInputs.length === 0) {
+        return [];
+      }
+      return getAlternativeSlots({
+        businessSlug,
+        scheduledAt: selectedTime || selectedDate,
+        services: slotServiceInputs,
+      });
+    },
+    enabled:
+      !!selectedDate &&
+      !!businessSlug &&
       !effectiveIsWalkIn &&
-      isSelectedDateToday,
+      slotServiceInputs.length > 0 &&
+      !isLoadingSlots &&
+      timeSlots.length === 0,
   });
 
   const selectedSlotOwnerFallback = useMemo(() => {
@@ -562,6 +612,10 @@ export default function BookingForm({
     );
     return (selectedSlot?.availableOwnerCount || 0) > 0;
   }, [selectedTime, timeSlots]);
+  const hasTentativeAlternativeSlots = useMemo(
+    () => alternativeSlots.some((slot) => slot.confidence === "TENTATIVE"),
+    [alternativeSlots],
+  );
 
   const totalWithFee =
     finalAmountToPay + (paymentMethod === "QRPH" ? finalAmountToPay * 0.015 : 0);
@@ -612,13 +666,6 @@ export default function BookingForm({
       form.setValue("employeeId", undefined);
     }
   }, [selectedDate, form, effectiveIsWalkIn]);
-
-  useEffect(() => {
-    if (selectedDate && !isSelectedDateToday && !effectiveIsWalkIn) {
-      form.setValue("selectedTime", undefined);
-      form.setValue("employeeId", undefined);
-    }
-  }, [selectedDate, isSelectedDateToday, form, effectiveIsWalkIn]);
 
   useEffect(() => {
     if (!selectedTime && !effectiveIsWalkIn) {
@@ -685,6 +732,35 @@ export default function BookingForm({
       }
     },
     onError: (error) => {
+      const code = error instanceof Error ? error.message : "";
+      if (code === "DATE_OUTSIDE_HORIZON") {
+        toast.error("Selected date is outside the booking window.");
+        return;
+      }
+      if (code === "LEAD_TIME_VIOLATION") {
+        toast.error(
+          `Please choose a slot at least ${bookingMinLeadMinutes} minutes from now.`,
+        );
+        return;
+      }
+      if (code === "PAYMENT_TYPE_NOT_ALLOWED") {
+        toast.error("Selected payment type is not available for public booking.");
+        return;
+      }
+      if (code === "NO_CAPACITY_FOR_SELECTED_SERVICES") {
+        toast.error("No capacity left for the selected services. Try another day.");
+        return;
+      }
+      if (code === "SLOT_JUST_TAKEN") {
+        form.setValue("selectedTime", undefined);
+        queryClient.invalidateQueries({
+          queryKey: ["timeSlots", businessSlug],
+        });
+        toast.error(
+          "That slot was just taken. We refreshed the latest available times.",
+        );
+        return;
+      }
       toast.error("Failed to create booking");
       console.error("Booking creation failed:", error);
     },
@@ -769,9 +845,24 @@ export default function BookingForm({
     selectedServices.length === 0 ||
     !hasReviewedDetails;
 
-  const canSelectServices = effectiveIsWalkIn || !!selectedDate;
-  const canReviewAndConfirm =
-    selectedServices.length > 0 && (effectiveIsWalkIn || !!selectedTime);
+  const isStep1Complete = selectedServices.length > 0;
+  const isStep2Complete = effectiveIsWalkIn || !!selectedDate;
+  const isStep3Complete = effectiveIsWalkIn || !!selectedTime;
+  const canAccessStep2 = isStep1Complete;
+  const canAccessStep3 = canAccessStep2 && isStep2Complete;
+  const canAccessStep4 = canAccessStep3 && isStep3Complete;
+  const canAccessStep5 = canAccessStep4;
+  const canReviewAndConfirm = canAccessStep5;
+  const currentStep =
+    !isStep1Complete
+      ? 1
+      : !isStep2Complete
+        ? 2
+        : !isStep3Complete
+          ? 3
+          : !canAccessStep5
+            ? 4
+            : 5;
   const selectedEmployeeName = useMemo(
     () => employees.find((employee) => employee.id === selectedEmployeeId)?.name,
     [employees, selectedEmployeeId],
@@ -781,12 +872,12 @@ export default function BookingForm({
       selectedServices.reduce((sum, service) => sum + (service.quantity || 1), 0),
     [selectedServices],
   );
-  const slotEmptyTitle = isSelectedDateInFuture
-    ? "Slots are only shown for today's attendance"
-    : "No available slots for the selected services";
-  const slotEmptyDescription = isSelectedDateInFuture
-    ? "Future attendance is not finalized yet. Choose today or use walk-in."
-    : "No available providers for this day/time. Try a different day.";
+  const slotEmptyState = getSlotEmptyState({
+    isSelectedDateInFuture,
+    bookingV2Enabled,
+    isSelectedDateToday,
+    hasTentativeAlternativeSlots: timeSlots.length === 0 && hasTentativeAlternativeSlots,
+  });
 
   const resolvedMobileActionBarMode =
     mobileActionBarMode === "auto"
@@ -820,15 +911,57 @@ export default function BookingForm({
   }, [isEmployee, hasReviewedDetails]);
 
   const paymentTypeOptions = useMemo(() => {
+    if (isEmployee) {
+      return [
+        { value: "FULL" as const, label: "Full", disabled: !hasReviewedDetails },
+        {
+          value: "DOWNPAYMENT" as const,
+          label: "50%",
+          disabled: !hasReviewedDetails,
+        },
+      ];
+    }
+
+    const allowsFull = bookingPolicy?.allowPublicFullPayment ?? true;
+    const allowsDownpayment = bookingPolicy?.allowPublicDownpayment ?? true;
     return [
-      { value: "FULL" as const, label: "Full", disabled: !hasReviewedDetails },
+      {
+        value: "FULL" as const,
+        label: "Full",
+        disabled: !hasReviewedDetails || !allowsFull,
+      },
       {
         value: "DOWNPAYMENT" as const,
         label: "50%",
-        disabled: !hasReviewedDetails,
+        disabled: !hasReviewedDetails || !allowsDownpayment,
       },
     ];
-  }, [hasReviewedDetails]);
+  }, [hasReviewedDetails, isEmployee, bookingPolicy]);
+
+  useEffect(() => {
+    if (isEmployee || !bookingPolicy) return;
+    const currentType = form.getValues("paymentType") as PaymentType;
+    const allowsFull = bookingPolicy.allowPublicFullPayment;
+    const allowsDownpayment = bookingPolicy.allowPublicDownpayment;
+
+    if (
+      (currentType === "FULL" && allowsFull) ||
+      (currentType === "DOWNPAYMENT" && allowsDownpayment)
+    ) {
+      return;
+    }
+
+    const fallback =
+      bookingPolicy.defaultPublicPaymentType === "DOWNPAYMENT" && allowsDownpayment
+        ? "DOWNPAYMENT"
+        : allowsFull
+          ? "FULL"
+          : allowsDownpayment
+            ? "DOWNPAYMENT"
+            : "FULL";
+
+    form.setValue("paymentType", fallback, { shouldValidate: true });
+  }, [bookingPolicy, form, isEmployee]);
 
   return (
     <Form {...form}>
@@ -861,7 +994,7 @@ export default function BookingForm({
         )}
         <div
           className={cn(
-            "space-y-4 lg:pb-4",
+            "flex flex-col gap-4 lg:pb-4",
             usesFixedMobileActionBar ? "pb-28 sm:pb-32" : "pb-4 sm:pb-4",
           )}
         >
@@ -874,10 +1007,37 @@ export default function BookingForm({
             )}
           />
 
-          <div className="space-y-4 rounded-2xl border bg-card/90 p-4 shadow-sm sm:p-5">
+          <div className="order-0 rounded-2xl border bg-card/90 p-4 shadow-sm sm:p-5">
+            <div className="flex flex-wrap gap-2">
+              {[
+                { step: 1, label: "Services", done: isStep1Complete },
+                { step: 2, label: "Date", done: isStep2Complete },
+                { step: 3, label: "Time", done: isStep3Complete },
+                { step: 4, label: "Staff", done: canAccessStep4 },
+                { step: 5, label: "Customer & Payment", done: hasReviewedDetails },
+              ].map((item) => (
+                <span
+                  key={item.step}
+                  className={cn(
+                    "inline-flex items-center rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide",
+                    item.done
+                      ? "border-emerald-300 bg-emerald-50 text-emerald-700"
+                      : currentStep === item.step
+                        ? "border-primary/40 bg-primary/10 text-primary"
+                        : "border-zinc-200 bg-white text-zinc-500",
+                  )}
+                >
+                  {item.step}. {item.label}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {canAccessStep5 && (
+            <div className="order-50 space-y-4 rounded-2xl border bg-card/90 p-4 shadow-sm sm:p-5">
             <div className="flex items-center gap-2 mb-2">
               <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold">
-                1
+                5
               </span>
               <h3 className="font-semibold text-lg tracking-tight">
                 Customer Details
@@ -979,13 +1139,12 @@ export default function BookingForm({
                 );
               }}
             />
-          </div>
-
-          <Separator className="bg-border/40" />
+            </div>
+          )}
 
           {/* Pending Flows / Upsells */}
-          {pendingFlows.length > 0 && (
-            <div className="space-y-3 animate-in fade-in slide-in-from-top-4 duration-500">
+          {canAccessStep5 && pendingFlows.length > 0 && (
+            <div className="order-[55] space-y-3 animate-in fade-in slide-in-from-top-4 duration-500">
               {pendingFlows.map((flow, idx) => (
                 <div
                   key={idx}
@@ -1075,10 +1234,7 @@ export default function BookingForm({
                               ...currentServices,
                               serviceToAdd,
                             ]);
-                            toast.success(
-                              `Added ${flow.suggestedServiceName}`,
-                              { icon: "✨" },
-                            );
+                            toast.success(`Added ${flow.suggestedServiceName}`);
                           } else {
                             toast.info("Already selected");
                           }
@@ -1093,7 +1249,12 @@ export default function BookingForm({
             </div>
           )}
 
-          <div className="space-y-6 rounded-2xl border bg-card/90 p-4 shadow-sm transition-all duration-300 sm:p-5">
+          <div
+            className={cn(
+              "order-20 space-y-6 rounded-2xl border bg-card/90 p-4 shadow-sm transition-all duration-300 sm:p-5",
+              !canAccessStep2 && "pointer-events-none opacity-60",
+            )}
+          >
             <div className="space-y-4">
               <div className="flex items-center gap-2 mb-2">
                 <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold">
@@ -1103,6 +1264,12 @@ export default function BookingForm({
                   Booking Setup
                 </h3>
               </div>
+
+              {!canAccessStep2 && (
+                <p className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+                  Select at least one service first to unlock date selection.
+                </p>
+              )}
 
               {isEmployee && (
                 <div className="flex items-center justify-between rounded-2xl border bg-secondary/20 p-4 shadow-sm">
@@ -1131,7 +1298,7 @@ export default function BookingForm({
                 </div>
               )}
 
-              {!effectiveIsWalkIn ? (
+              {!effectiveIsWalkIn && canAccessStep2 ? (
                 <>
                   <FormField
                     control={form.control}
@@ -1148,30 +1315,75 @@ export default function BookingForm({
                               field.onChange(date);
                               form.setValue("selectedTime", undefined);
                             }}
+                            minDate={new Date()}
+                            maxDate={maxBookingDate}
                             placeholder="Pick a date"
                           />
                         </FormControl>
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          {Array.from({
+                            length: bookingV2Enabled
+                              ? Math.min(5, bookingHorizonDays)
+                              : 1,
+                          }).map((_, index) => {
+                              const date = new Date();
+                              date.setDate(date.getDate() + index);
+                              return (
+                                <Button
+                                  key={date.toISOString()}
+                                  type="button"
+                                  variant={
+                                    selectedDate &&
+                                    toPHDateString(selectedDate) ===
+                                      toPHDateString(date)
+                                      ? "default"
+                                      : "outline"
+                                  }
+                                  size="sm"
+                                  className="h-8 px-3 text-xs"
+                                  onClick={() => {
+                                    field.onChange(date);
+                                    form.setValue("selectedTime", undefined);
+                                  }}
+                                >
+                                  {index === 0
+                                    ? "Today"
+                                    : index === 1
+                                      ? "Tomorrow"
+                                      : format(date, "EEE, MMM d")}
+                                </Button>
+                              );
+                            },
+                          )}
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          {bookingV2Enabled
+                            ? `Booking window: up to ${bookingHorizonDays} day${bookingHorizonDays > 1 ? "s" : ""} ahead.`
+                            : "Booking window: today only for this business."}
+                        </p>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
                 </>
-              ) : (
+              ) : effectiveIsWalkIn ? (
                 <div className="rounded-xl border border-primary/20 bg-primary/5 p-3 text-sm text-muted-foreground">
                   Walk-in is enabled. This booking will start immediately without a
                   scheduled slot.
+                </div>
+              ) : (
+                <div className="rounded-xl border border-dashed p-3 text-sm text-muted-foreground">
+                  Date selection is locked until services are selected.
                 </div>
               )}
             </div>
           </div>
 
-          <Separator className="bg-border/40" />
-
           {/* Service Selection */}
-          <div className="space-y-4 rounded-2xl border bg-card/90 p-4 shadow-sm sm:p-5">
+          <div className="order-10 space-y-4 rounded-2xl border bg-card/90 p-4 shadow-sm sm:p-5">
             <div className="flex items-center gap-2 mb-2">
               <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold">
-                3
+                1
               </span>
               <h3 className="font-semibold text-lg tracking-tight">
                 Select Services
@@ -1192,27 +1404,20 @@ export default function BookingForm({
                       saleEvents={saleEvents}
                       businessSlug={businessSlug!}
                       selectedDate={selectedDate}
-                      disabled={!canSelectServices}
                     />
                   </FormControl>
-                  {!canSelectServices && (
-                    <p className="text-xs text-muted-foreground">
-                      Select a booking date first to load service availability.
-                    </p>
-                  )}
                   <FormMessage />
                 </FormItem>
               )}
             />
           </div>
 
-          {!effectiveIsWalkIn && selectedDate && (
+          {canAccessStep3 && !effectiveIsWalkIn && selectedDate && (
             <>
-              <Separator className="bg-border/40" />
-              <div className="space-y-4 rounded-2xl border bg-card/90 p-4 shadow-sm sm:p-5">
+              <div className="order-30 space-y-4 rounded-2xl border bg-card/90 p-4 shadow-sm sm:p-5">
                 <div className="flex items-center gap-2 mb-2">
                   <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold">
-                    4
+                    3
                   </span>
                   <h3 className="font-semibold text-lg tracking-tight">
                     Select Time Slot
@@ -1230,12 +1435,13 @@ export default function BookingForm({
                       <FormControl>
                         <TimeSlotPicker
                           slots={timeSlots}
+                          alternativeSlots={alternativeSlots}
                           value={field.value}
                           onChange={field.onChange}
                           isLoading={isLoadingSlots}
                           disabled={selectedServices.length === 0}
-                          emptyTitle={slotEmptyTitle}
-                          emptyDescription={slotEmptyDescription}
+                          emptyTitle={slotEmptyState.title}
+                          emptyDescription={slotEmptyState.description}
                         />
                       </FormControl>
                       <FormMessage />
@@ -1246,12 +1452,18 @@ export default function BookingForm({
             </>
           )}
 
-          {(effectiveIsWalkIn || selectedTime) && !isEmployee && (
-            <div className="space-y-4 rounded-2xl border bg-card/90 p-4 shadow-sm animate-in fade-in slide-in-from-left-4 duration-500 sm:p-5">
-              <Separator className="bg-border/40" />
+          {canAccessStep3 && effectiveIsWalkIn && (
+            <div className="order-30 rounded-2xl border bg-card/90 p-4 text-sm text-muted-foreground shadow-sm sm:p-5">
+              <p className="font-medium text-foreground">3. Time Slot</p>
+              <p>Walk-in mode uses immediate start time automatically.</p>
+            </div>
+          )}
+
+          {canAccessStep4 && (effectiveIsWalkIn || selectedTime) && !isEmployee && (
+            <div className="order-40 space-y-4 rounded-2xl border bg-card/90 p-4 shadow-sm animate-in fade-in slide-in-from-left-4 duration-500 sm:p-5">
               <div className="flex items-center gap-2 mb-2">
                 <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold">
-                  5
+                  4
                 </span>
                 <h3 className="font-semibold text-lg tracking-tight">
                   Preferred Staff
@@ -1280,14 +1492,15 @@ export default function BookingForm({
             </div>
           )}
 
-          {(effectiveIsWalkIn || selectedTime) &&
+          {canAccessStep4 &&
+            (effectiveIsWalkIn || selectedTime) &&
             isEmployee &&
             selectedServices.length > 0 && (
-              <div className="space-y-4 rounded-2xl border bg-card/90 p-4 shadow-sm animate-in fade-in slide-in-from-left-4 duration-500 sm:p-5">
+              <div className="order-40 space-y-4 rounded-2xl border bg-card/90 p-4 shadow-sm animate-in fade-in slide-in-from-left-4 duration-500 sm:p-5">
                 <div className="flex items-center gap-2 mb-2">
                   <User className="size-5 text-primary" />
                   <h3 className="font-semibold text-lg tracking-tight">
-                    Claim Services
+                    4. Claim Services
                   </h3>
                 </div>
 
@@ -1315,10 +1528,10 @@ export default function BookingForm({
             )}
 
           {canReviewAndConfirm && (
-            <div className="space-y-4 rounded-2xl border bg-card/90 p-4 shadow-sm animate-in fade-in slide-in-from-left-4 duration-500 sm:p-5">
+            <div className="order-[60] space-y-4 rounded-2xl border bg-card/90 p-4 shadow-sm animate-in fade-in slide-in-from-left-4 duration-500 sm:p-5">
               <div className="flex items-center gap-2 mb-2">
                 <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold">
-                  {isEmployee ? 5 : 6}
+                  5
                 </span>
                 <h3 className="font-semibold text-lg tracking-tight">
                   Final Review
@@ -1671,3 +1884,4 @@ export default function BookingForm({
     </Form>
   );
 }
+

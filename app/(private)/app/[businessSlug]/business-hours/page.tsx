@@ -4,6 +4,7 @@ import {
   getBusinessHours,
   getServiceCategories,
 } from "@/lib/server actions/business-hours";
+import { getBookingPolicy } from "@/lib/server actions/booking-policy";
 import { BusinessHoursClient } from "./BusinessHoursClient";
 
 export default async function BusinessHoursPage({
@@ -13,9 +14,10 @@ export default async function BusinessHoursPage({
 }) {
   const { businessSlug } = await params;
 
-  const [hours, categories] = await Promise.all([
+  const [hours, categories, bookingPolicy] = await Promise.all([
     getBusinessHours(businessSlug),
     getServiceCategories(businessSlug),
+    getBookingPolicy(businessSlug),
   ]);
 
   return (
@@ -29,6 +31,7 @@ export default async function BusinessHoursPage({
       <BusinessHoursClient
         initialHours={hours}
         categories={categories}
+        initialPolicy={bookingPolicy}
         businessSlug={businessSlug}
       />
     </Suspense>

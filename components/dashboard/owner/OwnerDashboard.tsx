@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { PhilippinePeso, Calendar, Users, Bell } from "lucide-react";
+import { PhilippinePeso, Calendar, Users, Bell, AlertTriangle, Activity } from "lucide-react";
 import DashboardCard from "../DashboardCard";
 import { SalesChart } from "./SalesChart";
 
@@ -26,6 +26,7 @@ import OwnerServiceQueue, {
   OwnerPendingService,
 } from "./OwnerServiceQueue";
 import { GiftCardClaimDialog } from "../shared/GiftCardClaimDialog";
+import Link from "next/link";
 
 type BookingWithDetails = Booking & {
   customer: Customer;
@@ -49,6 +50,8 @@ export default async function OwnerDashboard({
   ownerClaimedServices,
   payroll,
   flowRemindersThisWeek,
+  bookingMetrics,
+  staffingConflictAlerts,
 }: {
   businessName: string;
   businessSlug: string;
@@ -71,6 +74,25 @@ export default async function OwnerDashboard({
     };
   }[];
   flowRemindersThisWeek: number;
+  bookingMetrics: {
+    slotLookupSuccessRate: number;
+    bookingSubmitSuccessRate: number;
+    conflictRejectionRate: number;
+    publicConversionRate: number;
+    slotLookupTotal: number;
+    submitAttempts: number;
+    publicStarted: number;
+    publicCompleted: number;
+  };
+  staffingConflictAlerts: {
+    id: string;
+    bookingId: number;
+    customerName: string;
+    scheduledAt: string;
+    trigger: string;
+    reason: string;
+    detectedAt: Date;
+  }[];
 }) {
   const business = await getCachedBusinessBySlug(businessSlug);
   const services = business ? await getCachedServices(business.id) : [];
@@ -132,6 +154,85 @@ export default async function OwnerDashboard({
           />
         </section>
 
+        <section className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+          <article className="rounded-[24px] border border-zinc-100 bg-white p-4 sm:p-5 lg:col-span-2">
+            <div className="flex items-center gap-2">
+              <Activity className="size-4 text-emerald-600" />
+              <h3 className="text-sm font-semibold text-zinc-900">Booking Funnel Metrics (7 days)</h3>
+            </div>
+            <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+              <MetricPill
+                label="Slot Success"
+                value={`${bookingMetrics.slotLookupSuccessRate.toFixed(1)}%`}
+                caption={`${bookingMetrics.slotLookupTotal} lookups`}
+              />
+              <MetricPill
+                label="Submit Success"
+                value={`${bookingMetrics.bookingSubmitSuccessRate.toFixed(1)}%`}
+                caption={`${bookingMetrics.submitAttempts} attempts`}
+              />
+              <MetricPill
+                label="Conflict Reject"
+                value={`${bookingMetrics.conflictRejectionRate.toFixed(1)}%`}
+                caption="SLOT_JUST_TAKEN"
+              />
+              <MetricPill
+                label="Public Conversion"
+                value={`${bookingMetrics.publicConversionRate.toFixed(1)}%`}
+                caption={`${bookingMetrics.publicCompleted}/${bookingMetrics.publicStarted}`}
+              />
+            </div>
+          </article>
+
+          <article className="rounded-[24px] border border-zinc-100 bg-white p-4 sm:p-5">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <AlertTriangle className="size-4 text-amber-600" />
+                <h3 className="text-sm font-semibold text-zinc-900">
+                  Staffing Alerts
+                </h3>
+              </div>
+              <span className="text-xs text-zinc-500">
+                {staffingConflictAlerts.length} recent
+              </span>
+            </div>
+            {staffingConflictAlerts.length === 0 ? (
+              <p className="mt-3 text-xs text-zinc-500">
+                No future-booking staffing conflicts detected.
+              </p>
+            ) : (
+              <ul className="mt-3 space-y-2">
+                {staffingConflictAlerts.slice(0, 4).map((alert) => (
+                  <li
+                    key={alert.id}
+                    className="rounded-xl border border-amber-200 bg-amber-50/60 px-3 py-2"
+                  >
+                    <p className="text-xs font-semibold text-zinc-900">
+                      Booking #{alert.bookingId} - {alert.customerName}
+                    </p>
+                    <p className="text-[11px] text-zinc-700">
+                      {alert.scheduledAt
+                        ? formatPH(new Date(alert.scheduledAt), "MMM d, h:mm a")
+                        : "Unscheduled"}
+                    </p>
+                    <div className="mt-1 flex items-center justify-between gap-2">
+                      <span className="text-[10px] uppercase tracking-wide text-amber-700">
+                        Trigger: {alert.trigger.replaceAll("_", " ")}
+                      </span>
+                      <Link
+                        href={`/app/${businessSlug}/bookings/${alert.bookingId}`}
+                        className="text-[11px] font-medium text-amber-700 underline underline-offset-2"
+                      >
+                        Open
+                      </Link>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </article>
+        </section>
+
         <SnapshotSection
           bookingsToday={bookingsToday}
           presentEmployeesToday={presentEmployeesToday}
@@ -181,6 +282,26 @@ export default async function OwnerDashboard({
           </div>
         </section>
       </main>
+    </div>
+  );
+}
+
+function MetricPill({
+  label,
+  value,
+  caption,
+}: {
+  label: string;
+  value: string;
+  caption: string;
+}) {
+  return (
+    <div className="rounded-xl border border-zinc-100 bg-zinc-50 px-3 py-2">
+      <p className="text-[10px] uppercase tracking-wider text-zinc-500 font-semibold">
+        {label}
+      </p>
+      <p className="text-lg font-bold text-zinc-900">{value}</p>
+      <p className="text-[10px] text-zinc-500">{caption}</p>
     </div>
   );
 }

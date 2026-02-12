@@ -6,6 +6,8 @@ import { toast } from "sonner";
 import { Loader2, Save, Copy } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Card,
   CardContent,
@@ -28,6 +30,8 @@ import {
   updateBusinessHours,
   BusinessHourInput,
 } from "@/lib/server actions/business-hours";
+import { updateBookingPolicy } from "@/lib/server actions/booking-policy";
+import { BookingPolicy } from "@/lib/types/booking-policy";
 
 const DAYS = [
   "Sunday",
@@ -42,6 +46,7 @@ const DAYS = [
 interface BusinessHoursClientProps {
   initialHours: BusinessHourInput[];
   categories: string[];
+  initialPolicy: BookingPolicy;
   businessSlug: string;
 }
 
@@ -56,11 +61,13 @@ const DEFAULT_HOURS = Array.from({ length: 7 }).map((_, i) => ({
 export function BusinessHoursClient({
   initialHours,
   categories,
+  initialPolicy,
   businessSlug,
 }: BusinessHoursClientProps) {
   const router = useRouter();
   const [isSaving, setIsSaving] = useState(false);
   const [activeCategory, setActiveCategory] = useState("GENERAL");
+  const [policy, setPolicy] = useState<BookingPolicy>(initialPolicy);
 
   const [hours, setHours] = useState<BusinessHourInput[]>(() => {
     if (initialHours.length === 0) return DEFAULT_HOURS;
@@ -149,8 +156,11 @@ export function BusinessHoursClient({
   const saveChanges = async () => {
     setIsSaving(true);
     try {
-      await updateBusinessHours(businessSlug, hours);
-      toast.success("Business hours saved");
+      await Promise.all([
+        updateBusinessHours(businessSlug, hours),
+        updateBookingPolicy(businessSlug, policy),
+      ]);
+      toast.success("Business hours and booking policy saved");
       router.refresh();
     } catch {
       toast.error("Failed to save changes");
@@ -177,6 +187,21 @@ export function BusinessHoursClient({
     "GENERAL",
     ...categories.filter((c) => c !== "GENERAL"),
   ];
+
+  const updateNumericPolicy = (
+    key:
+      | "bookingHorizonDays"
+      | "minLeadMinutes"
+      | "slotIntervalMinutes"
+      | "sameDayAttendanceStrictMinutes",
+    value: string,
+  ) => {
+    const parsed = Number.parseInt(value, 10);
+    setPolicy((prev) => ({
+      ...prev,
+      [key]: Number.isFinite(parsed) ? parsed : prev[key],
+    }));
+  };
 
   return (
     <div className="flex flex-col p-4 md:p-8 bg-zinc-50/50 min-h-screen">
@@ -206,6 +231,156 @@ export function BusinessHoursClient({
           onValueChange={setActiveCategory}
           className="w-full"
         >
+          <Card className="rounded-3xl border-zinc-200 shadow-sm overflow-hidden mb-6">
+            <CardHeader className="bg-white border-b border-zinc-100">
+              <CardTitle className="text-xl font-bold text-zinc-900">
+                Booking Policy
+              </CardTitle>
+              <CardDescription className="text-zinc-500">
+                Control how far ahead customers can book and what payment options
+                are available publicly.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-5 p-6 bg-white">
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="space-y-1.5">
+                  <Label htmlFor="booking-horizon-days">Booking Horizon (days)</Label>
+                  <Input
+                    id="booking-horizon-days"
+                    type="number"
+                    min={1}
+                    max={90}
+                    value={policy.bookingHorizonDays}
+                    onChange={(event) =>
+                      updateNumericPolicy("bookingHorizonDays", event.target.value)
+                    }
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="booking-min-lead">Min Lead (minutes)</Label>
+                  <Input
+                    id="booking-min-lead"
+                    type="number"
+                    min={0}
+                    max={720}
+                    value={policy.minLeadMinutes}
+                    onChange={(event) =>
+                      updateNumericPolicy("minLeadMinutes", event.target.value)
+                    }
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="booking-slot-interval">Slot Interval (minutes)</Label>
+                  <Input
+                    id="booking-slot-interval"
+                    type="number"
+                    min={5}
+                    max={120}
+                    value={policy.slotIntervalMinutes}
+                    onChange={(event) =>
+                      updateNumericPolicy("slotIntervalMinutes", event.target.value)
+                    }
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="same-day-strict-minutes">
+                    Same-day Strict Window (minutes)
+                  </Label>
+                  <Input
+                    id="same-day-strict-minutes"
+                    type="number"
+                    min={0}
+                    max={480}
+                    value={policy.sameDayAttendanceStrictMinutes}
+                    onChange={(event) =>
+                      updateNumericPolicy(
+                        "sameDayAttendanceStrictMinutes",
+                        event.target.value,
+                      )
+                    }
+                  />
+                </div>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                <label className="flex items-center justify-between rounded-xl border p-3">
+                  <div>
+                    <p className="text-sm font-medium">Allow Full Payment (Public)</p>
+                    <p className="text-xs text-zinc-500">
+                      Customers can choose full payment online.
+                    </p>
+                  </div>
+                  <Switch
+                    checked={policy.allowPublicFullPayment}
+                    onCheckedChange={(checked) =>
+                      setPolicy((prev) => ({
+                        ...prev,
+                        allowPublicFullPayment: checked,
+                      }))
+                    }
+                  />
+                </label>
+                <label className="flex items-center justify-between rounded-xl border p-3">
+                  <div>
+                    <p className="text-sm font-medium">
+                      Allow Downpayment (Public)
+                    </p>
+                    <p className="text-xs text-zinc-500">
+                      Customers can choose 50% downpayment.
+                    </p>
+                  </div>
+                  <Switch
+                    checked={policy.allowPublicDownpayment}
+                    onCheckedChange={(checked) =>
+                      setPolicy((prev) => ({
+                        ...prev,
+                        allowPublicDownpayment: checked,
+                      }))
+                    }
+                  />
+                </label>
+                <label className="flex items-center justify-between rounded-xl border p-3 sm:col-span-2">
+                  <div>
+                    <p className="text-sm font-medium">Enable Booking V2</p>
+                    <p className="text-xs text-zinc-500">
+                      Turns on future-date slot generation using roster mode.
+                    </p>
+                  </div>
+                  <Switch
+                    checked={policy.bookingV2Enabled}
+                    onCheckedChange={(checked) =>
+                      setPolicy((prev) => ({
+                        ...prev,
+                        bookingV2Enabled: checked,
+                      }))
+                    }
+                  />
+                </label>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="default-public-payment">Default Public Payment Type</Label>
+                <Select
+                  value={policy.defaultPublicPaymentType}
+                  onValueChange={(value: "FULL" | "DOWNPAYMENT") =>
+                    setPolicy((prev) => ({
+                      ...prev,
+                      defaultPublicPaymentType: value,
+                    }))
+                  }
+                >
+                  <SelectTrigger id="default-public-payment" className="w-full max-w-sm">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="FULL">Full Payment</SelectItem>
+                    <SelectItem value="DOWNPAYMENT">Downpayment (50%)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </CardContent>
+          </Card>
+
           <TabsList className="flex flex-wrap h-auto w-full justify-start gap-2 bg-transparent p-0 mb-6">
             {displayCategories.map((category) => (
               <TabsTrigger
