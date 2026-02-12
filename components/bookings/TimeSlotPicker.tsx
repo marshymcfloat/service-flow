@@ -13,6 +13,8 @@ interface TimeSlotPickerProps {
   category?: string;
   businessHours?: { open_time: string; close_time: string } | null;
   disabled?: boolean;
+  emptyTitle?: string;
+  emptyDescription?: string;
 }
 
 export default function TimeSlotPicker({
@@ -23,6 +25,8 @@ export default function TimeSlotPicker({
   category,
   businessHours,
   disabled = false,
+  emptyTitle = "No available slots for the selected services",
+  emptyDescription = "No available providers for this day/time. Try a different day.",
 }: TimeSlotPickerProps) {
   if (isLoading) {
     return (
@@ -48,10 +52,8 @@ export default function TimeSlotPicker({
     return (
       <div className="text-center py-8 text-muted-foreground">
         <Clock className="h-8 w-8 mx-auto mb-2 opacity-50" />
-        <p>No available slots for the selected services</p>
-        <p className="text-sm">
-          No available providers for this day/time. Try a different day.
-        </p>
+        <p>{emptyTitle}</p>
+        <p className="text-sm">{emptyDescription}</p>
       </div>
     );
   }

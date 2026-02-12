@@ -46,6 +46,23 @@ const maskEmail = (email: string) => {
       : `${user}***`;
   return `${maskedUser}@${domain}`;
 };
+
+const MANILA_TIME_ZONE = "Asia/Manila";
+
+const toPHDateString = (date: Date) => {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: MANILA_TIME_ZONE,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(date);
+
+  const getPart = (type: "year" | "month" | "day") =>
+    parts.find((part) => part.type === type)?.value ?? "";
+
+  return `${getPart("year")}-${getPart("month")}-${getPart("day")}`;
+};
+
 import {
   Form,
   FormControl,
@@ -68,6 +85,7 @@ import ServiceClaimSelector from "./ServiceClaimSelector";
 import { SegmentedToggle } from "../ui/segmented-toggle";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
+import { Checkbox } from "../ui/checkbox";
 import QrPaymentPanel from "./QrPaymentPanel";
 import { getPayMongoPaymentIntentStatus } from "@/lib/server actions/paymongo";
 
@@ -184,6 +202,10 @@ export default function BookingForm({
     control: form.control,
     name: "customerId",
   }) as string;
+  const selectedEmployeeId = useWatch({
+    control: form.control,
+    name: "employeeId",
+  }) as number | undefined;
 
   const [existingCustomerEmail, setExistingCustomerEmail] = useState<
     string | null
@@ -260,6 +282,8 @@ export default function BookingForm({
   );
 
   const [isWalkIn, setIsWalkIn] = useState(false);
+  const effectiveIsWalkIn = isEmployee && isWalkIn;
+  const [hasReviewedDetails, setHasReviewedDetails] = useState(false);
   const [qrPayment, setQrPayment] = useState<{
     paymentIntentId: string;
     bookingId: number;
@@ -301,6 +325,7 @@ export default function BookingForm({
         if (isEmployee) {
           form.reset();
           setIsWalkIn(false);
+          setHasReviewedDetails(false);
           setClaimedUniqueIds([]);
           setPendingFlows([]);
           setExistingCustomerEmail(null);
@@ -347,6 +372,7 @@ export default function BookingForm({
   ]);
 
   const handleWalkInToggle = useCallback(() => {
+    if (!isEmployee) return;
     const newState = !isWalkIn;
     setIsWalkIn(newState);
 
@@ -360,7 +386,7 @@ export default function BookingForm({
       form.setValue("scheduledAt", undefined);
       form.setValue("selectedTime", undefined);
     }
-  }, [isWalkIn, form]);
+  }, [isWalkIn, form, isEmployee]);
 
   const { total } = useMemo(() => {
     const total = selectedServices.reduce((sum, s) => {
@@ -488,6 +514,16 @@ export default function BookingForm({
     return Array.from(categorySet);
   }, [selectedServices, services]);
 
+  const selectedDatePHString = useMemo(
+    () => (selectedDate ? toPHDateString(selectedDate) : null),
+    [selectedDate],
+  );
+  const todayPHString = toPHDateString(new Date());
+  const isSelectedDateToday =
+    !!selectedDatePHString && selectedDatePHString === todayPHString;
+  const isSelectedDateInFuture =
+    !!selectedDatePHString && selectedDatePHString > todayPHString;
+
   const { data: timeSlots = [], isLoading: isLoadingSlots } = useQuery({
     queryKey: [
       "timeSlots",
@@ -500,7 +536,8 @@ export default function BookingForm({
         !selectedDate ||
         !businessSlug ||
         selectedServices.length === 0 ||
-        isWalkIn // Skip fetching slots for walk-ins
+        effectiveIsWalkIn ||
+        !isSelectedDateToday // Show slots only for today's attendance
       ) {
         return [];
       }
@@ -514,7 +551,8 @@ export default function BookingForm({
       !!selectedDate &&
       !!businessSlug &&
       selectedServices.length > 0 &&
-      !isWalkIn,
+      !effectiveIsWalkIn &&
+      isSelectedDateToday,
   });
 
   const selectedSlotOwnerFallback = useMemo(() => {
@@ -556,33 +594,54 @@ export default function BookingForm({
 
   useEffect(() => {
     if (selectedServices.length === 0) {
-      if (!isWalkIn) {
-        form.setValue("scheduledAt", undefined);
-        form.setValue("selectedTime", undefined);
-      }
-      form.setValue("employeeId", undefined);
-    }
-  }, [selectedServices.length, form, isWalkIn]);
-
-  useEffect(() => {
-    if (!isWalkIn && selectedServices.length > 0) {
       form.setValue("selectedTime", undefined);
       form.setValue("employeeId", undefined);
     }
-  }, [slotServiceKey, form, isWalkIn, selectedServices.length]);
+  }, [selectedServices.length, form]);
 
   useEffect(() => {
-    if (!selectedDate && !isWalkIn) {
+    if (!effectiveIsWalkIn && selectedServices.length > 0) {
       form.setValue("selectedTime", undefined);
       form.setValue("employeeId", undefined);
     }
-  }, [selectedDate, form, isWalkIn]);
+  }, [slotServiceKey, form, effectiveIsWalkIn, selectedServices.length]);
 
   useEffect(() => {
-    if (!selectedTime && !isWalkIn) {
+    if (!selectedDate && !effectiveIsWalkIn) {
+      form.setValue("selectedTime", undefined);
       form.setValue("employeeId", undefined);
     }
-  }, [selectedTime, form, isWalkIn]);
+  }, [selectedDate, form, effectiveIsWalkIn]);
+
+  useEffect(() => {
+    if (selectedDate && !isSelectedDateToday && !effectiveIsWalkIn) {
+      form.setValue("selectedTime", undefined);
+      form.setValue("employeeId", undefined);
+    }
+  }, [selectedDate, isSelectedDateToday, form, effectiveIsWalkIn]);
+
+  useEffect(() => {
+    if (!selectedTime && !effectiveIsWalkIn) {
+      form.setValue("employeeId", undefined);
+    }
+  }, [selectedTime, form, effectiveIsWalkIn]);
+
+  const selectedTimeKey = selectedTime?.getTime() ?? 0;
+  const claimedUniqueIdsKey = useMemo(
+    () => claimedUniqueIds.join("|"),
+    [claimedUniqueIds],
+  );
+
+  useEffect(() => {
+    setHasReviewedDetails(false);
+  }, [
+    effectiveIsWalkIn,
+    slotServiceKey,
+    selectedDatePHString,
+    selectedTimeKey,
+    selectedEmployeeId,
+    claimedUniqueIdsKey,
+  ]);
 
   const { mutate: createBookingAction, isPending } = useMutation({
     mutationFn: createBooking,
@@ -599,6 +658,7 @@ export default function BookingForm({
       if (result.type === "internal") {
         form.reset();
         setIsWalkIn(false); // Reset walk-in toggle
+        setHasReviewedDetails(false);
         setClaimedUniqueIds([]);
         setPendingFlows([]);
         setExistingCustomerEmail(null);
@@ -652,7 +712,7 @@ export default function BookingForm({
       // Log removed for privacy
 
       // Persist an exact slot time for scheduled bookings.
-      const scheduledAt = isWalkIn ? new Date() : data.selectedTime;
+      const scheduledAt = effectiveIsWalkIn ? new Date() : data.selectedTime;
       if (!scheduledAt) {
         toast.error("Please select a date and time.");
         return;
@@ -688,12 +748,12 @@ export default function BookingForm({
         email: data.email,
         phone: data.phone?.trim() || undefined,
         voucherCode: appliedVoucher?.code,
-        isWalkIn: isWalkIn,
+        isWalkIn: effectiveIsWalkIn,
       });
     },
     [
       businessSlug,
-      isWalkIn,
+      effectiveIsWalkIn,
       isEmployee,
       claimedUniqueIds,
       currentEmployeeId,
@@ -705,8 +765,28 @@ export default function BookingForm({
   const isSubmitDisabled =
     isPending ||
     !form.formState.isValid ||
-    (!selectedTime && !isWalkIn) ||
-    selectedServices.length === 0;
+    (!selectedTime && !effectiveIsWalkIn) ||
+    selectedServices.length === 0 ||
+    !hasReviewedDetails;
+
+  const canSelectServices = effectiveIsWalkIn || !!selectedDate;
+  const canReviewAndConfirm =
+    selectedServices.length > 0 && (effectiveIsWalkIn || !!selectedTime);
+  const selectedEmployeeName = useMemo(
+    () => employees.find((employee) => employee.id === selectedEmployeeId)?.name,
+    [employees, selectedEmployeeId],
+  );
+  const totalSelectedServiceUnits = useMemo(
+    () =>
+      selectedServices.reduce((sum, service) => sum + (service.quantity || 1), 0),
+    [selectedServices],
+  );
+  const slotEmptyTitle = isSelectedDateInFuture
+    ? "Slots are only shown for today's attendance"
+    : "No available slots for the selected services";
+  const slotEmptyDescription = isSelectedDateInFuture
+    ? "Future attendance is not finalized yet. Choose today or use walk-in."
+    : "No available providers for this day/time. Try a different day.";
 
   const resolvedMobileActionBarMode =
     mobileActionBarMode === "auto"
@@ -719,18 +799,36 @@ export default function BookingForm({
   const paymentMethodOptions = useMemo(() => {
     return isEmployee
       ? [
-          { value: "CASH" as const, label: "Cash" },
-          { value: "QRPH" as const, label: "QR Payment" },
+          {
+            value: "CASH" as const,
+            label: "Cash",
+            disabled: !hasReviewedDetails,
+          },
+          {
+            value: "QRPH" as const,
+            label: "QR Payment",
+            disabled: !hasReviewedDetails,
+          },
         ]
-      : [{ value: "QRPH" as const, label: "QR Payment" }];
-  }, [isEmployee]);
+      : [
+          {
+            value: "QRPH" as const,
+            label: "QR Payment",
+            disabled: !hasReviewedDetails,
+          },
+        ];
+  }, [isEmployee, hasReviewedDetails]);
 
   const paymentTypeOptions = useMemo(() => {
     return [
-      { value: "FULL" as const, label: "Full" },
-      { value: "DOWNPAYMENT" as const, label: "50%" },
+      { value: "FULL" as const, label: "Full", disabled: !hasReviewedDetails },
+      {
+        value: "DOWNPAYMENT" as const,
+        label: "50%",
+        disabled: !hasReviewedDetails,
+      },
     ];
-  }, []);
+  }, [hasReviewedDetails]);
 
   return (
     <Form {...form}>
@@ -995,11 +1093,85 @@ export default function BookingForm({
             </div>
           )}
 
+          <div className="space-y-6 rounded-2xl border bg-card/90 p-4 shadow-sm transition-all duration-300 sm:p-5">
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold">
+                  2
+                </span>
+                <h3 className="font-semibold text-lg tracking-tight">
+                  Booking Setup
+                </h3>
+              </div>
+
+              {isEmployee && (
+                <div className="flex items-center justify-between rounded-2xl border bg-secondary/20 p-4 shadow-sm">
+                  <div className="flex-1 mr-4">
+                    <p className="text-sm font-semibold text-foreground">
+                      Walk-in / Immediate
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Start booking immediately without scheduling
+                    </p>
+                  </div>
+                  <div
+                    className={cn(
+                      "w-12 h-7 flex items-center rounded-full p-1 cursor-pointer transition-colors duration-300",
+                      effectiveIsWalkIn ? "bg-primary" : "bg-muted-foreground/30",
+                    )}
+                    onClick={handleWalkInToggle}
+                  >
+                    <div
+                      className={cn(
+                        "bg-white w-5 h-5 rounded-full shadow-sm transform duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]",
+                        effectiveIsWalkIn ? "translate-x-5" : "translate-x-0",
+                      )}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {!effectiveIsWalkIn ? (
+                <>
+                  <FormField
+                    control={form.control}
+                    name="scheduledAt"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col">
+                        <FormLabel className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mb-1">
+                          Date
+                        </FormLabel>
+                        <FormControl>
+                          <DatePicker
+                            value={field.value as Date | undefined}
+                            onChange={(date) => {
+                              field.onChange(date);
+                              form.setValue("selectedTime", undefined);
+                            }}
+                            placeholder="Pick a date"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </>
+              ) : (
+                <div className="rounded-xl border border-primary/20 bg-primary/5 p-3 text-sm text-muted-foreground">
+                  Walk-in is enabled. This booking will start immediately without a
+                  scheduled slot.
+                </div>
+              )}
+            </div>
+          </div>
+
+          <Separator className="bg-border/40" />
+
           {/* Service Selection */}
           <div className="space-y-4 rounded-2xl border bg-card/90 p-4 shadow-sm sm:p-5">
             <div className="flex items-center gap-2 mb-2">
               <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold">
-                2
+                3
               </span>
               <h3 className="font-semibold text-lg tracking-tight">
                 Select Services
@@ -1020,85 +1192,33 @@ export default function BookingForm({
                       saleEvents={saleEvents}
                       businessSlug={businessSlug!}
                       selectedDate={selectedDate}
+                      disabled={!canSelectServices}
                     />
                   </FormControl>
+                  {!canSelectServices && (
+                    <p className="text-xs text-muted-foreground">
+                      Select a booking date first to load service availability.
+                    </p>
+                  )}
                   <FormMessage />
                 </FormItem>
               )}
             />
           </div>
 
-          <Separator className="bg-border/40" />
+          {!effectiveIsWalkIn && selectedDate && (
+            <>
+              <Separator className="bg-border/40" />
+              <div className="space-y-4 rounded-2xl border bg-card/90 p-4 shadow-sm sm:p-5">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold">
+                    4
+                  </span>
+                  <h3 className="font-semibold text-lg tracking-tight">
+                    Select Time Slot
+                  </h3>
+                </div>
 
-          {isEmployee && (
-            <div className="flex items-center justify-between rounded-2xl border bg-secondary/20 p-4 shadow-sm">
-              <div className="flex-1 mr-4">
-                <p className="text-sm font-semibold text-foreground">
-                  Walk-in / Immediate
-                </p>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  Start booking immediately without scheduling
-                </p>
-              </div>
-              <div
-                className={cn(
-                  "w-12 h-7 flex items-center rounded-full p-1 cursor-pointer transition-colors duration-300",
-                  isWalkIn ? "bg-primary" : "bg-muted-foreground/30",
-                )}
-                onClick={handleWalkInToggle}
-              >
-                <div
-                  className={cn(
-                    "bg-white w-5 h-5 rounded-full shadow-sm transform duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]",
-                    isWalkIn ? "translate-x-5" : "translate-x-0",
-                  )}
-                />
-              </div>
-            </div>
-          )}
-
-          <div
-            className={cn(
-              "space-y-6 rounded-2xl border bg-card/90 p-4 shadow-sm transition-all duration-300 sm:p-5",
-              isWalkIn || selectedServices.length === 0
-                ? "opacity-50 grayscale pointer-events-none hidden"
-                : "opacity-100",
-            )}
-          >
-            <div className="space-y-4">
-              <div className="flex items-center gap-2 mb-2">
-                <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold">
-                  3
-                </span>
-                <h3 className="font-semibold text-lg tracking-tight">
-                  Date & Time
-                </h3>
-              </div>
-
-              <FormField
-                control={form.control}
-                name="scheduledAt"
-                render={({ field }) => (
-                  <FormItem className="flex flex-col">
-                    <FormLabel className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mb-1">
-                      Date
-                    </FormLabel>
-                    <FormControl>
-                      <DatePicker
-                        value={field.value as Date | undefined}
-                        onChange={(date) => {
-                          field.onChange(date);
-                          form.setValue("selectedTime", undefined);
-                        }}
-                        placeholder="Pick a date"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {selectedDate && (
                 <FormField
                   control={form.control}
                   name="selectedTime"
@@ -1114,22 +1234,24 @@ export default function BookingForm({
                           onChange={field.onChange}
                           isLoading={isLoadingSlots}
                           disabled={selectedServices.length === 0}
+                          emptyTitle={slotEmptyTitle}
+                          emptyDescription={slotEmptyDescription}
                         />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-              )}
-            </div>
-          </div>
+              </div>
+            </>
+          )}
 
-          {(isWalkIn || selectedTime) && !isEmployee && (
+          {(effectiveIsWalkIn || selectedTime) && !isEmployee && (
             <div className="space-y-4 rounded-2xl border bg-card/90 p-4 shadow-sm animate-in fade-in slide-in-from-left-4 duration-500 sm:p-5">
               <Separator className="bg-border/40" />
               <div className="flex items-center gap-2 mb-2">
                 <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold">
-                  4
+                  5
                 </span>
                 <h3 className="font-semibold text-lg tracking-tight">
                   Preferred Staff
@@ -1158,7 +1280,7 @@ export default function BookingForm({
             </div>
           )}
 
-          {(isWalkIn || selectedTime) &&
+          {(effectiveIsWalkIn || selectedTime) &&
             isEmployee &&
             selectedServices.length > 0 && (
               <div className="space-y-4 rounded-2xl border bg-card/90 p-4 shadow-sm animate-in fade-in slide-in-from-left-4 duration-500 sm:p-5">
@@ -1191,6 +1313,82 @@ export default function BookingForm({
                 </Card>
               </div>
             )}
+
+          {canReviewAndConfirm && (
+            <div className="space-y-4 rounded-2xl border bg-card/90 p-4 shadow-sm animate-in fade-in slide-in-from-left-4 duration-500 sm:p-5">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold">
+                  {isEmployee ? 5 : 6}
+                </span>
+                <h3 className="font-semibold text-lg tracking-tight">
+                  Final Review
+                </h3>
+              </div>
+
+              <div className="rounded-xl border bg-muted/30 p-3 text-sm space-y-2">
+                <p>
+                  <span className="font-semibold">Booking type:</span>{" "}
+                  {effectiveIsWalkIn ? "Walk-in / Immediate" : "Scheduled"}
+                </p>
+                {!effectiveIsWalkIn && selectedDate && (
+                  <p>
+                    <span className="font-semibold">Date:</span>{" "}
+                    {format(selectedDate, "EEEE, MMMM d, yyyy")}
+                  </p>
+                )}
+                {!effectiveIsWalkIn && selectedTime && (
+                  <p>
+                    <span className="font-semibold">Time:</span>{" "}
+                    {selectedTime.toLocaleTimeString("en-US", {
+                      timeZone: "Asia/Manila",
+                      hour: "numeric",
+                      minute: "2-digit",
+                      hour12: true,
+                    })}
+                  </p>
+                )}
+                <p>
+                  <span className="font-semibold">Services:</span>{" "}
+                  {totalSelectedServiceUnits} selected
+                </p>
+                {!isEmployee && (
+                  <p>
+                    <span className="font-semibold">Preferred staff:</span>{" "}
+                    {selectedEmployeeName || "Any available"}
+                  </p>
+                )}
+                {isEmployee && (
+                  <p>
+                    <span className="font-semibold">Claimed services:</span>{" "}
+                    {claimedUniqueIds.length}
+                  </p>
+                )}
+              </div>
+
+              <div className="flex items-start gap-3 rounded-xl border p-3">
+                <Checkbox
+                  id="confirm-booking-details"
+                  checked={hasReviewedDetails}
+                  onCheckedChange={(checked) =>
+                    setHasReviewedDetails(checked === true)
+                  }
+                  className="mt-0.5"
+                />
+                <label
+                  htmlFor="confirm-booking-details"
+                  className="text-sm leading-relaxed cursor-pointer"
+                >
+                  I reviewed the booking details and confirm they are correct.
+                </label>
+              </div>
+
+              {!hasReviewedDetails && (
+                <p className="text-xs text-muted-foreground">
+                  Confirm this step to unlock payment and final submission.
+                </p>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="w-full lg:w-[360px] lg:shrink-0">
@@ -1219,8 +1417,13 @@ export default function BookingForm({
                   <div className="space-y-6 animate-in fade-in zoom-in-95 duration-300">
                     <Separator />
 
-                    {(isWalkIn || selectedTime) && (
+                    {canReviewAndConfirm && (
                       <div className="space-y-4">
+                        {!hasReviewedDetails && (
+                          <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 text-xs text-amber-800">
+                            Complete the Final Review step to unlock payment.
+                          </div>
+                        )}
                         <FormField
                           control={form.control}
                           name="paymentMethod"
@@ -1270,7 +1473,7 @@ export default function BookingForm({
                               className="uppercase font-mono text-sm tracking-widest placeholder:tracking-normal placeholder:font-sans placeholder:capitalize"
                               value={voucherCode}
                               onChange={(e) => setVoucherCode(e.target.value)}
-                              disabled={!!appliedVoucher}
+                              disabled={!!appliedVoucher || !hasReviewedDetails}
                             />
                             {appliedVoucher ? (
                               <Button
@@ -1278,6 +1481,7 @@ export default function BookingForm({
                                 variant="outline"
                                 size="icon"
                                 onClick={clearVoucher}
+                                disabled={!hasReviewedDetails}
                                 className="shrink-0 text-red-500 border-red-200 hover:bg-red-50 hover:text-red-600 transition-colors"
                               >
                                 <X className="size-4" />
@@ -1288,7 +1492,9 @@ export default function BookingForm({
                                 variant="secondary"
                                 onClick={handleVerifyVoucher}
                                 disabled={
-                                  isVerifyingVoucher || !voucherCode.trim()
+                                  isVerifyingVoucher ||
+                                  !voucherCode.trim() ||
+                                  !hasReviewedDetails
                                 }
                                 className="shrink-0 font-medium"
                               >
@@ -1339,7 +1545,7 @@ export default function BookingForm({
                       )}
 
                       {paymentType === "DOWNPAYMENT" &&
-                        (isWalkIn || selectedTime) && (
+                        (effectiveIsWalkIn || selectedTime) && (
                           <>
                             <div className="flex justify-between items-center text-sm text-emerald-600">
                               <span className="flex items-center gap-1.5">

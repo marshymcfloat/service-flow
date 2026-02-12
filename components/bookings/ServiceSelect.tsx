@@ -73,6 +73,7 @@ const ServiceSelect = React.memo(function ServiceSelect({
   saleEvents = [],
   businessSlug,
   selectedDate,
+  disabled = false,
 }: {
   services: Service[];
   packages?: PackageWithItems[];
@@ -81,6 +82,7 @@ const ServiceSelect = React.memo(function ServiceSelect({
   saleEvents?: SaleEventForPricing[];
   businessSlug: string;
   selectedDate?: Date;
+  disabled?: boolean;
 }) {
   const [open, setOpen] = React.useState(false);
   const [selectedCategory, setSelectedCategory] = React.useState<string>("all");
@@ -273,13 +275,16 @@ const ServiceSelect = React.memo(function ServiceSelect({
           variant="outline"
           role="combobox"
           aria-expanded={open}
+          disabled={disabled}
           className="h-11 w-full justify-between rounded-xl"
         >
           {selectedServices.length > 0
             ? `${selectedServices.length} service${
                 selectedServices.length > 1 ? "s" : ""
               } selected`
-            : "Select services or packages..."}
+            : disabled
+              ? "Select a date first..."
+              : "Select services or packages..."}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -378,8 +383,9 @@ const ServiceSelect = React.memo(function ServiceSelect({
                         dataLoaded && availability?.hasBusinessHours === false;
                       const isClosedForSelectedDate =
                         !!selectedDate && outsideHours;
-                      const isDisabled =
+                      const isUnavailable =
                         noStaff || noBusinessHours || isClosedForSelectedDate;
+                      const isDisabled = isUnavailable && !isSelected;
                       const qualifiedEmployeeCount =
                         availability?.qualifiedEmployeeCount ?? 0;
                       const usesAttendance =
@@ -390,7 +396,9 @@ const ServiceSelect = React.memo(function ServiceSelect({
                           key={service.id}
                           value={service.name}
                           onSelect={() => {
-                            if (!isDisabled) toggleService(service);
+                            if (!isDisabled) {
+                              toggleService(service);
+                            }
                           }}
                           className={cn(
                             "cursor-pointer aria-selected:bg-primary/5",
@@ -420,14 +428,14 @@ const ServiceSelect = React.memo(function ServiceSelect({
                                 <span
                                   className={cn(
                                     "font-medium",
-                                    isDisabled
+                                    isUnavailable
                                       ? "text-muted-foreground"
                                       : "text-foreground",
                                   )}
                                 >
                                   {service.name}
                                 </span>
-                                {discountInfo && !isDisabled && (
+                                {discountInfo && !isUnavailable && (
                                   <Badge
                                     variant="secondary"
                                     className="h-4 px-1 text-[10px] bg-destructive/10 text-destructive border-destructive/20 shadow-none"
@@ -545,10 +553,6 @@ const ServiceSelect = React.memo(function ServiceSelect({
                         dataLoaded && availability?.hasBusinessHours === false;
                       const isClosedForSelectedDate =
                         !!selectedDate && outsideHours;
-                      const isDisabled =
-                        noStaff || noBusinessHours || isClosedForSelectedDate;
-                      const usesAttendance =
-                        availability?.availabilitySource === "ATTENDANCE";
                       const isSelected = pkg.items.every((item) =>
                         selectedServiceKeys.has(
                           `${normalizeId(item.service.id)}|${normalizePackageId(
@@ -556,6 +560,11 @@ const ServiceSelect = React.memo(function ServiceSelect({
                           )}`,
                         ),
                       );
+                      const isUnavailable =
+                        noStaff || noBusinessHours || isClosedForSelectedDate;
+                      const isDisabled = isUnavailable && !isSelected;
+                      const usesAttendance =
+                        availability?.availabilitySource === "ATTENDANCE";
 
                       const discountInfo = getApplicableDiscount(
                         0,
@@ -569,7 +578,9 @@ const ServiceSelect = React.memo(function ServiceSelect({
                           key={pkg.id}
                           value={pkg.name}
                           onSelect={() => {
-                            if (!isDisabled) togglePackage(pkg);
+                            if (!isDisabled) {
+                              togglePackage(pkg);
+                            }
                           }}
                           className={cn(
                             "cursor-pointer aria-selected:bg-primary/5",
