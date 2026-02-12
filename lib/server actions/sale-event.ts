@@ -3,6 +3,7 @@
 import { DiscountType } from "@/prisma/generated/prisma/enums";
 import { prisma } from "@/prisma/prisma";
 import { revalidatePath } from "next/cache";
+import { requireTenantWriteAccess } from "@/lib/auth/guards";
 
 export type CreateSaleEventParams = {
   businessSlug: string;
@@ -43,6 +44,9 @@ export async function getSaleEvents(businessSlug: string) {
 }
 
 export async function createSaleEvent(params: CreateSaleEventParams) {
+  const auth = await requireTenantWriteAccess(params.businessSlug);
+  if (!auth.success) return auth;
+
   try {
     const business = await prisma.business.findUnique({
       where: { slug: params.businessSlug },
@@ -100,6 +104,9 @@ export async function getActiveSaleEvents(businessSlug: string) {
 }
 
 export async function deleteSaleEvent(id: number, businessSlug: string) {
+  const auth = await requireTenantWriteAccess(businessSlug);
+  if (!auth.success) return auth;
+
   try {
     await prisma.saleEvent.delete({
       where: { id },

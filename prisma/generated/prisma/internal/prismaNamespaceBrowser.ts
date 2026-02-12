@@ -61,6 +61,16 @@ export const ModelName = {
   Payslip: 'Payslip',
   SpecialDate: 'SpecialDate',
   Owner: 'Owner',
+  SubscriptionPlan: 'SubscriptionPlan',
+  BusinessSubscription: 'BusinessSubscription',
+  SubscriptionPaymentMethod: 'SubscriptionPaymentMethod',
+  SubscriptionInvoice: 'SubscriptionInvoice',
+  SubscriptionCreditLedger: 'SubscriptionCreditLedger',
+  ReferralCode: 'ReferralCode',
+  ReferralLead: 'ReferralLead',
+  ReferralAttribution: 'ReferralAttribution',
+  OnboardingApplication: 'OnboardingApplication',
+  PlatformActionLog: 'PlatformActionLog',
   Service: 'Service',
   ServicePackage: 'ServicePackage',
   PackageItem: 'PackageItem',
@@ -102,6 +112,14 @@ export const BusinessScalarFieldEnum = {
   imageUrl: 'imageUrl',
   latitude: 'latitude',
   longitude: 'longitude',
+  booking_horizon_days: 'booking_horizon_days',
+  booking_min_lead_minutes: 'booking_min_lead_minutes',
+  booking_slot_interval_minutes: 'booking_slot_interval_minutes',
+  public_allow_full_payment: 'public_allow_full_payment',
+  public_allow_downpayment: 'public_allow_downpayment',
+  public_default_payment_type: 'public_default_payment_type',
+  booking_v2_enabled: 'booking_v2_enabled',
+  same_day_attendance_strict_minutes: 'same_day_attendance_strict_minutes',
   commission_calculation_basis: 'commission_calculation_basis',
   created_at: 'created_at',
   updated_at: 'updated_at'
@@ -238,6 +256,188 @@ export const OwnerScalarFieldEnum = {
 } as const
 
 export type OwnerScalarFieldEnum = (typeof OwnerScalarFieldEnum)[keyof typeof OwnerScalarFieldEnum]
+
+
+export const SubscriptionPlanScalarFieldEnum = {
+  id: 'id',
+  code: 'code',
+  name: 'name',
+  description: 'description',
+  billing_interval: 'billing_interval',
+  price_amount: 'price_amount',
+  currency: 'currency',
+  is_active: 'is_active',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type SubscriptionPlanScalarFieldEnum = (typeof SubscriptionPlanScalarFieldEnum)[keyof typeof SubscriptionPlanScalarFieldEnum]
+
+
+export const BusinessSubscriptionScalarFieldEnum = {
+  id: 'id',
+  business_id: 'business_id',
+  plan_id: 'plan_id',
+  status: 'status',
+  collection_method: 'collection_method',
+  recurring_enabled: 'recurring_enabled',
+  current_period_start: 'current_period_start',
+  current_period_end: 'current_period_end',
+  trial_ends_at: 'trial_ends_at',
+  grace_ends_at: 'grace_ends_at',
+  suspended_at: 'suspended_at',
+  cancel_at_period_end: 'cancel_at_period_end',
+  canceled_at: 'canceled_at',
+  started_at: 'started_at',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type BusinessSubscriptionScalarFieldEnum = (typeof BusinessSubscriptionScalarFieldEnum)[keyof typeof BusinessSubscriptionScalarFieldEnum]
+
+
+export const SubscriptionPaymentMethodScalarFieldEnum = {
+  id: 'id',
+  business_subscription_id: 'business_subscription_id',
+  provider: 'provider',
+  provider_customer_id: 'provider_customer_id',
+  provider_payment_method_id: 'provider_payment_method_id',
+  provider_payment_intent_id: 'provider_payment_intent_id',
+  brand: 'brand',
+  last4: 'last4',
+  is_default: 'is_default',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type SubscriptionPaymentMethodScalarFieldEnum = (typeof SubscriptionPaymentMethodScalarFieldEnum)[keyof typeof SubscriptionPaymentMethodScalarFieldEnum]
+
+
+export const SubscriptionInvoiceScalarFieldEnum = {
+  id: 'id',
+  business_subscription_id: 'business_subscription_id',
+  business_id: 'business_id',
+  plan_id: 'plan_id',
+  status: 'status',
+  currency: 'currency',
+  reason: 'reason',
+  period_start: 'period_start',
+  period_end: 'period_end',
+  due_at: 'due_at',
+  amount_subtotal: 'amount_subtotal',
+  amount_credit_applied: 'amount_credit_applied',
+  amount_due: 'amount_due',
+  amount_paid: 'amount_paid',
+  paymongo_checkout_session_id: 'paymongo_checkout_session_id',
+  paymongo_payment_intent_id: 'paymongo_payment_intent_id',
+  paymongo_payment_method_id: 'paymongo_payment_method_id',
+  paymongo_payment_id: 'paymongo_payment_id',
+  paid_at: 'paid_at',
+  metadata: 'metadata',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type SubscriptionInvoiceScalarFieldEnum = (typeof SubscriptionInvoiceScalarFieldEnum)[keyof typeof SubscriptionInvoiceScalarFieldEnum]
+
+
+export const SubscriptionCreditLedgerScalarFieldEnum = {
+  id: 'id',
+  business_subscription_id: 'business_subscription_id',
+  source: 'source',
+  amount_total: 'amount_total',
+  amount_remaining: 'amount_remaining',
+  description: 'description',
+  expires_at: 'expires_at',
+  awarded_by_user_id: 'awarded_by_user_id',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type SubscriptionCreditLedgerScalarFieldEnum = (typeof SubscriptionCreditLedgerScalarFieldEnum)[keyof typeof SubscriptionCreditLedgerScalarFieldEnum]
+
+
+export const ReferralCodeScalarFieldEnum = {
+  id: 'id',
+  business_id: 'business_id',
+  code: 'code',
+  is_active: 'is_active',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type ReferralCodeScalarFieldEnum = (typeof ReferralCodeScalarFieldEnum)[keyof typeof ReferralCodeScalarFieldEnum]
+
+
+export const ReferralLeadScalarFieldEnum = {
+  id: 'id',
+  referral_code_id: 'referral_code_id',
+  referred_business_name: 'referred_business_name',
+  owner_name: 'owner_name',
+  owner_email: 'owner_email',
+  owner_phone: 'owner_phone',
+  notes: 'notes',
+  status: 'status',
+  converted_business_id: 'converted_business_id',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type ReferralLeadScalarFieldEnum = (typeof ReferralLeadScalarFieldEnum)[keyof typeof ReferralLeadScalarFieldEnum]
+
+
+export const ReferralAttributionScalarFieldEnum = {
+  id: 'id',
+  referral_code_id: 'referral_code_id',
+  referrer_business_id: 'referrer_business_id',
+  referred_business_id: 'referred_business_id',
+  status: 'status',
+  qualified_at: 'qualified_at',
+  rewarded_at: 'rewarded_at',
+  rejected_at: 'rejected_at',
+  rejection_reason: 'rejection_reason',
+  reward_credit_ledger_id: 'reward_credit_ledger_id',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type ReferralAttributionScalarFieldEnum = (typeof ReferralAttributionScalarFieldEnum)[keyof typeof ReferralAttributionScalarFieldEnum]
+
+
+export const OnboardingApplicationScalarFieldEnum = {
+  id: 'id',
+  business_name: 'business_name',
+  owner_name: 'owner_name',
+  owner_email: 'owner_email',
+  owner_phone: 'owner_phone',
+  notes: 'notes',
+  referral_code_input: 'referral_code_input',
+  referral_code_id: 'referral_code_id',
+  status: 'status',
+  review_notes: 'review_notes',
+  reviewed_by_user_id: 'reviewed_by_user_id',
+  reviewed_at: 'reviewed_at',
+  converted_business_id: 'converted_business_id',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type OnboardingApplicationScalarFieldEnum = (typeof OnboardingApplicationScalarFieldEnum)[keyof typeof OnboardingApplicationScalarFieldEnum]
+
+
+export const PlatformActionLogScalarFieldEnum = {
+  id: 'id',
+  actor_user_id: 'actor_user_id',
+  actor_email: 'actor_email',
+  action: 'action',
+  target_type: 'target_type',
+  target_id: 'target_id',
+  business_id: 'business_id',
+  metadata: 'metadata',
+  created_at: 'created_at'
+} as const
+
+export type PlatformActionLogScalarFieldEnum = (typeof PlatformActionLogScalarFieldEnum)[keyof typeof PlatformActionLogScalarFieldEnum]
 
 
 export const ServiceScalarFieldEnum = {

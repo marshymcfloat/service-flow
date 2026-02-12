@@ -6,6 +6,16 @@ async function main() {
   console.log("Start seeding ...");
 
   // Clean up existing data
+  await prisma.platformActionLog.deleteMany();
+  await prisma.onboardingApplication.deleteMany();
+  await prisma.referralAttribution.deleteMany();
+  await prisma.referralLead.deleteMany();
+  await prisma.referralCode.deleteMany();
+  await prisma.subscriptionInvoice.deleteMany();
+  await prisma.subscriptionCreditLedger.deleteMany();
+  await prisma.subscriptionPaymentMethod.deleteMany();
+  await prisma.businessSubscription.deleteMany();
+  await prisma.subscriptionPlan.deleteMany();
   await prisma.availedService.deleteMany();
   await prisma.booking.deleteMany();
   await prisma.packageItem.deleteMany();
@@ -57,6 +67,73 @@ async function main() {
       longitude: 118.75246245092016,
     },
   });
+
+  const monthlyPlan = await prisma.subscriptionPlan.create({
+    data: {
+      code: "PRO_MONTHLY",
+      name: "Pro Monthly",
+      billing_interval: "MONTHLY",
+      price_amount: 400_000,
+      currency: "PHP",
+      is_active: true,
+    },
+  });
+
+  await prisma.subscriptionPlan.create({
+    data: {
+      code: "PRO_ANNUAL",
+      name: "Pro Annual",
+      billing_interval: "YEARLY",
+      price_amount: 3_840_000,
+      currency: "PHP",
+      is_active: true,
+    },
+  });
+
+  const now = new Date();
+  const trialEnd = new Date(now);
+  trialEnd.setMonth(trialEnd.getMonth() + 1);
+
+  await prisma.businessSubscription.create({
+    data: {
+      business_id: beautyFeel.id,
+      plan_id: monthlyPlan.id,
+      status: "TRIALING",
+      collection_method: "MANUAL_CHECKOUT",
+      current_period_start: now,
+      current_period_end: trialEnd,
+      trial_ends_at: trialEnd,
+      recurring_enabled: false,
+    },
+  });
+
+  await prisma.referralCode.create({
+    data: {
+      business_id: beautyFeel.id,
+      code: "SF-BEAUTYF",
+      is_active: true,
+    },
+  });
+
+  const adminEmail = process.env.SEED_PLATFORM_ADMIN_EMAIL;
+  const adminPassword = process.env.SEED_PLATFORM_ADMIN_PASSWORD;
+  if (adminEmail && adminPassword) {
+    const adminHash = await hash(adminPassword, 12);
+    await prisma.user.upsert({
+      where: { email: adminEmail },
+      create: {
+        email: adminEmail,
+        name: "Platform Admin",
+        hashed_password: adminHash,
+        role: Role.PLATFORM_ADMIN,
+      },
+      update: {
+        name: "Platform Admin",
+        hashed_password: adminHash,
+        role: Role.PLATFORM_ADMIN,
+      },
+    });
+  }
 
   const days = Array.from({ length: 7 }, (_, i) => i);
 

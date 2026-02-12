@@ -1,5 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
+const PLAYWRIGHT_BASE_URL = 'http://127.0.0.1:3100';
+
 /**
  * Read environment variables from file.
  * https://github.com/motdotla/dotenv
@@ -26,7 +28,7 @@ export default defineConfig({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL for relative page.goto('/path') calls in smoke tests. */
-    baseURL: process.env.NEXT_PUBLIC_APP_URL || 'http://127.0.0.1:3100',
+    baseURL: PLAYWRIGHT_BASE_URL,
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
@@ -63,7 +65,7 @@ export default defineConfig({
   /* Run your local dev server before starting the tests */
   webServer: {
     command: 'npm run dev -- --hostname 127.0.0.1 --port 3100',
-    url: process.env.NEXT_PUBLIC_APP_URL || 'http://127.0.0.1:3100',
+    url: PLAYWRIGHT_BASE_URL,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
   },

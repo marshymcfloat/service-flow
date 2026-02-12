@@ -45,7 +45,7 @@ export async function claimServiceAction(
     return { success: false, error: "Invalid input" };
   }
 
-  const auth = await requireAuth();
+  const auth = await requireAuth({ write: true });
   if (!auth.success) return auth;
   const { businessSlug } = auth;
 
@@ -122,7 +122,7 @@ export async function unclaimServiceAction(serviceId: number) {
     return { success: false, error: "Invalid input" };
   }
 
-  const auth = await requireAuth();
+  const auth = await requireAuth({ write: true });
   if (!auth.success) return auth;
   const { businessSlug } = auth;
 
@@ -173,7 +173,7 @@ export async function markServiceServedAction(
     return { success: false, error: "Invalid input" };
   }
 
-  const auth = await requireAuth();
+  const auth = await requireAuth({ write: true });
   if (!auth.success) return auth;
   const { businessSlug } = auth;
 
@@ -247,7 +247,7 @@ export async function unserveServiceAction(serviceId: number) {
     return { success: false, error: "Invalid input" };
   }
 
-  const auth = await requireAuth();
+  const auth = await requireAuth({ write: true });
   if (!auth.success) return auth;
   const { businessSlug } = auth;
 
@@ -421,8 +421,10 @@ function getTodayBookingFilter() {
   };
 }
 
-async function requireEmployeeAuth(): Promise<EmployeeAuthResult> {
-  const auth = await requireAuth();
+async function requireEmployeeAuth(
+  options?: { write?: boolean },
+): Promise<EmployeeAuthResult> {
+  const auth = await requireAuth(options);
   if (!auth.success) {
     return { success: false, error: "Unauthorized" };
   }
@@ -531,7 +533,7 @@ export async function createEmployeeBookingBalanceQrAction(bookingId: number) {
     return { success: false, error: "Invalid booking ID." };
   }
 
-  const auth = await requireEmployeeAuth();
+  const auth = await requireEmployeeAuth({ write: true });
   if (!auth.success) return auth;
   const { businessSlug } = auth;
 
@@ -806,7 +808,7 @@ export async function markEmployeeBookingPaidAction(bookingId: number) {
     return { success: false, error: "Invalid booking ID." };
   }
 
-  const auth = await requireEmployeeAuth();
+  const auth = await requireEmployeeAuth({ write: true });
   if (!auth.success) return auth;
   const { businessSlug, employeeId } = auth;
 

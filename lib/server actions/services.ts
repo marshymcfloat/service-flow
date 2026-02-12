@@ -47,7 +47,7 @@ export async function createServiceAction(data: {
     type: "REQUIRED" | "SUGGESTED";
   }[];
 }) {
-  const auth = await requireAuth();
+  const auth = await requireAuth({ write: true });
   if (!auth.success) return auth;
   const { businessSlug } = auth;
 
@@ -108,7 +108,7 @@ export async function updateServiceAction(
     }[];
   },
 ) {
-  const auth = await requireAuth();
+  const auth = await requireAuth({ write: true });
   if (!auth.success) return auth;
   const { businessSlug } = auth;
 
@@ -164,7 +164,7 @@ export async function updateServiceAction(
 
 // Delete a service
 export async function deleteServiceAction(serviceId: number) {
-  const auth = await requireAuth();
+  const auth = await requireAuth({ write: true });
   if (!auth.success) return auth;
   const { businessSlug } = auth;
 

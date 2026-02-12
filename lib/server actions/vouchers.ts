@@ -48,7 +48,7 @@ export async function getVouchersAction(businessSlug: string) {
 }
 
 export async function createVoucherAction(data: CreateVoucherInput) {
-  const auth = await requireAuth();
+  const auth = await requireAuth({ write: true });
   if (!auth.success) return auth;
   const { businessSlug } = auth;
 
@@ -88,7 +88,7 @@ export async function createVoucherAction(data: CreateVoucherInput) {
 }
 
 export async function deleteVoucherAction(id: number) {
-  const auth = await requireAuth();
+  const auth = await requireAuth({ write: true });
   if (!auth.success) return auth;
   const { businessSlug } = auth;
 
@@ -115,7 +115,7 @@ export async function deleteVoucherAction(id: number) {
 }
 
 export async function generateVoucherCodeAction() {
-  const auth = await requireAuth();
+  const auth = await requireAuth({ write: true });
   if (!auth.success) return auth;
   const { businessSlug } = auth;
 

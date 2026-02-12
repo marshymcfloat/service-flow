@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { rateLimit } from "@/lib/rate-limit";
 import type { NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
+import { SECURITY_HEADERS } from "@/lib/security/headers";
 
 export async function proxy(request: NextRequest) {
   if (request.nextUrl.pathname.startsWith("/.well-known/")) {
@@ -14,14 +15,36 @@ export async function proxy(request: NextRequest) {
   });
   const isAuthenticated = !!token;
   const { pathname } = request.nextUrl;
+  const role = token?.role as string | undefined;
+  const isPlatformAdmin = role === "PLATFORM_ADMIN";
+  const isAppRoute = pathname === "/app" || pathname.startsWith("/app/");
+  const isPlatformRoute =
+    pathname === "/platform" || pathname.startsWith("/platform/");
 
-  if (pathname.startsWith("/app")) {
+  if (isAppRoute) {
     if (!isAuthenticated) {
+      return NextResponse.redirect(new URL("/", request.url));
+    }
+
+    if (isPlatformAdmin) {
+      return NextResponse.redirect(new URL("/platform", request.url));
+    }
+  }
+
+  if (isPlatformRoute) {
+    if (!isAuthenticated) {
+      return NextResponse.redirect(new URL("/", request.url));
+    }
+    if (!isPlatformAdmin) {
       return NextResponse.redirect(new URL("/", request.url));
     }
   }
 
-  if (pathname.startsWith("/app") && token?.mustChangePassword) {
+  if (
+    isAppRoute &&
+    token?.mustChangePassword &&
+    !isPlatformAdmin
+  ) {
     const segments = pathname.split("/").filter(Boolean);
     const businessSlug = segments[1];
     if (businessSlug) {
@@ -32,8 +55,24 @@ export async function proxy(request: NextRequest) {
     }
   }
 
+  if (isAppRoute && !isPlatformAdmin) {
+    const segments = pathname.split("/").filter(Boolean);
+    const routeBusinessSlug = segments[1];
+    const tokenBusinessSlug = token?.businessSlug as string | undefined;
+    if (
+      routeBusinessSlug &&
+      tokenBusinessSlug &&
+      routeBusinessSlug !== tokenBusinessSlug
+    ) {
+      return NextResponse.redirect(new URL(`/app/${tokenBusinessSlug}`, request.url));
+    }
+  }
+
   if (pathname === "/" && isAuthenticated) {
-    const businessSlug = token.businessSlug as string;
+    if (isPlatformAdmin) {
+      return NextResponse.redirect(new URL("/platform", request.url));
+    }
+    const businessSlug = token?.businessSlug as string | undefined;
     if (businessSlug) {
       return NextResponse.redirect(
         new URL(`/app/${businessSlug}`, request.url),
@@ -43,23 +82,14 @@ export async function proxy(request: NextRequest) {
 
   const response = NextResponse.next();
 
-  response.headers.set("X-DNS-Prefetch-Control", "on");
-  response.headers.set(
-    "Strict-Transport-Security",
-    "max-age=63072000; includeSubDomains; preload",
-  );
-  response.headers.set("X-Frame-Options", "SAMEORIGIN");
-  response.headers.set("X-Content-Type-Options", "nosniff");
-  response.headers.set("Referrer-Policy", "origin-when-cross-origin");
-  response.headers.set(
-    "Permissions-Policy",
-    "camera=(), microphone=(), geolocation=(), browsing-topics=()",
-  );
+  for (const [key, value] of Object.entries(SECURITY_HEADERS)) {
+    response.headers.set(key, value);
+  }
 
   if (pathname.startsWith("/api")) {
     const forwardedFor = request.headers.get("x-forwarded-for") ?? "127.0.0.1";
     const ip = forwardedFor.split(",")[0]?.trim() || "127.0.0.1";
-    const result = rateLimit(`${pathname}:${ip}`);
+    const result = await rateLimit(`${pathname}:${ip}`);
 
     if (!result.success) {
       return NextResponse.json(

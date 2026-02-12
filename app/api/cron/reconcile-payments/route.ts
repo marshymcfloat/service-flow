@@ -5,6 +5,10 @@ import { getPayMongoPaymentIntentById } from "@/lib/server actions/paymongo";
 import { promoteBookingToCompletedIfEligible } from "@/lib/services/booking-status";
 import { publishEvent } from "@/lib/services/outbox";
 import { getCurrentDateTimePH } from "@/lib/date-utils";
+import {
+  isCronAuthorized,
+  unauthorizedCronResponse,
+} from "@/lib/security/cron-auth";
 
 const BATCH_SIZE = 50;
 
@@ -92,30 +96,9 @@ async function cancelHeldBooking(
 export async function GET(request: Request) {
   await connection();
   try {
-    const authHeader = request.headers.get("authorization");
-
-    if (!authHeader) {
-      return new NextResponse("Unauthorized", {
-        status: 401,
-        headers: { "WWW-Authenticate": "Basic realm='Secure Area'" },
-      });
-    }
-
-    const [scheme, encoded] = authHeader.split(" ");
-
-    if (scheme !== "Basic" || !encoded) {
-      return new NextResponse("Unauthorized", { status: 401 });
-    }
-
-    const decoded = Buffer.from(encoded, "base64").toString();
-    const [user, pass] = decoded.split(":");
-
-    const validUser = process.env.CRON_USER || "admin";
-    const validPass = process.env.CRON_PASSWORD;
-
-    if (!validPass || user !== validUser || pass !== validPass) {
+    if (!isCronAuthorized(request)) {
       console.error("Invalid cron credentials");
-      return new NextResponse("Unauthorized", { status: 401 });
+      return unauthorizedCronResponse();
     }
 
     const now = getCurrentDateTimePH();

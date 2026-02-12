@@ -11,10 +11,91 @@
 
 export const Role = {
   OWNER: 'OWNER',
-  EMPLOYEE: 'EMPLOYEE'
+  EMPLOYEE: 'EMPLOYEE',
+  PLATFORM_ADMIN: 'PLATFORM_ADMIN'
 } as const
 
 export type Role = (typeof Role)[keyof typeof Role]
+
+
+export const BillingInterval = {
+  MONTHLY: 'MONTHLY',
+  YEARLY: 'YEARLY'
+} as const
+
+export type BillingInterval = (typeof BillingInterval)[keyof typeof BillingInterval]
+
+
+export const SubscriptionStatus = {
+  TRIALING: 'TRIALING',
+  ACTIVE: 'ACTIVE',
+  GRACE_PERIOD: 'GRACE_PERIOD',
+  SUSPENDED: 'SUSPENDED',
+  CANCELED: 'CANCELED'
+} as const
+
+export type SubscriptionStatus = (typeof SubscriptionStatus)[keyof typeof SubscriptionStatus]
+
+
+export const CollectionMethod = {
+  MANUAL_CHECKOUT: 'MANUAL_CHECKOUT',
+  AUTO_CHARGE: 'AUTO_CHARGE'
+} as const
+
+export type CollectionMethod = (typeof CollectionMethod)[keyof typeof CollectionMethod]
+
+
+export const InvoiceStatus = {
+  DRAFT: 'DRAFT',
+  OPEN: 'OPEN',
+  PAID: 'PAID',
+  VOID: 'VOID',
+  FAILED: 'FAILED',
+  EXPIRED: 'EXPIRED'
+} as const
+
+export type InvoiceStatus = (typeof InvoiceStatus)[keyof typeof InvoiceStatus]
+
+
+export const CreditSource = {
+  TRIAL_GRANT: 'TRIAL_GRANT',
+  REFERRAL_REWARD: 'REFERRAL_REWARD',
+  ADMIN_ADJUSTMENT: 'ADMIN_ADJUSTMENT',
+  MANUAL_COMP: 'MANUAL_COMP'
+} as const
+
+export type CreditSource = (typeof CreditSource)[keyof typeof CreditSource]
+
+
+export const ReferralStatus = {
+  PENDING: 'PENDING',
+  QUALIFIED: 'QUALIFIED',
+  REWARDED: 'REWARDED',
+  REJECTED: 'REJECTED'
+} as const
+
+export type ReferralStatus = (typeof ReferralStatus)[keyof typeof ReferralStatus]
+
+
+export const LeadStatus = {
+  NEW: 'NEW',
+  CONTACTED: 'CONTACTED',
+  CONVERTED: 'CONVERTED',
+  REJECTED: 'REJECTED'
+} as const
+
+export type LeadStatus = (typeof LeadStatus)[keyof typeof LeadStatus]
+
+
+export const OnboardingApplicationStatus = {
+  NEW: 'NEW',
+  CONTACTED: 'CONTACTED',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
+  CONVERTED: 'CONVERTED'
+} as const
+
+export type OnboardingApplicationStatus = (typeof OnboardingApplicationStatus)[keyof typeof OnboardingApplicationStatus]
 
 
 export const VoucherType = {

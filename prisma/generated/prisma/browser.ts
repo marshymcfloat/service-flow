@@ -68,6 +68,56 @@ export type SpecialDate = Prisma.SpecialDateModel
  */
 export type Owner = Prisma.OwnerModel
 /**
+ * Model SubscriptionPlan
+ * 
+ */
+export type SubscriptionPlan = Prisma.SubscriptionPlanModel
+/**
+ * Model BusinessSubscription
+ * 
+ */
+export type BusinessSubscription = Prisma.BusinessSubscriptionModel
+/**
+ * Model SubscriptionPaymentMethod
+ * 
+ */
+export type SubscriptionPaymentMethod = Prisma.SubscriptionPaymentMethodModel
+/**
+ * Model SubscriptionInvoice
+ * 
+ */
+export type SubscriptionInvoice = Prisma.SubscriptionInvoiceModel
+/**
+ * Model SubscriptionCreditLedger
+ * 
+ */
+export type SubscriptionCreditLedger = Prisma.SubscriptionCreditLedgerModel
+/**
+ * Model ReferralCode
+ * 
+ */
+export type ReferralCode = Prisma.ReferralCodeModel
+/**
+ * Model ReferralLead
+ * 
+ */
+export type ReferralLead = Prisma.ReferralLeadModel
+/**
+ * Model ReferralAttribution
+ * 
+ */
+export type ReferralAttribution = Prisma.ReferralAttributionModel
+/**
+ * Model OnboardingApplication
+ * 
+ */
+export type OnboardingApplication = Prisma.OnboardingApplicationModel
+/**
+ * Model PlatformActionLog
+ * 
+ */
+export type PlatformActionLog = Prisma.PlatformActionLogModel
+/**
  * Model Service
  * 
  */

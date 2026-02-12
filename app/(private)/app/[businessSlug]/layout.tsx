@@ -10,8 +10,10 @@ import { Metadata } from "next";
 import { prisma } from "@/prisma/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/next auth/options";
+import { redirect } from "next/navigation";
 
 import { connection } from "next/server";
+import { getTenantAccessState } from "@/features/billing/subscription-service";
 
 type Props = {
   children: React.ReactNode;
@@ -39,17 +41,40 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 async function AppLayoutContent({
   children,
   modal,
+  businessSlug,
 }: {
   children: React.ReactNode;
   modal: React.ReactNode;
+  businessSlug: string;
 }) {
   await connection();
   const session = await getServerSession(authOptions);
+  if (!session?.user) {
+    redirect("/");
+  }
+
+  if (session.user.role === "PLATFORM_ADMIN") {
+    redirect("/platform");
+  }
+
+  if (session.user.businessSlug && session.user.businessSlug !== businessSlug) {
+    redirect(`/app/${session.user.businessSlug}`);
+  }
+
+  const accessState = await getTenantAccessState(businessSlug);
+  const showReadOnlyBanner = accessState.exists && accessState.readOnly;
+  const readOnlyMessage =
+    "Subscription is in read-only mode. Billing is still available while new mutations are blocked.";
   const isEmployee = session?.user?.role === "EMPLOYEE";
 
   if (isEmployee) {
     return (
       <div className="bg-background min-h-screen ">
+        {showReadOnlyBanner ? (
+          <div className="border-b border-amber-300 bg-amber-50 px-4 py-2 text-sm text-amber-800">
+            {readOnlyMessage}
+          </div>
+        ) : null}
         {children}
         {modal}
       </div>
@@ -67,6 +92,11 @@ async function AppLayoutContent({
             <SidebarTrigger className="h-8 w-8" />
             <span className="font-semibold">Menu</span>
           </header>
+          {showReadOnlyBanner ? (
+            <div className="border-b border-amber-300 bg-amber-50 px-4 py-2 text-sm text-amber-800">
+              {readOnlyMessage}
+            </div>
+          ) : null}
           <div className="flex-1 min-h-0 overflow-hidden">
             {children}
             {modal}
@@ -80,13 +110,34 @@ async function AppLayoutContent({
 export default function AppLayout({
   children,
   modal,
+  params,
 }: {
   children: React.ReactNode;
   modal: React.ReactNode;
+  params: Promise<{ businessSlug: string }>;
 }) {
   return (
     <React.Suspense fallback={<SidebarSkeleton />}>
-      <AppLayoutContent modal={modal}>{children}</AppLayoutContent>
+      <AppLayoutWithParams params={params} modal={modal}>
+        {children}
+      </AppLayoutWithParams>
     </React.Suspense>
+  );
+}
+
+async function AppLayoutWithParams({
+  children,
+  modal,
+  params,
+}: {
+  children: React.ReactNode;
+  modal: React.ReactNode;
+  params: Promise<{ businessSlug: string }>;
+}) {
+  const { businessSlug } = await params;
+  return (
+    <AppLayoutContent businessSlug={businessSlug} modal={modal}>
+      {children}
+    </AppLayoutContent>
   );
 }

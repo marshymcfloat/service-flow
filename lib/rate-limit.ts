@@ -1,16 +1,44 @@
 type RateLimitConfig = {
   windowMs: number;
   maxRequests: number;
+  namespace?: string;
 };
 
 const trackers = new Map<string, { count: number; expiresAt: number }>();
 
-export function rateLimit(
-  ip: string,
-  config: RateLimitConfig = { windowMs: 60 * 1000, maxRequests: 100 },
-) {
+type RateLimitResult = {
+  success: boolean;
+  limit: number;
+  remaining: number;
+  reset: number;
+};
+
+const UPSTASH_URL = process.env.UPSTASH_REDIS_REST_URL;
+const UPSTASH_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
+
+function hasUpstashConfig() {
+  return Boolean(UPSTASH_URL && UPSTASH_TOKEN);
+}
+
+function buildResult(
+  count: number,
+  maxRequests: number,
+  reset: number,
+): RateLimitResult {
+  return {
+    success: count <= maxRequests,
+    limit: maxRequests,
+    remaining: Math.max(0, maxRequests - count),
+    reset,
+  };
+}
+
+function runInMemoryRateLimit(
+  key: string,
+  config: Required<RateLimitConfig>,
+): RateLimitResult {
   const now = Date.now();
-  const tracker = trackers.get(ip) || {
+  const tracker = trackers.get(key) || {
     count: 0,
     expiresAt: now + config.windowMs,
   };
@@ -22,19 +50,78 @@ export function rateLimit(
     tracker.count++;
   }
 
-  trackers.set(ip, tracker);
+  trackers.set(key, tracker);
 
   // Periodic cleanup (simple optimization)
   if (Math.random() < 0.01) {
     cleanup(now);
   }
 
-  return {
-    success: tracker.count <= config.maxRequests,
-    limit: config.maxRequests,
-    remaining: Math.max(0, config.maxRequests - tracker.count),
-    reset: tracker.expiresAt,
+  return buildResult(tracker.count, config.maxRequests, tracker.expiresAt);
+}
+
+async function runUpstashRateLimit(
+  key: string,
+  config: Required<RateLimitConfig>,
+): Promise<RateLimitResult> {
+  const now = Date.now();
+  const redisKey = `${config.namespace}:${key}`;
+  const upstashUrl = UPSTASH_URL as string;
+  const upstashToken = UPSTASH_TOKEN as string;
+
+  const response = await fetch(`${upstashUrl}/pipeline`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${upstashToken}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify([
+      ["INCR", redisKey],
+      ["PEXPIRE", redisKey, config.windowMs, "NX"],
+      ["PTTL", redisKey],
+    ]),
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    throw new Error(`Upstash rate-limit request failed (${response.status})`);
+  }
+
+  const payload = (await response.json()) as Array<{
+    result: unknown;
+    error?: string;
+  }>;
+
+  const count = Number(payload?.[0]?.result);
+  const ttl = Number(payload?.[2]?.result);
+
+  const safeCount = Number.isFinite(count) && count > 0 ? count : 1;
+  const safeTtl =
+    Number.isFinite(ttl) && ttl > 0 ? ttl : config.windowMs;
+
+  return buildResult(safeCount, config.maxRequests, now + safeTtl);
+}
+
+export async function rateLimit(
+  key: string,
+  config: RateLimitConfig = { windowMs: 60 * 1000, maxRequests: 100 },
+) {
+  const mergedConfig: Required<RateLimitConfig> = {
+    windowMs: config.windowMs,
+    maxRequests: config.maxRequests,
+    namespace: config.namespace || "service-flow:rate-limit",
   };
+
+  if (hasUpstashConfig()) {
+    try {
+      return await runUpstashRateLimit(key, mergedConfig);
+    } catch {
+      // Fail open to local limiter if Upstash is transiently unavailable.
+      return runInMemoryRateLimit(key, mergedConfig);
+    }
+  }
+
+  return runInMemoryRateLimit(key, mergedConfig);
 }
 
 function cleanup(now: number) {

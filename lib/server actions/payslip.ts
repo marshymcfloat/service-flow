@@ -180,7 +180,7 @@ export async function createPayslipAction(data: {
   deduction?: number;
   comment?: string;
 }) {
-  const auth = await requireAuth();
+  const auth = await requireAuth({ write: true });
   if (!auth.success) return auth;
   const { session, businessSlug } = auth;
 

@@ -1,0 +1,339 @@
+import { getBillingCollectionMode } from "@/features/billing/subscription-service";
+import {
+  createSubscriptionCheckoutAction,
+  createSubscriptionInvoiceAction,
+  markInvoicePaidManuallyAction,
+  retryInvoiceCollectionAction,
+} from "@/lib/server actions/platform-admin";
+import { redirect } from "next/navigation";
+import { prisma } from "@/prisma/prisma";
+import {
+  buildPlatformErrorPath,
+  type PlatformSearchParams,
+  buildPlatformSuccessPath,
+  getPlatformFlashMessage,
+  PlatformFlashNotice,
+  toActionErrorMessage,
+} from "../_components/action-feedback";
+import {
+  PlatformMetricCard,
+  PlatformPageHeader,
+  PlatformStatusBadge,
+  formatPhpFromCentavos,
+  formatPlatformDate,
+  platformInputClass,
+  platformPanelClass,
+  platformSecondaryButtonClass,
+  platformTableCellClass,
+  platformTableClass,
+  platformTableContainerClass,
+  platformTableHeadClass,
+} from "../_components/platform-ui";
+
+type PlatformInvoicesPageProps = {
+  searchParams?: PlatformSearchParams;
+};
+
+const PENDING_INVOICE_STATUSES = new Set(["OPEN", "DRAFT"]);
+
+function getPendingInvoiceAgeInfo(createdAt: Date) {
+  const hours = Math.floor((Date.now() - createdAt.getTime()) / (1000 * 60 * 60));
+
+  if (hours >= 72) {
+    return {
+      label: "72h+ open",
+      className: "border-rose-200 bg-rose-50 text-rose-700",
+      hours,
+    };
+  }
+
+  if (hours >= 24) {
+    return {
+      label: "24h+ open",
+      className: "border-amber-200 bg-amber-50 text-amber-700",
+      hours,
+    };
+  }
+
+  return {
+    label: "<24h open",
+    className: "border-emerald-200 bg-emerald-50 text-emerald-700",
+    hours,
+  };
+}
+
+function asObject(value: unknown) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return {};
+  return value as Record<string, unknown>;
+}
+
+function asOptionalString(value: unknown) {
+  return typeof value === "string" && value.trim().length > 0 ? value : undefined;
+}
+
+export default async function PlatformInvoicesPage({
+  searchParams,
+}: PlatformInvoicesPageProps) {
+  const flash = await getPlatformFlashMessage(searchParams);
+  const [invoices, subscriptions] = await Promise.all([
+    prisma.subscriptionInvoice.findMany({
+      include: {
+        business: { select: { name: true, slug: true } },
+        plan: { select: { code: true } },
+      },
+      orderBy: { created_at: "desc" },
+      take: 200,
+    }),
+    prisma.businessSubscription.findMany({
+      include: {
+        business: { select: { name: true } },
+        plan: { select: { code: true } },
+      },
+      orderBy: { updated_at: "desc" },
+      take: 100,
+    }),
+  ]);
+  const manualOnly = getBillingCollectionMode() === "MANUAL_ONLY";
+
+  async function createInvoiceFormAction(subscriptionId: string) {
+    "use server";
+    try {
+      const result = await createSubscriptionInvoiceAction(subscriptionId, "ADMIN_MANUAL");
+      if (!result.success) {
+        redirect(buildPlatformErrorPath("/platform/invoices", result.error));
+      }
+
+      redirect(buildPlatformSuccessPath("/platform/invoices", "Invoice created."));
+    } catch (error) {
+      redirect(
+        buildPlatformErrorPath(
+          "/platform/invoices",
+          toActionErrorMessage(error, "Unable to create invoice."),
+        ),
+      );
+    }
+  }
+
+  async function createCheckoutFormAction(invoiceId: string) {
+    "use server";
+    try {
+      const result = await createSubscriptionCheckoutAction(invoiceId);
+      if (!result.success) {
+        redirect(buildPlatformErrorPath("/platform/invoices", result.error));
+      }
+
+      redirect(buildPlatformSuccessPath("/platform/invoices", "Checkout link created."));
+    } catch (error) {
+      redirect(
+        buildPlatformErrorPath(
+          "/platform/invoices",
+          toActionErrorMessage(error, "Unable to create checkout link."),
+        ),
+      );
+    }
+  }
+
+  async function retryCollectionFormAction(invoiceId: string) {
+    "use server";
+    try {
+      const result = await retryInvoiceCollectionAction(invoiceId);
+      if (!result.success) {
+        redirect(buildPlatformErrorPath("/platform/invoices", result.error));
+      }
+
+      redirect(buildPlatformSuccessPath("/platform/invoices", "Collection retry queued."));
+    } catch (error) {
+      redirect(
+        buildPlatformErrorPath(
+          "/platform/invoices",
+          toActionErrorMessage(error, "Unable to retry invoice collection."),
+        ),
+      );
+    }
+  }
+
+  async function markPaidManualFormAction(invoiceId: string, formData: FormData) {
+    "use server";
+    try {
+      const paymentReference = String(formData.get("paymentReference") || "");
+      const result = await markInvoicePaidManuallyAction({
+        invoiceId,
+        paymentReference,
+      });
+      if (!result.success) {
+        redirect(buildPlatformErrorPath("/platform/invoices", result.error));
+      }
+
+      redirect(buildPlatformSuccessPath("/platform/invoices", "Invoice marked paid."));
+    } catch (error) {
+      redirect(
+        buildPlatformErrorPath(
+          "/platform/invoices",
+          toActionErrorMessage(error, "Unable to mark invoice as paid."),
+        ),
+      );
+    }
+  }
+
+  const openCount = invoices.filter((invoice) => invoice.status === "OPEN").length;
+  const paidCount = invoices.filter((invoice) => invoice.status === "PAID").length;
+  const failedCount = invoices.filter((invoice) => ["FAILED", "VOID", "EXPIRED"].includes(invoice.status)).length;
+  const pending24hCount = invoices.filter((invoice) => {
+    if (!PENDING_INVOICE_STATUSES.has(invoice.status)) return false;
+    return getPendingInvoiceAgeInfo(invoice.created_at).hours >= 24;
+  }).length;
+  const pending72hCount = invoices.filter((invoice) => {
+    if (!PENDING_INVOICE_STATUSES.has(invoice.status)) return false;
+    return getPendingInvoiceAgeInfo(invoice.created_at).hours >= 72;
+  }).length;
+
+  return (
+    <div className="space-y-6">
+      <PlatformPageHeader
+        title="Invoice Operations"
+        description="Create invoices, retry failed collections, and reconcile payments with clear status tracking."
+      />
+      {flash ? <PlatformFlashNotice flash={flash} /> : null}
+
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+        <PlatformMetricCard label="Total Invoices" value={invoices.length} />
+        <PlatformMetricCard label="Open Invoices" value={openCount} />
+        <PlatformMetricCard label="Paid Invoices" value={paidCount} tone="accent" />
+        <PlatformMetricCard label="Failed/Void/Expired" value={failedCount} />
+        <PlatformMetricCard label="Open 24h+" value={pending24hCount} />
+        <PlatformMetricCard label="Open 72h+" value={pending72hCount} />
+      </div>
+
+      <section className={`${platformPanelClass} p-5 sm:p-6`}>
+        <h3 className="text-lg font-semibold tracking-tight text-[var(--pf-text)]">Manual Invoice Creation</h3>
+        <p className="mt-1 text-sm text-[var(--pf-muted)]">
+          Generate invoices directly for subscriptions that need operator-assisted billing.
+        </p>
+        <div className="mt-4 grid gap-3 md:grid-cols-2">
+          {subscriptions.map((sub) => (
+            <article
+              key={sub.id}
+              className="flex items-center justify-between gap-3 rounded-2xl border border-[var(--pf-border)] bg-[var(--pf-surface-soft)]/70 p-3"
+            >
+              <div className="min-w-0">
+                <p className="truncate text-sm font-semibold text-[var(--pf-text)]">{sub.business.name}</p>
+                <p className="text-xs text-[var(--pf-muted)]">{sub.plan.code}</p>
+              </div>
+              <form action={createInvoiceFormAction.bind(null, sub.id)}>
+                <button type="submit" className={platformSecondaryButtonClass}>
+                  Create Invoice
+                </button>
+              </form>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className={`${platformPanelClass} p-5 sm:p-6`}>
+        <h3 className="text-lg font-semibold tracking-tight text-[var(--pf-text)]">Invoice Queue</h3>
+        {manualOnly ? (
+          <p className="mt-1 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+            Manual collection mode is active. Mark invoices as paid with your off-platform payment reference.
+          </p>
+        ) : null}
+        <div className={`mt-4 ${platformTableContainerClass}`}>
+          <table className={platformTableClass}>
+            <thead>
+              <tr className="border-b border-[var(--pf-border)]">
+                <th className={platformTableHeadClass}>Business</th>
+                <th className={platformTableHeadClass}>Plan</th>
+                <th className={platformTableHeadClass}>Status</th>
+                <th className={platformTableHeadClass}>Due</th>
+                <th className={platformTableHeadClass}>Amount</th>
+                <th className={platformTableHeadClass}>Created</th>
+                <th className={platformTableHeadClass}>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {invoices.map((invoice) => {
+                const isPending = PENDING_INVOICE_STATUSES.has(invoice.status);
+                const pendingAgeInfo = isPending
+                  ? getPendingInvoiceAgeInfo(invoice.created_at)
+                  : null;
+                const metadata = asObject(invoice.metadata);
+                const ownerPaymentReference = asOptionalString(
+                  metadata.manual_payment_reference,
+                );
+
+                return (
+                  <tr key={invoice.id} className="border-b border-[var(--pf-border)]/80 last:border-0">
+                    <td className={`${platformTableCellClass} min-w-[180px] whitespace-normal`}>
+                      <p className="font-medium text-[var(--pf-text)]">{invoice.business.name}</p>
+                      <p className="text-xs text-[var(--pf-muted)]">{invoice.business.slug}</p>
+                    </td>
+                    <td className={platformTableCellClass}>{invoice.plan.code}</td>
+                    <td className={platformTableCellClass}>
+                      <div className="flex flex-col gap-1">
+                        <PlatformStatusBadge status={invoice.status} />
+                        {pendingAgeInfo ? (
+                          <span
+                            className={`inline-flex w-fit items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${pendingAgeInfo.className}`}
+                          >
+                            {pendingAgeInfo.label}
+                          </span>
+                        ) : null}
+                        {ownerPaymentReference ? (
+                          <span className="text-[11px] font-medium text-emerald-700">
+                            Ref: {ownerPaymentReference}
+                          </span>
+                        ) : null}
+                      </div>
+                    </td>
+                    <td className={platformTableCellClass}>{formatPlatformDate(invoice.due_at)}</td>
+                    <td className={platformTableCellClass}>{formatPhpFromCentavos(invoice.amount_due)}</td>
+                    <td className={platformTableCellClass}>{formatPlatformDate(invoice.created_at)}</td>
+                    <td className={`${platformTableCellClass} min-w-[260px]`}>
+                      <div className="flex flex-wrap gap-2">
+                        {manualOnly ? (
+                          invoice.status === "PAID" ? (
+                            <span className="text-xs font-medium text-[var(--pf-muted)]">Settled</span>
+                          ) : (
+                            <form
+                              action={markPaidManualFormAction.bind(null, invoice.id)}
+                              className="flex flex-wrap items-center gap-2"
+                            >
+                              <input
+                                name="paymentReference"
+                                placeholder="Payment reference"
+                                className={`${platformInputClass} h-9 w-44`}
+                                required
+                              />
+                              <button
+                                type="submit"
+                                className={`${platformSecondaryButtonClass} border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100`}
+                              >
+                                Mark Paid
+                              </button>
+                            </form>
+                          )
+                        ) : (
+                          <>
+                            <form action={createCheckoutFormAction.bind(null, invoice.id)}>
+                              <button type="submit" className={platformSecondaryButtonClass}>
+                                Create Checkout
+                              </button>
+                            </form>
+                            <form action={retryCollectionFormAction.bind(null, invoice.id)}>
+                              <button type="submit" className={platformSecondaryButtonClass}>
+                                Retry Charge
+                              </button>
+                            </form>
+                          </>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  );
+}

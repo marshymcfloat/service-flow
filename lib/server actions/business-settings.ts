@@ -2,11 +2,15 @@
 
 import { prisma } from "@/prisma/prisma";
 import { revalidatePath } from "next/cache";
+import { requireTenantWriteAccess } from "@/lib/auth/guards";
 
 export async function updateBusinessAction(
   businessSlug: string,
   formData: FormData,
 ) {
+  const auth = await requireTenantWriteAccess(businessSlug);
+  if (!auth.success) return auth;
+
   try {
     const name = formData.get("name") as string;
     const initials = formData.get("initials") as string;

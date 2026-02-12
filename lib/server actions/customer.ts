@@ -34,7 +34,7 @@ export async function createCustomer(data: {
   email?: string;
   phone?: string;
 }) {
-  const auth = await requireAuth();
+  const auth = await requireAuth({ write: true });
   if (!auth.success) return auth;
   const { businessSlug } = auth;
 
@@ -73,7 +73,7 @@ export async function updateCustomer(
     businessSlug: string;
   },
 ) {
-  const auth = await requireAuth();
+  const auth = await requireAuth({ write: true });
   if (!auth.success) return auth;
   const { businessSlug } = auth;
 
@@ -96,7 +96,7 @@ export async function updateCustomer(
 }
 
 export async function deleteCustomer(id: string) {
-  const auth = await requireAuth();
+  const auth = await requireAuth({ write: true });
   if (!auth.success) return auth;
   const { businessSlug } = auth;
 

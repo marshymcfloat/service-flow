@@ -16,6 +16,7 @@ import {
   Sparkles,
   Percent,
   Crown,
+  CreditCard,
   type LucideIcon,
 } from "lucide-react";
 import Link from "next/link";
@@ -98,6 +99,11 @@ export function AppSidebarClient({ businessSlug, user }: SidebarProps) {
           title: "Business Hours",
           url: `/app/${slug}/business-hours`,
           icon: Calendar,
+        },
+        {
+          title: "Billing",
+          url: `/app/${slug}/billing`,
+          icon: CreditCard,
         },
       ],
     },
@@ -290,7 +296,7 @@ export function AppSidebarClient({ businessSlug, user }: SidebarProps) {
       </SidebarContent>
 
       <SidebarFooter className="border-t border-border/40 p-3">
-        <SidebarUserFooter user={user} />
+        <SidebarUserFooter user={user} businessSlug={slug} />
       </SidebarFooter>
     </Sidebar>
   );

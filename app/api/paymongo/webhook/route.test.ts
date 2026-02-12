@@ -1,5 +1,5 @@
 import crypto from "crypto";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const {
   mockCreateBookingInDb,
@@ -73,6 +73,8 @@ describe("paymongo webhook security", () => {
     process.env.PAYMONGO_WEBHOOK_SECRET = "test_webhook_secret";
 
     vi.clearAllMocks();
+    vi.spyOn(console, "error").mockImplementation(() => undefined);
+    vi.spyOn(console, "warn").mockImplementation(() => undefined);
 
     prismaMock.$queryRaw.mockResolvedValue([{ locked: true }]);
     prismaMock.$transaction.mockImplementation(
@@ -91,6 +93,10 @@ describe("paymongo webhook security", () => {
     txMock.bookingPayment.update.mockResolvedValue(undefined);
     txMock.bookingPayment.create.mockResolvedValue(undefined);
     txMock.voucher.updateMany.mockResolvedValue({ count: 0 });
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it("rejects stale signature timestamps", async () => {

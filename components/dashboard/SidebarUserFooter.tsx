@@ -26,8 +26,10 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { signOut } from "next-auth/react";
+import Link from "next/link";
 
 interface SidebarUserFooterProps {
+  businessSlug: string;
   user: {
     name?: string | null;
     email?: string | null;
@@ -36,7 +38,7 @@ interface SidebarUserFooterProps {
   };
 }
 
-export function SidebarUserFooter({ user }: SidebarUserFooterProps) {
+export function SidebarUserFooter({ user, businessSlug }: SidebarUserFooterProps) {
   const { isMobile } = useSidebar();
   const avatarSrc = user.image?.trim() || undefined;
 
@@ -103,9 +105,11 @@ export function SidebarUserFooter({ user }: SidebarUserFooterProps) {
                 <BadgeCheck className="mr-2 size-4" />
                 Account
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href={`/app/${businessSlug}/billing/`}>
                 <CreditCard className="mr-2 size-4" />
                 Billing
+                </Link>
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <Bell className="mr-2 size-4" />

@@ -3,6 +3,7 @@ import { authOptions } from "@/lib/next auth/options";
 import EmployeeDashboardDataContainer from "@/components/dashboard/employee/EmployeeDashboardDataContainer";
 import OwnerDashboardDataContainer from "@/components/dashboard/owner/OwnerDashboardDataContainer";
 import { LoaderCircle } from "lucide-react";
+import { redirect } from "next/navigation";
 
 export default async function DashboardDispatcher() {
   const session = await getServerSession(authOptions);
@@ -27,6 +28,10 @@ export default async function DashboardDispatcher() {
     return (
       <OwnerDashboardDataContainer businessSlug={session.user.businessSlug!} />
     );
+  }
+
+  if (session?.user.role === "PLATFORM_ADMIN") {
+    redirect("/platform");
   }
 
   return <div>page</div>;

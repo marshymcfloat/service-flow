@@ -64,7 +64,10 @@ export const authOptions: NextAuthOptions = {
         token.id = u.id;
         token.role = u.role;
         token.businessSlug =
-          u.employee?.business.slug ?? u.owner?.business.slug;
+          u.role === Role.PLATFORM_ADMIN
+            ? null
+            : (u.employee?.business.slug ?? u.owner?.business.slug);
+        token.isPlatformAdmin = u.role === Role.PLATFORM_ADMIN;
         token.mustChangePassword = u.must_change_password;
         token.tempPasswordExpiresAt =
           u.temp_password_expires_at?.toISOString() ?? null;
@@ -88,6 +91,7 @@ export const authOptions: NextAuthOptions = {
         session.user.id = token.id;
         session.user.role = token.role as Role;
         session.user.businessSlug = token.businessSlug;
+        session.user.isPlatformAdmin = !!token.isPlatformAdmin;
         session.user.mustChangePassword = !!token.mustChangePassword;
         session.user.tempPasswordExpiresAt =
           typeof token.tempPasswordExpiresAt === "string"

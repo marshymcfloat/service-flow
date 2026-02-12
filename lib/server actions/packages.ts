@@ -29,7 +29,7 @@ interface UpdatePackageParams {
 }
 
 export async function createPackageAction(params: CreatePackageParams) {
-  const auth = await requireAuth();
+  const auth = await requireAuth({ write: true });
   if (!auth.success) return auth;
   const { businessSlug } = auth;
 
@@ -76,7 +76,7 @@ export async function updatePackageAction(
   packageId: number,
   params: UpdatePackageParams,
 ) {
-  const auth = await requireAuth();
+  const auth = await requireAuth({ write: true });
   if (!auth.success) return auth;
   const { businessSlug } = auth;
 
@@ -125,7 +125,7 @@ export async function updatePackageAction(
 }
 
 export async function deletePackageAction(packageId: number) {
-  const auth = await requireAuth();
+  const auth = await requireAuth({ write: true });
   if (!auth.success) return auth;
   const { businessSlug } = auth;
 

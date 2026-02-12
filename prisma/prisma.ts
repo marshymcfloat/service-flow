@@ -102,6 +102,27 @@ function isRetryableConnectionError(error: unknown) {
   );
 }
 
+export function isPrismaAccelerateResourceLimitError(error: unknown) {
+  if (
+    error instanceof Prisma.PrismaClientKnownRequestError &&
+    error.code === "P6000"
+  ) {
+    return true;
+  }
+
+  if (!(error instanceof Error)) {
+    return false;
+  }
+
+  const message = error.message.toLowerCase();
+  return (
+    message.includes("worker exceeded resource limits") ||
+    message.includes("cloudflare") ||
+    message.includes("error 1102") ||
+    message.includes("accelerate.prisma-data.net")
+  );
+}
+
 function createPrismaClient() {
   const connectionConfig = resolveConnectionConfig();
   const client =
@@ -126,7 +147,8 @@ function createPrismaClient() {
           } catch (error) {
             if (
               RETRYABLE_READ_OPERATIONS.has(operation) &&
-              isRetryableConnectionError(error)
+              (isRetryableConnectionError(error) ||
+                isPrismaAccelerateResourceLimitError(error))
             ) {
               return query(args);
             }
@@ -153,3 +175,9 @@ export const prisma =
   createPrismaClient();
 
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+
+export function supportsOnboardingApplicationModel() {
+  const delegate = (prisma as unknown as { onboardingApplication?: { count?: unknown } })
+    .onboardingApplication;
+  return typeof delegate?.count === "function";
+}

@@ -14,6 +14,7 @@ import { getCurrentDateTimePH } from "@/lib/date-utils";
 import { publishEvent } from "@/lib/services/outbox";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/next auth/options";
+import { getTenantAccessState, SUBSCRIPTION_READ_ONLY_ERROR } from "@/features/billing/subscription-service";
 
 type GiftCardWriteInput = {
   code: string;
@@ -257,7 +258,7 @@ async function enforceGiftCardClaimRateLimit(scope: "preview" | "claim") {
   const forwardedFor = headersList.get("x-forwarded-for") || "";
   const clientIp = forwardedFor.split(",")[0]?.trim() || "unknown";
 
-  const limiter = rateLimit(`gift-card-${scope}:${clientIp}`, {
+  const limiter = await rateLimit(`gift-card-${scope}:${clientIp}`, {
     windowMs: GIFT_CARD_CLAIM_RATE_LIMIT.windowMs,
     maxRequests: GIFT_CARD_CLAIM_RATE_LIMIT.maxRequests,
   });
@@ -359,6 +360,14 @@ export async function claimGiftCardBookingAction(input: {
 
   try {
     await enforceGiftCardClaimRateLimit("claim");
+    const accessState = await getTenantAccessState(businessSlug);
+    if (!accessState.exists) {
+      return { success: false, error: "Business was not found." };
+    }
+    if (accessState.readOnly) {
+      return { success: false, error: SUBSCRIPTION_READ_ONLY_ERROR };
+    }
+
     const session = await getServerSession(authOptions);
 
     const booking = await prisma.$transaction(async (tx) => {
@@ -666,7 +675,7 @@ export async function generateGiftCardCodeAction() {
 }
 
 export async function createGiftCardAction(input: GiftCardWriteInput) {
-  const auth = await requireAuth();
+  const auth = await requireAuth({ write: true });
   if (!auth.success) return auth;
 
   const code = normalizeCode(input.code);
@@ -809,7 +818,7 @@ export async function updateGiftCardAction(
   giftCardId: number,
   input: GiftCardWriteInput,
 ) {
-  const auth = await requireAuth();
+  const auth = await requireAuth({ write: true });
   if (!auth.success) return auth;
 
   const code = normalizeCode(input.code);
@@ -932,7 +941,7 @@ export async function updateGiftCardAction(
 }
 
 export async function deleteGiftCardAction(giftCardId: number) {
-  const auth = await requireAuth();
+  const auth = await requireAuth({ write: true });
   if (!auth.success) return auth;
 
   try {

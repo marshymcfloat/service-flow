@@ -64,7 +64,9 @@ export default function AuthForm() {
     },
     onSuccess: (session) => {
       if (session?.user.role) {
-        if (session.user.role === "EMPLOYEE") {
+        if (session.user.role === "PLATFORM_ADMIN") {
+          router.push("/platform");
+        } else if (session.user.role === "EMPLOYEE") {
           router.push(`/app/${session.user.businessSlug}`);
         } else if (session.user.role === "OWNER") {
           router.push(`/app/${session.user.businessSlug}`);

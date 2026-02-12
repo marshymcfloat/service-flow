@@ -21,6 +21,11 @@ interface CreateCheckoutSessionParams {
   allowed_payment_methods?: string[];
 }
 
+export interface CreateCheckoutSessionResult {
+  checkoutUrl: string;
+  checkoutSessionId: string | null;
+}
+
 type PayMongoError = { detail?: string };
 type PayMongoApiResponse<T extends Record<string, unknown> = Record<string, unknown>> =
   T & {
@@ -64,7 +69,7 @@ function getPayMongoSecretKey() {
   return secretKey;
 }
 
-export async function createPayMongoCheckoutSession({
+export async function createPayMongoCheckoutSessionDetailed({
   line_items,
   description,
   metadata,
@@ -73,63 +78,59 @@ export async function createPayMongoCheckoutSession({
   cancel_url = (process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000") +
     "/booking/cancel",
   allowed_payment_methods = ["qrph", "gcash", "card"],
-}: CreateCheckoutSessionParams) {
+}: CreateCheckoutSessionParams): Promise<CreateCheckoutSessionResult> {
   const normalizedMetadata = normalizePayMongoMetadata(metadata);
 
-  const options = {
-    method: "POST",
-    headers: {
-      accept: "application/json",
-      "Content-Type": "application/json",
-      authorization: `Basic ${Buffer.from(getPayMongoSecretKey()).toString("base64")}`,
-    },
-    body: JSON.stringify({
-      data: {
-        attributes: {
-          send_email_receipt: true,
-          show_description: true,
-          show_line_items: true,
-          payment_method_types: allowed_payment_methods,
-          line_items,
-          description,
-          success_url,
-          cancel_url,
-          metadata: normalizedMetadata,
-        },
-      },
-    }),
-  };
-
   try {
-    const response = await fetch(
-      "https://api.paymongo.com/v1/checkout_sessions",
-      options,
-    );
-    const data = (await response.json()) as PayMongoApiResponse<{
+    const data = await paymongoRequest<{
       data?: {
+        id?: string;
         attributes?: {
           checkout_url?: string;
         };
       };
-    }>;
+    }>("/checkout_sessions", {
+      method: "POST",
+      headers: {
+        accept: "application/json",
+        "Content-Type": "application/json",
+        authorization: `Basic ${Buffer.from(getPayMongoSecretKey()).toString("base64")}`,
+      },
+      body: JSON.stringify({
+        data: {
+          attributes: {
+            send_email_receipt: true,
+            show_description: true,
+            show_line_items: true,
+            payment_method_types: allowed_payment_methods,
+            line_items,
+            description,
+            success_url,
+            cancel_url,
+            metadata: normalizedMetadata,
+          },
+        },
+      }),
+    });
 
-    if (data.errors) {
-      console.error("PayMongo Error:", data.errors);
-      throw new Error(
-        data.errors[0]?.detail || "Failed to create checkout session",
-      );
-    }
-
-    const checkoutUrl = data.data?.attributes?.checkout_url;
+    const checkoutUrl = data.data?.attributes?.checkout_url ?? null;
+    const checkoutSessionId = data.data?.id ?? null;
     if (!checkoutUrl) {
       throw new Error("Failed to create checkout session");
     }
 
-    return checkoutUrl;
+    return { checkoutUrl, checkoutSessionId };
   } catch (err) {
     console.error(err);
     throw err;
   }
+}
+
+export async function createPayMongoCheckoutSession(
+  params: CreateCheckoutSessionParams,
+) {
+  const result = await createPayMongoCheckoutSessionDetailed(params);
+  return result.checkoutUrl;
 }
 
 const PAYMONGO_BASE_URL = "https://api.paymongo.com/v1";
@@ -330,7 +331,7 @@ export async function getPayMongoPaymentIntentStatus(
   const forwardedFor = requestHeaders.get("x-forwarded-for") || "unknown";
   const clientIp = forwardedFor.split(",")[0]?.trim() || "unknown";
 
-  const limiter = rateLimit(`${clientIp}:${businessSlug}:paymongo-status`, {
+  const limiter = await rateLimit(`${clientIp}:${businessSlug}:paymongo-status`, {
     windowMs: 60_000,
     maxRequests: 60,
   });
