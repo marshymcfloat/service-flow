@@ -71,6 +71,16 @@ export async function GET(request: Request) {
           return;
         }
 
+        await tx.bookingPayment.updateMany({
+          where: {
+            booking_id: booking.id,
+            status: "PENDING",
+          },
+          data: {
+            status: "EXPIRED",
+          },
+        });
+
         await tx.voucher.updateMany({
           where: {
             used_by_id: booking.id,

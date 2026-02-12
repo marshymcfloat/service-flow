@@ -171,7 +171,7 @@ export function PayrollPageClient({
                                 <span className="text-sm font-medium text-zinc-900">
                                   {formatPH(
                                     lastPayslip.ending_date,
-                                    "MMM d, yyyy",
+                                    "PPP p",
                                   )}
                                 </span>
                                 <span className="text-xs text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-md font-medium border border-emerald-100">
@@ -267,7 +267,7 @@ export function PayrollPageClient({
                                   <span className="text-sm font-medium text-zinc-700">
                                     {formatPH(
                                       lastPayslip.ending_date,
-                                      "MMM d, yyyy",
+                                      "PPP p",
                                     )}
                                   </span>
                                   <span className="text-xs text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-md font-medium border border-emerald-100 w-fit">

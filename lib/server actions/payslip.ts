@@ -6,7 +6,7 @@ import {
   AvailedServiceStatus,
   PayslipStatus,
 } from "@/prisma/generated/prisma/client";
-import { getStartOfDayPH } from "@/lib/date-utils";
+import { getCurrentDateTimePH, getStartOfDayPH } from "@/lib/date-utils";
 import { revalidatePath } from "next/cache";
 import { requireAuth } from "@/lib/auth/guards";
 import { Role } from "@/prisma/generated/prisma/enums";
@@ -48,28 +48,50 @@ export async function getPayslipDataAction(employeeId: number) {
       };
     }
 
-    const lastPayslip = await prisma.payslip.findFirst({
-      where: { employee_id: employeeId },
+    const lastPaidPayslip = await prisma.payslip.findFirst({
+      where: {
+        employee_id: employeeId,
+        status: PayslipStatus.PAID,
+      },
       orderBy: { ending_date: "desc" },
     });
 
-    const startingDate = lastPayslip
-      ? lastPayslip.ending_date
+    const startingDate = lastPaidPayslip
+      ? lastPaidPayslip.ending_date
       : new Date(getStartOfDayPH(employee.user.created_at).getTime() - 1);
 
-    const { getEndOfDayPH } = await import("@/lib/date-utils");
-    const endingDate = getEndOfDayPH(new Date());
+    const endingDate = getCurrentDateTimePH();
 
     const attendanceRecords = await prisma.employeeAttendance.findMany({
       where: {
         employee_id: employeeId,
-        date: {
-          gt: startingDate,
-          lte: endingDate,
-        },
         OR: [
-          { status: AttendanceStatus.PRESENT },
-          { status: AttendanceStatus.LEAVE, is_paid_leave: true },
+          {
+            status: AttendanceStatus.PRESENT,
+            OR: [
+              {
+                time_in: {
+                  gt: startingDate,
+                  lte: endingDate,
+                },
+              },
+              {
+                time_in: null,
+                date: {
+                  gt: startingDate,
+                  lte: endingDate,
+                },
+              },
+            ],
+          },
+          {
+            status: AttendanceStatus.LEAVE,
+            is_paid_leave: true,
+            date: {
+              gt: startingDate,
+              lte: endingDate,
+            },
+          },
         ],
       },
     });

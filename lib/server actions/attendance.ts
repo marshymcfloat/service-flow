@@ -2,7 +2,12 @@
 
 import { prisma } from "@/prisma/prisma";
 import { revalidatePath } from "next/cache";
-import { getEndOfDayPH, getMonthRangePH, getStartOfDayPH } from "../date-utils";
+import {
+  getCurrentDateTimePH,
+  getEndOfDayPH,
+  getMonthRangePH,
+  getStartOfDayPH,
+} from "../date-utils";
 import { requireAuth } from "@/lib/auth/guards";
 import { Role } from "@/prisma/generated/prisma/enums";
 
@@ -30,7 +35,7 @@ function calculateDistance(
 
 export async function checkAttendanceStatusAction(
   employeeId: number,
-  date: Date = new Date(),
+  date: Date = getCurrentDateTimePH(),
 ) {
   const auth = await requireAuth();
   if (!auth.success) return auth;
@@ -146,7 +151,7 @@ export async function clockInAction(
       return { success: false, error: "Already clocked in today." };
     }
 
-    const now = new Date();
+    const now = getCurrentDateTimePH();
     const datePH = getStartOfDayPH(now);
 
     const attendance = await prisma.employeeAttendance.create({
@@ -187,7 +192,7 @@ export async function clockOutAction(employeeId: number) {
   }
 
   try {
-    const now = new Date();
+    const now = getCurrentDateTimePH();
     const startOfDay = getStartOfDayPH(now);
     const endOfDay = getEndOfDayPH(now);
 

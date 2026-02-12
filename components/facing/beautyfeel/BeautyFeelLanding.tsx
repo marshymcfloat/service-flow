@@ -137,6 +137,15 @@ export default function BeautyFeelLanding({
                 variant="outline"
                 className="border-black/15 bg-transparent text-[color:var(--bf-ink)] hover:bg-black/5"
               >
+                <Link href={`/${business.slug}/claim-gift-card`}>
+                  Claim gift card
+                </Link>
+              </Button>
+              <Button
+                asChild
+                variant="outline"
+                className="border-black/15 bg-transparent text-[color:var(--bf-ink)] hover:bg-black/5"
+              >
                 <Link href={`/${business.slug}/services`}>
                   {beautyFeelContent.hero.secondaryCta}
                 </Link>
@@ -422,6 +431,15 @@ export default function BeautyFeelLanding({
               className="mt-6 w-full bg-[color:var(--bf-accent)] text-[color:var(--bf-ink)] hover:bg-[color:var(--bf-accent)]/90"
             >
               <Link href={`/${business.slug}/booking`}>Book now</Link>
+            </Button>
+            <Button
+              asChild
+              variant="outline"
+              className="mt-3 w-full border-black/15 bg-transparent text-[color:var(--bf-ink)] hover:bg-black/5"
+            >
+              <Link href={`/${business.slug}/claim-gift-card`}>
+                Claim gift card
+              </Link>
             </Button>
             <Button
               asChild

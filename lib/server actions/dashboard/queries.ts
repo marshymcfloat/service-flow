@@ -6,11 +6,15 @@ import {
 } from "@/prisma/generated/prisma/client";
 import { requireAuth } from "@/lib/auth/guards";
 import { revalidatePath } from "next/cache";
+import {
+  getEmployeeSpecialtySet,
+  isCategoryAllowedForEmployee,
+} from "@/lib/utils/employee-specialties";
 
 export async function getPendingServicesAction() {
   const auth = await requireAuth();
   if (!auth.success) return [];
-  const { businessSlug } = auth;
+  const { businessSlug, session } = auth;
 
   try {
     const business = await prisma.business.findUnique({
@@ -43,6 +47,7 @@ export async function getPendingServicesAction() {
             id: true,
             name: true,
             duration: true,
+            category: true,
           },
         },
         booking: {
@@ -52,6 +57,8 @@ export async function getPendingServicesAction() {
                 name: true,
               },
             },
+            scheduled_at: true,
+            created_at: true,
             downpayment: true,
             downpayment_status: true,
             grand_total: true,
@@ -63,7 +70,31 @@ export async function getPendingServicesAction() {
       },
     });
 
-    return pendingServices;
+    if (session.user.role !== "EMPLOYEE") {
+      return pendingServices;
+    }
+
+    const employee = await prisma.employee.findFirst({
+      where: {
+        user_id: session.user.id,
+        business_id: business.id,
+      },
+      select: {
+        specialties: true,
+      },
+    });
+
+    if (!employee) {
+      return [];
+    }
+
+    const employeeSpecialtySet = getEmployeeSpecialtySet(
+      employee.specialties ?? [],
+    );
+
+    return pendingServices.filter((item) =>
+      isCategoryAllowedForEmployee(item.service.category, employeeSpecialtySet),
+    );
   } catch (error) {
     console.error("Error fetching pending services:", error);
     return [];
@@ -131,6 +162,8 @@ export async function getOwnerClaimedServicesAction() {
                 name: true,
               },
             },
+            scheduled_at: true,
+            created_at: true,
           },
         },
       },

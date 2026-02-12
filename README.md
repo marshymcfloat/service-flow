@@ -1,145 +1,170 @@
 # ServiceFlow
 
-ServiceFlow is a comprehensive business management and booking SaaS platform designed to streamline operations for service-based businesses. It handles everything from customer bookings and employee attendance to payroll and sales events.
+ServiceFlow is a Next.js SaaS platform for service businesses (salons, spas, barbershops) that combines public booking, operations management, attendance/payroll tooling, and payment workflows.
 
-![ServiceFlow Landing](public/serviceFlow2-logo.png)
+![ServiceFlow Landing](public/ServiceFlow2-logo.png)
 
-## 🚀 Features
+## What is implemented
 
-- **Business Management**: Manage business profile, operating hours, and multiple locations (in progress).
-- **Service & Package Configuration**: Define services, pricing, durations, and bundle them into packages.
-- **Dynamic Booking System**:
-  - Customer-facing booking flow.
-  - Real-time availability checking.
-  - Support for Vouchers and Discount codes.
-  - Payment method tracking (Cash, QRPH).
-- **Employee Portal**:
-  - Role-based access (Owner vs. Employee).
-  - Attendance tracking (Time-in/Time-out) with location verification.
-  - Commission and Salary calculation.
-  - Payslip generation.f
-- **Sales & Marketing**:
-  - Manage "Sale Events" with custom discounts.
-  - Create special date configurations (e.g., holiday rates).
-- **Modern Tech Stack**: Built with performance and scalability in mind using the latest web technologies.
+- Public booking pages per business slug (`/[businessSlug]`)
+- Service and package management
+- Voucher and sale event management
+- Owner and employee dashboards
+- Attendance (clock in/out, leave requests, paid leave tracking)
+- Payroll and payslip workflows
+- Customer records and booking history
+- Cash and QRPH booking/payment paths (PayMongo integration)
+- Email workflows (booking confirmations, reminders, re-engagement, flow reminders)
+- Background cron endpoints for operational jobs
+- Transactional outbox and audit log models
 
-## 🛠️ Tech Stack
+## Tech stack
 
-- **Framework**: [Next.js 16](https://nextjs.org/) (App Router, Server Components)
-- **Language**: [TypeScript](https://www.typescriptlang.org/)
-- **Database**: [PostgreSQL](https://www.postgresql.org/)
-- **ORM**: [Prisma](https://www.prisma.io/)
-- **Styling**: [Tailwind CSS v4](https://tailwindcss.com/)
-- **UI Components**: [Shadcn UI](https://ui.shadcn.com/) (Radix UI + Lucide Icons)
-- **Authentication**: [NextAuth.js](https://next-auth.js.org/)
-- **State Management**: [TanStack Query](https://tanstack.com/query/latest)
-- **Forms**: React Hook Form + Zod
-- **Animations**: Framer Motion
+- Next.js 16 (App Router, Server Components, Route Handlers)
+- TypeScript
+- React 19
+- PostgreSQL
+- Prisma 7 (`@prisma/adapter-pg` + `pg` pool)
+- NextAuth (credentials provider)
+- TanStack Query
+- Tailwind CSS v4 + Radix/shadcn-style components
+- Vitest + Testing Library
+- Sentry
 
-## 📦 Getting Started
+## Quick start
 
-### Prerequisites
+### 1. Prerequisites
 
-- Node.js (v18 or higher)
+- Node.js 18+
 - PostgreSQL database
+- npm (lockfile in repo is `package-lock.json`)
 
-### Installation
+### 2. Install dependencies
 
-1.  **Clone the repository**
-
-    ```bash
-    git clone https://github.com/yourusername/service-flow.git
-    cd service-flow
-    ```
-
-2.  **Install dependencies**
-
-    ```bash
-    npm install
-    # or
-    pnpm install
-    ```
-
-3.  **Environment Setup**
-
-    Create a `.env` file in the root directory. You can copy the example if provided, or add the following required variables:
-
-    ```env
-    DATABASE_URL="postgresql://user:password@localhost:5432/serviceflow?schema=public"
-    NEXTAUTH_SECRET="your-super-secret-key"
-    NEXTAUTH_URL="http://localhost:3000"
-    ```
-
-4.  **Database Setup**
-
-    Push the Prisma schema to your database:
-
-    ```bash
-    npx prisma migrate dev --name init
-    ```
-
-    (Optional) Seed the database with initial data:
-
-    ```bash
-    npx prisma db seed
-    ```
-
-5.  **Run the development server**
-
-    ```bash
-    npm run dev
-    ```
-
-    Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-### 🐳 Docker Deployment (Production)
-
-1.  **Build the image**
-
-    ```bash
-    docker build -t service-flow .
-    ```
-
-2.  **Run the container**
-    ```bash
-    docker run -p 3000:3000 --env-file .env service-flow
-    ```
-
-## 🔒 Security
-
-- **Environment Variables**: Never commit `.env` to version control. Use `.env.example` as a template.
-- **Authentication**: Protected routes are secured via `proxy.ts` (Next.js 16 middleware replacement) and NextAuth.js.
-- **Validation**: API inputs are validated using Zod schemas.
-
-## 📡 API Documentation
-
-See [API.md](API.md) for details on available endpoints, including health checks and webhooks.
-
-## 📂 Project Structure
-
-```
-c:\Programming\service-flow
-├── app/                  # Next.js App Router pages and API routes
-├── components/           # React components
-│   ├── auth/             # Authentication related components
-│   ├── landing/          # Landing page sections (Hero, Features, etc.)
-│   ├── ui/               # Reusable UI components (Shadcn)
-│   └── ...
-├── prisma/               # Database schema and seeds
-├── public/               # Static assets (images, icons)
-└── ...
+```bash
+npm ci
 ```
 
-## 🤝 Contributing
+### 3. Configure environment variables
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Create `.env` in the project root.
 
-1.  Fork the project
-2.  Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3.  Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4.  Push to the branch (`git push origin feature/AmazingFeature`)
-5.  Open a Pull Request
+Minimum local setup:
 
-## 📄 License
+```env
+DATABASE_URL="postgresql://user:password@localhost:5432/serviceflow?schema=public"
+NEXTAUTH_SECRET="replace-me-with-a-long-random-secret"
+NEXTAUTH_URL="http://localhost:3000"
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
+```
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+For payment, email, uploads, and cron jobs, also configure:
+
+```env
+PAYMONGO_SECRET_KEY=""
+PAYMONGO_WEBHOOK_SECRET=""
+RESEND_API_KEY=""
+BLOB_READ_WRITE_TOKEN=""
+CRON_USER="admin"
+CRON_PASSWORD=""
+```
+
+Optional:
+
+```env
+APP_URL="http://localhost:3000"
+BOOKING_SUCCESS_TOKEN_SECRET=""
+```
+
+### 4. Run database migrations
+
+```bash
+npx prisma migrate dev
+```
+
+### 7. Start development server
+
+```bash
+npm run dev
+```
+
+Open `http://localhost:3000`.
+
+## Scripts
+
+- `npm run dev` - start dev server
+- `npm run build` - production build
+- `npm run start` - run production server
+- `npm run lint` - ESLint
+- `npm run test` - Vitest
+- `npm run typecheck` - TypeScript type check
+- `npm run test:ci` - Vitest with coverage thresholds
+- `npm run test:e2e` - Playwright booking smoke test
+
+## API and operational endpoints
+
+### Public/system routes
+
+- `GET /api/health` - health check JSON
+- `POST /api/upload` - authenticated upload token endpoint
+- `GET /api/paymongo/webhook` - webhook health
+- `POST /api/paymongo/webhook` - PayMongo webhook receiver
+
+### Cron routes (HTTP Basic auth required)
+
+- `GET /api/cron/expire-holds`
+- `GET /api/cron/reminders`
+- `GET /api/cron/re-engagement`
+- `GET /api/cron/flow-reminders`
+- `GET /api/cron/process-outbox`
+
+Auth credentials are validated against `CRON_USER` (default `admin`) and `CRON_PASSWORD`.
+
+Example:
+
+```bash
+curl -u "$CRON_USER:$CRON_PASSWORD" http://localhost:3000/api/cron/expire-holds
+```
+
+## Security and platform notes
+
+- Route access is enforced in `proxy.ts` (redirects unauthenticated `/app/*` traffic).
+- API rate limiting is currently in-memory (`lib/rate-limit.ts`).
+- Security headers are configured in both `proxy.ts` and `next.config.ts`.
+- Private dashboard pages are marked `noindex`.
+
+## Deployment
+
+### Docker
+
+```bash
+docker build -t service-flow .
+docker run -p 3000:3000 --env-file .env service-flow
+```
+
+### Vercel
+
+- Set the same environment variables in your Vercel project.
+- Configure cron schedules in Vercel dashboard (current `vercel.json` has no cron entries).
+- Ensure PayMongo webhook points to `/api/paymongo/webhook`.
+
+## Project structure
+
+```text
+app/                    # App Router pages, route handlers, metadata routes
+app/(public)/           # Public business pages and booking flow
+app/(private)/          # Authenticated app dashboard routes
+app/api/                # Health, auth, upload, webhook, cron handlers
+components/             # UI, dashboard, bookings, landing, SEO components
+lib/                    # Business logic, server actions, utilities, services
+prisma/schema.prisma    # Data model
+prisma/migrations/      # Prisma migrations
+prisma/seed.ts          # Development seed script
+prisma/sql/             # Manual SQL hardening scripts
+```
+
+## Current gaps and caveats
+
+- `app/[businessSlug]/inbox` is currently placeholder UI.
+- No separate `API.md` exists in this repository.
+- No `LICENSE` file currently exists in the repository root.

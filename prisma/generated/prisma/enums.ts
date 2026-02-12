@@ -71,6 +71,36 @@ export const PaymentMethod = {
 export type PaymentMethod = (typeof PaymentMethod)[keyof typeof PaymentMethod]
 
 
+export const PaymentStatus = {
+  UNPAID: 'UNPAID',
+  PARTIALLY_PAID: 'PARTIALLY_PAID',
+  PAID: 'PAID'
+} as const
+
+export type PaymentStatus = (typeof PaymentStatus)[keyof typeof PaymentStatus]
+
+
+export const BookingPaymentType = {
+  FULL: 'FULL',
+  DOWNPAYMENT: 'DOWNPAYMENT',
+  BALANCE: 'BALANCE',
+  MANUAL: 'MANUAL'
+} as const
+
+export type BookingPaymentType = (typeof BookingPaymentType)[keyof typeof BookingPaymentType]
+
+
+export const BookingPaymentStatus = {
+  PENDING: 'PENDING',
+  SUCCEEDED: 'SUCCEEDED',
+  FAILED: 'FAILED',
+  EXPIRED: 'EXPIRED',
+  CANCELED: 'CANCELED'
+} as const
+
+export type BookingPaymentStatus = (typeof BookingPaymentStatus)[keyof typeof BookingPaymentStatus]
+
+
 export const AvailedServiceStatus = {
   PENDING: 'PENDING',
   CLAIMED: 'CLAIMED',

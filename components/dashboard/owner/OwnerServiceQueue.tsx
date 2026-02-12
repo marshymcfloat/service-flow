@@ -43,6 +43,8 @@ export type OwnerPendingService = {
     customer: {
       name: string;
     };
+    scheduled_at?: Date | null;
+    created_at?: Date | null;
   };
   scheduled_at: Date | null;
   price: number;
@@ -270,7 +272,10 @@ export default function OwnerServiceQueue({
     }
   };
 
-  const renderTime = (date: Date | null) =>
+  const getDisplayTime = (item: OwnerPendingService | OwnerClaimedService) =>
+    item.booking.scheduled_at ?? item.booking.created_at ?? item.scheduled_at;
+
+  const renderTime = (date: Date | null | undefined) =>
     date ? formatPH(date, "h:mm a") : "Walk-in";
 
   const isEmbedded = variant === "embedded";
@@ -389,7 +394,7 @@ export default function OwnerServiceQueue({
                         <div className="flex items-center gap-2 text-[10px] font-semibold text-zinc-400">
                           <span className="flex items-center gap-1 bg-zinc-50 text-zinc-600 px-2 py-0.5 rounded-md">
                             <Clock className="h-3 w-3" />
-                            {renderTime(item.scheduled_at)}
+                            {renderTime(getDisplayTime(item))}
                           </span>
                           {item.service.duration && (
                             <span>{item.service.duration} mins</span>
@@ -469,7 +474,7 @@ export default function OwnerServiceQueue({
                         <div className="flex items-center gap-2 text-[10px] font-semibold text-zinc-400">
                           <span className="flex items-center gap-1 bg-zinc-50 text-zinc-600 px-2 py-0.5 rounded-md">
                             <Clock className="h-3 w-3" />
-                            {renderTime(item.scheduled_at)}
+                            {renderTime(getDisplayTime(item))}
                           </span>
                           {item.claimed_at && (
                             <span className="text-zinc-400">

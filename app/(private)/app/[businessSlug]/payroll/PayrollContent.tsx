@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/prisma/prisma";
 import { getCachedBusinessBySlug } from "@/lib/data/cached";
 import { PayrollPageClient } from "./PayrollPageClient";
+import { PayslipStatus } from "@/prisma/generated/prisma/client";
 
 interface PayrollContentProps {
   businessSlug: string;
@@ -27,6 +28,9 @@ export async function PayrollContent({ businessSlug }: PayrollContentProps) {
     include: {
       user: true,
       payslips: {
+        where: {
+          status: PayslipStatus.PAID,
+        },
         orderBy: { ending_date: "desc" },
         take: 1,
       },

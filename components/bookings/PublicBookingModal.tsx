@@ -1,5 +1,5 @@
 import BookingForm from "@/components/bookings/BookingForm";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Modal } from "@/components/ui/modal";
 import {
@@ -32,36 +32,43 @@ export default async function PublicBookingModal({
 
   return (
     <Modal
-      title={`Book with ${business.name}`}
-      description="Choose services, pick a time, and confirm your slot."
-      className="sm:max-w-4xl"
-      modal={false}
+      className="h-[95dvh] w-[95vw] max-w-none gap-0 overflow-hidden rounded-none border-0 p-0 sm:h-auto sm:max-h-[90vh] sm:max-w-5xl sm:rounded-2xl sm:border"
+      modal={true}
     >
-      <div className="space-y-6">
-        <div className="flex items-center gap-3">
-          <Avatar className="h-11 w-11 border border-border">
-            <AvatarImage src="" alt={business.name} />
-            <AvatarFallback className="font-semibold">
-              {business.name.slice(0, 2).toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
-          <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
-              Secure booking
-            </p>
-            <p className="text-base font-semibold">{business.name}</p>
+      <div className="flex h-full flex-col">
+        <div className="border-b bg-background/95 px-4 py-3 pr-11 backdrop-blur-sm sm:px-6 sm:py-4 sm:pr-12">
+          <div className="flex items-center gap-3">
+            <Avatar className="h-10 w-10 border border-border">
+              <AvatarFallback className="font-semibold">
+                {business.name.slice(0, 2).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <div className="min-w-0">
+              <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+                Secure booking
+              </p>
+              <p className="truncate text-base font-semibold">
+                Book with {business.name}
+              </p>
+            </div>
+            <Badge variant="secondary" className="ml-auto shrink-0">
+              Online
+            </Badge>
           </div>
-          <Badge variant="secondary" className="ml-auto">
-            Online
-          </Badge>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Choose services, pick a time, and confirm your slot.
+          </p>
         </div>
 
-        <BookingForm
-          services={services}
-          packages={packages}
-          categories={categories}
-          isModal={true}
-        />
+        <div className="max-h-[calc(100dvh-85px)] overflow-y-auto overscroll-contain px-3 py-3 sm:max-h-[calc(90vh-96px)] sm:px-6 sm:py-5">
+          <BookingForm
+            services={services}
+            packages={packages}
+            categories={categories}
+            isModal={true}
+            mobileActionBarMode="fixed"
+          />
+        </div>
       </div>
     </Modal>
   );

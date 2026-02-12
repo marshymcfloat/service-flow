@@ -1,6 +1,10 @@
 import { prisma } from "@/prisma/prisma";
 import { Resend } from "resend";
-import { getStartOfDayPH, getEndOfDayPH } from "@/lib/date-utils";
+import {
+  getCurrentDateTimePH,
+  getEndOfDayPH,
+  getStartOfDayPH,
+} from "@/lib/date-utils";
 import { logger } from "@/lib/logger";
 
 export async function sendFlowReminders() {
@@ -8,7 +12,7 @@ export async function sendFlowReminders() {
 
   try {
     // Use Philippine timezone for "today"
-    const today = new Date();
+    const today = getCurrentDateTimePH();
 
     // 1. Get all active service flows
     const activeFlows = await prisma.serviceFlow.findMany({
@@ -267,10 +271,10 @@ export async function sendFlowReminders() {
                 triggerServiceName: serviceName,
                 suggestedServiceName: nextServiceName,
                 flowType: flow.type,
-                sentAt: new Date().toISOString(),
+                sentAt: getCurrentDateTimePH().toISOString(),
               },
               processed: true,
-              processed_at: new Date(),
+              processed_at: getCurrentDateTimePH(),
             },
           });
         }

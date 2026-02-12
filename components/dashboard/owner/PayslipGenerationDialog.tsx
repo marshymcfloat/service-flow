@@ -167,7 +167,7 @@ export function PayslipGenerationDialog({
                     </span>
                     <div className="flex items-center gap-2 text-sm text-zinc-700 bg-zinc-50 px-2 py-1.5 rounded-md border border-zinc-100">
                       <CalendarIcon className="h-3.5 w-3.5 text-zinc-400" />
-                      {formatPH(data.period.start, "MMM d, yyyy")}
+                      {formatPH(data.period.start, "PPP p")}
                     </div>
                   </div>
                   <div>
@@ -176,7 +176,7 @@ export function PayslipGenerationDialog({
                     </span>
                     <div className="flex items-center gap-2 text-sm text-zinc-700 bg-zinc-50 px-2 py-1.5 rounded-md border border-zinc-100">
                       <CalendarIcon className="h-3.5 w-3.5 text-zinc-400" />
-                      {formatPH(data.period.end, "MMM d, yyyy")}
+                      {formatPH(data.period.end, "PPP p")}
                     </div>
                   </div>
                 </div>

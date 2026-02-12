@@ -260,6 +260,7 @@ export type ServicePackageWhereInput = {
   items?: Prisma.PackageItemListRelationFilter
   availed_services?: Prisma.AvailedServiceListRelationFilter
   sale_events?: Prisma.SaleEventListRelationFilter
+  gift_card_items?: Prisma.GiftCardPackageListRelationFilter
 }
 
 export type ServicePackageOrderByWithRelationInput = {
@@ -276,6 +277,7 @@ export type ServicePackageOrderByWithRelationInput = {
   items?: Prisma.PackageItemOrderByRelationAggregateInput
   availed_services?: Prisma.AvailedServiceOrderByRelationAggregateInput
   sale_events?: Prisma.SaleEventOrderByRelationAggregateInput
+  gift_card_items?: Prisma.GiftCardPackageOrderByRelationAggregateInput
 }
 
 export type ServicePackageWhereUniqueInput = Prisma.AtLeast<{
@@ -295,6 +297,7 @@ export type ServicePackageWhereUniqueInput = Prisma.AtLeast<{
   items?: Prisma.PackageItemListRelationFilter
   availed_services?: Prisma.AvailedServiceListRelationFilter
   sale_events?: Prisma.SaleEventListRelationFilter
+  gift_card_items?: Prisma.GiftCardPackageListRelationFilter
 }, "id">
 
 export type ServicePackageOrderByWithAggregationInput = {
@@ -341,6 +344,7 @@ export type ServicePackageCreateInput = {
   items?: Prisma.PackageItemCreateNestedManyWithoutPackageInput
   availed_services?: Prisma.AvailedServiceCreateNestedManyWithoutPackageInput
   sale_events?: Prisma.SaleEventCreateNestedManyWithoutApplicable_packagesInput
+  gift_card_items?: Prisma.GiftCardPackageCreateNestedManyWithoutPackageInput
 }
 
 export type ServicePackageUncheckedCreateInput = {
@@ -356,6 +360,7 @@ export type ServicePackageUncheckedCreateInput = {
   items?: Prisma.PackageItemUncheckedCreateNestedManyWithoutPackageInput
   availed_services?: Prisma.AvailedServiceUncheckedCreateNestedManyWithoutPackageInput
   sale_events?: Prisma.SaleEventUncheckedCreateNestedManyWithoutApplicable_packagesInput
+  gift_card_items?: Prisma.GiftCardPackageUncheckedCreateNestedManyWithoutPackageInput
 }
 
 export type ServicePackageUpdateInput = {
@@ -370,6 +375,7 @@ export type ServicePackageUpdateInput = {
   items?: Prisma.PackageItemUpdateManyWithoutPackageNestedInput
   availed_services?: Prisma.AvailedServiceUpdateManyWithoutPackageNestedInput
   sale_events?: Prisma.SaleEventUpdateManyWithoutApplicable_packagesNestedInput
+  gift_card_items?: Prisma.GiftCardPackageUpdateManyWithoutPackageNestedInput
 }
 
 export type ServicePackageUncheckedUpdateInput = {
@@ -385,6 +391,7 @@ export type ServicePackageUncheckedUpdateInput = {
   items?: Prisma.PackageItemUncheckedUpdateManyWithoutPackageNestedInput
   availed_services?: Prisma.AvailedServiceUncheckedUpdateManyWithoutPackageNestedInput
   sale_events?: Prisma.SaleEventUncheckedUpdateManyWithoutApplicable_packagesNestedInput
+  gift_card_items?: Prisma.GiftCardPackageUncheckedUpdateManyWithoutPackageNestedInput
 }
 
 export type ServicePackageCreateManyInput = {
@@ -583,6 +590,20 @@ export type ServicePackageUpdateOneRequiredWithoutItemsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ServicePackageUpdateToOneWithWhereWithoutItemsInput, Prisma.ServicePackageUpdateWithoutItemsInput>, Prisma.ServicePackageUncheckedUpdateWithoutItemsInput>
 }
 
+export type ServicePackageCreateNestedOneWithoutGift_card_itemsInput = {
+  create?: Prisma.XOR<Prisma.ServicePackageCreateWithoutGift_card_itemsInput, Prisma.ServicePackageUncheckedCreateWithoutGift_card_itemsInput>
+  connectOrCreate?: Prisma.ServicePackageCreateOrConnectWithoutGift_card_itemsInput
+  connect?: Prisma.ServicePackageWhereUniqueInput
+}
+
+export type ServicePackageUpdateOneRequiredWithoutGift_card_itemsNestedInput = {
+  create?: Prisma.XOR<Prisma.ServicePackageCreateWithoutGift_card_itemsInput, Prisma.ServicePackageUncheckedCreateWithoutGift_card_itemsInput>
+  connectOrCreate?: Prisma.ServicePackageCreateOrConnectWithoutGift_card_itemsInput
+  upsert?: Prisma.ServicePackageUpsertWithoutGift_card_itemsInput
+  connect?: Prisma.ServicePackageWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ServicePackageUpdateToOneWithWhereWithoutGift_card_itemsInput, Prisma.ServicePackageUpdateWithoutGift_card_itemsInput>, Prisma.ServicePackageUncheckedUpdateWithoutGift_card_itemsInput>
+}
+
 export type ServicePackageCreateNestedOneWithoutAvailed_servicesInput = {
   create?: Prisma.XOR<Prisma.ServicePackageCreateWithoutAvailed_servicesInput, Prisma.ServicePackageUncheckedCreateWithoutAvailed_servicesInput>
   connectOrCreate?: Prisma.ServicePackageCreateOrConnectWithoutAvailed_servicesInput
@@ -610,6 +631,7 @@ export type ServicePackageCreateWithoutBusinessInput = {
   items?: Prisma.PackageItemCreateNestedManyWithoutPackageInput
   availed_services?: Prisma.AvailedServiceCreateNestedManyWithoutPackageInput
   sale_events?: Prisma.SaleEventCreateNestedManyWithoutApplicable_packagesInput
+  gift_card_items?: Prisma.GiftCardPackageCreateNestedManyWithoutPackageInput
 }
 
 export type ServicePackageUncheckedCreateWithoutBusinessInput = {
@@ -624,6 +646,7 @@ export type ServicePackageUncheckedCreateWithoutBusinessInput = {
   items?: Prisma.PackageItemUncheckedCreateNestedManyWithoutPackageInput
   availed_services?: Prisma.AvailedServiceUncheckedCreateNestedManyWithoutPackageInput
   sale_events?: Prisma.SaleEventUncheckedCreateNestedManyWithoutApplicable_packagesInput
+  gift_card_items?: Prisma.GiftCardPackageUncheckedCreateNestedManyWithoutPackageInput
 }
 
 export type ServicePackageCreateOrConnectWithoutBusinessInput = {
@@ -678,6 +701,7 @@ export type ServicePackageCreateWithoutSale_eventsInput = {
   business: Prisma.BusinessCreateNestedOneWithoutPackagesInput
   items?: Prisma.PackageItemCreateNestedManyWithoutPackageInput
   availed_services?: Prisma.AvailedServiceCreateNestedManyWithoutPackageInput
+  gift_card_items?: Prisma.GiftCardPackageCreateNestedManyWithoutPackageInput
 }
 
 export type ServicePackageUncheckedCreateWithoutSale_eventsInput = {
@@ -692,6 +716,7 @@ export type ServicePackageUncheckedCreateWithoutSale_eventsInput = {
   updated_at?: Date | string
   items?: Prisma.PackageItemUncheckedCreateNestedManyWithoutPackageInput
   availed_services?: Prisma.AvailedServiceUncheckedCreateNestedManyWithoutPackageInput
+  gift_card_items?: Prisma.GiftCardPackageUncheckedCreateNestedManyWithoutPackageInput
 }
 
 export type ServicePackageCreateOrConnectWithoutSale_eventsInput = {
@@ -726,6 +751,7 @@ export type ServicePackageCreateWithoutItemsInput = {
   business: Prisma.BusinessCreateNestedOneWithoutPackagesInput
   availed_services?: Prisma.AvailedServiceCreateNestedManyWithoutPackageInput
   sale_events?: Prisma.SaleEventCreateNestedManyWithoutApplicable_packagesInput
+  gift_card_items?: Prisma.GiftCardPackageCreateNestedManyWithoutPackageInput
 }
 
 export type ServicePackageUncheckedCreateWithoutItemsInput = {
@@ -740,6 +766,7 @@ export type ServicePackageUncheckedCreateWithoutItemsInput = {
   updated_at?: Date | string
   availed_services?: Prisma.AvailedServiceUncheckedCreateNestedManyWithoutPackageInput
   sale_events?: Prisma.SaleEventUncheckedCreateNestedManyWithoutApplicable_packagesInput
+  gift_card_items?: Prisma.GiftCardPackageUncheckedCreateNestedManyWithoutPackageInput
 }
 
 export type ServicePackageCreateOrConnectWithoutItemsInput = {
@@ -769,6 +796,7 @@ export type ServicePackageUpdateWithoutItemsInput = {
   business?: Prisma.BusinessUpdateOneRequiredWithoutPackagesNestedInput
   availed_services?: Prisma.AvailedServiceUpdateManyWithoutPackageNestedInput
   sale_events?: Prisma.SaleEventUpdateManyWithoutApplicable_packagesNestedInput
+  gift_card_items?: Prisma.GiftCardPackageUpdateManyWithoutPackageNestedInput
 }
 
 export type ServicePackageUncheckedUpdateWithoutItemsInput = {
@@ -781,6 +809,81 @@ export type ServicePackageUncheckedUpdateWithoutItemsInput = {
   business_id?: Prisma.StringFieldUpdateOperationsInput | string
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  availed_services?: Prisma.AvailedServiceUncheckedUpdateManyWithoutPackageNestedInput
+  sale_events?: Prisma.SaleEventUncheckedUpdateManyWithoutApplicable_packagesNestedInput
+  gift_card_items?: Prisma.GiftCardPackageUncheckedUpdateManyWithoutPackageNestedInput
+}
+
+export type ServicePackageCreateWithoutGift_card_itemsInput = {
+  name: string
+  description?: string | null
+  price: number
+  duration?: number | null
+  category: string
+  created_at?: Date | string
+  updated_at?: Date | string
+  business: Prisma.BusinessCreateNestedOneWithoutPackagesInput
+  items?: Prisma.PackageItemCreateNestedManyWithoutPackageInput
+  availed_services?: Prisma.AvailedServiceCreateNestedManyWithoutPackageInput
+  sale_events?: Prisma.SaleEventCreateNestedManyWithoutApplicable_packagesInput
+}
+
+export type ServicePackageUncheckedCreateWithoutGift_card_itemsInput = {
+  id?: number
+  name: string
+  description?: string | null
+  price: number
+  duration?: number | null
+  category: string
+  business_id: string
+  created_at?: Date | string
+  updated_at?: Date | string
+  items?: Prisma.PackageItemUncheckedCreateNestedManyWithoutPackageInput
+  availed_services?: Prisma.AvailedServiceUncheckedCreateNestedManyWithoutPackageInput
+  sale_events?: Prisma.SaleEventUncheckedCreateNestedManyWithoutApplicable_packagesInput
+}
+
+export type ServicePackageCreateOrConnectWithoutGift_card_itemsInput = {
+  where: Prisma.ServicePackageWhereUniqueInput
+  create: Prisma.XOR<Prisma.ServicePackageCreateWithoutGift_card_itemsInput, Prisma.ServicePackageUncheckedCreateWithoutGift_card_itemsInput>
+}
+
+export type ServicePackageUpsertWithoutGift_card_itemsInput = {
+  update: Prisma.XOR<Prisma.ServicePackageUpdateWithoutGift_card_itemsInput, Prisma.ServicePackageUncheckedUpdateWithoutGift_card_itemsInput>
+  create: Prisma.XOR<Prisma.ServicePackageCreateWithoutGift_card_itemsInput, Prisma.ServicePackageUncheckedCreateWithoutGift_card_itemsInput>
+  where?: Prisma.ServicePackageWhereInput
+}
+
+export type ServicePackageUpdateToOneWithWhereWithoutGift_card_itemsInput = {
+  where?: Prisma.ServicePackageWhereInput
+  data: Prisma.XOR<Prisma.ServicePackageUpdateWithoutGift_card_itemsInput, Prisma.ServicePackageUncheckedUpdateWithoutGift_card_itemsInput>
+}
+
+export type ServicePackageUpdateWithoutGift_card_itemsInput = {
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  price?: Prisma.FloatFieldUpdateOperationsInput | number
+  duration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  business?: Prisma.BusinessUpdateOneRequiredWithoutPackagesNestedInput
+  items?: Prisma.PackageItemUpdateManyWithoutPackageNestedInput
+  availed_services?: Prisma.AvailedServiceUpdateManyWithoutPackageNestedInput
+  sale_events?: Prisma.SaleEventUpdateManyWithoutApplicable_packagesNestedInput
+}
+
+export type ServicePackageUncheckedUpdateWithoutGift_card_itemsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  price?: Prisma.FloatFieldUpdateOperationsInput | number
+  duration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  business_id?: Prisma.StringFieldUpdateOperationsInput | string
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  items?: Prisma.PackageItemUncheckedUpdateManyWithoutPackageNestedInput
   availed_services?: Prisma.AvailedServiceUncheckedUpdateManyWithoutPackageNestedInput
   sale_events?: Prisma.SaleEventUncheckedUpdateManyWithoutApplicable_packagesNestedInput
 }
@@ -796,6 +899,7 @@ export type ServicePackageCreateWithoutAvailed_servicesInput = {
   business: Prisma.BusinessCreateNestedOneWithoutPackagesInput
   items?: Prisma.PackageItemCreateNestedManyWithoutPackageInput
   sale_events?: Prisma.SaleEventCreateNestedManyWithoutApplicable_packagesInput
+  gift_card_items?: Prisma.GiftCardPackageCreateNestedManyWithoutPackageInput
 }
 
 export type ServicePackageUncheckedCreateWithoutAvailed_servicesInput = {
@@ -810,6 +914,7 @@ export type ServicePackageUncheckedCreateWithoutAvailed_servicesInput = {
   updated_at?: Date | string
   items?: Prisma.PackageItemUncheckedCreateNestedManyWithoutPackageInput
   sale_events?: Prisma.SaleEventUncheckedCreateNestedManyWithoutApplicable_packagesInput
+  gift_card_items?: Prisma.GiftCardPackageUncheckedCreateNestedManyWithoutPackageInput
 }
 
 export type ServicePackageCreateOrConnectWithoutAvailed_servicesInput = {
@@ -839,6 +944,7 @@ export type ServicePackageUpdateWithoutAvailed_servicesInput = {
   business?: Prisma.BusinessUpdateOneRequiredWithoutPackagesNestedInput
   items?: Prisma.PackageItemUpdateManyWithoutPackageNestedInput
   sale_events?: Prisma.SaleEventUpdateManyWithoutApplicable_packagesNestedInput
+  gift_card_items?: Prisma.GiftCardPackageUpdateManyWithoutPackageNestedInput
 }
 
 export type ServicePackageUncheckedUpdateWithoutAvailed_servicesInput = {
@@ -853,6 +959,7 @@ export type ServicePackageUncheckedUpdateWithoutAvailed_servicesInput = {
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   items?: Prisma.PackageItemUncheckedUpdateManyWithoutPackageNestedInput
   sale_events?: Prisma.SaleEventUncheckedUpdateManyWithoutApplicable_packagesNestedInput
+  gift_card_items?: Prisma.GiftCardPackageUncheckedUpdateManyWithoutPackageNestedInput
 }
 
 export type ServicePackageCreateManyBusinessInput = {
@@ -877,6 +984,7 @@ export type ServicePackageUpdateWithoutBusinessInput = {
   items?: Prisma.PackageItemUpdateManyWithoutPackageNestedInput
   availed_services?: Prisma.AvailedServiceUpdateManyWithoutPackageNestedInput
   sale_events?: Prisma.SaleEventUpdateManyWithoutApplicable_packagesNestedInput
+  gift_card_items?: Prisma.GiftCardPackageUpdateManyWithoutPackageNestedInput
 }
 
 export type ServicePackageUncheckedUpdateWithoutBusinessInput = {
@@ -891,6 +999,7 @@ export type ServicePackageUncheckedUpdateWithoutBusinessInput = {
   items?: Prisma.PackageItemUncheckedUpdateManyWithoutPackageNestedInput
   availed_services?: Prisma.AvailedServiceUncheckedUpdateManyWithoutPackageNestedInput
   sale_events?: Prisma.SaleEventUncheckedUpdateManyWithoutApplicable_packagesNestedInput
+  gift_card_items?: Prisma.GiftCardPackageUncheckedUpdateManyWithoutPackageNestedInput
 }
 
 export type ServicePackageUncheckedUpdateManyWithoutBusinessInput = {
@@ -915,6 +1024,7 @@ export type ServicePackageUpdateWithoutSale_eventsInput = {
   business?: Prisma.BusinessUpdateOneRequiredWithoutPackagesNestedInput
   items?: Prisma.PackageItemUpdateManyWithoutPackageNestedInput
   availed_services?: Prisma.AvailedServiceUpdateManyWithoutPackageNestedInput
+  gift_card_items?: Prisma.GiftCardPackageUpdateManyWithoutPackageNestedInput
 }
 
 export type ServicePackageUncheckedUpdateWithoutSale_eventsInput = {
@@ -929,6 +1039,7 @@ export type ServicePackageUncheckedUpdateWithoutSale_eventsInput = {
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   items?: Prisma.PackageItemUncheckedUpdateManyWithoutPackageNestedInput
   availed_services?: Prisma.AvailedServiceUncheckedUpdateManyWithoutPackageNestedInput
+  gift_card_items?: Prisma.GiftCardPackageUncheckedUpdateManyWithoutPackageNestedInput
 }
 
 export type ServicePackageUncheckedUpdateManyWithoutSale_eventsInput = {
@@ -952,12 +1063,14 @@ export type ServicePackageCountOutputType = {
   items: number
   availed_services: number
   sale_events: number
+  gift_card_items: number
 }
 
 export type ServicePackageCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   items?: boolean | ServicePackageCountOutputTypeCountItemsArgs
   availed_services?: boolean | ServicePackageCountOutputTypeCountAvailed_servicesArgs
   sale_events?: boolean | ServicePackageCountOutputTypeCountSale_eventsArgs
+  gift_card_items?: boolean | ServicePackageCountOutputTypeCountGift_card_itemsArgs
 }
 
 /**
@@ -991,6 +1104,13 @@ export type ServicePackageCountOutputTypeCountSale_eventsArgs<ExtArgs extends ru
   where?: Prisma.SaleEventWhereInput
 }
 
+/**
+ * ServicePackageCountOutputType without action
+ */
+export type ServicePackageCountOutputTypeCountGift_card_itemsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.GiftCardPackageWhereInput
+}
+
 
 export type ServicePackageSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1006,6 +1126,7 @@ export type ServicePackageSelect<ExtArgs extends runtime.Types.Extensions.Intern
   items?: boolean | Prisma.ServicePackage$itemsArgs<ExtArgs>
   availed_services?: boolean | Prisma.ServicePackage$availed_servicesArgs<ExtArgs>
   sale_events?: boolean | Prisma.ServicePackage$sale_eventsArgs<ExtArgs>
+  gift_card_items?: boolean | Prisma.ServicePackage$gift_card_itemsArgs<ExtArgs>
   _count?: boolean | Prisma.ServicePackageCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["servicePackage"]>
 
@@ -1053,6 +1174,7 @@ export type ServicePackageInclude<ExtArgs extends runtime.Types.Extensions.Inter
   items?: boolean | Prisma.ServicePackage$itemsArgs<ExtArgs>
   availed_services?: boolean | Prisma.ServicePackage$availed_servicesArgs<ExtArgs>
   sale_events?: boolean | Prisma.ServicePackage$sale_eventsArgs<ExtArgs>
+  gift_card_items?: boolean | Prisma.ServicePackage$gift_card_itemsArgs<ExtArgs>
   _count?: boolean | Prisma.ServicePackageCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ServicePackageIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1069,6 +1191,7 @@ export type $ServicePackagePayload<ExtArgs extends runtime.Types.Extensions.Inte
     items: Prisma.$PackageItemPayload<ExtArgs>[]
     availed_services: Prisma.$AvailedServicePayload<ExtArgs>[]
     sale_events: Prisma.$SaleEventPayload<ExtArgs>[]
+    gift_card_items: Prisma.$GiftCardPackagePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1478,6 +1601,7 @@ export interface Prisma__ServicePackageClient<T, Null = never, ExtArgs extends r
   items<T extends Prisma.ServicePackage$itemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ServicePackage$itemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PackageItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   availed_services<T extends Prisma.ServicePackage$availed_servicesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ServicePackage$availed_servicesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AvailedServicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   sale_events<T extends Prisma.ServicePackage$sale_eventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ServicePackage$sale_eventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SaleEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  gift_card_items<T extends Prisma.ServicePackage$gift_card_itemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ServicePackage$gift_card_itemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$GiftCardPackagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1981,6 +2105,30 @@ export type ServicePackage$sale_eventsArgs<ExtArgs extends runtime.Types.Extensi
   take?: number
   skip?: number
   distinct?: Prisma.SaleEventScalarFieldEnum | Prisma.SaleEventScalarFieldEnum[]
+}
+
+/**
+ * ServicePackage.gift_card_items
+ */
+export type ServicePackage$gift_card_itemsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the GiftCardPackage
+   */
+  select?: Prisma.GiftCardPackageSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the GiftCardPackage
+   */
+  omit?: Prisma.GiftCardPackageOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.GiftCardPackageInclude<ExtArgs> | null
+  where?: Prisma.GiftCardPackageWhereInput
+  orderBy?: Prisma.GiftCardPackageOrderByWithRelationInput | Prisma.GiftCardPackageOrderByWithRelationInput[]
+  cursor?: Prisma.GiftCardPackageWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.GiftCardPackageScalarFieldEnum | Prisma.GiftCardPackageScalarFieldEnum[]
 }
 
 /**

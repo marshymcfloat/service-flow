@@ -14,11 +14,12 @@ type CustomerOption = {
   id: string;
   name: string;
   email?: string | null;
+  phone?: string | null;
 };
 
 type FormLike = {
   setValue: (
-    name: "customerId" | "customerName" | "email",
+    name: "customerId" | "customerName" | "email" | "phone",
     value: string,
     options?: { shouldValidate?: boolean; shouldDirty?: boolean },
   ) => void;
@@ -73,6 +74,7 @@ const CustomerSearchInput = React.memo(function CustomerSearchInput({
       form.setValue("customerName", customer.name);
     }
     form.setValue("email", customer.email || "");
+    form.setValue("phone", customer.phone || "");
     setShowResults(false);
     if (onCustomerSelect) {
       onCustomerSelect(customer);
@@ -97,6 +99,7 @@ const CustomerSearchInput = React.memo(function CustomerSearchInput({
             form.setValue("customerId", "");
             // Clear email field when search is modified
             form.setValue("email", "");
+            form.setValue("phone", "");
             // Notify parent to clear existingCustomerEmail state
             if (onCustomerSelect) {
               onCustomerSelect(null);

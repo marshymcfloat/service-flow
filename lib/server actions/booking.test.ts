@@ -136,6 +136,7 @@ describe("createBooking Server Action", () => {
         },
       ],
       email: "john@example.com",
+      phone: "+639171234567",
     });
 
     expect(buildBookingPricingSnapshot).toHaveBeenCalled();
@@ -143,6 +144,7 @@ describe("createBooking Server Action", () => {
       expect.objectContaining({
         paymentMethod: "CASH",
         email: "john@example.com",
+        phone: "+639171234567",
       }),
     );
     expect(result).toEqual({
@@ -203,11 +205,15 @@ describe("createBooking Server Action", () => {
         { id: 1, name: "Haircut", price: 500, quantity: 1 },
       ],
       email: "john@example.com",
+      phone: "+639171234567",
     });
 
     expect(mockedCreatePayMongoQrPaymentIntent).toHaveBeenCalledWith(
       expect.objectContaining({
         returnUrl: "https://demo.serviceflow.test/demo-business/booking/success",
+        billing: expect.objectContaining({
+          phone: "+639171234567",
+        }),
       }),
     );
 

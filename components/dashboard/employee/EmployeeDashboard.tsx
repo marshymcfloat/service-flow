@@ -1,9 +1,13 @@
 "use client";
 
+import { useMemo } from "react";
 import { LogOut, User as UserIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import EmployeeServedHistory from "./EmployeeServedHistory";
 import PendingServicesList from "./PendingServicesList";
+import EmployeePaymentsQueue, {
+  type EmployeePaymentBooking,
+} from "./EmployeePaymentsQueue";
 import AttendanceCard from "./AttendanceCard";
 import { signOut } from "next-auth/react";
 import {
@@ -16,6 +20,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { BookingDialog } from "../owner/BookingDialog";
+import { GiftCardClaimDialog } from "../shared/GiftCardClaimDialog";
 
 import { EmployeeLeaveClient } from "../attendance/EmployeeLeaveClient";
 import {
@@ -26,6 +31,11 @@ import { PackageWithItems } from "@/components/bookings/BookingForm";
 import type { ServedService } from "./EmployeeServedHistory";
 import type { PendingService } from "./PendingServicesList";
 import type { SaleEventForPricing } from "@/lib/utils/pricing";
+import {
+  getEmployeeSpecialtySet,
+  hasAnyAllowedCategoryForEmployee,
+  isCategoryAllowedForEmployee,
+} from "@/lib/utils/employee-specialties";
 
 type TodayAttendance = {
   time_in: Date | null;
@@ -38,10 +48,12 @@ export default function EmployeeDashboard({
   businessId,
   servedHistory,
   pendingServices,
+  currentEmployeeSpecialties,
   currentEmployeeId,
   currentEmployeeCommission,
   currentEmployeeSalary,
   todayAttendance,
+  todayBookings,
   services,
   packages,
   categories,
@@ -53,16 +65,50 @@ export default function EmployeeDashboard({
   businessId: string;
   servedHistory: ServedService[];
   pendingServices: PendingService[];
+  currentEmployeeSpecialties: string[];
   currentEmployeeId: number;
   currentEmployeeCommission: number;
   currentEmployeeSalary: number;
   todayAttendance: TodayAttendance;
+  todayBookings: EmployeePaymentBooking[];
   services: Service[];
   packages: PackageWithItems[];
   categories: string[];
   saleEvents: SaleEventForPricing[];
   leaveRequests: LeaveRequest[];
 }) {
+  const employeeSpecialtySet = useMemo(
+    () => getEmployeeSpecialtySet(currentEmployeeSpecialties),
+    [currentEmployeeSpecialties],
+  );
+
+  const visiblePendingServices = useMemo(
+    () =>
+      pendingServices.filter((item) =>
+        isCategoryAllowedForEmployee(item.service.category, employeeSpecialtySet),
+      ),
+    [pendingServices, employeeSpecialtySet],
+  );
+
+  const visibleServedHistory = useMemo(
+    () =>
+      servedHistory.filter((item) =>
+        isCategoryAllowedForEmployee(item.service.category, employeeSpecialtySet),
+      ),
+    [servedHistory, employeeSpecialtySet],
+  );
+
+  const visibleTodayBookings = useMemo(
+    () =>
+      todayBookings.filter((booking) =>
+        hasAnyAllowedCategoryForEmployee(
+          booking.availed_services.map((item) => item.service.category),
+          employeeSpecialtySet,
+        ),
+      ),
+    [todayBookings, employeeSpecialtySet],
+  );
+
   const handleSignOut = () => {
     signOut({ callbackUrl: "/" });
   };
@@ -86,6 +132,7 @@ export default function EmployeeDashboard({
             categories={categories}
             businessSlug={businessSlug}
           />
+          <GiftCardClaimDialog businessSlug={businessSlug} />
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -175,7 +222,7 @@ export default function EmployeeDashboard({
               <div className="mt-4">
                 <span className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight block">
                   {
-                    servedHistory.filter((s) => {
+                    visibleServedHistory.filter((s) => {
                       const today = new Date();
                       const date = new Date(s.updated_at);
                       return (
@@ -203,7 +250,7 @@ export default function EmployeeDashboard({
               </div>
               <div className="mt-4">
                 <span className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight block">
-                  {pendingServices.length}
+                  {visiblePendingServices.length}
                 </span>
                 <span className="text-xs text-slate-400 mt-1 block font-medium">
                   Waiting
@@ -211,6 +258,14 @@ export default function EmployeeDashboard({
               </div>
             </div>
           </div>
+        </section>
+
+        <section>
+          <EmployeePaymentsQueue
+            businessSlug={businessSlug}
+            bookings={visibleTodayBookings}
+            employeeSpecialties={currentEmployeeSpecialties}
+          />
         </section>
 
         <section>
@@ -230,16 +285,17 @@ export default function EmployeeDashboard({
                   Current Queue
                 </h2>
                 <span className="hidden md:inline-flex h-6 items-center rounded-full bg-slate-100 px-2.5 text-xs font-bold text-slate-600">
-                  {pendingServices.length}
+                  {visiblePendingServices.length}
                 </span>
               </div>
             </div>
 
             <div className="-mx-4 md:mx-0">
               <PendingServicesList
-                services={pendingServices}
+                services={visiblePendingServices}
                 businessSlug={businessSlug}
                 currentEmployeeId={currentEmployeeId}
+                employeeSpecialties={currentEmployeeSpecialties}
                 saleEvents={saleEvents}
               />
             </div>
@@ -253,7 +309,8 @@ export default function EmployeeDashboard({
             </div>
             <div className="-mx-4 md:mx-0">
               <EmployeeServedHistory
-                services={servedHistory}
+                services={visibleServedHistory}
+                employeeSpecialties={currentEmployeeSpecialties}
                 currentEmployeeId={currentEmployeeId}
                 currentEmployeeCommission={currentEmployeeCommission}
               />

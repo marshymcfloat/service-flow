@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import {
+import type {
   Booking,
   Customer,
   BookingStatus,
@@ -151,9 +151,93 @@ export function BookingList({
     }
   };
 
+  const openBookingDetails = (booking: BookingWithDetails) => {
+    setSelectedBooking(booking);
+    setIsDialogOpen(true);
+  };
+
+  const renderBookingActions = (booking: BookingWithDetails) => (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8 text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 rounded-lg"
+          onClick={(e) => e.stopPropagation()}
+          aria-label={`Open actions for booking ${booking.id}`}
+        >
+          <MoreHorizontal className="h-4 w-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent
+        align="end"
+        className="w-[180px] rounded-xl border-zinc-100 shadow-xl p-1"
+      >
+        <DropdownMenuLabel className="px-2 py-1.5 text-xs font-semibold text-zinc-500 uppercase tracking-wider">
+          Actions
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator className="-mx-1 my-1 bg-zinc-100" />
+        <DropdownMenuItem
+          className="rounded-lg cursor-pointer focus:bg-emerald-50 focus:text-emerald-700"
+          onClick={() => openBookingDetails(booking)}
+        >
+          View Details
+        </DropdownMenuItem>
+        {booking.status === "ACCEPTED" && (
+          <DropdownMenuItem
+            className="text-red-600 focus:text-red-700 focus:bg-red-50 rounded-lg cursor-pointer"
+            onClick={() => handleStatusUpdate(booking.id, "CANCELLED")}
+          >
+            Cancel Booking
+          </DropdownMenuItem>
+        )}
+        <DropdownMenuSeparator className="-mx-1 my-1 bg-zinc-100" />
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <div className="relative flex select-none items-center rounded-lg px-2 py-1.5 text-sm outline-none transition-colors data-[disabled]:pointer-events-none data-[disabled]:opacity-50 hover:bg-red-50 text-red-600 focus:bg-red-50 cursor-pointer w-full group">
+              <Trash2 className="w-3.5 h-3.5 mr-2 group-hover:text-red-700" />
+              Delete
+            </div>
+          </AlertDialogTrigger>
+          <AlertDialogContent
+            onClick={(e) => e.stopPropagation()}
+            className="rounded-3xl border-0 shadow-2xl"
+          >
+            <AlertDialogHeader>
+              <AlertDialogTitle className="text-xl">
+                Delete Booking?
+              </AlertDialogTitle>
+              <AlertDialogDescription>
+                This action cannot be undone. This will permanently delete the
+                booking for{" "}
+                <span className="font-semibold text-zinc-900">
+                  {booking.customer.name}
+                </span>
+                .
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel className="rounded-xl border-0 bg-zinc-100 hover:bg-zinc-200 text-zinc-700">
+                Cancel
+              </AlertDialogCancel>
+              <AlertDialogAction
+                className="bg-red-600 hover:bg-red-700 rounded-xl text-white shadow-md shadow-red-200"
+                onClick={() => handleDelete(booking.id)}
+              >
+                Delete Booking
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+
   const isEmbedded = variant === "embedded";
   const tablePaddingLeft = isEmbedded ? "pl-4" : "pl-8";
   const tablePaddingRight = isEmbedded ? "pr-4" : "pr-8";
+  const getBookingDateTime = (booking: BookingWithDetails) =>
+    booking.scheduled_at ?? booking.created_at;
 
   return (
     <>
@@ -211,6 +295,7 @@ export function BookingList({
               </SelectTrigger>
               <SelectContent className="rounded-xl">
                 <SelectItem value="ALL">All Status</SelectItem>
+                <SelectItem value="HOLD">Hold</SelectItem>
                 <SelectItem value="ACCEPTED">Accepted</SelectItem>
                 <SelectItem value="COMPLETED">Completed</SelectItem>
                 <SelectItem value="CANCELLED">Cancelled</SelectItem>
@@ -237,10 +322,7 @@ export function BookingList({
                 <div
                   key={booking.id}
                   className="p-5 bg-white border border-zinc-100 rounded-2xl shadow-sm hover:shadow-md transition-shadow active:scale-[0.98] active:transition-transform"
-                  onClick={() => {
-                    setSelectedBooking(booking);
-                    setIsDialogOpen(true);
-                  }}
+                  onClick={() => openBookingDetails(booking)}
                 >
                   <div className="flex justify-between items-start mb-4">
                     <div className="flex items-center gap-3">
@@ -274,7 +356,7 @@ export function BookingList({
                       </span>
                       <div className="flex items-center gap-1.5 text-sm font-medium text-zinc-700">
                         <Calendar className="w-3.5 h-3.5 text-zinc-400" />
-                        {formatPH(booking.created_at, "MMM d, h:mm a")}
+                        {formatPH(getBookingDateTime(booking), "MMM d, h:mm a")}
                       </div>
                     </div>
                     <div className="flex flex-col gap-1">
@@ -313,14 +395,21 @@ export function BookingList({
                     <span className="text-xs text-zinc-400">
                       Tap to view details
                     </span>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="h-8 gap-1 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 -mr-2"
+                    <div
+                      className="flex items-center gap-1 -mr-2"
+                      onClick={(e) => e.stopPropagation()}
                     >
-                      View Details
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-8 gap-1 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
+                        onClick={() => openBookingDetails(booking)}
+                      >
+                        View Details
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </Button>
+                      {renderBookingActions(booking)}
+                    </div>
                   </div>
                 </div>
               ))
@@ -382,10 +471,7 @@ export function BookingList({
                     <TableRow
                       key={booking.id}
                       className="hover:bg-emerald-50/30 cursor-pointer transition-colors border-zinc-100 group"
-                      onClick={() => {
-                        setSelectedBooking(booking);
-                        setIsDialogOpen(true);
-                      }}
+                      onClick={() => openBookingDetails(booking)}
                     >
                       <TableCell
                         className={cn(
@@ -417,7 +503,10 @@ export function BookingList({
                       <TableCell className="text-zinc-600 font-medium py-4">
                         <div className="flex items-center gap-2">
                           <Calendar className="w-4 h-4 text-zinc-400" />
-                          {formatPH(booking.created_at, "MMM d, yyyy • h:mm a")}
+                          {formatPH(
+                            getBookingDateTime(booking),
+                            "MMM d, yyyy • h:mm a",
+                          )}
                         </div>
                       </TableCell>
                       <TableCell className="py-4">
@@ -431,19 +520,14 @@ export function BookingList({
                           >
                             {booking.status}
                           </Badge>
-                          {booking.status === "ACCEPTED" &&
-                            (booking.downpayment || 0) > 0 &&
-                            booking.grand_total >
-                              (booking.downpayment || 0) && (
+                          {booking.payment_status === "PARTIALLY_PAID" &&
+                            booking.grand_total > (booking.amount_paid || 0) && (
                               <Badge
                                 variant="outline"
                                 className="border-orange-200 text-orange-700 bg-orange-50 text-[10px] px-2 py-0.5 font-medium rounded-md"
                               >
                                 Bal: ₱
-                                {(
-                                  booking.grand_total -
-                                  (booking.downpayment || 0)
-                                ).toLocaleString()}
+                                {(booking.grand_total - (booking.amount_paid || 0)).toLocaleString()}
                               </Badge>
                             )}
                         </div>
@@ -482,83 +566,7 @@ export function BookingList({
                           className="flex justify-end gap-1"
                           onClick={(e) => e.stopPropagation()}
                         >
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8 text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 rounded-lg"
-                              >
-                                <MoreHorizontal className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent
-                              align="end"
-                              className="w-[180px] rounded-xl border-zinc-100 shadow-xl p-1"
-                            >
-                              <DropdownMenuLabel className="px-2 py-1.5 text-xs font-semibold text-zinc-500 uppercase tracking-wider">
-                                Actions
-                              </DropdownMenuLabel>
-                              <DropdownMenuSeparator className="-mx-1 my-1 bg-zinc-100" />
-                              <DropdownMenuItem
-                                className="rounded-lg cursor-pointer focus:bg-emerald-50 focus:text-emerald-700"
-                                onClick={() => {
-                                  setSelectedBooking(booking);
-                                  setIsDialogOpen(true);
-                                }}
-                              >
-                                View Details
-                              </DropdownMenuItem>
-                              {booking.status === "ACCEPTED" && (
-                                <DropdownMenuItem
-                                  className="text-red-600 focus:text-red-700 focus:bg-red-50 rounded-lg cursor-pointer"
-                                  onClick={() =>
-                                    handleStatusUpdate(booking.id, "CANCELLED")
-                                  }
-                                >
-                                  Cancel Booking
-                                </DropdownMenuItem>
-                              )}
-                              <DropdownMenuSeparator className="-mx-1 my-1 bg-zinc-100" />
-                              <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                  <div className="relative flex select-none items-center rounded-lg px-2 py-1.5 text-sm outline-none transition-colors data-[disabled]:pointer-events-none data-[disabled]:opacity-50 hover:bg-red-50 text-red-600 focus:bg-red-50 cursor-pointer w-full group">
-                                    <Trash2 className="w-3.5 h-3.5 mr-2 group-hover:text-red-700" />
-                                    Delete
-                                  </div>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent
-                                  onClick={(e) => e.stopPropagation()}
-                                  className="rounded-3xl border-0 shadow-2xl"
-                                >
-                                  <AlertDialogHeader>
-                                    <AlertDialogTitle className="text-xl">
-                                      Delete Booking?
-                                    </AlertDialogTitle>
-                                    <AlertDialogDescription>
-                                      This action cannot be undone. This will
-                                      permanently delete the booking for{" "}
-                                      <span className="font-semibold text-zinc-900">
-                                        {booking.customer.name}
-                                      </span>
-                                      .
-                                    </AlertDialogDescription>
-                                  </AlertDialogHeader>
-                                  <AlertDialogFooter>
-                                    <AlertDialogCancel className="rounded-xl border-0 bg-zinc-100 hover:bg-zinc-200 text-zinc-700">
-                                      Cancel
-                                    </AlertDialogCancel>
-                                    <AlertDialogAction
-                                      className="bg-red-600 hover:bg-red-700 rounded-xl text-white shadow-md shadow-red-200"
-                                      onClick={() => handleDelete(booking.id)}
-                                    >
-                                      Delete Booking
-                                    </AlertDialogAction>
-                                  </AlertDialogFooter>
-                                </AlertDialogContent>
-                              </AlertDialog>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
+                          {renderBookingActions(booking)}
                         </div>
                       </TableCell>
                     </TableRow>

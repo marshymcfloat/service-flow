@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useOptimistic, useTransition } from "react";
+import { useState, useMemo, useOptimistic, useTransition, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Service } from "@/prisma/generated/prisma/client";
 import { PageHeader } from "@/components/dashboard/PageHeader";
@@ -211,28 +211,28 @@ export function ServicesPageClient({
     });
   };
 
-  const handleDeleteService = async (serviceId: number) => {
-    // Apply optimistic update and call server action
-    startTransition(async () => {
-      // Optimistically remove from UI
-      addOptimisticUpdate({
-        type: "delete",
-        serviceId,
+  const handleDeleteService = useCallback(
+    async (serviceId: number) => {
+      startTransition(async () => {
+        addOptimisticUpdate({
+          type: "delete",
+          serviceId,
+        });
+
+        const result = await deleteServiceAction(serviceId);
+        if (result.success) {
+          toast.success("Service deleted successfully");
+          router.refresh();
+        } else {
+          toast.error(result.error || "Failed to delete service");
+          router.refresh();
+        }
       });
+    },
+    [addOptimisticUpdate, router],
+  );
 
-      const result = await deleteServiceAction(serviceId);
-      if (result.success) {
-        toast.success("Service deleted successfully");
-        router.refresh();
-      } else {
-        toast.error(result.error || "Failed to delete service");
-        // Refresh to revert to server state on error
-        router.refresh();
-      }
-    });
-  };
-
-  const openEditDialog = (service: ServiceWithFlows) => {
+  const openEditDialog = useCallback((service: ServiceWithFlows) => {
     setSelectedService(service);
     setFormData({
       name: service.name,
@@ -249,7 +249,7 @@ export function ServicesPageClient({
         })) || [],
     });
     setIsEditDialogOpen(true);
-  };
+  }, []);
 
   return (
     <div

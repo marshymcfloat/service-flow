@@ -8,6 +8,7 @@ import { hash } from "bcryptjs";
 import crypto from "crypto";
 import { headers } from "next/headers";
 import { sendEmployeeInviteEmail } from "@/lib/services/employee-invite";
+import { getCurrentDateTimePH } from "@/lib/date-utils";
 
 // Get all employees for a business
 export async function getEmployeesAction() {
@@ -98,7 +99,7 @@ export async function createEmployeeAction(data: {
       .slice(0, 12);
     const hashedPassword = await hash(tempPassword, 12);
     const tempPasswordExpiresAt = new Date(
-      Date.now() + 24 * 60 * 60 * 1000,
+      getCurrentDateTimePH().getTime() + 24 * 60 * 60 * 1000,
     );
 
     // Create user and employee in a transaction

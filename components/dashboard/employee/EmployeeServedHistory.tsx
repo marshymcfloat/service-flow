@@ -8,7 +8,7 @@ import {
   unclaimServiceAction,
   unserveServiceAction,
 } from "@/lib/server actions/dashboard";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Loader2,
   History,
@@ -32,6 +32,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  getEmployeeSpecialtySet,
+  isCategoryAllowedForEmployee,
+} from "@/lib/utils/employee-specialties";
 
 export interface ServedService {
   id: number;
@@ -39,11 +43,14 @@ export interface ServedService {
   service: {
     name: string;
     duration: number | null;
+    category: string;
   };
   booking: {
     customer: {
       name: string;
     };
+    scheduled_at?: Date | null;
+    created_at?: Date | null;
     downpayment: number | null;
     downpayment_status: string | null;
     grand_total: number;
@@ -61,10 +68,12 @@ export interface ServedService {
 
 export default function EmployeeServedHistory({
   services,
+  employeeSpecialties,
   currentEmployeeId,
   currentEmployeeCommission,
 }: {
   services: ServedService[];
+  employeeSpecialties?: string[];
   currentEmployeeId: number;
   currentEmployeeCommission: number;
 }) {
@@ -76,6 +85,24 @@ export default function EmployeeServedHistory({
     type: "unclaim" | "unserve";
     serviceId: number;
   } | null>(null);
+
+  const employeeSpecialtySet = useMemo(
+    () => getEmployeeSpecialtySet(employeeSpecialties),
+    [employeeSpecialties],
+  );
+
+  const visibleServices = useMemo(
+    () =>
+      services.filter((item) =>
+        isCategoryAllowedForEmployee(item.service.category, employeeSpecialtySet),
+      ),
+    [services, employeeSpecialtySet],
+  );
+
+  const getDisplayScheduledAt = (service: ServedService) =>
+    service.booking.scheduled_at ??
+    service.booking.created_at ??
+    service.scheduled_at;
 
   const handleMarkAsServed = async (serviceId: number) => {
     setLoadingId(serviceId);
@@ -152,7 +179,7 @@ export default function EmployeeServedHistory({
     <>
       <div className="h-full flex flex-col">
         <div className="space-y-3 p-4 lg:p-0">
-          {services.length === 0 ? (
+          {visibleServices.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-center space-y-3 opacity-60 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-100">
               <div className="bg-white p-4 rounded-full shadow-sm">
                 <History className="w-6 h-6 text-slate-400" />
@@ -167,7 +194,7 @@ export default function EmployeeServedHistory({
               </div>
             </div>
           ) : (
-            services.map((item) => {
+            visibleServices.map((item) => {
               const customerInitials = item.booking.customer.name
                 .split(" ")
                 .map((n) => n[0])
@@ -314,8 +341,8 @@ export default function EmployeeServedHistory({
                 <div className="flex justify-between py-2 border-b border-dashed">
                   <span className="text-muted-foreground">Scheduled For</span>
                   <span className="font-medium">
-                    {selectedService.scheduled_at
-                      ? formatPH(selectedService.scheduled_at, "PPP p")
+                    {getDisplayScheduledAt(selectedService)
+                      ? formatPH(getDisplayScheduledAt(selectedService), "PPP p")
                       : "Unscheduled"}
                   </span>
                 </div>

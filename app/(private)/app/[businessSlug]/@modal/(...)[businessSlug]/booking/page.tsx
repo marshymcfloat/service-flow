@@ -65,7 +65,7 @@ async function InterceptedBookingContent({
       title={`Add Booking for ${business.name}`}
       description="Create a new booking directly from the dashboard."
       className="sm:max-w-4xl"
-      modal={false}
+      modal={true}
     >
       <div className="p-1">
         <BookingForm
@@ -93,7 +93,7 @@ export default async function InterceptedBookingPage({
           title="Loading..."
           description="Please wait..."
           className="sm:max-w-4xl"
-          modal={false}
+          modal={true}
         >
           <div className="h-96 w-full flex items-center justify-center">
             Loading...

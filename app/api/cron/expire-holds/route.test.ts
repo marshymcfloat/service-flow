@@ -11,6 +11,9 @@ const { prismaMock, txMock, publishEventMock } = vi.hoisted(() => ({
     booking: {
       updateMany: vi.fn(),
     },
+    bookingPayment: {
+      updateMany: vi.fn(),
+    },
     voucher: {
       updateMany: vi.fn(),
     },
@@ -50,6 +53,7 @@ describe("expire-holds route", () => {
       { id: 1, business_id: "biz_1" },
     ]);
     txMock.booking.updateMany.mockResolvedValue({ count: 1 });
+    txMock.bookingPayment.updateMany.mockResolvedValue({ count: 1 });
     txMock.voucher.updateMany.mockResolvedValue({ count: 1 });
     prismaMock.$transaction.mockImplementation(
       async (callback: (tx: typeof txMock) => Promise<void> | void) =>

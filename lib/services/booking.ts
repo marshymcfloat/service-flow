@@ -1,10 +1,16 @@
 import { prisma } from "@/prisma/prisma";
 import { publishEvent } from "./outbox";
-import { Prisma } from "@/prisma/generated/prisma/client";
+import {
+  BookingPaymentType,
+  PaymentStatus,
+  Prisma,
+} from "@/prisma/generated/prisma/client";
 import {
   BookingServiceInput,
   buildBookingPricingSnapshot,
 } from "./booking-pricing";
+import { getQrHoldExpiresAt } from "@/lib/payments/config";
+import { getCurrentDateTimePH } from "@/lib/date-utils";
 
 export type BookingServiceParams = {
   businessSlug: string;
@@ -26,6 +32,7 @@ export type BookingServiceParams = {
 
   paymentType: "FULL" | "DOWNPAYMENT";
   email?: string;
+  phone?: string;
   voucherCode?: string;
   totalDiscount?: number;
   paymentConfirmed?: boolean;
@@ -33,6 +40,26 @@ export type BookingServiceParams = {
   paymongoPaymentIntentId?: string;
   paymongoPaymentMethodId?: string;
   paymongoPaymentId?: string;
+};
+
+const roundMoney = (value: number) => Math.round(value * 100) / 100;
+
+const resolvePaymentStatus = (
+  grandTotal: number,
+  amountPaid: number,
+): PaymentStatus => {
+  const roundedGrandTotal = roundMoney(grandTotal);
+  const roundedAmountPaid = roundMoney(Math.max(0, amountPaid));
+
+  if (roundedAmountPaid >= roundedGrandTotal) {
+    return PaymentStatus.PAID;
+  }
+
+  if (roundedAmountPaid > 0) {
+    return PaymentStatus.PARTIALLY_PAID;
+  }
+
+  return PaymentStatus.UNPAID;
 };
 
 export async function createBookingInDb({
@@ -47,6 +74,7 @@ export async function createBookingInDb({
 
   paymentType,
   email,
+  phone,
   voucherCode,
   paymentConfirmed = false,
   paymongoCheckoutSessionId,
@@ -76,11 +104,17 @@ export async function createBookingInDb({
       });
 
       if (existingCustomer) {
-        // Update email if provided and not set
-        if (email && !existingCustomer.email) {
+        const shouldUpdateEmail = email && !existingCustomer.email;
+        const shouldUpdatePhone = phone && !existingCustomer.phone;
+
+        // Fill missing contact details from booking input.
+        if (shouldUpdateEmail || shouldUpdatePhone) {
           await tx.customer.update({
             where: { id: existingCustomer.id },
-            data: { email },
+            data: {
+              ...(shouldUpdateEmail ? { email } : {}),
+              ...(shouldUpdatePhone ? { phone } : {}),
+            },
           });
         }
       }
@@ -96,11 +130,17 @@ export async function createBookingInDb({
 
       if (existingCustomer) {
         finalCustomerId = existingCustomer.id;
-        // Update email if provided and not set
-        if (email && !existingCustomer.email) {
+        const shouldUpdateEmail = email && !existingCustomer.email;
+        const shouldUpdatePhone = phone && !existingCustomer.phone;
+
+        // Fill missing contact details from booking input.
+        if (shouldUpdateEmail || shouldUpdatePhone) {
           await tx.customer.update({
             where: { id: existingCustomer.id },
-            data: { email },
+            data: {
+              ...(shouldUpdateEmail ? { email } : {}),
+              ...(shouldUpdatePhone ? { phone } : {}),
+            },
           });
         }
       } else {
@@ -108,6 +148,7 @@ export async function createBookingInDb({
           data: {
             name: customerName,
             email: email,
+            phone: phone,
             business_id: business.id,
           },
         });
@@ -124,7 +165,7 @@ export async function createBookingInDb({
       isOnlinePayment && !paymentConfirmed ? "HOLD" : "ACCEPTED";
     const holdExpiresAt =
       bookingStatus === "HOLD"
-        ? new Date(Date.now() + 10 * 60 * 1000) // 10 minute hold
+        ? getQrHoldExpiresAt()
         : null;
 
     const finalVoucherDiscount = pricing.voucherDiscount;
@@ -132,6 +173,16 @@ export async function createBookingInDb({
     const downpaymentAmount = isDownpayment
       ? pricing.downpaymentAmount
       : null;
+    const principalAmountForInitialPayment = isDownpayment
+      ? downpaymentAmount || 0
+      : grandTotal;
+    const amountPaid =
+      isOnlinePayment && paymentConfirmed
+        ? principalAmountForInitialPayment
+        : !isOnlinePayment && isDownpayment
+          ? principalAmountForInitialPayment
+          : 0;
+    const paymentStatus = resolvePaymentStatus(grandTotal, amountPaid);
 
     const booking = await tx.booking.create({
       data: {
@@ -145,6 +196,8 @@ export async function createBookingInDb({
         paymongo_payment_method_id: paymongoPaymentMethodId,
         paymongo_payment_id: paymongoPaymentId,
         status: bookingStatus,
+        payment_status: paymentStatus,
+        amount_paid: amountPaid,
         hold_expires_at: holdExpiresAt,
         scheduled_at: scheduledAt,
         estimated_end: pricing.estimatedEnd,
@@ -169,7 +222,7 @@ export async function createBookingInDb({
             const isClaimed = s.claimedByCurrentEmployee && !!currentEmployeeId;
             const serverId = isClaimed ? currentEmployeeId : employeeId;
             const status = isClaimed ? "CLAIMED" : "PENDING";
-            const claimedAt = isClaimed ? new Date() : null;
+            const claimedAt = isClaimed ? getCurrentDateTimePH() : null;
 
             // Logic for packages
             const originalPrice = s.originalPrice;
@@ -214,6 +267,28 @@ export async function createBookingInDb({
       if (reserveVoucher.count === 0) {
         throw new Error("Voucher is no longer available");
       }
+    }
+
+    if (isOnlinePayment) {
+      const paymentTypeForRecord: BookingPaymentType = isDownpayment
+        ? BookingPaymentType.DOWNPAYMENT
+        : BookingPaymentType.FULL;
+
+      await tx.bookingPayment.create({
+        data: {
+          booking_id: booking.id,
+          type: paymentTypeForRecord,
+          status: paymentConfirmed ? "SUCCEEDED" : "PENDING",
+          payment_method: "QRPH",
+          amount_principal: principalAmountForInitialPayment,
+          amount_charged: pricing.amountToPay,
+          paymongo_payment_intent_id: paymongoPaymentIntentId,
+          paymongo_payment_method_id: paymongoPaymentMethodId,
+          paymongo_payment_id: paymongoPaymentId,
+          expires_at: paymentConfirmed ? null : holdExpiresAt,
+          paid_at: paymentConfirmed ? getCurrentDateTimePH() : null,
+        },
+      });
     }
 
     // Publish outbox event for async processing (emails, etc.)

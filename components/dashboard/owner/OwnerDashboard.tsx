@@ -25,6 +25,7 @@ import OwnerServiceQueue, {
   OwnerClaimedService,
   OwnerPendingService,
 } from "./OwnerServiceQueue";
+import { GiftCardClaimDialog } from "../shared/GiftCardClaimDialog";
 
 type BookingWithDetails = Booking & {
   customer: Customer;
@@ -95,6 +96,7 @@ export default async function OwnerDashboard({
             categories={categories}
             businessSlug={businessSlug}
           />
+          <GiftCardClaimDialog businessSlug={businessSlug} />
         </div>
       </header>
 

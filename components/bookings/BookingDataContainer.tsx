@@ -5,7 +5,7 @@ import {
   getCachedServices,
   getCachedPackages,
 } from "@/lib/data/cached";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 export default async function BookingDataContainer({
   params,
@@ -40,7 +40,6 @@ export default async function BookingDataContainer({
         <div className="space-y-8 relative z-10">
           <div className="flex items-start gap-4">
             <Avatar className="h-16 w-16 lg:h-20 lg:w-20 border-2 border-primary/10 shadow-sm shrink-0">
-              <AvatarImage src="" alt={business.name} />
               <AvatarFallback className="text-xl lg:text-2xl font-bold bg-primary text-primary-foreground">
                 {business.name.slice(0, 2).toUpperCase()}
               </AvatarFallback>

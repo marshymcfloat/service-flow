@@ -1,6 +1,7 @@
 import { NextResponse, connection } from "next/server";
 import { prisma } from "@/prisma/prisma";
 import type { OutboxEventType } from "@/lib/services/outbox";
+import { getCurrentDateTimePH } from "@/lib/date-utils";
 
 const MAX_ATTEMPTS = 3;
 const BATCH_SIZE = 10;
@@ -177,7 +178,7 @@ export async function GET(request: Request) {
           where: { id: msg.id },
           data: {
             processed: true,
-            processed_at: new Date(),
+            processed_at: getCurrentDateTimePH(),
           },
         });
 
@@ -213,7 +214,7 @@ export async function GET(request: Request) {
       processed: messages.length,
       succeeded: successCount,
       failed: failCount,
-      processedAt: new Date().toISOString(),
+      processedAt: getCurrentDateTimePH().toISOString(),
     });
   } catch (error) {
     console.error("Process outbox cron error:", error);

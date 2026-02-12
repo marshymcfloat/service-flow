@@ -82,6 +82,7 @@ interface BookingFormProps {
   isEmployee?: boolean;
   currentEmployeeId?: number;
   isModal?: boolean;
+  mobileActionBarMode?: "auto" | "fixed" | "sticky";
   onSuccess?: () => void;
 }
 
@@ -110,6 +111,7 @@ type SelectedService = {
 
 type SelectedCustomer = {
   email?: string | null;
+  phone?: string | null;
 };
 
 export default function BookingForm({
@@ -118,12 +120,16 @@ export default function BookingForm({
   categories,
   isEmployee = false,
   currentEmployeeId,
+  isModal = false,
+  mobileActionBarMode = "auto",
   onSuccess,
 }: BookingFormProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const form = useForm({
     resolver: zodResolver(createBookingSchema),
+    mode: "onChange",
+    reValidateMode: "onChange",
     defaultValues: {
       customerId: "",
       customerName: "",
@@ -135,6 +141,7 @@ export default function BookingForm({
 
       paymentType: "FULL",
       email: "",
+      phone: "",
     },
   });
 
@@ -179,6 +186,9 @@ export default function BookingForm({
   }) as string;
 
   const [existingCustomerEmail, setExistingCustomerEmail] = useState<
+    string | null
+  >(null);
+  const [existingCustomerPhone, setExistingCustomerPhone] = useState<
     string | null
   >(null);
   const [pendingFlows, setPendingFlows] = useState<PendingFlow[]>([]);
@@ -233,13 +243,17 @@ export default function BookingForm({
     (customer: SelectedCustomer | null) => {
       if (customer === null) {
         setExistingCustomerEmail(null);
+        setExistingCustomerPhone(null);
         form.setValue("email", "", { shouldValidate: true });
-      } else if (customer && customer.email) {
-        setExistingCustomerEmail(customer.email);
-        form.setValue("email", customer.email, { shouldValidate: true });
+        form.setValue("phone", "", { shouldValidate: true });
       } else {
-        setExistingCustomerEmail(null);
-        form.setValue("email", "", { shouldValidate: true });
+        const selectedEmail = customer?.email || "";
+        const selectedPhone = customer?.phone || "";
+
+        setExistingCustomerEmail(customer?.email || null);
+        setExistingCustomerPhone(customer?.phone || null);
+        form.setValue("email", selectedEmail, { shouldValidate: true });
+        form.setValue("phone", selectedPhone, { shouldValidate: true });
       }
     },
     [form],
@@ -290,6 +304,7 @@ export default function BookingForm({
           setClaimedUniqueIds([]);
           setPendingFlows([]);
           setExistingCustomerEmail(null);
+          setExistingCustomerPhone(null);
           setQrPayment(null);
           toast.success("Payment Received! Booking confirmed.");
 
@@ -502,6 +517,17 @@ export default function BookingForm({
       !isWalkIn,
   });
 
+  const selectedSlotOwnerFallback = useMemo(() => {
+    if (!selectedTime) return false;
+    const selectedSlot = timeSlots.find(
+      (slot) => slot.startTime.getTime() === selectedTime.getTime(),
+    );
+    return (selectedSlot?.availableOwnerCount || 0) > 0;
+  }, [selectedTime, timeSlots]);
+
+  const totalWithFee =
+    finalAmountToPay + (paymentMethod === "QRPH" ? finalAmountToPay * 0.015 : 0);
+
   const { data: employees = [], isLoading: isLoadingEmployees } = useQuery({
     queryKey: [
       "employees",
@@ -576,6 +602,7 @@ export default function BookingForm({
         setClaimedUniqueIds([]);
         setPendingFlows([]);
         setExistingCustomerEmail(null);
+        setExistingCustomerPhone(null);
         toast.success("Booking successfully created");
 
         if (onSuccess) {
@@ -614,6 +641,7 @@ export default function BookingForm({
         paymentMethod: PaymentMethod;
         paymentType: PaymentType;
         email?: string;
+        phone?: string;
       };
       if (!businessSlug) {
         console.error("Business slug not found in URL");
@@ -623,10 +651,8 @@ export default function BookingForm({
 
       // Log removed for privacy
 
-      // For walk-in, force current time if not correctly set for some reason
-      const scheduledAt = isWalkIn
-        ? new Date()
-        : data.selectedTime || data.scheduledAt;
+      // Persist an exact slot time for scheduled bookings.
+      const scheduledAt = isWalkIn ? new Date() : data.selectedTime;
       if (!scheduledAt) {
         toast.error("Please select a date and time.");
         return;
@@ -660,6 +686,7 @@ export default function BookingForm({
         paymentType: data.paymentType,
         services: flatServicesPayload,
         email: data.email,
+        phone: data.phone?.trim() || undefined,
         voucherCode: appliedVoucher?.code,
         isWalkIn: isWalkIn,
       });
@@ -674,6 +701,20 @@ export default function BookingForm({
       appliedVoucher,
     ],
   );
+
+  const isSubmitDisabled =
+    isPending ||
+    !form.formState.isValid ||
+    (!selectedTime && !isWalkIn) ||
+    selectedServices.length === 0;
+
+  const resolvedMobileActionBarMode =
+    mobileActionBarMode === "auto"
+      ? isModal
+        ? "sticky"
+        : "fixed"
+      : mobileActionBarMode;
+  const usesFixedMobileActionBar = resolvedMobileActionBarMode === "fixed";
 
   const paymentMethodOptions = useMemo(() => {
     return isEmployee
@@ -694,14 +735,13 @@ export default function BookingForm({
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit(onSubmit, (errors) => {
-          console.error(
-            "Form Validation Errors:",
-            JSON.stringify(errors, null, 2),
-          );
+        onSubmit={form.handleSubmit(onSubmit, () => {
           toast.error("Please fill in all required fields correctly.");
         })}
-        className="flex flex-col 2xl:flex-row h-full gap-6 2xl:gap-8 relative isolate"
+        className={cn(
+          "relative isolate grid gap-4 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start lg:gap-6",
+          isModal && "lg:gap-5",
+        )}
       >
         {qrPayment && (
           <QrPaymentPanel
@@ -721,7 +761,12 @@ export default function BookingForm({
             }}
           />
         )}
-        <div className="flex-1 space-y-6 overflow-y-auto pb-4 2xl:pb-0 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+        <div
+          className={cn(
+            "space-y-4 lg:pb-4",
+            usesFixedMobileActionBar ? "pb-28 sm:pb-32" : "pb-4 sm:pb-4",
+          )}
+        >
           {/* Hidden Fields & Identification */}
           <FormField
             control={form.control}
@@ -731,7 +776,7 @@ export default function BookingForm({
             )}
           />
 
-          <div className="space-y-4">
+          <div className="space-y-4 rounded-2xl border bg-card/90 p-4 shadow-sm sm:p-5">
             <div className="flex items-center gap-2 mb-2">
               <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold">
                 1
@@ -790,6 +835,44 @@ export default function BookingForm({
                         </FormControl>
                         <p className="text-xs text-muted-foreground">
                           Required for QR payments.
+                        </p>
+                        <FormMessage />
+                      </>
+                    )}
+                  </FormItem>
+                );
+              }}
+            />
+
+            <FormField
+              control={form.control}
+              name="phone"
+              render={({ field }) => {
+                return (
+                  <FormItem>
+                    <FormLabel>Contact Number (Optional)</FormLabel>
+                    {isEmployee && existingCustomerPhone ? (
+                      <div className="text-sm bg-yellow-50 text-yellow-800 p-3 rounded-md border border-yellow-200">
+                        This customer already has a contact number linked (
+                        <span className="font-mono">{existingCustomerPhone}</span>
+                        ).
+                        <br />
+                        <span className="text-xs opacity-80">
+                          To change it, update their profile separately.
+                        </span>
+                      </div>
+                    ) : (
+                      <>
+                        <FormControl>
+                          <Input
+                            type="tel"
+                            placeholder="+63 9XX XXX XXXX"
+                            {...field}
+                          />
+                        </FormControl>
+                        <p className="text-xs text-muted-foreground">
+                          Optional. Add this so we can contact you if we need to
+                          clarify your booking details.
                         </p>
                         <FormMessage />
                       </>
@@ -913,7 +996,7 @@ export default function BookingForm({
           )}
 
           {/* Service Selection */}
-          <div className="space-y-4">
+          <div className="space-y-4 rounded-2xl border bg-card/90 p-4 shadow-sm sm:p-5">
             <div className="flex items-center gap-2 mb-2">
               <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold">
                 2
@@ -948,7 +1031,7 @@ export default function BookingForm({
           <Separator className="bg-border/40" />
 
           {isEmployee && (
-            <div className="flex items-center justify-between bg-secondary/30 p-4 rounded-xl border border-secondary">
+            <div className="flex items-center justify-between rounded-2xl border bg-secondary/20 p-4 shadow-sm">
               <div className="flex-1 mr-4">
                 <p className="text-sm font-semibold text-foreground">
                   Walk-in / Immediate
@@ -976,7 +1059,7 @@ export default function BookingForm({
 
           <div
             className={cn(
-              "space-y-6 transition-all duration-300",
+              "space-y-6 rounded-2xl border bg-card/90 p-4 shadow-sm transition-all duration-300 sm:p-5",
               isWalkIn || selectedServices.length === 0
                 ? "opacity-50 grayscale pointer-events-none hidden"
                 : "opacity-100",
@@ -1042,7 +1125,7 @@ export default function BookingForm({
           </div>
 
           {(isWalkIn || selectedTime) && !isEmployee && (
-            <div className="space-y-4 animate-in fade-in slide-in-from-left-4 duration-500">
+            <div className="space-y-4 rounded-2xl border bg-card/90 p-4 shadow-sm animate-in fade-in slide-in-from-left-4 duration-500 sm:p-5">
               <Separator className="bg-border/40" />
               <div className="flex items-center gap-2 mb-2">
                 <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold">
@@ -1065,6 +1148,7 @@ export default function BookingForm({
                         onChange={field.onChange}
                         isLoading={isLoadingEmployees}
                         serviceCategories={selectedServiceCategories}
+                        ownerAvailableFallback={selectedSlotOwnerFallback}
                       />
                     </FormControl>
                     <FormMessage />
@@ -1077,8 +1161,7 @@ export default function BookingForm({
           {(isWalkIn || selectedTime) &&
             isEmployee &&
             selectedServices.length > 0 && (
-              <div className="space-y-4 animate-in fade-in slide-in-from-left-4 duration-500">
-                <Separator className="bg-border/40" />
+              <div className="space-y-4 rounded-2xl border bg-card/90 p-4 shadow-sm animate-in fade-in slide-in-from-left-4 duration-500 sm:p-5">
                 <div className="flex items-center gap-2 mb-2">
                   <User className="size-5 text-primary" />
                   <h3 className="font-semibold text-lg tracking-tight">
@@ -1110,10 +1193,10 @@ export default function BookingForm({
             )}
         </div>
 
-        <div className="w-full 2xl:w-[380px] shrink-0">
-          <div className="2xl:sticky 2xl:top-8 space-y-4">
-            <Card className="border shadow-lg shadow-black/5 overflow-hidden">
-              <CardHeader className="bg-muted/30 pb-4 border-b">
+        <div className="w-full lg:w-[360px] lg:shrink-0">
+          <div className="space-y-4 lg:sticky lg:top-4">
+            <Card className="overflow-hidden border shadow-lg shadow-black/5">
+              <CardHeader className="border-b bg-muted/30 pb-4">
                 <CardTitle className="flex items-center justify-between text-base">
                   <span>Booking Summary</span>
                   {selectedServices.length > 0 && (
@@ -1124,8 +1207,8 @@ export default function BookingForm({
                 </CardTitle>
               </CardHeader>
 
-              <CardContent className="space-y-6 pt-6">
-                <div className="max-h-[300px] overflow-y-auto pr-1 -mr-2">
+              <CardContent className="space-y-6 pt-5 sm:pt-6">
+                <div className="max-h-[220px] overflow-y-auto pr-1 -mr-2 sm:max-h-[300px]">
                   <SelectedServiceList
                     form={form}
                     services={selectedServices}
@@ -1300,12 +1383,7 @@ export default function BookingForm({
                         </div>
                         <div className="text-2xl font-bold text-primary tabular-nums tracking-tight">
                           ₱
-                          {(
-                            finalAmountToPay +
-                            (paymentMethod === "QRPH"
-                              ? finalAmountToPay * 0.015
-                              : 0)
-                          ).toLocaleString(undefined, {
+                          {totalWithFee.toLocaleString(undefined, {
                             minimumFractionDigits: 2,
                             maximumFractionDigits: 2,
                           })}
@@ -1329,14 +1407,10 @@ export default function BookingForm({
                       )}
 
                       <Button
-                        disabled={
-                          isPending ||
-                          (!selectedTime && !isWalkIn) ||
-                          selectedServices.length === 0
-                        }
+                        disabled={isSubmitDisabled}
                         type="submit"
                         size="lg"
-                        className="w-full font-semibold shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all active:scale-[0.98]"
+                        className="hidden w-full font-semibold shadow-lg shadow-primary/20 transition-all hover:shadow-primary/30 active:scale-[0.98] lg:flex"
                       >
                         {isPending
                           ? "Processing..."
@@ -1349,6 +1423,42 @@ export default function BookingForm({
                 )}
               </CardContent>
             </Card>
+          </div>
+        </div>
+
+        <div
+          className={cn(
+            "z-40 border-t bg-background/95 px-4 py-3 backdrop-blur-sm supports-[backdrop-filter]:bg-background/80 lg:hidden",
+            usesFixedMobileActionBar
+              ? "fixed inset-x-0 bottom-0"
+              : "sticky bottom-0",
+          )}
+        >
+          <div className="mx-auto flex max-w-2xl items-center gap-3">
+            <div className="min-w-0">
+              <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                Due Now
+              </p>
+              <p className="truncate text-base font-bold tabular-nums text-primary">
+                ₱
+                {totalWithFee.toLocaleString(undefined, {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
+              </p>
+            </div>
+            <Button
+              disabled={isSubmitDisabled}
+              type="submit"
+              size="lg"
+              className="h-11 flex-1 font-semibold shadow-lg shadow-primary/20 transition-all hover:shadow-primary/30 active:scale-[0.98]"
+            >
+              {isPending
+                ? "Processing..."
+                : paymentMethod === "CASH"
+                  ? "Confirm Booking"
+                  : "Reserve & Pay"}
+            </Button>
           </div>
         </div>
       </form>

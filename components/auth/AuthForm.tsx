@@ -13,13 +13,26 @@ import { loginSchema, LoginSchemaType } from "@/lib/zod schemas/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
-import { Separator } from "../ui/separator";
 import { signIn, getSession } from "next-auth/react";
 import { useMutation } from "@tanstack/react-query";
 import { LoaderCircle, Mail, Lock } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
+
+const INVALID_CREDENTIALS_MESSAGE =
+  "Incorrect email or password. Please try again.";
+const GENERIC_SIGN_IN_ERROR_MESSAGE =
+  "Unable to sign in right now. Please try again.";
+
+function getSignInErrorMessage(error?: string | null) {
+  if (error === "CredentialsSignin" || error === "Invalid credentials") {
+    return INVALID_CREDENTIALS_MESSAGE;
+  }
+
+  return GENERIC_SIGN_IN_ERROR_MESSAGE;
+}
 
 export default function AuthForm() {
   const router = useRouter();
@@ -37,6 +50,17 @@ export default function AuthForm() {
 
   const { mutate, isPending } = useMutation({
     mutationFn: handleSigningIn,
+    onMutate: () => {
+      form.clearErrors();
+    },
+    onError: (error) => {
+      const message =
+        error instanceof Error ? error.message : GENERIC_SIGN_IN_ERROR_MESSAGE;
+      if (message === INVALID_CREDENTIALS_MESSAGE) {
+        return;
+      }
+      toast.error(message);
+    },
     onSuccess: (session) => {
       if (session?.user.role) {
         if (session.user.role === "EMPLOYEE") {
@@ -55,14 +79,15 @@ export default function AuthForm() {
       redirect: false,
     });
 
-    if (result?.error) {
-      const message = "Invalid credentials";
-      form.setError("email", { message });
-      form.setError("password", { message });
+    if (!result || result.error || !result.ok) {
+      const message = getSignInErrorMessage(result?.error);
+      if (message === INVALID_CREDENTIALS_MESSAGE) {
+        form.setError("root", { type: "manual", message });
+      }
       throw new Error(message);
     }
 
-    return await getSession();
+    return getSession();
   }
 
   return (
@@ -129,6 +154,15 @@ export default function AuthForm() {
           ))}
         </div>
 
+        {form.formState.errors.root?.message ? (
+          <p
+            role="alert"
+            className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
+          >
+            {form.formState.errors.root.message}
+          </p>
+        ) : null}
+
         <div className="flex flex-col gap-4 pt-2 animate-in fade-in slide-in-from-bottom-2 duration-700 delay-300 ease-out fill-mode-backwards">
           <Button
             type="submit"
@@ -141,14 +175,6 @@ export default function AuthForm() {
               "Login to Dashboard"
             )}
           </Button>
-
-          <div className="flex items-center gap-4">
-            <Separator className="flex-1 bg-slate-200" />
-            <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-              Or continue with
-            </span>
-            <Separator className="flex-1 bg-slate-200" />
-          </div>
         </div>
       </form>
     </Form>

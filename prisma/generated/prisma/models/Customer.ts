@@ -200,6 +200,7 @@ export type CustomerWhereInput = {
   updated_at?: Prisma.DateTimeFilter<"Customer"> | Date | string
   business?: Prisma.XOR<Prisma.BusinessScalarRelationFilter, Prisma.BusinessWhereInput>
   bookings?: Prisma.BookingListRelationFilter
+  claimed_gift_cards?: Prisma.GiftCardListRelationFilter
 }
 
 export type CustomerOrderByWithRelationInput = {
@@ -212,6 +213,7 @@ export type CustomerOrderByWithRelationInput = {
   updated_at?: Prisma.SortOrder
   business?: Prisma.BusinessOrderByWithRelationInput
   bookings?: Prisma.BookingOrderByRelationAggregateInput
+  claimed_gift_cards?: Prisma.GiftCardOrderByRelationAggregateInput
 }
 
 export type CustomerWhereUniqueInput = Prisma.AtLeast<{
@@ -227,6 +229,7 @@ export type CustomerWhereUniqueInput = Prisma.AtLeast<{
   updated_at?: Prisma.DateTimeFilter<"Customer"> | Date | string
   business?: Prisma.XOR<Prisma.BusinessScalarRelationFilter, Prisma.BusinessWhereInput>
   bookings?: Prisma.BookingListRelationFilter
+  claimed_gift_cards?: Prisma.GiftCardListRelationFilter
 }, "id">
 
 export type CustomerOrderByWithAggregationInput = {
@@ -264,6 +267,7 @@ export type CustomerCreateInput = {
   updated_at?: Date | string
   business: Prisma.BusinessCreateNestedOneWithoutCustomersInput
   bookings?: Prisma.BookingCreateNestedManyWithoutCustomerInput
+  claimed_gift_cards?: Prisma.GiftCardCreateNestedManyWithoutClaimed_by_customerInput
 }
 
 export type CustomerUncheckedCreateInput = {
@@ -275,6 +279,7 @@ export type CustomerUncheckedCreateInput = {
   created_at?: Date | string
   updated_at?: Date | string
   bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutCustomerInput
+  claimed_gift_cards?: Prisma.GiftCardUncheckedCreateNestedManyWithoutClaimed_by_customerInput
 }
 
 export type CustomerUpdateInput = {
@@ -286,6 +291,7 @@ export type CustomerUpdateInput = {
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   business?: Prisma.BusinessUpdateOneRequiredWithoutCustomersNestedInput
   bookings?: Prisma.BookingUpdateManyWithoutCustomerNestedInput
+  claimed_gift_cards?: Prisma.GiftCardUpdateManyWithoutClaimed_by_customerNestedInput
 }
 
 export type CustomerUncheckedUpdateInput = {
@@ -297,6 +303,7 @@ export type CustomerUncheckedUpdateInput = {
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   bookings?: Prisma.BookingUncheckedUpdateManyWithoutCustomerNestedInput
+  claimed_gift_cards?: Prisma.GiftCardUncheckedUpdateManyWithoutClaimed_by_customerNestedInput
 }
 
 export type CustomerCreateManyInput = {
@@ -373,6 +380,11 @@ export type CustomerScalarRelationFilter = {
   isNot?: Prisma.CustomerWhereInput
 }
 
+export type CustomerNullableScalarRelationFilter = {
+  is?: Prisma.CustomerWhereInput | null
+  isNot?: Prisma.CustomerWhereInput | null
+}
+
 export type CustomerCreateNestedManyWithoutBusinessInput = {
   create?: Prisma.XOR<Prisma.CustomerCreateWithoutBusinessInput, Prisma.CustomerUncheckedCreateWithoutBusinessInput> | Prisma.CustomerCreateWithoutBusinessInput[] | Prisma.CustomerUncheckedCreateWithoutBusinessInput[]
   connectOrCreate?: Prisma.CustomerCreateOrConnectWithoutBusinessInput | Prisma.CustomerCreateOrConnectWithoutBusinessInput[]
@@ -429,6 +441,22 @@ export type CustomerUpdateOneRequiredWithoutBookingsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.CustomerUpdateToOneWithWhereWithoutBookingsInput, Prisma.CustomerUpdateWithoutBookingsInput>, Prisma.CustomerUncheckedUpdateWithoutBookingsInput>
 }
 
+export type CustomerCreateNestedOneWithoutClaimed_gift_cardsInput = {
+  create?: Prisma.XOR<Prisma.CustomerCreateWithoutClaimed_gift_cardsInput, Prisma.CustomerUncheckedCreateWithoutClaimed_gift_cardsInput>
+  connectOrCreate?: Prisma.CustomerCreateOrConnectWithoutClaimed_gift_cardsInput
+  connect?: Prisma.CustomerWhereUniqueInput
+}
+
+export type CustomerUpdateOneWithoutClaimed_gift_cardsNestedInput = {
+  create?: Prisma.XOR<Prisma.CustomerCreateWithoutClaimed_gift_cardsInput, Prisma.CustomerUncheckedCreateWithoutClaimed_gift_cardsInput>
+  connectOrCreate?: Prisma.CustomerCreateOrConnectWithoutClaimed_gift_cardsInput
+  upsert?: Prisma.CustomerUpsertWithoutClaimed_gift_cardsInput
+  disconnect?: Prisma.CustomerWhereInput | boolean
+  delete?: Prisma.CustomerWhereInput | boolean
+  connect?: Prisma.CustomerWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CustomerUpdateToOneWithWhereWithoutClaimed_gift_cardsInput, Prisma.CustomerUpdateWithoutClaimed_gift_cardsInput>, Prisma.CustomerUncheckedUpdateWithoutClaimed_gift_cardsInput>
+}
+
 export type CustomerCreateWithoutBusinessInput = {
   id?: string
   name: string
@@ -437,6 +465,7 @@ export type CustomerCreateWithoutBusinessInput = {
   created_at?: Date | string
   updated_at?: Date | string
   bookings?: Prisma.BookingCreateNestedManyWithoutCustomerInput
+  claimed_gift_cards?: Prisma.GiftCardCreateNestedManyWithoutClaimed_by_customerInput
 }
 
 export type CustomerUncheckedCreateWithoutBusinessInput = {
@@ -447,6 +476,7 @@ export type CustomerUncheckedCreateWithoutBusinessInput = {
   created_at?: Date | string
   updated_at?: Date | string
   bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutCustomerInput
+  claimed_gift_cards?: Prisma.GiftCardUncheckedCreateNestedManyWithoutClaimed_by_customerInput
 }
 
 export type CustomerCreateOrConnectWithoutBusinessInput = {
@@ -496,6 +526,7 @@ export type CustomerCreateWithoutBookingsInput = {
   created_at?: Date | string
   updated_at?: Date | string
   business: Prisma.BusinessCreateNestedOneWithoutCustomersInput
+  claimed_gift_cards?: Prisma.GiftCardCreateNestedManyWithoutClaimed_by_customerInput
 }
 
 export type CustomerUncheckedCreateWithoutBookingsInput = {
@@ -506,6 +537,7 @@ export type CustomerUncheckedCreateWithoutBookingsInput = {
   business_id: string
   created_at?: Date | string
   updated_at?: Date | string
+  claimed_gift_cards?: Prisma.GiftCardUncheckedCreateNestedManyWithoutClaimed_by_customerInput
 }
 
 export type CustomerCreateOrConnectWithoutBookingsInput = {
@@ -532,6 +564,7 @@ export type CustomerUpdateWithoutBookingsInput = {
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   business?: Prisma.BusinessUpdateOneRequiredWithoutCustomersNestedInput
+  claimed_gift_cards?: Prisma.GiftCardUpdateManyWithoutClaimed_by_customerNestedInput
 }
 
 export type CustomerUncheckedUpdateWithoutBookingsInput = {
@@ -542,6 +575,67 @@ export type CustomerUncheckedUpdateWithoutBookingsInput = {
   business_id?: Prisma.StringFieldUpdateOperationsInput | string
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  claimed_gift_cards?: Prisma.GiftCardUncheckedUpdateManyWithoutClaimed_by_customerNestedInput
+}
+
+export type CustomerCreateWithoutClaimed_gift_cardsInput = {
+  id?: string
+  name: string
+  email?: string | null
+  phone?: string | null
+  created_at?: Date | string
+  updated_at?: Date | string
+  business: Prisma.BusinessCreateNestedOneWithoutCustomersInput
+  bookings?: Prisma.BookingCreateNestedManyWithoutCustomerInput
+}
+
+export type CustomerUncheckedCreateWithoutClaimed_gift_cardsInput = {
+  id?: string
+  name: string
+  email?: string | null
+  phone?: string | null
+  business_id: string
+  created_at?: Date | string
+  updated_at?: Date | string
+  bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutCustomerInput
+}
+
+export type CustomerCreateOrConnectWithoutClaimed_gift_cardsInput = {
+  where: Prisma.CustomerWhereUniqueInput
+  create: Prisma.XOR<Prisma.CustomerCreateWithoutClaimed_gift_cardsInput, Prisma.CustomerUncheckedCreateWithoutClaimed_gift_cardsInput>
+}
+
+export type CustomerUpsertWithoutClaimed_gift_cardsInput = {
+  update: Prisma.XOR<Prisma.CustomerUpdateWithoutClaimed_gift_cardsInput, Prisma.CustomerUncheckedUpdateWithoutClaimed_gift_cardsInput>
+  create: Prisma.XOR<Prisma.CustomerCreateWithoutClaimed_gift_cardsInput, Prisma.CustomerUncheckedCreateWithoutClaimed_gift_cardsInput>
+  where?: Prisma.CustomerWhereInput
+}
+
+export type CustomerUpdateToOneWithWhereWithoutClaimed_gift_cardsInput = {
+  where?: Prisma.CustomerWhereInput
+  data: Prisma.XOR<Prisma.CustomerUpdateWithoutClaimed_gift_cardsInput, Prisma.CustomerUncheckedUpdateWithoutClaimed_gift_cardsInput>
+}
+
+export type CustomerUpdateWithoutClaimed_gift_cardsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  business?: Prisma.BusinessUpdateOneRequiredWithoutCustomersNestedInput
+  bookings?: Prisma.BookingUpdateManyWithoutCustomerNestedInput
+}
+
+export type CustomerUncheckedUpdateWithoutClaimed_gift_cardsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  business_id?: Prisma.StringFieldUpdateOperationsInput | string
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  bookings?: Prisma.BookingUncheckedUpdateManyWithoutCustomerNestedInput
 }
 
 export type CustomerCreateManyBusinessInput = {
@@ -561,6 +655,7 @@ export type CustomerUpdateWithoutBusinessInput = {
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   bookings?: Prisma.BookingUpdateManyWithoutCustomerNestedInput
+  claimed_gift_cards?: Prisma.GiftCardUpdateManyWithoutClaimed_by_customerNestedInput
 }
 
 export type CustomerUncheckedUpdateWithoutBusinessInput = {
@@ -571,6 +666,7 @@ export type CustomerUncheckedUpdateWithoutBusinessInput = {
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   bookings?: Prisma.BookingUncheckedUpdateManyWithoutCustomerNestedInput
+  claimed_gift_cards?: Prisma.GiftCardUncheckedUpdateManyWithoutClaimed_by_customerNestedInput
 }
 
 export type CustomerUncheckedUpdateManyWithoutBusinessInput = {
@@ -589,10 +685,12 @@ export type CustomerUncheckedUpdateManyWithoutBusinessInput = {
 
 export type CustomerCountOutputType = {
   bookings: number
+  claimed_gift_cards: number
 }
 
 export type CustomerCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   bookings?: boolean | CustomerCountOutputTypeCountBookingsArgs
+  claimed_gift_cards?: boolean | CustomerCountOutputTypeCountClaimed_gift_cardsArgs
 }
 
 /**
@@ -612,6 +710,13 @@ export type CustomerCountOutputTypeCountBookingsArgs<ExtArgs extends runtime.Typ
   where?: Prisma.BookingWhereInput
 }
 
+/**
+ * CustomerCountOutputType without action
+ */
+export type CustomerCountOutputTypeCountClaimed_gift_cardsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.GiftCardWhereInput
+}
+
 
 export type CustomerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -623,6 +728,7 @@ export type CustomerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   updated_at?: boolean
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
   bookings?: boolean | Prisma.Customer$bookingsArgs<ExtArgs>
+  claimed_gift_cards?: boolean | Prisma.Customer$claimed_gift_cardsArgs<ExtArgs>
   _count?: boolean | Prisma.CustomerCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["customer"]>
 
@@ -662,6 +768,7 @@ export type CustomerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs =
 export type CustomerInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
   bookings?: boolean | Prisma.Customer$bookingsArgs<ExtArgs>
+  claimed_gift_cards?: boolean | Prisma.Customer$claimed_gift_cardsArgs<ExtArgs>
   _count?: boolean | Prisma.CustomerCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type CustomerIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -676,6 +783,7 @@ export type $CustomerPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
   objects: {
     business: Prisma.$BusinessPayload<ExtArgs>
     bookings: Prisma.$BookingPayload<ExtArgs>[]
+    claimed_gift_cards: Prisma.$GiftCardPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1081,6 +1189,7 @@ export interface Prisma__CustomerClient<T, Null = never, ExtArgs extends runtime
   readonly [Symbol.toStringTag]: "PrismaPromise"
   business<T extends Prisma.BusinessDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.BusinessDefaultArgs<ExtArgs>>): Prisma.Prisma__BusinessClient<runtime.Types.Result.GetResult<Prisma.$BusinessPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   bookings<T extends Prisma.Customer$bookingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Customer$bookingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BookingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  claimed_gift_cards<T extends Prisma.Customer$claimed_gift_cardsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Customer$claimed_gift_cardsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$GiftCardPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1534,6 +1643,30 @@ export type Customer$bookingsArgs<ExtArgs extends runtime.Types.Extensions.Inter
   take?: number
   skip?: number
   distinct?: Prisma.BookingScalarFieldEnum | Prisma.BookingScalarFieldEnum[]
+}
+
+/**
+ * Customer.claimed_gift_cards
+ */
+export type Customer$claimed_gift_cardsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the GiftCard
+   */
+  select?: Prisma.GiftCardSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the GiftCard
+   */
+  omit?: Prisma.GiftCardOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.GiftCardInclude<ExtArgs> | null
+  where?: Prisma.GiftCardWhereInput
+  orderBy?: Prisma.GiftCardOrderByWithRelationInput | Prisma.GiftCardOrderByWithRelationInput[]
+  cursor?: Prisma.GiftCardWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.GiftCardScalarFieldEnum | Prisma.GiftCardScalarFieldEnum[]
 }
 
 /**

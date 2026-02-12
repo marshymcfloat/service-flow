@@ -66,7 +66,11 @@ export const ModelName = {
   PackageItem: 'PackageItem',
   Customer: 'Customer',
   Booking: 'Booking',
+  BookingPayment: 'BookingPayment',
   Voucher: 'Voucher',
+  GiftCard: 'GiftCard',
+  GiftCardService: 'GiftCardService',
+  GiftCardPackage: 'GiftCardPackage',
   AvailedService: 'AvailedService',
   ServiceFlow: 'ServiceFlow',
   OutboxMessage: 'OutboxMessage',
@@ -295,6 +299,8 @@ export const BookingScalarFieldEnum = {
   customer_id: 'customer_id',
   business_id: 'business_id',
   payment_method: 'payment_method',
+  payment_status: 'payment_status',
+  amount_paid: 'amount_paid',
   paymongo_checkout_session_id: 'paymongo_checkout_session_id',
   paymongo_payment_intent_id: 'paymongo_payment_intent_id',
   paymongo_payment_method_id: 'paymongo_payment_method_id',
@@ -315,6 +321,27 @@ export const BookingScalarFieldEnum = {
 export type BookingScalarFieldEnum = (typeof BookingScalarFieldEnum)[keyof typeof BookingScalarFieldEnum]
 
 
+export const BookingPaymentScalarFieldEnum = {
+  id: 'id',
+  booking_id: 'booking_id',
+  type: 'type',
+  status: 'status',
+  payment_method: 'payment_method',
+  amount_principal: 'amount_principal',
+  amount_charged: 'amount_charged',
+  paymongo_payment_intent_id: 'paymongo_payment_intent_id',
+  paymongo_payment_method_id: 'paymongo_payment_method_id',
+  paymongo_payment_id: 'paymongo_payment_id',
+  expires_at: 'expires_at',
+  paid_at: 'paid_at',
+  metadata: 'metadata',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type BookingPaymentScalarFieldEnum = (typeof BookingPaymentScalarFieldEnum)[keyof typeof BookingPaymentScalarFieldEnum]
+
+
 export const VoucherScalarFieldEnum = {
   id: 'id',
   code: 'code',
@@ -330,6 +357,41 @@ export const VoucherScalarFieldEnum = {
 } as const
 
 export type VoucherScalarFieldEnum = (typeof VoucherScalarFieldEnum)[keyof typeof VoucherScalarFieldEnum]
+
+
+export const GiftCardScalarFieldEnum = {
+  id: 'id',
+  code: 'code',
+  customer_name: 'customer_name',
+  customer_email: 'customer_email',
+  expires_at: 'expires_at',
+  is_claimed: 'is_claimed',
+  claimed_at: 'claimed_at',
+  claimed_by_customer_id: 'claimed_by_customer_id',
+  business_id: 'business_id',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type GiftCardScalarFieldEnum = (typeof GiftCardScalarFieldEnum)[keyof typeof GiftCardScalarFieldEnum]
+
+
+export const GiftCardServiceScalarFieldEnum = {
+  id: 'id',
+  gift_card_id: 'gift_card_id',
+  service_id: 'service_id'
+} as const
+
+export type GiftCardServiceScalarFieldEnum = (typeof GiftCardServiceScalarFieldEnum)[keyof typeof GiftCardServiceScalarFieldEnum]
+
+
+export const GiftCardPackageScalarFieldEnum = {
+  id: 'id',
+  gift_card_id: 'gift_card_id',
+  package_id: 'package_id'
+} as const
+
+export type GiftCardPackageScalarFieldEnum = (typeof GiftCardPackageScalarFieldEnum)[keyof typeof GiftCardPackageScalarFieldEnum]
 
 
 export const AvailedServiceScalarFieldEnum = {
@@ -414,19 +476,19 @@ export const SortOrder = {
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 
-export const JsonNullValueInput = {
-  JsonNull: JsonNull
-} as const
-
-export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
-
-
 export const NullableJsonNullValueInput = {
   DbNull: DbNull,
   JsonNull: JsonNull
 } as const
 
 export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
 export const QueryMode = {

@@ -16,6 +16,11 @@ const {
       findFirst: vi.fn(),
       update: vi.fn(),
     },
+    bookingPayment: {
+      findFirst: vi.fn(),
+      update: vi.fn(),
+      create: vi.fn(),
+    },
     voucher: {
       updateMany: vi.fn(),
     },
@@ -29,6 +34,9 @@ const {
     },
     booking: {
       findFirst: vi.fn(),
+    },
+    bookingPayment: {
+      updateMany: vi.fn(),
     },
   },
 }));
@@ -75,9 +83,13 @@ describe("paymongo webhook security", () => {
     prismaMock.auditLog.findFirst.mockResolvedValue(null);
     prismaMock.auditLog.create.mockResolvedValue({ id: "audit_1" });
     prismaMock.booking.findFirst.mockResolvedValue(null);
+    prismaMock.bookingPayment.updateMany.mockResolvedValue({ count: 0 });
 
     txMock.booking.findFirst.mockResolvedValue(null);
     txMock.booking.update.mockResolvedValue(undefined);
+    txMock.bookingPayment.findFirst.mockResolvedValue(null);
+    txMock.bookingPayment.update.mockResolvedValue(undefined);
+    txMock.bookingPayment.create.mockResolvedValue(undefined);
     txMock.voucher.updateMany.mockResolvedValue({ count: 0 });
   });
 
@@ -146,7 +158,7 @@ describe("paymongo webhook security", () => {
     expect(txMock.voucher.updateMany).not.toHaveBeenCalled();
   });
 
-  it("returns 500 and leaves event unprocessed when payment metadata cannot be resolved", async () => {
+  it("safely ignores payment.paid when no local record exists", async () => {
     const body = JSON.stringify({
       data: {
         id: "evt_paid_missing_metadata",
@@ -172,8 +184,8 @@ describe("paymongo webhook security", () => {
 
     const response = await POST(req);
 
-    expect(response.status).toBe(500);
-    expect(prismaMock.auditLog.create).not.toHaveBeenCalled();
+    expect(response.status).toBe(200);
+    expect(prismaMock.auditLog.create).toHaveBeenCalledTimes(1);
   });
 
   it("deduplicates already-processed events", async () => {

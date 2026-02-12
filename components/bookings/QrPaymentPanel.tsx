@@ -19,7 +19,9 @@ export interface QrPaymentPanelProps {
 }
 
 const getImageSrc = (image: string) =>
-  image.startsWith("data:") ? image : `data:image/png;base64,${image}`;
+  image.startsWith("data:") || image.startsWith("http")
+    ? image
+    : `data:image/png;base64,${image}`;
 
 export default function QrPaymentPanel({
   qrImage,

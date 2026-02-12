@@ -3,7 +3,7 @@
 import { formatPH } from "@/lib/date-utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Inbox, Clock as ClockIcon } from "lucide-react";
+import { Inbox, Clock as ClockIcon, RefreshCcw } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -12,12 +12,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   claimServiceAction,
   getPendingServicesAction,
 } from "@/lib/server actions/dashboard";
+import {
+  getEmployeeSpecialtySet,
+  isCategoryAllowedForEmployee,
+} from "@/lib/utils/employee-specialties";
 
 import {
   getApplicableDiscount,
@@ -30,11 +34,14 @@ export interface PendingService {
     id: number; // Ensure ID is present
     name: string;
     duration: number | null;
+    category: string;
   };
   booking: {
     customer: {
       name: string;
     };
+    scheduled_at?: Date | null;
+    created_at?: Date | null;
     downpayment: number | null;
     downpayment_status: string | null;
     grand_total: number;
@@ -51,24 +58,52 @@ export default function PendingServicesList({
   services: initialServices,
   businessSlug,
   currentEmployeeId,
+  employeeSpecialties,
   saleEvents = [],
 }: {
   services: PendingService[];
   businessSlug: string;
   currentEmployeeId: number;
+  employeeSpecialties?: string[];
   saleEvents?: SaleEventForPricing[];
 }) {
   const [selectedService, setSelectedService] = useState<PendingService | null>(
     null,
   );
   const [isClaiming, setIsClaiming] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const { data: services } = useQuery({
+  const { data: services = [], refetch } = useQuery({
     queryKey: ["pending-services", businessSlug],
     queryFn: () => getPendingServicesAction(),
     initialData: initialServices,
     refetchInterval: 5000,
   });
+
+  const employeeSpecialtySet = useMemo(
+    () => getEmployeeSpecialtySet(employeeSpecialties),
+    [employeeSpecialties],
+  );
+
+  const visibleServices = useMemo(
+    () =>
+      services.filter((item) =>
+        isCategoryAllowedForEmployee(item.service.category, employeeSpecialtySet),
+      ),
+    [services, employeeSpecialtySet],
+  );
+
+  const getDisplayScheduledAt = (item: PendingService) =>
+    item.booking.scheduled_at ?? item.booking.created_at ?? item.scheduled_at;
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      await refetch();
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
 
   const handleClaim = async () => {
     if (!selectedService) return;
@@ -90,7 +125,22 @@ export default function PendingServicesList({
     <>
       <div className="h-full flex flex-col">
         <div className="space-y-4 p-4 lg:p-0">
-          {services.length === 0 ? (
+          <div className="flex justify-end">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleRefresh}
+              disabled={isRefreshing}
+              className="h-9 gap-2 rounded-xl border-zinc-200 bg-white hover:bg-zinc-50 hover:text-zinc-900 transition-colors"
+            >
+              <RefreshCcw
+                className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`}
+              />
+              <span className="font-medium">Refresh</span>
+            </Button>
+          </div>
+
+          {visibleServices.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-center space-y-4 opacity-70 border-2 border-dashed border-slate-200 rounded-3xl">
               <div className="bg-slate-50 p-6 rounded-full">
                 <Inbox className="w-10 h-10 text-slate-300" />
@@ -105,7 +155,7 @@ export default function PendingServicesList({
               </div>
             </div>
           ) : (
-            services.map((item) => {
+            visibleServices.map((item) => {
               const customerInitials = item.booking.customer.name
                 .split(" ")
                 .map((n) => n[0])
@@ -156,8 +206,8 @@ export default function PendingServicesList({
                         <div className="flex items-center gap-3 pt-1">
                           <span className="flex items-center gap-1 text-[10px] font-semibold text-slate-400 bg-slate-50 px-2 py-0.5 rounded-md">
                             <ClockIcon className="w-3 h-3" />
-                            {item.scheduled_at
-                              ? formatPH(item.scheduled_at, "h:mm a")
+                            {getDisplayScheduledAt(item)
+                              ? formatPH(getDisplayScheduledAt(item), "h:mm a")
                               : "Walk-in"}
                           </span>
                           {item.service.duration && (

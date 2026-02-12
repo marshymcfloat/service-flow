@@ -26,9 +26,9 @@ export default function TimeSlotPicker({
 }: TimeSlotPickerProps) {
   if (isLoading) {
     return (
-      <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
         {Array.from({ length: 8 }).map((_, i) => (
-          <div key={i} className="h-16 rounded-md bg-muted animate-pulse" />
+          <div key={i} className="h-14 rounded-lg bg-muted animate-pulse" />
         ))}
       </div>
     );
@@ -50,7 +50,7 @@ export default function TimeSlotPicker({
         <Clock className="h-8 w-8 mx-auto mb-2 opacity-50" />
         <p>No available slots for the selected services</p>
         <p className="text-sm">
-          Try selecting a different day or removing a time-restricted service
+          No available providers for this day/time. Try a different day.
         </p>
       </div>
     );
@@ -76,14 +76,16 @@ export default function TimeSlotPicker({
           </p>
         </div>
       )}
-      <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 max-h-[300px] overflow-y-auto p-1">
+      <div className="grid grid-cols-2 gap-2.5 p-1 sm:grid-cols-3 lg:grid-cols-4 max-h-[300px] overflow-y-auto">
         {slots.map((slot) => {
           const isSelected =
             value && slot.startTime.getTime() === value.getTime();
+          const totalAvailableProviders =
+            slot.availableEmployeeCount + slot.availableOwnerCount;
           const availabilityLevel =
-            slot.availableEmployeeCount >= 3
+            totalAvailableProviders >= 3
               ? "high"
-              : slot.availableEmployeeCount >= 1
+              : totalAvailableProviders >= 1
                 ? "medium"
                 : "none";
 
@@ -95,7 +97,7 @@ export default function TimeSlotPicker({
               disabled={!slot.available}
               onClick={() => onChange(slot.startTime)}
               className={cn(
-                "h-auto py-3 px-2 flex flex-col items-center gap-1.5 transition-all duration-200",
+                "h-auto min-h-14 px-2 py-2.5 flex flex-col items-center justify-center gap-1.5 transition-all duration-200",
                 !slot.available && "opacity-40 cursor-not-allowed bg-muted/50",
                 isSelected
                   ? "shadow-md ring-2 ring-primary/20 ring-offset-1 scale-[1.02]"
@@ -128,8 +130,13 @@ export default function TimeSlotPicker({
                       : "text-muted-foreground",
                 )}
               >
-                {slot.availableEmployeeCount}{" "}
-                {slot.availableEmployeeCount === 1 ? "Staff" : "Staffs"}
+                {slot.availableEmployeeCount > 0
+                  ? `${slot.availableEmployeeCount} ${
+                      slot.availableEmployeeCount === 1 ? "Employee" : "Employees"
+                    }`
+                  : slot.availableOwnerCount > 0
+                    ? "Available"
+                    : "Unavailable"}
               </span>
             </Button>
           );

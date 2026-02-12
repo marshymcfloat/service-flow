@@ -4,6 +4,7 @@ import {
   ChevronsUpDown,
   Package as PackageIcon,
   AlertCircle,
+  User,
   Users,
   Clock,
 } from "lucide-react";
@@ -51,6 +52,8 @@ type CategoryAvailability = {
   hasBusinessHours: boolean;
   businessHoursPassed: boolean;
   qualifiedEmployeeCount: number;
+  ownerAvailable: boolean;
+  availabilitySource: "ATTENDANCE" | "ROSTER";
 };
 
 type FormLike = {
@@ -146,6 +149,7 @@ const ServiceSelect = React.memo(function ServiceSelect({
             businessSlug,
             category,
             date: selectedDate,
+            enforceAttendanceForToday: !!selectedDate,
           });
         } catch (error) {
           console.error(`Error checking availability for ${category}:`, error);
@@ -153,6 +157,8 @@ const ServiceSelect = React.memo(function ServiceSelect({
             hasBusinessHours: true,
             businessHoursPassed: false,
             qualifiedEmployeeCount: 0,
+            ownerAvailable: false,
+            availabilitySource: "ROSTER",
           };
         }
       }
@@ -267,7 +273,7 @@ const ServiceSelect = React.memo(function ServiceSelect({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-full justify-between"
+          className="h-11 w-full justify-between rounded-xl"
         >
           {selectedServices.length > 0
             ? `${selectedServices.length} service${
@@ -278,7 +284,7 @@ const ServiceSelect = React.memo(function ServiceSelect({
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        className="w-(--radix-popover-trigger-width) p-0 pointer-events-auto"
+        className="w-(--radix-popover-trigger-width) max-h-[70vh] overflow-hidden rounded-xl border p-0 pointer-events-auto"
         align="start"
       >
         <div className="flex p-2 gap-2 border-b">
@@ -335,7 +341,7 @@ const ServiceSelect = React.memo(function ServiceSelect({
             }
           />
           <div
-            className="max-h-[300px] overflow-y-auto overscroll-contain"
+            className="max-h-[320px] overflow-y-auto overscroll-contain sm:max-h-[360px]"
             onWheel={(e) => e.stopPropagation()}
           >
             <CommandList className="max-h-none overflow-visible">
@@ -356,17 +362,28 @@ const ServiceSelect = React.memo(function ServiceSelect({
                       const availability =
                         categoryAvailability?.[service.category];
                       const dataLoaded = !!availability;
+                      const ownerAvailable = !!availability?.ownerAvailable;
                       const noStaff =
                         dataLoaded &&
-                        availability?.qualifiedEmployeeCount === 0;
+                        availability?.qualifiedEmployeeCount === 0 &&
+                        !ownerAvailable;
+                      const noEmployeesButOwner =
+                        dataLoaded &&
+                        availability?.qualifiedEmployeeCount === 0 &&
+                        ownerAvailable;
                       const outsideHours =
                         dataLoaded &&
                         availability?.businessHoursPassed === true;
                       const noBusinessHours =
                         dataLoaded && availability?.hasBusinessHours === false;
-                      const isDisabled = noStaff || noBusinessHours;
+                      const isClosedForSelectedDate =
+                        !!selectedDate && outsideHours;
+                      const isDisabled =
+                        noStaff || noBusinessHours || isClosedForSelectedDate;
                       const qualifiedEmployeeCount =
                         availability?.qualifiedEmployeeCount ?? 0;
+                      const usesAttendance =
+                        availability?.availabilitySource === "ATTENDANCE";
 
                       return (
                         <CommandItem
@@ -424,7 +441,18 @@ const ServiceSelect = React.memo(function ServiceSelect({
                                     className="h-4 px-1.5 text-[10px] bg-orange-50 text-orange-700 border-orange-200 shadow-none flex items-center gap-1"
                                   >
                                     <Users className="h-2.5 w-2.5" />
-                                    No Staff
+                                    {usesAttendance
+                                      ? "No One Clocked In"
+                                      : "No Staff"}
+                                  </Badge>
+                                )}
+                                {noEmployeesButOwner && (
+                                  <Badge
+                                    variant="secondary"
+                                    className="h-4 px-1.5 text-[10px] bg-blue-50 text-blue-700 border-blue-200 shadow-none flex items-center gap-1"
+                                  >
+                                    <User className="h-2.5 w-2.5" />
+                                    Available Now
                                   </Badge>
                                 )}
                                 {outsideHours && (
@@ -453,7 +481,16 @@ const ServiceSelect = React.memo(function ServiceSelect({
                                   !noBusinessHours && (
                                     <span className="ml-2 text-green-600">
                                       • {qualifiedEmployeeCount}{" "}
-                                      staff available
+                                      {usesAttendance
+                                        ? "clocked in"
+                                        : "staff available"}
+                                    </span>
+                                  )}
+                                {ownerAvailable &&
+                                  !outsideHours &&
+                                  !noBusinessHours && (
+                                    <span className="ml-2 text-blue-600">
+                                      - available now
                                     </span>
                                   )}
                               </span>
@@ -492,15 +529,26 @@ const ServiceSelect = React.memo(function ServiceSelect({
                   : packages.map((pkg) => {
                       const availability = categoryAvailability?.[pkg.category];
                       const dataLoaded = !!availability;
+                      const ownerAvailable = !!availability?.ownerAvailable;
                       const noStaff =
                         dataLoaded &&
-                        availability?.qualifiedEmployeeCount === 0;
+                        availability?.qualifiedEmployeeCount === 0 &&
+                        !ownerAvailable;
+                      const noEmployeesButOwner =
+                        dataLoaded &&
+                        availability?.qualifiedEmployeeCount === 0 &&
+                        ownerAvailable;
                       const outsideHours =
                         dataLoaded &&
                         availability?.businessHoursPassed === true;
                       const noBusinessHours =
                         dataLoaded && availability?.hasBusinessHours === false;
-                      const isDisabled = noStaff || noBusinessHours;
+                      const isClosedForSelectedDate =
+                        !!selectedDate && outsideHours;
+                      const isDisabled =
+                        noStaff || noBusinessHours || isClosedForSelectedDate;
+                      const usesAttendance =
+                        availability?.availabilitySource === "ATTENDANCE";
                       const isSelected = pkg.items.every((item) =>
                         selectedServiceKeys.has(
                           `${normalizeId(item.service.id)}|${normalizePackageId(
@@ -568,7 +616,18 @@ const ServiceSelect = React.memo(function ServiceSelect({
                                     className="h-4 px-1.5 text-[10px] bg-orange-50 text-orange-700 border-orange-200 shadow-none flex items-center gap-1"
                                   >
                                     <Users className="h-2.5 w-2.5" />
-                                    No Staff
+                                    {usesAttendance
+                                      ? "No One Clocked In"
+                                      : "No Staff"}
+                                  </Badge>
+                                )}
+                                {noEmployeesButOwner && (
+                                  <Badge
+                                    variant="secondary"
+                                    className="h-4 px-1.5 text-[10px] bg-blue-50 text-blue-700 border-blue-200 shadow-none flex items-center gap-1"
+                                  >
+                                    <User className="h-2.5 w-2.5" />
+                                    Available Now
                                   </Badge>
                                 )}
                                 {outsideHours && (

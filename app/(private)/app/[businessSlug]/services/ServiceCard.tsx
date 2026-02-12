@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { Service } from "@/prisma/generated/prisma/client";
 import { formatCurrency } from "@/lib/utils";
 import { Clock, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
@@ -18,7 +19,7 @@ interface ServiceCardProps {
   getCategoryColor: (category: string) => string;
 }
 
-export function ServiceCard({
+function ServiceCardComponent({
   service,
   onEdit,
   onDelete,
@@ -89,3 +90,5 @@ export function ServiceCard({
     </div>
   );
 }
+
+export const ServiceCard = memo(ServiceCardComponent);

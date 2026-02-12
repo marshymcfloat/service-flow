@@ -4,12 +4,19 @@ import { prisma } from "@/prisma/prisma";
 import {
   AvailedServiceStatus,
   BookingStatus,
+  PaymentStatus,
   ServiceProviderType,
 } from "@/prisma/generated/prisma/client";
 import { revalidatePath } from "next/cache";
 import { requireAuth } from "@/lib/auth/guards";
 import { getActiveSaleEvents } from "@/lib/server actions/sale-event";
+import { getPayMongoPaymentIntentById } from "@/lib/server actions/paymongo";
+import { createPayMongoQrPaymentIntent } from "@/lib/server actions/paymongo";
 import { getApplicableDiscount } from "@/lib/utils/pricing";
+import { calculateBookingTotal } from "@/lib/utils/pricing";
+import { getQrExpirySeconds } from "@/lib/payments/config";
+import { getCurrentDateTimePH } from "@/lib/date-utils";
+import { promoteBookingToCompletedIfEligible } from "@/lib/services/booking-status";
 import {
   serviceIdSchema,
   updateBookingStatusSchema,
@@ -73,7 +80,7 @@ export async function claimServiceAsOwnerAction(serviceId: number) {
       served_by_owner_id: owner.id,
       served_by_id: null,
       served_by_type: ServiceProviderType.OWNER,
-      claimed_at: new Date(),
+      claimed_at: getCurrentDateTimePH(),
       ...(discountInfo
         ? {
             final_price: discountInfo.finalPrice,
@@ -226,6 +233,7 @@ export async function markServiceServedAsOwnerAction(serviceId: number) {
       if (!service || service.served_by_owner_id !== owner.id) {
         throw new Error("Service not found or not claimed by owner");
       }
+      const nowPH = getCurrentDateTimePH();
 
       const updatedService = await tx.availedService.update({
         where: {
@@ -233,29 +241,12 @@ export async function markServiceServedAsOwnerAction(serviceId: number) {
         },
         data: {
           status: AvailedServiceStatus.COMPLETED,
-          served_at: new Date(),
-          completed_at: new Date(),
+          served_at: nowPH,
+          completed_at: nowPH,
         },
       });
 
-      const remainingUnserved = await tx.availedService.count({
-        where: {
-          booking_id: service.booking_id,
-          status: {
-            notIn: [
-              AvailedServiceStatus.COMPLETED,
-              AvailedServiceStatus.CANCELLED,
-            ],
-          },
-        },
-      });
-
-      if (remainingUnserved === 0) {
-        await tx.booking.update({
-          where: { id: service.booking_id },
-          data: { status: BookingStatus.COMPLETED },
-        });
-      }
+      await promoteBookingToCompletedIfEligible(tx, service.booking_id);
 
       return updatedService;
     });
@@ -360,6 +351,29 @@ export async function updateBookingStatusAction(
   const { businessSlug } = auth;
 
   try {
+    if (status === BookingStatus.COMPLETED) {
+      const booking = await prisma.booking.findFirst({
+        where: {
+          id: bookingId,
+          business: { slug: businessSlug },
+        },
+        select: {
+          payment_status: true,
+        },
+      });
+
+      if (!booking) {
+        return { success: false, error: "Booking not found." };
+      }
+
+      if (booking.payment_status !== PaymentStatus.PAID) {
+        return {
+          success: false,
+          error: "Booking cannot be completed until payment is fully settled.",
+        };
+      }
+    }
+
     await prisma.booking.update({
       where: {
         id: bookingId,
@@ -407,5 +421,456 @@ export async function deleteBookingAction(bookingId: number) {
       return { success: false, error: "Failed to delete." };
     }
     return { success: false, error: "Failed to delete" };
+  }
+}
+
+type QrReviewStatus = "pending" | "paid" | "failed" | "expired";
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+const roundMoney = (value: number) => Math.round(value * 100) / 100;
+
+function mapPayMongoStatusToQrReviewStatus(
+  status: string | undefined,
+  expiresAt?: string,
+): QrReviewStatus {
+  const normalizedStatus = status?.toLowerCase();
+
+  if (normalizedStatus === "succeeded") {
+    return "paid";
+  }
+
+  if (normalizedStatus === "failed" || normalizedStatus === "canceled") {
+    return "failed";
+  }
+
+  if (normalizedStatus === "expired") {
+    return "expired";
+  }
+
+  if (expiresAt && new Date(expiresAt).getTime() <= Date.now()) {
+    return "expired";
+  }
+
+  return "pending";
+}
+
+async function resolveQrReviewPayload(
+  paymentIntentId: string,
+  fallbackAmount: number,
+) {
+  const paymentIntent = await getPayMongoPaymentIntentById(paymentIntentId);
+  const attributes = paymentIntent?.attributes;
+
+  if (!isRecord(attributes)) {
+    return null;
+  }
+
+  const nextAction = attributes.next_action;
+  const nextActionRecord = isRecord(nextAction) ? nextAction : null;
+  const code = nextActionRecord && isRecord(nextActionRecord.code)
+    ? nextActionRecord.code
+    : null;
+  const redirect = nextActionRecord && isRecord(nextActionRecord.redirect)
+    ? nextActionRecord.redirect
+    : null;
+
+  const qrImageCandidate =
+    (code?.image_url as string | undefined) ||
+    (redirect?.url as string | undefined) ||
+    (redirect?.checkout_url as string | undefined);
+
+  if (!qrImageCandidate) {
+    return null;
+  }
+
+  const expiresAt =
+    (code?.expires_at as string | undefined) ||
+    undefined;
+  const amountFromIntent =
+    typeof attributes.amount === "number" ? attributes.amount / 100 : null;
+  const status =
+    typeof attributes.status === "string" ? attributes.status : undefined;
+
+  return {
+    qrImage: qrImageCandidate,
+    expiresAt,
+    amount: amountFromIntent ?? fallbackAmount,
+    status: mapPayMongoStatusToQrReviewStatus(status, expiresAt),
+  };
+}
+
+export async function createBookingBalanceQrAction(bookingId: number) {
+  const validation = bookingIdSchema.safeParse({ bookingId });
+  if (!validation.success) {
+    return { success: false, error: "Invalid booking ID." };
+  }
+
+  const auth = await requireAuth();
+  if (!auth.success) return auth;
+  const { session, businessSlug } = auth;
+
+  if (session?.user?.role !== "OWNER") {
+    return { success: false, error: "Unauthorized" };
+  }
+
+  try {
+    const booking = await prisma.booking.findFirst({
+      where: {
+        id: bookingId,
+        business: { slug: businessSlug },
+      },
+      select: {
+        id: true,
+        status: true,
+        payment_method: true,
+        payment_status: true,
+        grand_total: true,
+        amount_paid: true,
+        customer: {
+          select: {
+            name: true,
+            email: true,
+          },
+        },
+        payments: {
+          where: { status: "PENDING" },
+          orderBy: { created_at: "desc" },
+          take: 1,
+          select: {
+            id: true,
+            amount_principal: true,
+            amount_charged: true,
+            paymongo_payment_intent_id: true,
+            expires_at: true,
+          },
+        },
+      },
+    });
+
+    if (!booking) {
+      return { success: false, error: "Booking not found." };
+    }
+
+    if (booking.status === BookingStatus.CANCELLED) {
+      return { success: false, error: "Cancelled bookings cannot receive payments." };
+    }
+
+    if (booking.payment_method !== "QRPH") {
+      return { success: false, error: "This booking is not set to QR payment." };
+    }
+
+    const remainingBalance = roundMoney(
+      Math.max(0, booking.grand_total - booking.amount_paid),
+    );
+
+    if (booking.payment_status === PaymentStatus.PAID || remainingBalance <= 0) {
+      return { success: false, error: "This booking is already fully paid." };
+    }
+
+    const pendingPayment = booking.payments[0];
+    const pendingPrincipalAmount = pendingPayment
+      ? roundMoney(Math.max(0, pendingPayment.amount_principal))
+      : null;
+    const hasMatchingPendingPrincipal =
+      pendingPrincipalAmount !== null &&
+      Math.abs(pendingPrincipalAmount - remainingBalance) < 0.01;
+
+    if (pendingPayment?.paymongo_payment_intent_id) {
+      if (hasMatchingPendingPrincipal) {
+        const existingQr = await resolveQrReviewPayload(
+          pendingPayment.paymongo_payment_intent_id,
+          pendingPayment.amount_charged,
+        );
+
+        if (existingQr && existingQr.status === "pending") {
+          return { success: true, data: existingQr };
+        }
+      }
+
+      await prisma.bookingPayment.updateMany({
+        where: {
+          booking_id: booking.id,
+          status: "PENDING",
+        },
+        data: { status: "EXPIRED" },
+      });
+    }
+
+    if (!booking.customer.email) {
+      return {
+        success: false,
+        error: "Customer email is required to generate a QR payment.",
+      };
+    }
+
+    const amountToCharge = calculateBookingTotal({
+      subtotal: remainingBalance,
+      voucherDiscount: 0,
+      paymentMethod: "QRPH",
+      paymentType: "FULL",
+    });
+    const configuredAppUrl =
+      process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL || "http://localhost:3000";
+    const returnUrl = `${configuredAppUrl.replace(/\/$/, "")}/${businessSlug}/booking/success`;
+
+    const qrPayment = await createPayMongoQrPaymentIntent({
+      amount: Math.round(amountToCharge * 100),
+      description: `Balance payment for booking #${booking.id}`,
+      metadata: {
+        bookingId: String(booking.id),
+        businessSlug,
+        stage: "BALANCE",
+        principalAmount: remainingBalance.toFixed(2),
+      },
+      billing: {
+        name: booking.customer.name,
+        email: booking.customer.email,
+      },
+      returnUrl,
+      expirySeconds: getQrExpirySeconds(),
+    });
+
+    await prisma.$transaction(async (tx) => {
+      await tx.booking.update({
+        where: { id: booking.id },
+        data: {
+          paymongo_payment_intent_id: qrPayment.paymentIntentId,
+          paymongo_payment_method_id: qrPayment.paymentMethodId,
+        },
+      });
+
+      await tx.bookingPayment.create({
+        data: {
+          booking_id: booking.id,
+          type: "BALANCE",
+          status: "PENDING",
+          payment_method: "QRPH",
+          amount_principal: remainingBalance,
+          amount_charged: amountToCharge,
+          paymongo_payment_intent_id: qrPayment.paymentIntentId,
+          paymongo_payment_method_id: qrPayment.paymentMethodId,
+          expires_at: qrPayment.expiresAt ? new Date(qrPayment.expiresAt) : null,
+        },
+      });
+    });
+
+    revalidatePath(`/app/${businessSlug}`);
+    return {
+      success: true,
+      data: {
+        qrImage: qrPayment.qrImage,
+        expiresAt: qrPayment.expiresAt,
+        amount: amountToCharge,
+        status: "pending" as QrReviewStatus,
+      },
+    };
+  } catch (error) {
+    console.error("Error creating balance QR payment:", error);
+    return { success: false, error: "Failed to generate balance QR payment." };
+  }
+}
+
+export async function getBookingQrPaymentReviewAction(bookingId: number) {
+  const validation = bookingIdSchema.safeParse({ bookingId });
+  if (!validation.success) {
+    return { success: false, error: "Invalid booking ID." };
+  }
+
+  const auth = await requireAuth();
+  if (!auth.success) return auth;
+  const { session, businessSlug } = auth;
+
+  if (session?.user?.role !== "OWNER") {
+    return { success: false, error: "Unauthorized" };
+  }
+
+  try {
+    const booking = await prisma.booking.findFirst({
+      where: {
+        id: bookingId,
+        business: { slug: businessSlug },
+      },
+      select: {
+        id: true,
+        status: true,
+        payment_method: true,
+        payment_status: true,
+        grand_total: true,
+        amount_paid: true,
+        paymongo_payment_intent_id: true,
+        payments: {
+          where: { status: "PENDING" },
+          orderBy: { created_at: "desc" },
+          take: 1,
+          select: {
+            id: true,
+            amount_charged: true,
+            paymongo_payment_intent_id: true,
+          },
+        },
+      },
+    });
+
+    if (!booking) {
+      return { success: false, error: "Booking not found." };
+    }
+
+    if (booking.payment_method !== "QRPH") {
+      return {
+        success: false,
+        error: "This booking does not use QR payment.",
+      };
+    }
+
+    const remainingBalance = roundMoney(
+      Math.max(0, booking.grand_total - booking.amount_paid),
+    );
+
+    if (booking.payment_status === PaymentStatus.PAID || remainingBalance <= 0) {
+      return { success: false, error: "Booking is already fully paid." };
+    }
+
+    const pendingPayment = booking.payments[0];
+    const paymentIntentId =
+      pendingPayment?.paymongo_payment_intent_id ||
+      booking.paymongo_payment_intent_id;
+
+    if (!paymentIntentId) {
+      return {
+        success: false,
+        error: "No active QR payment found. Generate a new balance QR.",
+      };
+    }
+
+    const fallbackAmount =
+      pendingPayment?.amount_charged ||
+      calculateBookingTotal({
+        subtotal: remainingBalance,
+        voucherDiscount: 0,
+        paymentMethod: "QRPH",
+        paymentType: "FULL",
+      });
+    const qrPayload = await resolveQrReviewPayload(
+      paymentIntentId,
+      fallbackAmount,
+    );
+
+    if (!qrPayload) {
+      if (pendingPayment?.id) {
+        await prisma.bookingPayment.update({
+          where: { id: pendingPayment.id },
+          data: { status: "EXPIRED" },
+        });
+      }
+
+      return {
+        success: false,
+        error:
+          "QR code is no longer available. Generate a new balance QR payment.",
+      };
+    }
+
+    return {
+      success: true,
+      data: qrPayload,
+    };
+  } catch (error) {
+    console.error("Error getting booking QR payment review:", error);
+    return { success: false, error: "Failed to fetch QR payment details." };
+  }
+}
+
+export async function markBookingPaidAction(bookingId: number) {
+  const validation = bookingIdSchema.safeParse({ bookingId });
+  if (!validation.success) {
+    return { success: false, error: "Invalid booking ID." };
+  }
+
+  const auth = await requireAuth();
+  if (!auth.success) return auth;
+  const { session, businessSlug } = auth;
+
+  if (session?.user?.role !== "OWNER") {
+    return { success: false, error: "Unauthorized" };
+  }
+
+  try {
+    const booking = await prisma.booking.findFirst({
+      where: {
+        id: bookingId,
+        business: { slug: businessSlug },
+      },
+      select: {
+        id: true,
+        status: true,
+        payment_status: true,
+        payment_method: true,
+        grand_total: true,
+        amount_paid: true,
+        hold_expires_at: true,
+      },
+    });
+
+    if (!booking) {
+      return { success: false, error: "Booking not found." };
+    }
+
+    if (booking.status === BookingStatus.CANCELLED) {
+      return { success: false, error: "Cancelled bookings cannot be marked paid." };
+    }
+
+    if (booking.payment_status === PaymentStatus.PAID) {
+      return { success: true };
+    }
+
+    const remainingBalance = roundMoney(
+      Math.max(0, booking.grand_total - booking.amount_paid),
+    );
+
+    await prisma.$transaction(async (tx) => {
+      await tx.booking.update({
+        where: { id: booking.id },
+        data: {
+          amount_paid: booking.grand_total,
+          payment_status: PaymentStatus.PAID,
+          status:
+            booking.status === BookingStatus.HOLD
+              ? BookingStatus.ACCEPTED
+              : booking.status,
+          hold_expires_at:
+            booking.status === BookingStatus.HOLD
+              ? null
+              : booking.hold_expires_at,
+        },
+      });
+
+      if (remainingBalance > 0) {
+        await tx.bookingPayment.create({
+          data: {
+            booking_id: booking.id,
+            type: "MANUAL",
+            status: "SUCCEEDED",
+            payment_method: booking.payment_method === "QRPH" ? "QRPH" : "CASH",
+            amount_principal: remainingBalance,
+            amount_charged: remainingBalance,
+            paid_at: getCurrentDateTimePH(),
+            metadata: {
+              source: "OWNER_MARK_PAID",
+            },
+          },
+        });
+      }
+
+      await promoteBookingToCompletedIfEligible(tx, booking.id);
+    });
+
+    revalidatePath(`/app/${businessSlug}`);
+    return { success: true };
+  } catch (error) {
+    console.error("Error marking booking as paid:", error);
+    return { success: false, error: "Failed to mark booking as paid." };
   }
 }

@@ -31,6 +31,8 @@ export async function updateBusinessHours(
   businessSlug: string,
   hours: BusinessHourInput[],
 ) {
+  const UPSERT_BATCH_SIZE = 25;
+
   const business = await prisma.business.findUnique({
     where: { slug: businessSlug },
   });
@@ -39,11 +41,18 @@ export async function updateBusinessHours(
     throw new Error("Business not found");
   }
 
-  // Use a transaction to ensure consistency
-  await prisma.$transaction(async (tx) => {
-    // Upsert each hour entry
-    for (const hour of hours) {
-      await tx.businessHours.upsert({
+  // Keep only the latest entry per (day, category) and write in small batches
+  // so each transaction remains below the default expiration window.
+  const uniqueHours = Array.from(
+    new Map(
+      hours.map((hour) => [`${hour.day_of_week}:${hour.category}`, hour] as const),
+    ).values(),
+  );
+
+  for (let i = 0; i < uniqueHours.length; i += UPSERT_BATCH_SIZE) {
+    const batch = uniqueHours.slice(i, i + UPSERT_BATCH_SIZE);
+    const upsertOperations = batch.map((hour) =>
+      prisma.businessHours.upsert({
         where: {
           business_id_day_of_week_category: {
             business_id: business.id,
@@ -64,9 +73,11 @@ export async function updateBusinessHours(
           is_closed: hour.is_closed,
           category: hour.category,
         },
-      });
-    }
-  });
+      }),
+    );
+
+    await prisma.$transaction(upsertOperations);
+  }
 
   return { success: true };
 }

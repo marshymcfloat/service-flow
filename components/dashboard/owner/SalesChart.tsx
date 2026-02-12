@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useSyncExternalStore } from "react";
 import {
   Bar,
   BarChart,
@@ -83,7 +83,11 @@ export function SalesChart({
 }) {
   const [range, setRange] = useState("monthly");
   const [showDetails, setShowDetails] = useState(false);
-  const isMounted = true;
+  const isClient = useSyncExternalStore(
+    () => () => undefined,
+    () => true,
+    () => false,
+  );
 
   const {
     data,
@@ -352,7 +356,7 @@ export function SalesChart({
   return (
     <Card
       className={cn(
-        "flex flex-col overflow-hidden",
+        "flex flex-col overflow-hidden min-h-0 min-w-0",
         isEmbedded
           ? "border-0 shadow-none bg-transparent rounded-none"
           : "rounded-[32px] border-none shadow-lg shadow-zinc-200/50 bg-white",
@@ -431,8 +435,13 @@ export function SalesChart({
                         <h3 className="text-lg font-semibold text-zinc-900 mb-6">
                           Revenue vs Expenses vs Net
                         </h3>
-                        <div className="h-[400px] w-full">
-                          <ResponsiveContainer width="100%" height="100%">
+                        <div className="h-[400px] w-full min-w-0 min-h-[320px]">
+                          <ResponsiveContainer
+                            width="100%"
+                            height="100%"
+                            minWidth={0}
+                            minHeight={320}
+                          >
                             <BarChart
                               data={data}
                               margin={{
@@ -591,12 +600,18 @@ export function SalesChart({
 
       <CardContent
         className={cn(
-          "py-6 flex-1 min-h-[300px]",
+          "py-6 flex-1 min-h-[300px] min-w-0",
           isEmbedded ? "px-0" : "px-2 md:px-6",
         )}
       >
-        {isMounted ? (
-          <ResponsiveContainer width="100%" height="100%">
+        {isClient ? (
+          <div className="h-full w-full min-h-[240px] min-w-0">
+            <ResponsiveContainer
+              width="100%"
+              height="100%"
+              minWidth={0}
+              minHeight={240}
+            >
             <BarChart
               data={data}
               margin={{ top: 20, right: 20, left: 0, bottom: 0 }}
@@ -697,7 +712,8 @@ export function SalesChart({
                 />
               )}
             </BarChart>
-          </ResponsiveContainer>
+            </ResponsiveContainer>
+          </div>
         ) : (
           <div className="h-full w-full flex items-center justify-center text-muted-foreground text-sm">
             Loading chart...

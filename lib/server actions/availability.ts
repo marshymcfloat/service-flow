@@ -1,12 +1,14 @@
 "use server";
 
 import { prisma } from "@/prisma/prisma";
+import { getCachedBusinessWithHoursAndEmployees } from "@/lib/data/cached";
 
 export interface TimeSlot {
   startTime: Date;
   endTime: Date;
   available: boolean;
   availableEmployeeCount: number;
+  availableOwnerCount: number;
 }
 
 export interface SelectedServiceInput {
@@ -21,7 +23,108 @@ export interface GetAvailableSlotsParams {
   slotIntervalMinutes?: number;
 }
 
-import { getCachedBusinessWithHoursAndEmployees } from "@/lib/data/cached";
+const MANILA_TIME_ZONE = "Asia/Manila";
+const ATTENDANCE_ACTIVE_STATUSES = ["PRESENT", "LATE"] as const;
+
+const getPHDateComponents = (d: Date) => {
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    timeZone: MANILA_TIME_ZONE,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  });
+
+  const parts = formatter.formatToParts(d);
+  const getPart = (type: string) =>
+    parts.find((p) => p.type === type)?.value || "";
+
+  return {
+    year: getPart("year"),
+    month: getPart("month"),
+    day: getPart("day"),
+    hour: getPart("hour"),
+    minute: getPart("minute"),
+    second: getPart("second"),
+  };
+};
+
+const toPHDateString = (d: Date) => {
+  const parts = getPHDateComponents(d);
+  return `${parts.year}-${parts.month}-${parts.day}`;
+};
+
+const getPHDayBounds = (date: Date) => {
+  const dateStr = toPHDateString(date);
+  const dayStart = new Date(`${dateStr}T00:00:00+08:00`);
+  const dayEnd = new Date(dayStart.getTime() + 24 * 60 * 60 * 1000);
+  return { dateStr, dayStart, dayEnd };
+};
+
+type AttendanceWindow = {
+  timeIn: Date;
+  timeOut: Date | null;
+};
+
+async function getAttendanceWindowsForDay({
+  businessId,
+  dayStart,
+  dayEnd,
+}: {
+  businessId: string;
+  dayStart: Date;
+  dayEnd: Date;
+}) {
+  const records = await prisma.employeeAttendance.findMany({
+    where: {
+      employee: { business_id: businessId },
+      date: {
+        gte: dayStart,
+        lte: dayEnd,
+      },
+      status: {
+        in: [...ATTENDANCE_ACTIVE_STATUSES],
+      },
+      time_in: {
+        not: null,
+      },
+    },
+    select: {
+      employee_id: true,
+      time_in: true,
+      time_out: true,
+    },
+  });
+
+  const windowsByEmployee = new Map<number, AttendanceWindow[]>();
+  for (const record of records) {
+    if (!record.time_in) continue;
+    const windows = windowsByEmployee.get(record.employee_id) || [];
+    windows.push({ timeIn: record.time_in, timeOut: record.time_out });
+    windowsByEmployee.set(record.employee_id, windows);
+  }
+
+  return windowsByEmployee;
+}
+
+function isEmployeeClockedInForWindow(
+  windowsByEmployee: Map<number, AttendanceWindow[]>,
+  employeeId: number,
+  start: Date,
+  end: Date,
+) {
+  const windows = windowsByEmployee.get(employeeId);
+  if (!windows || windows.length === 0) return false;
+
+  return windows.some(
+    (window) =>
+      window.timeIn.getTime() <= start.getTime() &&
+      (!window.timeOut || window.timeOut.getTime() >= end.getTime()),
+  );
+}
 
 export async function getAvailableSlots({
   businessSlug,
@@ -40,47 +143,23 @@ export async function getAvailableSlots({
   }
 
   const dayOfWeek = date.getDay();
-
-  const getPHDateComponents = (d: Date) => {
-    const formatter = new Intl.DateTimeFormat("en-US", {
-      timeZone: "Asia/Manila",
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-      hour12: false,
-    });
-
-    const parts = formatter.formatToParts(d);
-    const getPart = (type: string) =>
-      parts.find((p) => p.type === type)?.value || "";
-
-    return {
-      year: getPart("year"),
-      month: getPart("month"),
-      day: getPart("day"),
-      hour: getPart("hour"),
-      minute: getPart("minute"),
-      second: getPart("second"),
-    };
-  };
-
-  const phDate = getPHDateComponents(date);
-  const dateStr = `${phDate.year}-${phDate.month}-${phDate.day}`;
+  const { dateStr, dayStart, dayEnd } = getPHDayBounds(date);
 
   const now = new Date();
   const phNow = getPHDateComponents(now);
-  const nowStr = `${phNow.year}-${phNow.month}-${phNow.day}`;
+  const nowStr = toPHDateString(now);
   const phNowDate = new Date(
     `${nowStr}T${phNow.hour}:${phNow.minute}:${phNow.second}+08:00`,
   );
 
   const isToday = dateStr === nowStr;
-
-  const dayStart = new Date(`${dateStr}T00:00:00+08:00`);
-  const dayEnd = new Date(dayStart.getTime() + 24 * 60 * 60 * 1000);
+  const attendanceWindowsByEmployee = isToday
+    ? await getAttendanceWindowsForDay({
+        businessId: business.id,
+        dayStart,
+        dayEnd,
+      })
+    : new Map<number, AttendanceWindow[]>();
 
   const resolveBusinessHours = (category: string) => {
     const normalizedCategory = category.toLowerCase();
@@ -251,7 +330,7 @@ export async function getAvailableSlots({
   const slots: TimeSlot[] = [];
   const qualifiedProvidersByCategory = new Map<
     string,
-    { employeeIds: number[]; ownerIds: number[]; totalCount: number }
+    { employeeIds: number[]; ownerIds: number[] }
   >();
   const getQualifiedProviderIds = (category: string) => {
     const key = category.toLowerCase();
@@ -277,7 +356,6 @@ export async function getAvailableSlots({
     const result = {
       employeeIds,
       ownerIds,
-      totalCount: employeeIds.length + ownerIds.length,
     };
     qualifiedProvidersByCategory.set(key, result);
     return result;
@@ -315,6 +393,7 @@ export async function getAvailableSlots({
 
     let cursor = new Date(currentSlotStart);
     let availableEmployeeCount = Number.POSITIVE_INFINITY;
+    let availableOwnerCount = 0;
     let slotFits = true;
 
     for (const service of orderedServices) {
@@ -328,45 +407,59 @@ export async function getAvailableSlots({
       }
 
       const qualifiedProviders = getQualifiedProviderIds(service.category);
-      if (qualifiedProviders.totalCount === 0) {
+      const eligibleEmployeeIds = isToday
+        ? qualifiedProviders.employeeIds.filter((employeeId) =>
+            isEmployeeClockedInForWindow(
+              attendanceWindowsByEmployee,
+              employeeId,
+              cursor,
+              serviceEnd,
+            ),
+          )
+        : qualifiedProviders.employeeIds;
+      const eligibleOwnerIds = qualifiedProviders.ownerIds;
+
+      if (eligibleEmployeeIds.length === 0 && eligibleOwnerIds.length === 0) {
         slotFits = false;
         break;
       }
 
       const busyEmployees = new Set<number>();
       const busyOwners = new Set<number>();
+      const eligibleEmployeeSet = new Set(eligibleEmployeeIds);
+      const eligibleOwnerSet = new Set(eligibleOwnerIds);
 
       for (const booking of bookingIntervals) {
         const overlaps = cursor < booking.end && serviceEnd > booking.start;
         if (!overlaps) continue;
 
         booking.busyEmployeeIds.forEach((id) => {
-          if (qualifiedProviders.employeeIds.includes(id)) {
+          if (eligibleEmployeeSet.has(id)) {
             busyEmployees.add(id);
           }
         });
 
         booking.busyOwnerIds.forEach((id) => {
-          if (qualifiedProviders.ownerIds.includes(id)) {
+          if (eligibleOwnerSet.has(id)) {
             busyOwners.add(id);
           }
         });
       }
 
-      const availableEmployees =
-        qualifiedProviders.employeeIds.length - busyEmployees.size;
-      const availableOwners =
-        qualifiedProviders.ownerIds.length - busyOwners.size;
-      const availableForSegment = Math.max(
-        0,
-        availableEmployees + availableOwners,
-      );
+      const availableEmployees = eligibleEmployeeIds.length - busyEmployees.size;
+      const availableOwners = eligibleOwnerIds.length - busyOwners.size;
+      const availableForSegment = Math.max(0, availableEmployees + availableOwners);
 
       availableEmployeeCount = Math.min(
         availableEmployeeCount,
-        availableForSegment,
+        Math.max(0, availableEmployees),
       );
-      if (availableEmployeeCount <= 0) {
+      availableOwnerCount = Math.max(
+        availableOwnerCount,
+        Math.max(0, availableOwners),
+      );
+
+      if (availableForSegment <= 0) {
         slotFits = false;
         break;
       }
@@ -376,14 +469,16 @@ export async function getAvailableSlots({
 
     if (slotFits) {
       const slotEnd = cursor;
+      const normalizedEmployeeCount =
+        availableEmployeeCount === Number.POSITIVE_INFINITY
+          ? 0
+          : availableEmployeeCount;
       slots.push({
         startTime: new Date(currentSlotStart),
         endTime: new Date(slotEnd),
-        available: availableEmployeeCount > 0,
-        availableEmployeeCount:
-          availableEmployeeCount === Number.POSITIVE_INFINITY
-            ? 0
-            : availableEmployeeCount,
+        available: true,
+        availableEmployeeCount: normalizedEmployeeCount,
+        availableOwnerCount,
       });
     }
 
@@ -429,14 +524,10 @@ export async function getAvailableProviders({
   });
 
   const busyEmployeeIds = new Set<number>();
-  const busyOwnerIds = new Set<number>();
   for (const booking of overlappingBookings) {
     for (const service of booking.availed_services) {
       if (service.served_by_id) {
         busyEmployeeIds.add(service.served_by_id);
-      }
-      if (service.served_by_owner_id) {
-        busyOwnerIds.add(service.served_by_owner_id);
       }
     }
   }
@@ -446,6 +537,18 @@ export async function getAvailableProviders({
       ? categories.map((c) => c.toLowerCase())
       : [category.toLowerCase()];
 
+  const selectedDateStr = toPHDateString(startTime);
+  const todayDateStr = toPHDateString(new Date());
+  const shouldFilterByAttendance = selectedDateStr === todayDateStr;
+  const { dayStart, dayEnd } = getPHDayBounds(startTime);
+  const attendanceWindowsByEmployee = shouldFilterByAttendance
+    ? await getAttendanceWindowsForDay({
+        businessId: business.id,
+        dayStart,
+        dayEnd,
+      })
+    : new Map<number, AttendanceWindow[]>();
+
   const qualifiedEmployees = business.employees.filter((emp) => {
     if (emp.specialties.length === 0) return true;
     return emp.specialties.some((s) =>
@@ -453,44 +556,41 @@ export async function getAvailableProviders({
     );
   });
 
-  const qualifiedOwners = business.owners.filter((owner) => {
-    if (owner.specialties.length === 0) return true;
-    return owner.specialties.some((s) =>
-      normalizedCategories.includes(s.toLowerCase()),
-    );
-  });
-
   const employees = qualifiedEmployees.map((emp) => ({
     id: emp.id,
     name: emp.user.name,
-    available: !busyEmployeeIds.has(emp.id),
+    available:
+      !busyEmployeeIds.has(emp.id) &&
+      (!shouldFilterByAttendance ||
+        isEmployeeClockedInForWindow(
+          attendanceWindowsByEmployee,
+          emp.id,
+          startTime,
+          endTime,
+        )),
     specialties: emp.specialties,
     type: "EMPLOYEE" as const,
   }));
 
-  const owners = qualifiedOwners.map((owner) => ({
-    id: owner.id,
-    name: owner.user.name,
-    available: !busyOwnerIds.has(owner.id),
-    specialties: owner.specialties,
-    type: "OWNER" as const,
-  }));
-
-  return [...employees, ...owners];
+  return employees;
 }
 
 export async function checkCategoryAvailability({
   businessSlug,
   category = "GENERAL",
   date,
+  enforceAttendanceForToday = true,
 }: {
   businessSlug: string;
   category?: string;
   date?: Date;
+  enforceAttendanceForToday?: boolean;
 }): Promise<{
   hasBusinessHours: boolean;
   businessHoursPassed: boolean;
   qualifiedEmployeeCount: number;
+  ownerAvailable: boolean;
+  availabilitySource: "ATTENDANCE" | "ROSTER";
   businessHours?: { open_time: string; close_time: string; is_closed: boolean };
 }> {
   const business = await getCachedBusinessWithHoursAndEmployees(businessSlug);
@@ -518,53 +618,22 @@ export async function checkCategoryAvailability({
 
   const hasBusinessHours = !!businessHours && !businessHours.is_closed;
 
+  const dateStr = toPHDateString(checkDate);
+  const now = new Date();
+  const nowStr = toPHDateString(now);
+  const phNow = getPHDateComponents(now);
+  const phNowDate = new Date(
+    `${nowStr}T${phNow.hour}:${phNow.minute}:${phNow.second}+08:00`,
+  );
+  const isToday = dateStr === nowStr;
+
   let businessHoursPassed = false;
-  if (hasBusinessHours && businessHours) {
-    const getPHDateComponents = (d: Date) => {
-      const formatter = new Intl.DateTimeFormat("en-US", {
-        timeZone: "Asia/Manila",
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-        hour12: false,
-      });
-
-      const parts = formatter.formatToParts(d);
-      const getPart = (type: string) =>
-        parts.find((p) => p.type === type)?.value || "";
-
-      return {
-        year: getPart("year"),
-        month: getPart("month"),
-        day: getPart("day"),
-        hour: getPart("hour"),
-        minute: getPart("minute"),
-        second: getPart("second"),
-      };
-    };
-
-    const phDate = getPHDateComponents(checkDate);
-    const dateStr = `${phDate.year}-${phDate.month}-${phDate.day}`;
-
-    const now = new Date();
-    const phNow = getPHDateComponents(now);
-    const nowStr = `${phNow.year}-${phNow.month}-${phNow.day}`;
-    const phNowDate = new Date(
-      `${nowStr}T${phNow.hour}:${phNow.minute}:${phNow.second}+08:00`,
-    );
-
-    const isToday = dateStr === nowStr;
-
-    if (isToday) {
-      const openTimeStr = `${dateStr}T${businessHours.open_time}:00+08:00`;
-      const openTime = new Date(openTimeStr);
-      const closeTimeStr = `${dateStr}T${businessHours.close_time}:00+08:00`;
-      const closeTime = new Date(closeTimeStr);
-      businessHoursPassed = phNowDate < openTime || phNowDate >= closeTime;
-    }
+  if (hasBusinessHours && businessHours && isToday) {
+    const openTimeStr = `${dateStr}T${businessHours.open_time}:00+08:00`;
+    const openTime = new Date(openTimeStr);
+    const closeTimeStr = `${dateStr}T${businessHours.close_time}:00+08:00`;
+    const closeTime = new Date(closeTimeStr);
+    businessHoursPassed = phNowDate < openTime || phNowDate >= closeTime;
   }
 
   const qualifiedEmployees = business.employees.filter(
@@ -572,17 +641,40 @@ export async function checkCategoryAvailability({
       emp.specialties.length === 0 ||
       emp.specialties.some((s) => s.toLowerCase() === normalizedCategory),
   );
-
-  const qualifiedOwners = business.owners.filter(
+  const ownerAvailable = business.owners.some(
     (owner) =>
       owner.specialties.length === 0 ||
       owner.specialties.some((s) => s.toLowerCase() === normalizedCategory),
   );
 
+  const applyAttendance =
+    enforceAttendanceForToday && isToday && qualifiedEmployees.length > 0;
+  let qualifiedEmployeeCount = qualifiedEmployees.length;
+
+  if (applyAttendance) {
+    const { dayStart, dayEnd } = getPHDayBounds(checkDate);
+    const attendanceWindowsByEmployee = await getAttendanceWindowsForDay({
+      businessId: business.id,
+      dayStart,
+      dayEnd,
+    });
+    const clockedInEmployees = qualifiedEmployees.filter((emp) =>
+      isEmployeeClockedInForWindow(
+        attendanceWindowsByEmployee,
+        emp.id,
+        phNowDate,
+        phNowDate,
+      ),
+    );
+    qualifiedEmployeeCount = clockedInEmployees.length;
+  }
+
   return {
     hasBusinessHours,
     businessHoursPassed,
-    qualifiedEmployeeCount: qualifiedEmployees.length + qualifiedOwners.length,
+    qualifiedEmployeeCount,
+    ownerAvailable,
+    availabilitySource: applyAttendance ? "ATTENDANCE" : "ROSTER",
     businessHours: businessHours
       ? {
           open_time: businessHours.open_time,

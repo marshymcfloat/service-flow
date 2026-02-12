@@ -38,6 +38,7 @@ interface SidebarUserFooterProps {
 
 export function SidebarUserFooter({ user }: SidebarUserFooterProps) {
   const { isMobile } = useSidebar();
+  const avatarSrc = user.image?.trim() || undefined;
 
   const handleSignOut = () => {
     signOut({ callbackUrl: "/" });
@@ -53,7 +54,9 @@ export function SidebarUserFooter({ user }: SidebarUserFooterProps) {
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <Avatar className="h-8 w-8 rounded-lg">
-                <AvatarImage src={user.image || ""} alt={user.name || ""} />
+                {avatarSrc ? (
+                  <AvatarImage src={avatarSrc} alt={user.name || ""} />
+                ) : null}
                 <AvatarFallback className="rounded-lg">
                   {user.name?.slice(0, 2).toUpperCase() || "CN"}
                 </AvatarFallback>
@@ -74,7 +77,9 @@ export function SidebarUserFooter({ user }: SidebarUserFooterProps) {
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarImage src={user.image || ""} alt={user.name || ""} />
+                  {avatarSrc ? (
+                    <AvatarImage src={avatarSrc} alt={user.name || ""} />
+                  ) : null}
                   <AvatarFallback className="rounded-lg">
                     {user.name?.slice(0, 2).toUpperCase() || "CN"}
                   </AvatarFallback>

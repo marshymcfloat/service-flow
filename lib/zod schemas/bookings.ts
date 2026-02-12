@@ -37,6 +37,14 @@ export const createBookingSchema = z
         (val) => !val || val === "" || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val),
         { message: "Invalid email address" },
       ),
+    phone: z
+      .string()
+      .optional()
+      .refine(
+        (val) =>
+          !val || val.trim() === "" || /^[0-9+\-\s()]{7,20}$/.test(val.trim()),
+        { message: "Invalid contact number" },
+      ),
     voucherCode: z.string().optional(),
   })
   .refine((data) => data.customerId || data.customerName, {

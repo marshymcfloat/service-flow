@@ -69,7 +69,7 @@ export function Modal({
         )}
       >
         <DialogHeader>
-          {title && <DialogTitle>{title}</DialogTitle>}
+          {title ? <DialogTitle>{title}</DialogTitle> : <DialogTitle className="sr-only">Dialog</DialogTitle>}
           {description && <DialogDescription>{description}</DialogDescription>}
         </DialogHeader>
         {children}

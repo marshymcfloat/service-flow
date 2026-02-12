@@ -1,10 +1,11 @@
 import crypto from "crypto";
-import { Prisma } from "@/prisma/generated/prisma/client";
+import { PaymentStatus, Prisma } from "@/prisma/generated/prisma/client";
 import { createBookingInDb } from "@/lib/services/booking";
+import { promoteBookingToCompletedIfEligible } from "@/lib/services/booking-status";
 import { prisma } from "@/prisma/prisma";
-import { getPayMongoPaymentIntentById } from "@/lib/server actions/paymongo";
 import { extractPaymentIntentReferences } from "@/lib/paymongo/webhook-utils";
 import { publishEvent } from "@/lib/services/outbox";
+import { getCurrentDateTimePH } from "@/lib/date-utils";
 
 const WEBHOOK_TIMESTAMP_TOLERANCE_SECONDS = 5 * 60;
 
@@ -103,6 +104,52 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
 
+function getNestedPaymentAttributes(body: unknown) {
+  if (!isRecord(body)) return null;
+  const data = isRecord(body.data) ? body.data : null;
+  const attributes = data && isRecord(data.attributes) ? data.attributes : null;
+  const paymentData = attributes && isRecord(attributes.data)
+    ? attributes.data
+    : null;
+  const paymentAttributes = paymentData && isRecord(paymentData.attributes)
+    ? paymentData.attributes
+    : null;
+
+  return paymentAttributes || paymentData || attributes;
+}
+
+function extractPaidAmountSnapshot(body: unknown) {
+  const attrs = getNestedPaymentAttributes(body);
+  if (!attrs) return { amountCents: null, currency: null };
+
+  const amountCents =
+    typeof attrs.amount === "number" ? attrs.amount : null;
+  const currency =
+    typeof attrs.currency === "string" ? attrs.currency.toUpperCase() : null;
+
+  return { amountCents, currency };
+}
+
+const roundMoney = (value: number) => Math.round(value * 100) / 100;
+
+function resolvePaymentStatus(
+  grandTotal: number,
+  amountPaid: number,
+): PaymentStatus {
+  const roundedGrandTotal = roundMoney(grandTotal);
+  const roundedAmountPaid = roundMoney(Math.max(0, amountPaid));
+
+  if (roundedAmountPaid >= roundedGrandTotal) {
+    return PaymentStatus.PAID;
+  }
+
+  if (roundedAmountPaid > 0) {
+    return PaymentStatus.PARTIALLY_PAID;
+  }
+
+  return PaymentStatus.UNPAID;
+}
+
 async function acquireWebhookLock(eventId: string) {
   const lockKey = `paymongo:webhook:${eventId}`;
   const [result] = await prisma.$queryRaw<Array<{ locked: boolean }>>`
@@ -146,8 +193,23 @@ async function markWebhookProcessed(
       business_id: businessId,
       changes: {
         eventType,
-        processedAt: new Date().toISOString(),
+        processedAt: getCurrentDateTimePH().toISOString(),
       } as Prisma.JsonObject,
+    },
+  });
+}
+
+async function markBookingPaymentAttemptStatus(
+  paymentIntentId: string,
+  status: "FAILED" | "EXPIRED" | "CANCELED",
+) {
+  await prisma.bookingPayment.updateMany({
+    where: {
+      paymongo_payment_intent_id: paymentIntentId,
+      status: "PENDING",
+    },
+    data: {
+      status,
     },
   });
 }
@@ -250,6 +312,7 @@ export async function POST(req: Request) {
         customerName,
         customerId,
         email,
+        phone,
         services: servicesJson,
         scheduledAt: scheduledAtStr,
         estimatedEnd: estimatedEndStr,
@@ -266,10 +329,13 @@ export async function POST(req: Request) {
       }
 
       const services = JSON.parse(servicesJson);
-      const scheduledAt = scheduledAtStr ? new Date(scheduledAtStr) : new Date();
+      const nowPH = getCurrentDateTimePH();
+      const scheduledAt = scheduledAtStr
+        ? new Date(scheduledAtStr)
+        : nowPH;
       const estimatedEnd = estimatedEndStr
         ? new Date(estimatedEndStr)
-        : new Date();
+        : nowPH;
       const employeeId = employeeIdStr
         ? parseInt(employeeIdStr, 10)
         : undefined;
@@ -283,6 +349,7 @@ export async function POST(req: Request) {
           customerId,
           customerName,
           email,
+          phone,
           services,
           scheduledAt,
           estimatedEnd,
@@ -318,6 +385,7 @@ export async function POST(req: Request) {
     if (eventType === "payment.paid") {
       const { paymentIntentId, paymentId, paymentMethodId } =
         extractPaymentIntentReferences(body);
+      const paidSnapshot = extractPaidAmountSnapshot(body);
 
       if (!paymentIntentId) {
         console.error("Missing payment intent ID in payment.paid event");
@@ -325,32 +393,167 @@ export async function POST(req: Request) {
       }
 
       const result = await prisma.$transaction(async (tx) => {
-        const existingBooking = await tx.booking.findFirst({
+        const paymentRecord = await tx.bookingPayment.findFirst({
           where: { paymongo_payment_intent_id: paymentIntentId },
-          select: {
-            id: true,
-            business_id: true,
-            status: true,
-            paymongo_payment_method_id: true,
+          orderBy: { created_at: "desc" },
+          include: {
+            booking: {
+              select: {
+                id: true,
+                business_id: true,
+                status: true,
+                grand_total: true,
+                amount_paid: true,
+                downpayment: true,
+                paymongo_payment_method_id: true,
+                paymongo_payment_id: true,
+                hold_expires_at: true,
+              },
+            },
           },
         });
+
+        const existingBooking =
+          paymentRecord?.booking ||
+          (await tx.booking.findFirst({
+            where: { paymongo_payment_intent_id: paymentIntentId },
+            select: {
+              id: true,
+              business_id: true,
+              status: true,
+              grand_total: true,
+              amount_paid: true,
+              downpayment: true,
+              paymongo_payment_method_id: true,
+              paymongo_payment_id: true,
+              hold_expires_at: true,
+            },
+          }));
 
         if (!existingBooking) {
           return { kind: "missing" as const, businessId: "system" };
         }
 
-        if (existingBooking.status === "HOLD") {
-          await tx.booking.update({
-            where: { id: existingBooking.id },
+        if (paidSnapshot.currency && paidSnapshot.currency !== "PHP") {
+          if (paymentRecord) {
+            await tx.bookingPayment.update({
+              where: { id: paymentRecord.id },
+              data: {
+                status: "FAILED",
+                metadata: {
+                  reason: "UNEXPECTED_CURRENCY",
+                  currency: paidSnapshot.currency,
+                },
+              },
+            });
+          }
+
+          return {
+            kind: "amount_mismatch" as const,
+            businessId: existingBooking.business_id,
+          };
+        }
+
+        if (paymentRecord && paidSnapshot.amountCents !== null) {
+          const expectedChargedCents = Math.round(paymentRecord.amount_charged * 100);
+          const amountDelta = Math.abs(paidSnapshot.amountCents - expectedChargedCents);
+
+          if (amountDelta > 1) {
+            await tx.bookingPayment.update({
+              where: { id: paymentRecord.id },
+              data: {
+                status: "FAILED",
+                metadata: {
+                  reason: "AMOUNT_MISMATCH",
+                  expectedChargedCents,
+                  paidAmountCents: paidSnapshot.amountCents,
+                },
+              },
+            });
+
+            return {
+              kind: "amount_mismatch" as const,
+              businessId: existingBooking.business_id,
+            };
+          }
+        }
+
+        const fallbackPrincipalAmount =
+          existingBooking.amount_paid <= 0 && (existingBooking.downpayment || 0) > 0
+            ? existingBooking.downpayment || 0
+            : Math.max(0, existingBooking.grand_total - existingBooking.amount_paid);
+        const principalAmount = paymentRecord?.amount_principal || fallbackPrincipalAmount;
+        const shouldApplyAmount = paymentRecord
+          ? paymentRecord.status !== "SUCCEEDED"
+          : true;
+        const nextAmountPaid = shouldApplyAmount
+          ? Math.min(
+              existingBooking.grand_total,
+              roundMoney(existingBooking.amount_paid + principalAmount),
+            )
+          : existingBooking.amount_paid;
+        const nextPaymentStatus = resolvePaymentStatus(
+          existingBooking.grand_total,
+          nextAmountPaid,
+        );
+
+        await tx.booking.update({
+          where: { id: existingBooking.id },
+          data: {
+            status: existingBooking.status === "HOLD" ? "ACCEPTED" : existingBooking.status,
+            hold_expires_at:
+              existingBooking.status === "HOLD"
+                ? null
+                : existingBooking.hold_expires_at,
+            amount_paid: nextAmountPaid,
+            payment_status: nextPaymentStatus,
+            paymongo_payment_id:
+              paymentId || existingBooking.paymongo_payment_id,
+            paymongo_payment_method_id:
+              paymentMethodId || existingBooking.paymongo_payment_method_id,
+          },
+        });
+
+        if (paymentRecord) {
+          const paidAtPH = getCurrentDateTimePH();
+          await tx.bookingPayment.update({
+            where: { id: paymentRecord.id },
             data: {
-              status: "ACCEPTED",
-              hold_expires_at: null,
-              paymongo_payment_id: paymentId,
+              status: "SUCCEEDED",
+              paid_at: paidAtPH,
+              paymongo_payment_id: paymentId || paymentRecord.paymongo_payment_id,
               paymongo_payment_method_id:
-                paymentMethodId || existingBooking.paymongo_payment_method_id,
+                paymentMethodId || paymentRecord.paymongo_payment_method_id,
             },
           });
+        } else {
+          const chargedAmount = paidSnapshot.amountCents !== null
+            ? paidSnapshot.amountCents / 100
+            : principalAmount;
+          const paidAtPH = getCurrentDateTimePH();
 
+          await tx.bookingPayment.create({
+            data: {
+              booking_id: existingBooking.id,
+              type:
+                existingBooking.amount_paid > 0
+                  ? "BALANCE"
+                  : (existingBooking.downpayment || 0) > 0
+                    ? "DOWNPAYMENT"
+                    : "FULL",
+              status: "SUCCEEDED",
+              payment_method: "QRPH",
+              amount_principal: principalAmount,
+              amount_charged: chargedAmount,
+              paymongo_payment_intent_id: paymentIntentId,
+              paymongo_payment_method_id: paymentMethodId,
+              paymongo_payment_id: paymentId,
+              paid_at: paidAtPH,
+            },
+          });
+        }
+
+        if (existingBooking.status === "HOLD") {
           await publishEvent(tx as Prisma.TransactionClient, {
             type: "BOOKING_CONFIRMED",
             aggregateType: "Booking",
@@ -363,6 +566,8 @@ export async function POST(req: Request) {
           });
         }
 
+        await promoteBookingToCompletedIfEligible(tx, existingBooking.id);
+
         return {
           kind: "found" as const,
           businessId: existingBooking.business_id,
@@ -370,41 +575,18 @@ export async function POST(req: Request) {
       });
 
       if (result.kind === "missing") {
-        const metadata = await resolvePaymentIntentMetadata(paymentIntentId);
+        console.error(
+          `[Webhook] payment.paid for ${paymentIntentId} has no matching local booking/payment record.`,
+        );
+        await markWebhookProcessed(eventId, eventType, businessIdForAudit);
+        return new Response("Webhook processed", { status: 200 });
+      }
+      businessIdForAudit = result.businessId;
 
-        if (isRecord(metadata)) {
-          try {
-            const booking = await createBookingFromMetadata({
-              metadata,
-              paymentIntentId,
-              paymentMethodId,
-              paymentId,
-            });
-            businessIdForAudit = booking.business_id;
-          } catch (error) {
-            if (
-              error instanceof Prisma.PrismaClientKnownRequestError &&
-              error.code === "P2002"
-            ) {
-              const existing = await prisma.booking.findFirst({
-                where: { paymongo_payment_intent_id: paymentIntentId },
-                select: { business_id: true },
-              });
-              businessIdForAudit = existing?.business_id || "system";
-            } else {
-              throw error;
-            }
-          }
-        } else {
-          console.error(
-            `[Webhook] Payment ${paymentIntentId} successful but metadata was unavailable.`,
-          );
-          throw new Error(
-            `Missing metadata for paid payment intent ${paymentIntentId}`,
-          );
-        }
-      } else {
-        businessIdForAudit = result.businessId;
+      if (result.kind === "amount_mismatch") {
+        console.error(
+          `[Webhook] Amount mismatch for payment intent ${paymentIntentId}. Payment was not applied automatically.`,
+        );
       }
 
       await markWebhookProcessed(eventId, eventType, businessIdForAudit);
@@ -414,6 +596,11 @@ export async function POST(req: Request) {
     if (eventType === "payment.failed" || eventType === "qrph.expired") {
       const { paymentIntentId } = extractPaymentIntentReferences(body);
       if (paymentIntentId) {
+        await markBookingPaymentAttemptStatus(
+          paymentIntentId,
+          eventType === "qrph.expired" ? "EXPIRED" : "FAILED",
+        );
+
         const bookingBusinessId = await cancelHeldBookingByPaymentIntent(
           paymentIntentId,
           eventType,
@@ -441,69 +628,4 @@ export async function POST(req: Request) {
       }
     }
   }
-}
-
-async function resolvePaymentIntentMetadata(paymentIntentId: string) {
-  const paymentIntent = await getPayMongoPaymentIntentById(paymentIntentId);
-  return paymentIntent?.attributes?.metadata;
-}
-
-async function createBookingFromMetadata({
-  metadata,
-  paymentIntentId,
-  paymentMethodId,
-  paymentId,
-}: {
-  metadata: Record<string, unknown>;
-  paymentIntentId?: string;
-  paymentMethodId?: string;
-  paymentId?: string;
-}) {
-  const metadataRecord = metadata as Record<string, string | undefined>;
-
-  const {
-    businessSlug,
-    customerName,
-    customerId,
-    email,
-    services: servicesJson,
-    scheduledAt: scheduledAtStr,
-    estimatedEnd: estimatedEndStr,
-    employeeId: employeeIdStr,
-    currentEmployeeId: currentEmployeeIdStr,
-    paymentMethod,
-    paymentType,
-    voucherCode,
-  } = metadataRecord;
-
-  if (!businessSlug || !servicesJson || !customerName) {
-    throw new Error("Missing required metadata fields");
-  }
-
-  const services = JSON.parse(servicesJson);
-  const scheduledAt = scheduledAtStr ? new Date(scheduledAtStr) : new Date();
-  const estimatedEnd = estimatedEndStr ? new Date(estimatedEndStr) : new Date();
-  const employeeId = employeeIdStr ? parseInt(employeeIdStr, 10) : undefined;
-  const currentEmployeeId = currentEmployeeIdStr
-    ? parseInt(currentEmployeeIdStr, 10)
-    : undefined;
-
-  return createBookingInDb({
-    businessSlug,
-    customerId,
-    customerName,
-    email,
-    services,
-    scheduledAt,
-    estimatedEnd,
-    employeeId,
-    currentEmployeeId,
-    paymentMethod: paymentMethod as "QRPH",
-    paymentType: paymentType as "FULL" | "DOWNPAYMENT",
-    voucherCode,
-    paymentConfirmed: true,
-    paymongoPaymentIntentId: paymentIntentId,
-    paymongoPaymentMethodId: paymentMethodId,
-    paymongoPaymentId: paymentId,
-  });
 }

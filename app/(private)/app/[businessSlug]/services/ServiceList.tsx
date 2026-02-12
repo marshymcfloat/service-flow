@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { Service } from "@/prisma/generated/prisma/client";
 import {
   Table,
@@ -26,18 +27,20 @@ interface ServiceListProps {
   onDelete: (serviceId: number) => void;
 }
 
-export function ServiceList({ services, onEdit, onDelete }: ServiceListProps) {
-  const getCategoryColor = (category: string) => {
-    const colors: Record<string, string> = {
-      Hair: "bg-purple-100 text-purple-700 border-purple-200",
-      Nails: "bg-pink-100 text-pink-700 border-pink-200",
-      Facial: "bg-green-100 text-green-700 border-green-200",
-      Massage: "bg-blue-100 text-blue-700 border-blue-200",
-      Makeup: "bg-orange-100 text-orange-700 border-orange-200",
-      default: "bg-zinc-100 text-zinc-700 border-zinc-200",
-    };
-    return colors[category] || colors.default;
-  };
+const CATEGORY_COLORS: Record<string, string> = {
+  Hair: "bg-purple-100 text-purple-700 border-purple-200",
+  Nails: "bg-pink-100 text-pink-700 border-pink-200",
+  Facial: "bg-green-100 text-green-700 border-green-200",
+  Massage: "bg-blue-100 text-blue-700 border-blue-200",
+  Makeup: "bg-orange-100 text-orange-700 border-orange-200",
+  default: "bg-zinc-100 text-zinc-700 border-zinc-200",
+};
+
+function getCategoryColor(category: string) {
+  return CATEGORY_COLORS[category] || CATEGORY_COLORS.default;
+}
+
+function ServiceListComponent({ services, onEdit, onDelete }: ServiceListProps) {
 
   return (
     <>
@@ -155,3 +158,5 @@ export function ServiceList({ services, onEdit, onDelete }: ServiceListProps) {
     </>
   );
 }
+
+export const ServiceList = memo(ServiceListComponent);

@@ -23,6 +23,29 @@ export function getEndOfDayPH(date: Date = new Date()): Date {
   return new Date(start.getTime() + 24 * 60 * 60 * 1000 - 1);
 }
 
+export function getCurrentDateTimePH(): Date {
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    timeZone: TIMEZONE_PH,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  });
+
+  const parts = formatter.formatToParts(new Date());
+  const year = parts.find((p) => p.type === "year")?.value ?? "0000";
+  const month = parts.find((p) => p.type === "month")?.value ?? "01";
+  const day = parts.find((p) => p.type === "day")?.value ?? "01";
+  const hour = parts.find((p) => p.type === "hour")?.value ?? "00";
+  const minute = parts.find((p) => p.type === "minute")?.value ?? "00";
+  const second = parts.find((p) => p.type === "second")?.value ?? "00";
+
+  return new Date(`${year}-${month}-${day}T${hour}:${minute}:${second}+08:00`);
+}
+
 export function getMonthRangePH(year: number, month: number) {
   const startBase = `${year}-${String(month + 1).padStart(2, "0")}-01T00:00:00+08:00`;
   const startDate = new Date(startBase);

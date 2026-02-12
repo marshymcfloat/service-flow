@@ -115,10 +115,30 @@ export type Customer = Prisma.CustomerModel
  */
 export type Booking = Prisma.BookingModel
 /**
+ * Model BookingPayment
+ * 
+ */
+export type BookingPayment = Prisma.BookingPaymentModel
+/**
  * Model Voucher
  * 
  */
 export type Voucher = Prisma.VoucherModel
+/**
+ * Model GiftCard
+ * 
+ */
+export type GiftCard = Prisma.GiftCardModel
+/**
+ * Model GiftCardService
+ * 
+ */
+export type GiftCardService = Prisma.GiftCardServiceModel
+/**
+ * Model GiftCardPackage
+ * 
+ */
+export type GiftCardPackage = Prisma.GiftCardPackageModel
 /**
  * Model AvailedService
  * 

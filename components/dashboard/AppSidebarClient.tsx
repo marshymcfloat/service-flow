@@ -6,6 +6,7 @@ import {
   Package,
   Box,
   Ticket,
+  Gift,
   Users,
   ClipboardList,
   Wallet,
@@ -83,6 +84,11 @@ export function AppSidebarClient({ businessSlug, user }: SidebarProps) {
         { title: "Services", url: `/app/${slug}/services`, icon: Box },
         { title: "Packages", url: `/app/${slug}/packages`, icon: Package },
         { title: "Vouchers", url: `/app/${slug}/vouchers`, icon: Ticket },
+        {
+          title: "Gift Cards",
+          url: `/app/${slug}/gift-cards`,
+          icon: Gift,
+        },
         {
           title: "Sale Events",
           url: `/app/${slug}/sale-events`,

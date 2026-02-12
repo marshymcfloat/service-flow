@@ -1,9 +1,17 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { claimServiceAction, unclaimServiceAction } from "./employee";
+import {
+  claimServiceAction,
+  createEmployeeBookingBalanceQrAction,
+  getEmployeeTodayBookingsAction,
+  markEmployeeBookingPaidAction,
+  unclaimServiceAction,
+} from "./employee";
 import { prisma } from "@/prisma/prisma";
 import { requireAuth } from "@/lib/auth/guards";
 import {
   AvailedServiceStatus,
+  BookingStatus,
+  PaymentStatus,
 } from "@/prisma/generated/prisma/client";
 
 // Mock dependencies
@@ -13,6 +21,13 @@ vi.mock("@/prisma/prisma", () => ({
       findUnique: vi.fn(),
       update: vi.fn(),
       updateMany: vi.fn(),
+    },
+    employee: {
+      findFirst: vi.fn(),
+    },
+    booking: {
+      findMany: vi.fn(),
+      findFirst: vi.fn(),
     },
   },
 }));
@@ -37,6 +52,9 @@ describe("Employee Dashboard Actions", () => {
   const requireAuthMock = vi.mocked(requireAuth);
   const availedServiceFindUniqueMock = vi.mocked(prisma.availedService.findUnique);
   const availedServiceUpdateMock = vi.mocked(prisma.availedService.update);
+  const employeeFindFirstMock = vi.mocked(prisma.employee.findFirst);
+  const bookingFindManyMock = vi.mocked(prisma.booking.findMany);
+  const bookingFindFirstMock = vi.mocked(prisma.booking.findFirst);
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -123,6 +141,102 @@ describe("Employee Dashboard Actions", () => {
 
       expect(result.success).toBe(true);
       expect(prisma.availedService.update).toHaveBeenCalled();
+    });
+  });
+
+  describe("employee payment actions", () => {
+    it("should return empty array for getEmployeeTodayBookingsAction when role is not EMPLOYEE", async () => {
+      requireAuthMock.mockResolvedValue({
+        success: true,
+        businessSlug: "test-business",
+        session: {
+          user: {
+            id: "owner_1",
+            role: "OWNER",
+          },
+        },
+      } as Awaited<ReturnType<typeof requireAuth>>);
+
+      const result = await getEmployeeTodayBookingsAction();
+
+      expect(result).toEqual([]);
+      expect(employeeFindFirstMock).not.toHaveBeenCalled();
+      expect(bookingFindManyMock).not.toHaveBeenCalled();
+    });
+
+    it("should return today bookings for authorized employee", async () => {
+      requireAuthMock.mockResolvedValue({
+        success: true,
+        businessSlug: "test-business",
+        session: {
+          user: {
+            id: "employee_user_1",
+            role: "EMPLOYEE",
+          },
+        },
+      } as Awaited<ReturnType<typeof requireAuth>>);
+
+      employeeFindFirstMock.mockResolvedValue({ id: 11 } as never);
+      bookingFindManyMock.mockResolvedValue([
+        {
+          id: 1,
+          status: BookingStatus.ACCEPTED,
+          payment_status: PaymentStatus.UNPAID,
+          availed_services: [
+            {
+              id: 10,
+              service: {
+                name: "Haircut",
+                category: "hair",
+              },
+            },
+          ],
+        },
+      ] as never);
+
+      const result = await getEmployeeTodayBookingsAction();
+
+      expect(result).toHaveLength(1);
+      expect(employeeFindFirstMock).toHaveBeenCalled();
+      expect(bookingFindManyMock).toHaveBeenCalled();
+    });
+
+    it("should block createEmployeeBookingBalanceQrAction for non-employee users", async () => {
+      requireAuthMock.mockResolvedValue({
+        success: true,
+        businessSlug: "test-business",
+        session: {
+          user: {
+            id: "owner_1",
+            role: "OWNER",
+          },
+        },
+      } as Awaited<ReturnType<typeof requireAuth>>);
+
+      const result = await createEmployeeBookingBalanceQrAction(123);
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe("Unauthorized");
+      expect(bookingFindFirstMock).not.toHaveBeenCalled();
+    });
+
+    it("should block markEmployeeBookingPaidAction for non-employee users", async () => {
+      requireAuthMock.mockResolvedValue({
+        success: true,
+        businessSlug: "test-business",
+        session: {
+          user: {
+            id: "owner_1",
+            role: "OWNER",
+          },
+        },
+      } as Awaited<ReturnType<typeof requireAuth>>);
+
+      const result = await markEmployeeBookingPaidAction(123);
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe("Unauthorized");
+      expect(bookingFindFirstMock).not.toHaveBeenCalled();
     });
   });
 });

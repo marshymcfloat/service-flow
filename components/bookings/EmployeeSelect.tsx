@@ -18,6 +18,7 @@ interface EmployeeSelectProps {
   onChange: (employeeId: number | null) => void;
   isLoading?: boolean;
   serviceCategories?: string[];
+  ownerAvailableFallback?: boolean;
 }
 
 const EmployeeSelect = React.memo(function EmployeeSelect({
@@ -26,6 +27,7 @@ const EmployeeSelect = React.memo(function EmployeeSelect({
   onChange,
   isLoading = false,
   serviceCategories,
+  ownerAvailableFallback = false,
 }: EmployeeSelectProps) {
   const categorySet = React.useMemo(() => {
     if (!serviceCategories || serviceCategories.length === 0) return null;
@@ -34,11 +36,11 @@ const EmployeeSelect = React.memo(function EmployeeSelect({
 
   if (isLoading) {
     return (
-      <div className="flex flex-wrap gap-2">
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
         {Array.from({ length: 4 }).map((_, i) => (
           <div
             key={i}
-            className="h-10 w-28 rounded-md bg-muted animate-pulse"
+            className="h-12 rounded-lg bg-muted animate-pulse"
           />
         ))}
       </div>
@@ -61,7 +63,14 @@ const EmployeeSelect = React.memo(function EmployeeSelect({
     return (
       <div className="text-center py-6 text-muted-foreground">
         <User className="h-8 w-8 mx-auto mb-2 opacity-50" />
-        <p>No staff members available</p>
+        <p>
+          {ownerAvailableFallback
+            ? "No employees available for this slot"
+            : "No staff members available"}
+        </p>
+        {ownerAvailableFallback && (
+          <p className="text-xs mt-1">This slot can still be accommodated.</p>
+        )}
         {categorySet && (
           <p className="text-xs mt-1">No staff match the selected services.</p>
         )}
@@ -71,12 +80,29 @@ const EmployeeSelect = React.memo(function EmployeeSelect({
 
   return (
     <div className="space-y-4">
+      {availableEmployees.length === 0 && unavailableEmployees.length > 0 && (
+        <div className="text-center py-2 text-muted-foreground">
+          <p>
+            {ownerAvailableFallback
+              ? "No employees currently available for this time."
+              : "No staff currently clocked in for this time."}
+          </p>
+          {ownerAvailableFallback ? (
+            <p className="text-xs mt-1">This slot can still proceed.</p>
+          ) : (
+            <p className="text-xs mt-1">
+              Staff below are unavailable due to schedule or attendance.
+            </p>
+          )}
+        </div>
+      )}
+
       {availableEmployees.length > 0 && (
         <div>
           <p className="text-xs text-muted-foreground mb-3 font-medium uppercase tracking-wider">
             Available Staff
           </p>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
             {availableEmployees.map((employee) => {
               const isSelected = value === employee.id;
               const initials = employee.name
@@ -91,7 +117,7 @@ const EmployeeSelect = React.memo(function EmployeeSelect({
                   key={employee.id}
                   onClick={() => onChange(isSelected ? null : employee.id)}
                   className={cn(
-                    "cursor-pointer group relative flex items-center gap-3 p-2 pr-3 rounded-lg border transition-all duration-200",
+                    "cursor-pointer group relative flex items-center gap-3 rounded-xl border p-3 transition-all duration-200",
                     isSelected
                       ? "border-primary bg-primary/5 ring-1 ring-primary/20"
                       : "border-border hover:border-primary/50 hover:bg-muted/50",

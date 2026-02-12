@@ -399,7 +399,11 @@ export const ModelName = {
   PackageItem: 'PackageItem',
   Customer: 'Customer',
   Booking: 'Booking',
+  BookingPayment: 'BookingPayment',
   Voucher: 'Voucher',
+  GiftCard: 'GiftCard',
+  GiftCardService: 'GiftCardService',
+  GiftCardPackage: 'GiftCardPackage',
   AvailedService: 'AvailedService',
   ServiceFlow: 'ServiceFlow',
   OutboxMessage: 'OutboxMessage',
@@ -419,7 +423,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "business" | "leaveRequest" | "businessHours" | "saleEvent" | "user" | "employee" | "employeeAttendance" | "payslip" | "specialDate" | "owner" | "service" | "servicePackage" | "packageItem" | "customer" | "booking" | "voucher" | "availedService" | "serviceFlow" | "outboxMessage" | "auditLog"
+    modelProps: "business" | "leaveRequest" | "businessHours" | "saleEvent" | "user" | "employee" | "employeeAttendance" | "payslip" | "specialDate" | "owner" | "service" | "servicePackage" | "packageItem" | "customer" | "booking" | "bookingPayment" | "voucher" | "giftCard" | "giftCardService" | "giftCardPackage" | "availedService" | "serviceFlow" | "outboxMessage" | "auditLog"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1533,6 +1537,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    BookingPayment: {
+      payload: Prisma.$BookingPaymentPayload<ExtArgs>
+      fields: Prisma.BookingPaymentFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.BookingPaymentFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingPaymentPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.BookingPaymentFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingPaymentPayload>
+        }
+        findFirst: {
+          args: Prisma.BookingPaymentFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingPaymentPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.BookingPaymentFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingPaymentPayload>
+        }
+        findMany: {
+          args: Prisma.BookingPaymentFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingPaymentPayload>[]
+        }
+        create: {
+          args: Prisma.BookingPaymentCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingPaymentPayload>
+        }
+        createMany: {
+          args: Prisma.BookingPaymentCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.BookingPaymentCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingPaymentPayload>[]
+        }
+        delete: {
+          args: Prisma.BookingPaymentDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingPaymentPayload>
+        }
+        update: {
+          args: Prisma.BookingPaymentUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingPaymentPayload>
+        }
+        deleteMany: {
+          args: Prisma.BookingPaymentDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.BookingPaymentUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.BookingPaymentUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingPaymentPayload>[]
+        }
+        upsert: {
+          args: Prisma.BookingPaymentUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingPaymentPayload>
+        }
+        aggregate: {
+          args: Prisma.BookingPaymentAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateBookingPayment>
+        }
+        groupBy: {
+          args: Prisma.BookingPaymentGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BookingPaymentGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.BookingPaymentCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BookingPaymentCountAggregateOutputType> | number
+        }
+      }
+    }
     Voucher: {
       payload: Prisma.$VoucherPayload<ExtArgs>
       fields: Prisma.VoucherFieldRefs
@@ -1604,6 +1682,228 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.VoucherCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.VoucherCountAggregateOutputType> | number
+        }
+      }
+    }
+    GiftCard: {
+      payload: Prisma.$GiftCardPayload<ExtArgs>
+      fields: Prisma.GiftCardFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.GiftCardFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GiftCardPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.GiftCardFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GiftCardPayload>
+        }
+        findFirst: {
+          args: Prisma.GiftCardFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GiftCardPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.GiftCardFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GiftCardPayload>
+        }
+        findMany: {
+          args: Prisma.GiftCardFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GiftCardPayload>[]
+        }
+        create: {
+          args: Prisma.GiftCardCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GiftCardPayload>
+        }
+        createMany: {
+          args: Prisma.GiftCardCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.GiftCardCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GiftCardPayload>[]
+        }
+        delete: {
+          args: Prisma.GiftCardDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GiftCardPayload>
+        }
+        update: {
+          args: Prisma.GiftCardUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GiftCardPayload>
+        }
+        deleteMany: {
+          args: Prisma.GiftCardDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.GiftCardUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.GiftCardUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GiftCardPayload>[]
+        }
+        upsert: {
+          args: Prisma.GiftCardUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GiftCardPayload>
+        }
+        aggregate: {
+          args: Prisma.GiftCardAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateGiftCard>
+        }
+        groupBy: {
+          args: Prisma.GiftCardGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GiftCardGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.GiftCardCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GiftCardCountAggregateOutputType> | number
+        }
+      }
+    }
+    GiftCardService: {
+      payload: Prisma.$GiftCardServicePayload<ExtArgs>
+      fields: Prisma.GiftCardServiceFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.GiftCardServiceFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GiftCardServicePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.GiftCardServiceFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GiftCardServicePayload>
+        }
+        findFirst: {
+          args: Prisma.GiftCardServiceFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GiftCardServicePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.GiftCardServiceFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GiftCardServicePayload>
+        }
+        findMany: {
+          args: Prisma.GiftCardServiceFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GiftCardServicePayload>[]
+        }
+        create: {
+          args: Prisma.GiftCardServiceCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GiftCardServicePayload>
+        }
+        createMany: {
+          args: Prisma.GiftCardServiceCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.GiftCardServiceCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GiftCardServicePayload>[]
+        }
+        delete: {
+          args: Prisma.GiftCardServiceDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GiftCardServicePayload>
+        }
+        update: {
+          args: Prisma.GiftCardServiceUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GiftCardServicePayload>
+        }
+        deleteMany: {
+          args: Prisma.GiftCardServiceDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.GiftCardServiceUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.GiftCardServiceUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GiftCardServicePayload>[]
+        }
+        upsert: {
+          args: Prisma.GiftCardServiceUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GiftCardServicePayload>
+        }
+        aggregate: {
+          args: Prisma.GiftCardServiceAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateGiftCardService>
+        }
+        groupBy: {
+          args: Prisma.GiftCardServiceGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GiftCardServiceGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.GiftCardServiceCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GiftCardServiceCountAggregateOutputType> | number
+        }
+      }
+    }
+    GiftCardPackage: {
+      payload: Prisma.$GiftCardPackagePayload<ExtArgs>
+      fields: Prisma.GiftCardPackageFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.GiftCardPackageFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GiftCardPackagePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.GiftCardPackageFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GiftCardPackagePayload>
+        }
+        findFirst: {
+          args: Prisma.GiftCardPackageFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GiftCardPackagePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.GiftCardPackageFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GiftCardPackagePayload>
+        }
+        findMany: {
+          args: Prisma.GiftCardPackageFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GiftCardPackagePayload>[]
+        }
+        create: {
+          args: Prisma.GiftCardPackageCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GiftCardPackagePayload>
+        }
+        createMany: {
+          args: Prisma.GiftCardPackageCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.GiftCardPackageCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GiftCardPackagePayload>[]
+        }
+        delete: {
+          args: Prisma.GiftCardPackageDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GiftCardPackagePayload>
+        }
+        update: {
+          args: Prisma.GiftCardPackageUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GiftCardPackagePayload>
+        }
+        deleteMany: {
+          args: Prisma.GiftCardPackageDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.GiftCardPackageUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.GiftCardPackageUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GiftCardPackagePayload>[]
+        }
+        upsert: {
+          args: Prisma.GiftCardPackageUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GiftCardPackagePayload>
+        }
+        aggregate: {
+          args: Prisma.GiftCardPackageAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateGiftCardPackage>
+        }
+        groupBy: {
+          args: Prisma.GiftCardPackageGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GiftCardPackageGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.GiftCardPackageCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GiftCardPackageCountAggregateOutputType> | number
         }
       }
     }
@@ -2148,6 +2448,8 @@ export const BookingScalarFieldEnum = {
   customer_id: 'customer_id',
   business_id: 'business_id',
   payment_method: 'payment_method',
+  payment_status: 'payment_status',
+  amount_paid: 'amount_paid',
   paymongo_checkout_session_id: 'paymongo_checkout_session_id',
   paymongo_payment_intent_id: 'paymongo_payment_intent_id',
   paymongo_payment_method_id: 'paymongo_payment_method_id',
@@ -2168,6 +2470,27 @@ export const BookingScalarFieldEnum = {
 export type BookingScalarFieldEnum = (typeof BookingScalarFieldEnum)[keyof typeof BookingScalarFieldEnum]
 
 
+export const BookingPaymentScalarFieldEnum = {
+  id: 'id',
+  booking_id: 'booking_id',
+  type: 'type',
+  status: 'status',
+  payment_method: 'payment_method',
+  amount_principal: 'amount_principal',
+  amount_charged: 'amount_charged',
+  paymongo_payment_intent_id: 'paymongo_payment_intent_id',
+  paymongo_payment_method_id: 'paymongo_payment_method_id',
+  paymongo_payment_id: 'paymongo_payment_id',
+  expires_at: 'expires_at',
+  paid_at: 'paid_at',
+  metadata: 'metadata',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type BookingPaymentScalarFieldEnum = (typeof BookingPaymentScalarFieldEnum)[keyof typeof BookingPaymentScalarFieldEnum]
+
+
 export const VoucherScalarFieldEnum = {
   id: 'id',
   code: 'code',
@@ -2183,6 +2506,41 @@ export const VoucherScalarFieldEnum = {
 } as const
 
 export type VoucherScalarFieldEnum = (typeof VoucherScalarFieldEnum)[keyof typeof VoucherScalarFieldEnum]
+
+
+export const GiftCardScalarFieldEnum = {
+  id: 'id',
+  code: 'code',
+  customer_name: 'customer_name',
+  customer_email: 'customer_email',
+  expires_at: 'expires_at',
+  is_claimed: 'is_claimed',
+  claimed_at: 'claimed_at',
+  claimed_by_customer_id: 'claimed_by_customer_id',
+  business_id: 'business_id',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type GiftCardScalarFieldEnum = (typeof GiftCardScalarFieldEnum)[keyof typeof GiftCardScalarFieldEnum]
+
+
+export const GiftCardServiceScalarFieldEnum = {
+  id: 'id',
+  gift_card_id: 'gift_card_id',
+  service_id: 'service_id'
+} as const
+
+export type GiftCardServiceScalarFieldEnum = (typeof GiftCardServiceScalarFieldEnum)[keyof typeof GiftCardServiceScalarFieldEnum]
+
+
+export const GiftCardPackageScalarFieldEnum = {
+  id: 'id',
+  gift_card_id: 'gift_card_id',
+  package_id: 'package_id'
+} as const
+
+export type GiftCardPackageScalarFieldEnum = (typeof GiftCardPackageScalarFieldEnum)[keyof typeof GiftCardPackageScalarFieldEnum]
 
 
 export const AvailedServiceScalarFieldEnum = {
@@ -2267,19 +2625,19 @@ export const SortOrder = {
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 
-export const JsonNullValueInput = {
-  JsonNull: JsonNull
-} as const
-
-export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
-
-
 export const NullableJsonNullValueInput = {
   DbNull: DbNull,
   JsonNull: JsonNull
 } as const
 
 export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
 export const QueryMode = {
@@ -2503,6 +2861,62 @@ export type ListEnumPaymentMethodFieldRefInput<$PrismaModel> = FieldRefInputType
 
 
 /**
+ * Reference to a field of type 'PaymentStatus'
+ */
+export type EnumPaymentStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PaymentStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'PaymentStatus[]'
+ */
+export type ListEnumPaymentStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PaymentStatus[]'>
+    
+
+
+/**
+ * Reference to a field of type 'BookingPaymentType'
+ */
+export type EnumBookingPaymentTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BookingPaymentType'>
+    
+
+
+/**
+ * Reference to a field of type 'BookingPaymentType[]'
+ */
+export type ListEnumBookingPaymentTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BookingPaymentType[]'>
+    
+
+
+/**
+ * Reference to a field of type 'BookingPaymentStatus'
+ */
+export type EnumBookingPaymentStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BookingPaymentStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'BookingPaymentStatus[]'
+ */
+export type ListEnumBookingPaymentStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BookingPaymentStatus[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Json'
+ */
+export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+/**
+ * Reference to a field of type 'QueryMode'
+ */
+export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
+    
+
+
+/**
  * Reference to a field of type 'VoucherType'
  */
 export type EnumVoucherTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'VoucherType'>
@@ -2569,20 +2983,6 @@ export type EnumFlowTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaM
  * Reference to a field of type 'FlowType[]'
  */
 export type ListEnumFlowTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'FlowType[]'>
-    
-
-
-/**
- * Reference to a field of type 'Json'
- */
-export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
-    
-
-
-/**
- * Reference to a field of type 'QueryMode'
- */
-export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
     
 
 /**
@@ -2695,7 +3095,11 @@ export type GlobalOmitConfig = {
   packageItem?: Prisma.PackageItemOmit
   customer?: Prisma.CustomerOmit
   booking?: Prisma.BookingOmit
+  bookingPayment?: Prisma.BookingPaymentOmit
   voucher?: Prisma.VoucherOmit
+  giftCard?: Prisma.GiftCardOmit
+  giftCardService?: Prisma.GiftCardServiceOmit
+  giftCardPackage?: Prisma.GiftCardPackageOmit
   availedService?: Prisma.AvailedServiceOmit
   serviceFlow?: Prisma.ServiceFlowOmit
   outboxMessage?: Prisma.OutboxMessageOmit

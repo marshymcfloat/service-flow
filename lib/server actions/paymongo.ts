@@ -27,6 +27,35 @@ type PayMongoApiResponse<T extends Record<string, unknown> = Record<string, unkn
     errors?: PayMongoError[];
   };
 
+type PayMongoMetadataValue = string | number | boolean | null;
+
+function normalizePayMongoMetadata(
+  metadata?: Record<string, unknown>,
+): Record<string, PayMongoMetadataValue> | undefined {
+  if (!metadata) return undefined;
+
+  const normalizedEntries = Object.entries(metadata).flatMap(([key, value]) => {
+    if (value === undefined) return [];
+
+    if (
+      value === null ||
+      typeof value === "string" ||
+      typeof value === "number" ||
+      typeof value === "boolean"
+    ) {
+      return [[key, value] as [string, PayMongoMetadataValue]];
+    }
+
+    if (value instanceof Date) {
+      return [[key, value.toISOString()] as [string, PayMongoMetadataValue]];
+    }
+
+    return [[key, JSON.stringify(value)] as [string, PayMongoMetadataValue]];
+  });
+
+  return Object.fromEntries(normalizedEntries);
+}
+
 function getPayMongoSecretKey() {
   const secretKey = process.env.PAYMONGO_SECRET_KEY;
   if (!secretKey) {
@@ -45,6 +74,8 @@ export async function createPayMongoCheckoutSession({
     "/booking/cancel",
   allowed_payment_methods = ["qrph", "gcash", "card"],
 }: CreateCheckoutSessionParams) {
+  const normalizedMetadata = normalizePayMongoMetadata(metadata);
+
   const options = {
     method: "POST",
     headers: {
@@ -63,7 +94,7 @@ export async function createPayMongoCheckoutSession({
           description,
           success_url,
           cancel_url,
-          metadata,
+          metadata: normalizedMetadata,
         },
       },
     }),
@@ -156,6 +187,8 @@ export async function createPayMongoQrPaymentIntent({
   returnUrl = (process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000") +
     "/booking/success",
 }: CreateQrPaymentIntentParams): Promise<PayMongoQrPaymentResult> {
+  const normalizedMetadata = normalizePayMongoMetadata(metadata);
+
   const paymentIntentPayload = {
     data: {
       attributes: {
@@ -164,7 +197,7 @@ export async function createPayMongoQrPaymentIntent({
         payment_method_allowed: ["qrph"],
         description,
         statement_descriptor: "Service Flow",
-        metadata,
+        metadata: normalizedMetadata,
       },
     },
   };

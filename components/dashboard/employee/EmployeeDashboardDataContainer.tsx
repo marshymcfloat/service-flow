@@ -3,6 +3,7 @@ import { prisma } from "@/prisma/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/next auth/options";
 import { redirect } from "next/navigation";
+import { getEndOfDayPH, getStartOfDayPH } from "@/lib/date-utils";
 import {
   getCachedBusinessBySlug,
   getCachedServices,
@@ -36,6 +37,8 @@ export default async function EmployeeDashboardDataContainer({
   if (!employee || !business) {
     return <div>Error loading dashboard</div>;
   }
+  const startOfToday = getStartOfDayPH();
+  const endOfToday = getEndOfDayPH();
 
   const servedHistory = await prisma.availedService.findMany({
     where: {
@@ -48,6 +51,8 @@ export default async function EmployeeDashboardDataContainer({
       booking: {
         select: {
           customer: true,
+          scheduled_at: true,
+          created_at: true,
           downpayment: true,
           downpayment_status: true,
           grand_total: true,
@@ -74,6 +79,8 @@ export default async function EmployeeDashboardDataContainer({
       booking: {
         select: {
           customer: true,
+          scheduled_at: true,
+          created_at: true,
           downpayment: true,
           downpayment_status: true,
           grand_total: true,
@@ -84,6 +91,58 @@ export default async function EmployeeDashboardDataContainer({
       scheduled_at: "asc",
     },
     take: 20,
+  });
+
+  const todayBookings = await prisma.booking.findMany({
+    where: {
+      business_id: business.id,
+      status: { not: "CANCELLED" },
+      OR: [
+        {
+          scheduled_at: {
+            gte: startOfToday,
+            lte: endOfToday,
+          },
+        },
+        {
+          scheduled_at: null,
+          created_at: {
+            gte: startOfToday,
+            lte: endOfToday,
+          },
+        },
+      ],
+    },
+    select: {
+      id: true,
+      status: true,
+      payment_status: true,
+      payment_method: true,
+      grand_total: true,
+      amount_paid: true,
+      created_at: true,
+      scheduled_at: true,
+      paymongo_payment_intent_id: true,
+      customer: {
+        select: {
+          name: true,
+          email: true,
+        },
+      },
+      availed_services: {
+        select: {
+          id: true,
+          service: {
+            select: {
+              name: true,
+              category: true,
+            },
+          },
+        },
+      },
+    },
+    orderBy: [{ scheduled_at: "asc" }, { created_at: "desc" }],
+    take: 50,
   });
 
   const services = await getCachedServices(business.id);
@@ -97,7 +156,6 @@ export default async function EmployeeDashboardDataContainer({
     ? attendanceResult.data
     : null;
 
-  const { getStartOfDayPH } = await import("@/lib/date-utils");
   const lastPayslip = await prisma.payslip.findFirst({
     where: { employee_id: employee.id },
     orderBy: { ending_date: "desc" },
@@ -160,10 +218,12 @@ export default async function EmployeeDashboardDataContainer({
       businessId={business.id}
       servedHistory={servedHistory}
       pendingServices={pendingServices}
+      currentEmployeeSpecialties={employee.specialties ?? []}
       currentEmployeeId={employee.id}
       currentEmployeeCommission={employee.commission_percentage}
       currentEmployeeSalary={totalEstimatedSalary}
       todayAttendance={todayAttendance}
+      todayBookings={todayBookings}
       services={services}
       packages={packages}
       categories={categories}

@@ -12,6 +12,7 @@ import { createBookingSuccessToken } from "@/lib/security/booking-success-token"
 import { rateLimit } from "@/lib/rate-limit";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/next auth/options";
+import { getQrExpirySeconds } from "@/lib/payments/config";
 
 interface CreateBookingParams {
   customerId?: string;
@@ -22,6 +23,7 @@ interface CreateBookingParams {
   paymentMethod: PaymentMethod;
   paymentType: PaymentType;
   email?: string;
+  phone?: string;
   services: {
     id: number;
     name: string;
@@ -76,6 +78,7 @@ export async function createBooking({
   paymentType,
   services,
   email,
+  phone,
   voucherCode,
   isWalkIn = false,
 }: CreateBookingParams & {
@@ -126,6 +129,7 @@ export async function createBooking({
         paymentMethod: "CASH",
         paymentType,
         email,
+        phone,
         voucherCode: pricing.voucher?.code,
         totalDiscount: pricing.voucherDiscount,
       });
@@ -152,6 +156,7 @@ export async function createBooking({
       customerId,
       customerName,
       email,
+      phone,
       scheduledAt: scheduledAt.toISOString(),
       estimatedEnd: estimatedEnd.toISOString(),
       employeeId: employeeId?.toString(),
@@ -192,9 +197,10 @@ export async function createBooking({
       billing: {
         name: customerName,
         email,
+        phone,
       },
       returnUrl,
-      expirySeconds: 600,
+      expirySeconds: getQrExpirySeconds(),
     });
 
     const booking = await createBookingInDb({
@@ -209,6 +215,7 @@ export async function createBooking({
       paymentMethod: "QRPH",
       paymentType,
       email,
+      phone,
       voucherCode: pricing.voucher?.code,
       totalDiscount: pricing.voucherDiscount,
       paymongoPaymentIntentId: qrPayment.paymentIntentId,
