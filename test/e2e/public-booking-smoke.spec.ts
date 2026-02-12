@@ -20,8 +20,8 @@ test.describe("Public booking smoke", () => {
     dbReady = true;
 
     await dbClient.query(
-      `INSERT INTO "Business" ("id", "name", "slug", "initials", "description")
-       VALUES ($1, $2, $3, $4, $5)`,
+      `INSERT INTO "Business" ("id", "name", "slug", "initials", "description", "created_at", "updated_at")
+       VALUES ($1, $2, $3, $4, $5, NOW(), NOW())`,
       [
         businessId,
         businessName,
@@ -32,8 +32,8 @@ test.describe("Public booking smoke", () => {
     );
 
     await dbClient.query(
-      `INSERT INTO "Service" ("name", "category", "price", "duration", "business_id")
-       VALUES ($1, $2, $3, $4, $5)`,
+      `INSERT INTO "Service" ("name", "category", "price", "duration", "business_id", "created_at", "updated_at")
+       VALUES ($1, $2, $3, $4, $5, NOW(), NOW())`,
       ["E2E Signature Service", "GENERAL", 799, 45, businessId],
     );
   });
