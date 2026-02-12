@@ -41,10 +41,9 @@ function getCategoryColor(category: string) {
 }
 
 function ServiceListComponent({ services, onEdit, onDelete }: ServiceListProps) {
-
   return (
     <>
-      <div className="md:hidden grid grid-cols-1 gap-4">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:hidden">
         {services.map((service) => (
           <ServiceCard
             key={service.id}
@@ -56,23 +55,23 @@ function ServiceListComponent({ services, onEdit, onDelete }: ServiceListProps) 
         ))}
       </div>
 
-      <div className="hidden md:block rounded-3xl border border-zinc-100 overflow-hidden shadow-sm bg-white">
+      <div className="hidden overflow-hidden rounded-3xl border border-zinc-100 bg-white shadow-sm lg:block">
         <Table>
-          <TableHeader className="bg-zinc-50/80 sticky top-0 z-10 backdrop-blur-sm">
-            <TableRow className="hover:bg-transparent border-zinc-100">
-              <TableHead className="w-[300px] font-semibold text-zinc-500 pl-6 h-12">
+          <TableHeader className="sticky top-0 z-10 bg-zinc-50/80 backdrop-blur-sm">
+            <TableRow className="border-zinc-100 hover:bg-transparent">
+              <TableHead className="h-12 w-[320px] pl-6 font-semibold text-zinc-500">
                 Service
               </TableHead>
-              <TableHead className="font-semibold text-zinc-500 h-12">
+              <TableHead className="h-12 font-semibold text-zinc-500">
                 Category
               </TableHead>
-              <TableHead className="font-semibold text-zinc-500 h-12">
+              <TableHead className="h-12 font-semibold text-zinc-500">
                 Duration
               </TableHead>
-              <TableHead className="text-right font-semibold text-zinc-500 h-12">
+              <TableHead className="h-12 text-right font-semibold text-zinc-500">
                 Price
               </TableHead>
-              <TableHead className="text-right w-[100px] font-semibold text-zinc-500 pr-6 h-12">
+              <TableHead className="h-12 w-[100px] pr-6 text-right font-semibold text-zinc-500">
                 Actions
               </TableHead>
             </TableRow>
@@ -81,15 +80,13 @@ function ServiceListComponent({ services, onEdit, onDelete }: ServiceListProps) 
             {services.map((service) => (
               <TableRow
                 key={service.id}
-                className="hover:bg-zinc-50/50 transition-colors border-zinc-100 group"
+                className="group border-zinc-100 transition-colors hover:bg-zinc-50/50"
               >
-                <TableCell className="pl-6 py-4">
+                <TableCell className="py-4 pl-6">
                   <div className="flex flex-col gap-1">
-                    <span className="font-semibold text-zinc-900">
-                      {service.name}
-                    </span>
+                    <span className="font-semibold text-zinc-900">{service.name}</span>
                     {service.description && (
-                      <span className="text-xs text-zinc-500 line-clamp-1 max-w-[250px]">
+                      <span className="line-clamp-1 max-w-[280px] text-xs text-zinc-500">
                         {service.description}
                       </span>
                     )}
@@ -99,7 +96,7 @@ function ServiceListComponent({ services, onEdit, onDelete }: ServiceListProps) 
                   <Badge
                     variant="secondary"
                     className={cn(
-                      "font-medium border shadow-sm px-2.5 py-0.5 rounded-full",
+                      "rounded-full border px-2.5 py-0.5 font-medium shadow-sm",
                       getCategoryColor(service.category),
                     )}
                   >
@@ -110,38 +107,40 @@ function ServiceListComponent({ services, onEdit, onDelete }: ServiceListProps) 
                   {service.duration ? (
                     <div className="flex items-center gap-1.5 text-zinc-500">
                       <Clock className="h-3.5 w-3.5 text-zinc-400" />
-                      <span className="text-sm font-medium">
-                        {service.duration} min
-                      </span>
+                      <span className="text-sm font-medium">{service.duration} min</span>
                     </div>
                   ) : (
-                    <span className="text-zinc-400 text-sm">—</span>
+                    <span className="text-sm text-zinc-400">{"\u2014"}</span>
                   )}
                 </TableCell>
-                <TableCell className="text-right font-bold text-zinc-900 py-4">
+                <TableCell className="py-4 text-right font-bold text-zinc-900">
                   {formatCurrency(service.price)}
                 </TableCell>
-                <TableCell className="text-right pr-6 py-4">
+                <TableCell className="py-4 pr-6 text-right">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8 text-zinc-400 opacity-0 group-hover:opacity-100 transition-all hover:bg-zinc-100 hover:text-zinc-600"
+                        className="h-8 w-8 text-zinc-400 opacity-70 transition-opacity transition-colors hover:bg-zinc-100 hover:text-zinc-600 group-hover:opacity-100 group-focus-within:opacity-100 motion-reduce:transition-none"
+                        aria-label={`Open actions for ${service.name}`}
                       >
                         <MoreHorizontal className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent
                       align="end"
-                      className="w-[160px] rounded-xl border-zinc-100 shadow-lg"
+                      className="w-[170px] rounded-xl border-zinc-100 shadow-lg"
                     >
-                      <DropdownMenuItem onClick={() => onEdit(service)}>
+                      <DropdownMenuItem
+                        onClick={() => onEdit(service)}
+                        className="min-h-10 cursor-pointer"
+                      >
                         <Pencil className="mr-2 h-3.5 w-3.5 text-zinc-500" />
                         Edit
                       </DropdownMenuItem>
                       <DropdownMenuItem
-                        className="text-red-600 focus:text-red-700 focus:bg-red-50"
+                        className="min-h-10 cursor-pointer text-red-600 focus:bg-red-50 focus:text-red-700"
                         onClick={() => onDelete(service.id)}
                       >
                         <Trash2 className="mr-2 h-3.5 w-3.5" />

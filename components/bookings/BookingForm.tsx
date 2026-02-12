@@ -76,7 +76,6 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Separator } from "../ui/separator";
 import { Badge } from "../ui/badge";
-import { User } from "lucide-react";
 import CustomerSearchInput from "./CustomerSearchInput";
 import ServiceSelect from "./ServiceSelect";
 import SelectedServiceList from "./SelectedServiceList";
@@ -130,6 +129,11 @@ type SelectedService = {
   category?: string | null;
   claimedByCurrentEmployee?: boolean;
 };
+
+const buildServiceClaimUniqueId = (
+  service: Pick<SelectedService, "id" | "packageId">,
+  unitIndex: number,
+) => `${service.id}-${service.packageId ? `pkg${service.packageId}` : "std"}-${unitIndex}`;
 
 type SelectedCustomer = {
   email?: string | null;
@@ -796,7 +800,7 @@ export default function BookingForm({
 
       const flatServicesPayload = data.services.flatMap((s: SelectedService) =>
         Array.from({ length: s.quantity || 1 }).map((_, i) => {
-          const uniqueId = `${s.id}-${i}`;
+          const uniqueId = buildServiceClaimUniqueId(s, i);
           return {
             id: s.id,
             name: s.name,
@@ -1496,23 +1500,40 @@ export default function BookingForm({
             (effectiveIsWalkIn || selectedTime) &&
             isEmployee &&
             selectedServices.length > 0 && (
-              <div className="order-40 space-y-4 rounded-2xl border bg-card/90 p-4 shadow-sm animate-in fade-in slide-in-from-left-4 duration-500 sm:p-5">
-                <div className="flex items-center gap-2 mb-2">
-                  <User className="size-5 text-primary" />
-                  <h3 className="font-semibold text-lg tracking-tight">
-                    4. Claim Services
-                  </h3>
+              <div className="order-40 space-y-3 rounded-2xl border bg-card/90 p-3 shadow-sm animate-in fade-in slide-in-from-left-4 duration-500 sm:space-y-4 sm:p-5">
+                <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold">
+                      4
+                    </span>
+                    <h3 className="font-semibold text-lg tracking-tight">
+                      Claim Services
+                    </h3>
+                  </div>
+                  <Badge
+                    variant={
+                      claimedUniqueIds.length > 0 ? "default" : "secondary"
+                    }
+                    className="font-medium"
+                  >
+                    {claimedUniqueIds.length}/{totalSelectedServiceUnits} claimed
+                  </Badge>
                 </div>
 
-                <Card className="bg-card/50">
-                  <CardContent className="pt-6">
+                <p className="text-sm text-muted-foreground">
+                  Claimed services are assigned to you immediately. Unclaimed
+                  services stay open for other staff.
+                </p>
+
+                <Card className="border bg-card/60 shadow-inner">
+                  <CardContent className="px-3 pb-3 pt-3 sm:px-5 sm:pb-5 sm:pt-5">
                     <ServiceClaimSelector
                       services={selectedServices.flatMap((s) =>
                         Array.from({
                           length: Math.floor(Number(s.quantity) || 1),
                         }).map((_, i) => ({
                           id: s.id,
-                          uniqueId: `${s.id}-${s.packageId ? `pkg${s.packageId}` : "std"}-${i}`,
+                          uniqueId: buildServiceClaimUniqueId(s, i),
                           name: s.name,
                           price: s.price,
                           duration: s.duration ?? null,
