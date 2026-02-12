@@ -1,3 +1,5 @@
+import { getEndOfDayPH, getStartOfDayPH } from "@/lib/date-utils";
+
 export function getMaxBookingDate({
   bookingV2Enabled,
   bookingHorizonDays,
@@ -7,11 +9,12 @@ export function getMaxBookingDate({
   bookingHorizonDays: number;
   now?: Date;
 }) {
-  const max = new Date(now);
   const horizon = bookingV2Enabled ? Math.max(1, bookingHorizonDays) : 1;
-  max.setDate(max.getDate() + horizon - 1);
-  max.setHours(23, 59, 59, 999);
-  return max;
+  const startOfTodayPH = getStartOfDayPH(now);
+  const targetDayPH = new Date(
+    startOfTodayPH.getTime() + (horizon - 1) * 24 * 60 * 60 * 1000,
+  );
+  return getEndOfDayPH(targetDayPH);
 }
 
 export function getSlotEmptyState({

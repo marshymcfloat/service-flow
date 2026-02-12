@@ -81,6 +81,11 @@ function toPHDateString(d: Date) {
   return `${parts.year}-${parts.month}-${parts.day}`;
 }
 
+function getPHDayOfWeek(d: Date) {
+  const dateStr = toPHDateString(d);
+  return new Date(`${dateStr}T00:00:00Z`).getUTCDay();
+}
+
 function getPHDayBounds(date: Date) {
   const dateStr = toPHDateString(date);
   const dayStart = new Date(`${dateStr}T00:00:00+08:00`);
@@ -496,7 +501,7 @@ export async function computeSlots({
     return [];
   }
 
-  const dayOfWeek = date.getDay();
+  const dayOfWeek = getPHDayOfWeek(date);
   const { dateStr, dayStart, dayEnd } = getPHDayBounds(date);
   const nowStr = toPHDateString(now);
   const phNow = getPHDateComponents(now);
