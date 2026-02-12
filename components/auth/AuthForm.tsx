@@ -15,7 +15,7 @@ import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { signIn, getSession } from "next-auth/react";
 import { useMutation } from "@tanstack/react-query";
-import { LoaderCircle, Mail, Lock } from "lucide-react";
+import { LoaderCircle, Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -37,6 +37,7 @@ function getSignInErrorMessage(error?: string | null) {
 export default function AuthForm() {
   const router = useRouter();
   const [focusedField, setFocusedField] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   const form = useForm<LoginSchemaType>({
     resolver: zodResolver(loginSchema),
@@ -127,7 +128,9 @@ export default function AuthForm() {
                       </div>
                       <Input
                         {...field}
-                        type={input}
+                        type={
+                          input === "password" && showPassword ? "text" : input
+                        }
                         onFocus={() => {
                           setFocusedField(input);
                           field.onBlur();
@@ -138,6 +141,7 @@ export default function AuthForm() {
                         }}
                         className={cn(
                           "pl-10 h-12 bg-slate-50 border-slate-200 text-base transition-all duration-300",
+                          input === "password" && "pr-10",
                           "focus-visible:ring-2 focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500 focus-visible:bg-white",
                           "hover:border-emerald-200",
                         )}
@@ -145,6 +149,23 @@ export default function AuthForm() {
                           input === "email" ? "name@example.com" : "••••••••"
                         }
                       />
+                      {input === "password" ? (
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword((prev) => !prev)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 transition-colors duration-300 hover:text-slate-600"
+                          aria-label={
+                            showPassword ? "Hide password" : "Show password"
+                          }
+                          aria-pressed={showPassword}
+                        >
+                          {showPassword ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
+                        </button>
+                      ) : null}
                     </div>
                   </FormControl>
                   <FormMessage className="text-xs ml-1" />
