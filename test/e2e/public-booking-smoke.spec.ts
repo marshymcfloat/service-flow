@@ -65,7 +65,11 @@ test.describe("Public booking smoke", () => {
     await page.goto(`/${businessSlug}`);
     await expect(page.getByRole("heading", { name: businessName })).toBeVisible();
 
-    const bookNowLink = page.locator(`a[href='/${businessSlug}/booking']`).first();
+    const bookNowLink = page
+      .locator(
+        `a[href='/${businessSlug}/booking'], a[href='/${businessSlug}/booking/']`,
+      )
+      .first();
     await expect(bookNowLink).toBeVisible();
     await bookNowLink.click();
 
