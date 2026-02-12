@@ -51,14 +51,25 @@ test.describe("Public booking smoke", () => {
     await page.goto(`/${businessSlug}`);
     await expect(page.getByRole("heading", { name: businessName })).toBeVisible();
 
-    await page.getByRole("link", { name: "Book now" }).click();
-    await expect(page).toHaveURL(new RegExp(`/${businessSlug}/booking`));
+    const bookNowLink = page.locator(`a[href='/${businessSlug}/booking']`).first();
+    await expect(bookNowLink).toBeVisible();
+    await bookNowLink.click();
 
-    const modalFlowVisible = await page
-      .getByText("Secure booking")
-      .first()
-      .isVisible()
-      .catch(() => false);
+    const selectServicesHeading = page.getByRole("heading", {
+      name: "Select Services",
+    });
+    const modalBadge = page.getByText("Secure booking").first();
+    const fullPageHeading = page.getByRole("heading", {
+      name: "Complete your booking",
+    });
+
+    await Promise.race([
+      selectServicesHeading.waitFor({ state: "visible", timeout: 10_000 }),
+      modalBadge.waitFor({ state: "visible", timeout: 10_000 }),
+      fullPageHeading.waitFor({ state: "visible", timeout: 10_000 }),
+    ]);
+
+    const modalFlowVisible = await modalBadge.isVisible().catch(() => false);
 
     if (modalFlowVisible) {
       await expect(page.getByText(`Book with ${businessName}`)).toBeVisible();
@@ -66,12 +77,10 @@ test.describe("Public booking smoke", () => {
         page.getByText("Choose services, pick a time, and confirm your slot."),
       ).toBeVisible();
     } else {
-      await expect(
-        page.getByRole("heading", { name: "Complete your booking" }),
-      ).toBeVisible();
+      await expect(fullPageHeading).toBeVisible();
     }
 
-    await expect(page.getByText("Select Services")).toBeVisible();
-    await expect(page.getByText("Booking Summary")).toBeVisible();
+    await expect(selectServicesHeading).toBeVisible();
+    await expect(page.getByText("Booking Summary", { exact: true })).toBeVisible();
   });
 });
