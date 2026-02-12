@@ -1,7 +1,9 @@
 import { prisma } from "@/prisma/prisma";
 import { Resend } from "resend";
-import { getStartOfDayPH } from "@/lib/date-utils";
+import { getCurrentDateTimePH, getStartOfDayPH } from "@/lib/date-utils";
 import { logger } from "@/lib/logger";
+
+const RE_ENGAGEMENT_EVENT_TYPE = "RE_ENGAGEMENT_REMINDER_SENT";
 
 export async function sendReEngagementEmails() {
   const resend = new Resend(process.env.RESEND_API_KEY);
@@ -27,6 +29,7 @@ export async function sendReEngagementEmails() {
     );
 
     const allResults = [];
+    let duplicateSkips = 0;
 
     for (const business of businesses) {
       // Find customers who:
@@ -81,11 +84,60 @@ export async function sendReEngagementEmails() {
         `[Re-engagement] Business "${business.name}": ${customersToEmail.length} customers inactive for 60+ days`,
       );
 
+      let lastSentByCustomer = new Map<string, Date>();
+
+      if (customersToEmail.length > 0) {
+        const customerIds = customersToEmail.map((customer) =>
+          String(customer.id),
+        );
+        const earliestLastBooking = customersToEmail.reduce((earliest, customer) => {
+          const lastBookingAt = customer.bookings[0]?.created_at;
+          if (!lastBookingAt) return earliest;
+          return lastBookingAt < earliest ? lastBookingAt : earliest;
+        }, customersToEmail[0].bookings[0].created_at);
+
+        const existingEvents = await prisma.outboxMessage.findMany({
+          where: {
+            business_id: business.id,
+            event_type: RE_ENGAGEMENT_EVENT_TYPE,
+            aggregate_type: "Customer",
+            aggregate_id: {
+              in: customerIds,
+            },
+            processed: true,
+            created_at: {
+              gte: earliestLastBooking,
+            },
+          },
+          select: {
+            aggregate_id: true,
+            created_at: true,
+          },
+        });
+
+        lastSentByCustomer = existingEvents.reduce((map, event) => {
+          const existing = map.get(event.aggregate_id);
+          if (!existing || event.created_at > existing) {
+            map.set(event.aggregate_id, event.created_at);
+          }
+          return map;
+        }, new Map<string, Date>());
+      }
+
       // Send emails
       for (const customer of customersToEmail) {
         if (!customer.email) continue;
 
         const lastBookingDate = customer.bookings[0]?.created_at;
+        if (!lastBookingDate) continue;
+
+        const customerId = String(customer.id);
+        const lastSentAt = lastSentByCustomer.get(customerId);
+        if (lastSentAt && lastSentAt >= lastBookingDate) {
+          duplicateSkips += 1;
+          continue;
+        }
+
         const emailHtml = generateReEngagementEmail(
           business.name,
           customer.name,
@@ -112,9 +164,31 @@ export async function sendReEngagementEmails() {
               error,
             });
           } else {
+            const sentAt = getCurrentDateTimePH();
             logger.info(
               `[Re-engagement] Email sent to ${customer.email} (last booking: ${lastBookingDate?.toISOString()})`,
             );
+
+            await prisma.outboxMessage.create({
+              data: {
+                event_type: RE_ENGAGEMENT_EVENT_TYPE,
+                aggregate_type: "Customer",
+                aggregate_id: customerId,
+                business_id: business.id,
+                payload: {
+                  customerId,
+                  customerName: customer.name,
+                  customerEmail: customer.email,
+                  lastCompletedBookingId: customer.bookings[0]?.id ?? null,
+                  lastCompletedBookingAt: lastBookingDate.toISOString(),
+                  sentAt: sentAt.toISOString(),
+                },
+                processed: true,
+                processed_at: sentAt,
+              },
+            });
+            lastSentByCustomer.set(customerId, sentAt);
+
             allResults.push({
               business: business.name,
               customerId: customer.id,
@@ -149,6 +223,7 @@ export async function sendReEngagementEmails() {
       totalProcessed: allResults.length,
       sent: successCount,
       failed: failCount,
+      duplicateSkips,
       details: allResults,
     };
   } catch (error) {

@@ -7,12 +7,28 @@ import {
 } from "@/lib/date-utils";
 import { logger } from "@/lib/logger";
 
+const FLOW_REMINDER_EVENT_TYPE = "FLOW_REMINDER_SENT";
+
+function readPayloadString(
+  payload: unknown,
+  key: string,
+): string | null {
+  if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
+    return null;
+  }
+
+  const value = (payload as Record<string, unknown>)[key];
+  return typeof value === "string" && value.length > 0 ? value : null;
+}
+
 export async function sendFlowReminders() {
   const resend = new Resend(process.env.RESEND_API_KEY);
 
   try {
     // Use Philippine timezone for "today"
     const today = getCurrentDateTimePH();
+    const startOfToday = getStartOfDayPH(today);
+    const endOfToday = getEndOfDayPH(today);
 
     // 1. Get all active service flows
     const activeFlows = await prisma.serviceFlow.findMany({
@@ -27,6 +43,7 @@ export async function sendFlowReminders() {
     );
 
     let sentCount = 0;
+    let duplicateSkips = 0;
 
     // 2. For each flow, find bookings that trigger it today
     for (const flow of activeFlows) {
@@ -102,8 +119,39 @@ export async function sendFlowReminders() {
         `[Flow Reminders] Flow ${flow.id}: Found ${qualifyingServices.length} qualifying services from ${checkDate.toDateString()}`,
       );
 
+      const existingReminderEvents = await prisma.outboxMessage.findMany({
+        where: {
+          event_type: FLOW_REMINDER_EVENT_TYPE,
+          aggregate_type: "ServiceFlow",
+          aggregate_id: String(flow.id),
+          business_id: flow.business_id,
+          processed: true,
+          created_at: {
+            gte: startOfToday,
+            lte: endOfToday,
+          },
+        },
+        select: {
+          payload: true,
+        },
+      });
+
+      const remindedCustomerIds = new Set<string>();
+      for (const event of existingReminderEvents) {
+        const customerId = readPayloadString(event.payload, "customerId");
+        if (customerId) {
+          remindedCustomerIds.add(customerId);
+        }
+      }
+
       for (const item of qualifyingServices) {
         if (!item.booking.customer.email) continue;
+        const customerId = String(item.booking.customer_id);
+
+        if (remindedCustomerIds.has(customerId)) {
+          duplicateSkips += 1;
+          continue;
+        }
 
         const customerName = item.booking.customer.name;
         const businessName = item.booking.business.name;
@@ -260,12 +308,12 @@ export async function sendFlowReminders() {
           // Track this reminder in OutboxMessage for dashboard visibility
           await prisma.outboxMessage.create({
             data: {
-              event_type: "FLOW_REMINDER_SENT",
+              event_type: FLOW_REMINDER_EVENT_TYPE,
               aggregate_type: "ServiceFlow",
-              aggregate_id: flow.id,
+              aggregate_id: String(flow.id),
               business_id: item.booking.business_id,
               payload: {
-                customerId: item.booking.customer_id,
+                customerId,
                 customerName,
                 customerEmail: item.booking.customer.email,
                 triggerServiceName: serviceName,
@@ -277,6 +325,7 @@ export async function sendFlowReminders() {
               processed_at: getCurrentDateTimePH(),
             },
           });
+          remindedCustomerIds.add(customerId);
         }
       }
     }
@@ -285,6 +334,7 @@ export async function sendFlowReminders() {
       success: true,
       flows_checked: activeFlows.length,
       emails_sent: sentCount,
+      duplicate_skips: duplicateSkips,
     };
   } catch (error) {
     logger.error("[Flow Reminders] Error:", { error });
