@@ -1,6 +1,9 @@
 "use server";
 
 import { prisma } from "@/prisma/prisma";
+import { requireTenantWriteAccess } from "@/lib/auth/guards";
+import { detectAndEmitFutureBookingConflicts } from "@/lib/services/booking-conflicts";
+import { logger } from "@/lib/logger";
 
 export interface BusinessHourInput {
   day_of_week: number;
@@ -31,6 +34,9 @@ export async function updateBusinessHours(
   businessSlug: string,
   hours: BusinessHourInput[],
 ) {
+  const auth = await requireTenantWriteAccess(businessSlug);
+  if (!auth.success) return auth;
+
   const UPSERT_BATCH_SIZE = 25;
 
   const business = await prisma.business.findUnique({
@@ -77,6 +83,19 @@ export async function updateBusinessHours(
     );
 
     await prisma.$transaction(upsertOperations);
+  }
+
+  try {
+    await detectAndEmitFutureBookingConflicts({
+      businessId: business.id,
+      trigger: "BUSINESS_HOURS_UPDATED",
+    });
+  } catch (error) {
+    logger.warn("[BookingConflicts] Failed after business-hours update", {
+      businessId: business.id,
+      businessSlug,
+      error: error instanceof Error ? error.message : String(error),
+    });
   }
 
   return { success: true };

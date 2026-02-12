@@ -10,6 +10,9 @@ import {
 } from "@/prisma/generated/prisma/enums";
 import { createLeaveRequestSchema } from "@/app/types/details";
 import { getStartOfDayPH } from "@/lib/date-utils";
+import { requireAuth } from "@/lib/auth/guards";
+import { detectAndEmitFutureBookingConflicts } from "@/lib/services/booking-conflicts";
+import { logger } from "@/lib/logger";
 
 export async function createLeaveRequest(
   data: {
@@ -22,7 +25,14 @@ export async function createLeaveRequest(
     businessSlug: string;
   },
 ) {
+  const auth = await requireAuth({ write: true });
+  if (!auth.success) return auth;
+
   try {
+    if (auth.businessSlug !== data.businessSlug) {
+      return { success: false, error: "Unauthorized" };
+    }
+
     const validatedData = createLeaveRequestSchema.safeParse(data);
 
     if (!validatedData.success) {
@@ -91,6 +101,9 @@ export async function createLeaveRequest(
 }
 
 export async function cancelLeaveRequest(requestId: number) {
+  const auth = await requireAuth({ write: true });
+  if (!auth.success) return auth;
+
   try {
     const leaveRequest = await prisma.leaveRequest.findUnique({
       where: { id: requestId },
@@ -99,6 +112,9 @@ export async function cancelLeaveRequest(requestId: number) {
 
     if (!leaveRequest) {
       return { success: false, error: "Leave request not found" };
+    }
+    if (leaveRequest.business.slug !== auth.businessSlug) {
+      return { success: false, error: "Unauthorized" };
     }
 
     if (leaveRequest.status !== "PENDING") {
@@ -126,6 +142,9 @@ export async function updateLeaveRequestStatus(
   adminComment?: string,
   isPaid?: boolean,
 ) {
+  const auth = await requireAuth({ write: true });
+  if (!auth.success) return auth;
+
   try {
     const leaveRequest = await prisma.leaveRequest.findUnique({
       where: { id: requestId },
@@ -134,6 +153,9 @@ export async function updateLeaveRequestStatus(
 
     if (!leaveRequest) {
       throw new Error("Leave request not found");
+    }
+    if (leaveRequest.business.slug !== auth.businessSlug) {
+      return { success: false, error: "Unauthorized" };
     }
 
     // Update status
@@ -188,6 +210,20 @@ export async function updateLeaveRequestStatus(
             // Ignore unique constraint violation if race condition occurs
           }
         }
+      }
+
+      try {
+        await detectAndEmitFutureBookingConflicts({
+          businessId: leaveRequest.business_id,
+          changedDate: leaveRequest.start_date,
+          trigger: "LEAVE_APPROVED",
+        });
+      } catch (error) {
+        logger.warn("[BookingConflicts] Failed after leave approval", {
+          requestId,
+          businessSlug: leaveRequest.business.slug,
+          error: error instanceof Error ? error.message : String(error),
+        });
       }
     }
 

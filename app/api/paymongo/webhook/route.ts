@@ -6,6 +6,7 @@ import { prisma } from "@/prisma/prisma";
 import { extractPaymentIntentReferences } from "@/lib/paymongo/webhook-utils";
 import { publishEvent } from "@/lib/services/outbox";
 import { getCurrentDateTimePH } from "@/lib/date-utils";
+import { recordBookingMetric } from "@/lib/services/booking-metrics";
 
 const WEBHOOK_TIMESTAMP_TOLERANCE_SECONDS = 5 * 60;
 
@@ -307,6 +308,13 @@ export async function POST(req: Request) {
         return new Response("No metadata", { status: 400 });
       }
 
+      if (metadata?.billing_context === "SUBSCRIPTION") {
+        await markWebhookProcessed(eventId, eventType, businessIdForAudit);
+        return new Response("Subscription event ignored in booking webhook", {
+          status: 200,
+        });
+      }
+
       const {
         businessSlug,
         customerName,
@@ -321,6 +329,7 @@ export async function POST(req: Request) {
         paymentMethod,
         paymentType,
         voucherCode,
+        isWalkIn: isWalkInRaw,
       } = metadata;
 
       if (!businessSlug || !servicesJson) {
@@ -342,6 +351,7 @@ export async function POST(req: Request) {
       const currentEmployeeId = currentEmployeeIdStr
         ? parseInt(currentEmployeeIdStr, 10)
         : undefined;
+      const isWalkIn = isWalkInRaw === "true";
 
       try {
         const booking = await createBookingInDb({
@@ -360,8 +370,20 @@ export async function POST(req: Request) {
           voucherCode,
           paymentConfirmed: true,
           paymongoCheckoutSessionId: checkoutSessionId,
+          isPublicBooking: true,
+          isWalkIn,
         });
         businessIdForAudit = booking.business_id;
+        await recordBookingMetric({
+          businessId: booking.business_id,
+          action: "PUBLIC_BOOKING_COMPLETED",
+          outcome: "COMPLETED",
+          actorType: "WEBHOOK",
+          metadata: {
+            bookingId: booking.id,
+            completionPath: "CHECKOUT_SESSION_WEBHOOK",
+          },
+        });
       } catch (error) {
         if (
           error instanceof Prisma.PrismaClientKnownRequestError &&
@@ -582,6 +604,16 @@ export async function POST(req: Request) {
         return new Response("Webhook processed", { status: 200 });
       }
       businessIdForAudit = result.businessId;
+      await recordBookingMetric({
+        businessId: result.businessId,
+        action: "PUBLIC_BOOKING_COMPLETED",
+        outcome: "COMPLETED",
+        actorType: "WEBHOOK",
+        metadata: {
+          paymentIntentId,
+          completionPath: "PAYMENT_PAID_WEBHOOK",
+        },
+      });
 
       if (result.kind === "amount_mismatch") {
         console.error(

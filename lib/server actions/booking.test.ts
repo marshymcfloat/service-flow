@@ -1,10 +1,14 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createBooking } from "./booking";
 
-vi.mock("@/prisma/prisma", () => ({
-  prisma: {
-    business: {},
+const prismaMock = vi.hoisted(() => ({
+  business: {
+    findUnique: vi.fn(),
   },
+}));
+
+vi.mock("@/prisma/prisma", () => ({
+  prisma: prismaMock,
 }));
 
 vi.mock("@/lib/services/booking", () => ({
@@ -41,27 +45,49 @@ vi.mock("@/lib/services/booking-pricing", () => ({
   buildBookingPricingSnapshot: vi.fn(),
 }));
 
+vi.mock("@/lib/services/booking-availability", () => ({
+  validateBookingOrThrow: vi.fn(),
+  BookingAvailabilityError: class BookingAvailabilityError extends Error {
+    code: string;
+    alternatives: unknown[];
+    constructor(code: string, message: string, alternatives: unknown[] = []) {
+      super(message);
+      this.code = code;
+      this.alternatives = alternatives;
+    }
+  },
+}));
+vi.mock("@/lib/services/booking-metrics", () => ({
+  recordBookingMetric: vi.fn(),
+}));
+
 import { headers } from "next/headers";
 import { getServerSession } from "next-auth";
 import { rateLimit } from "@/lib/rate-limit";
 import { createBookingInDb } from "@/lib/services/booking";
 import { createPayMongoQrPaymentIntent } from "./paymongo";
 import { buildBookingPricingSnapshot } from "@/lib/services/booking-pricing";
+import { validateBookingOrThrow } from "@/lib/services/booking-availability";
 
 const mockedHeaders = vi.mocked(headers);
 const mockedGetServerSession = vi.mocked(getServerSession);
 const mockedRateLimit = vi.mocked(rateLimit);
-const mockedBuildBookingPricingSnapshot = vi.mocked(buildBookingPricingSnapshot);
+const mockedBuildBookingPricingSnapshot = vi.mocked(
+  buildBookingPricingSnapshot,
+);
 const mockedCreateBookingInDb = vi.mocked(createBookingInDb);
 const mockedCreatePayMongoQrPaymentIntent = vi.mocked(
   createPayMongoQrPaymentIntent,
 );
+const mockedBusinessFindUnique = vi.mocked(prismaMock.business.findUnique);
+const mockedValidateBookingOrThrow = vi.mocked(validateBookingOrThrow);
 
 describe("createBooking Server Action", () => {
   const mockDate = new Date("2024-01-01T10:00:00Z");
 
   beforeEach(() => {
     vi.resetAllMocks();
+    vi.spyOn(console, "error").mockImplementation(() => undefined);
     process.env.BOOKING_SUCCESS_TOKEN_SECRET = "booking-test-secret";
     process.env.NEXT_PUBLIC_APP_URL = "https://demo.serviceflow.test";
 
@@ -74,13 +100,25 @@ describe("createBooking Server Action", () => {
       }),
     } as never);
 
-    mockedGetServerSession.mockResolvedValue({ user: { id: "owner_1" } } as never);
-    mockedRateLimit.mockReturnValue({
+    mockedGetServerSession.mockResolvedValue({
+      user: { id: "owner_1" },
+    } as never);
+    mockedRateLimit.mockResolvedValue({
       success: true,
       limit: 8,
       remaining: 7,
       reset: Date.now() + 1_000,
     });
+    mockedBusinessFindUnique.mockResolvedValue({
+      id: "biz_1",
+      slug: "demo-business",
+      subscriptions: [],
+    });
+    mockedValidateBookingOrThrow.mockResolvedValue(undefined);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it("should create a CASH booking successfully", async () => {
@@ -201,16 +239,15 @@ describe("createBooking Server Action", () => {
       scheduledAt: mockDate,
       paymentMethod: "QRPH",
       paymentType: "FULL",
-      services: [
-        { id: 1, name: "Haircut", price: 500, quantity: 1 },
-      ],
+      services: [{ id: 1, name: "Haircut", price: 500, quantity: 1 }],
       email: "john@example.com",
       phone: "+639171234567",
     });
 
     expect(mockedCreatePayMongoQrPaymentIntent).toHaveBeenCalledWith(
       expect.objectContaining({
-        returnUrl: "https://demo.serviceflow.test/demo-business/booking/success",
+        returnUrl:
+          "https://demo.serviceflow.test/demo-business/booking/success",
         billing: expect.objectContaining({
           phone: "+639171234567",
         }),
@@ -229,7 +266,7 @@ describe("createBooking Server Action", () => {
 
   it("should rate-limit unauthenticated booking attempts", async () => {
     mockedGetServerSession.mockResolvedValue(null);
-    mockedRateLimit.mockReturnValue({
+    mockedRateLimit.mockResolvedValue({
       success: false,
       limit: 8,
       remaining: 0,
@@ -252,9 +289,7 @@ describe("createBooking Server Action", () => {
   });
 
   it("should throw error if business not found", async () => {
-    mockedBuildBookingPricingSnapshot.mockRejectedValue(
-      new Error("Business not found"),
-    );
+    mockedBusinessFindUnique.mockResolvedValueOnce(null);
 
     await expect(
       createBooking({
@@ -266,5 +301,7 @@ describe("createBooking Server Action", () => {
         services: [],
       }),
     ).rejects.toThrow("Business not found");
+
+    expect(mockedBuildBookingPricingSnapshot).not.toHaveBeenCalled();
   });
 });

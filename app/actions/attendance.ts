@@ -5,6 +5,9 @@ import { prisma } from "@/prisma/prisma";
 import { AttendanceStatus } from "@/prisma/generated/prisma/enums";
 import { revalidatePath } from "next/cache";
 import { getEndOfDayPH, getStartOfDayPH } from "@/lib/date-utils";
+import { requireAuth } from "@/lib/auth/guards";
+import { detectAndEmitFutureBookingConflicts } from "@/lib/services/booking-conflicts";
+import { logger } from "@/lib/logger";
 
 export async function getDailyAttendance(businessId: string, date: Date) {
   try {
@@ -47,7 +50,22 @@ export async function updateAttendanceStatus(
   date: Date,
   status: AttendanceStatus,
 ) {
+  const auth = await requireAuth({ write: true });
+  if (!auth.success) return auth;
+
   try {
+    const employee = await prisma.employee.findUnique({
+      where: { id: employeeId },
+      include: {
+        business: {
+          select: { slug: true },
+        },
+      },
+    });
+    if (!employee || employee.business.slug !== auth.businessSlug) {
+      return { success: false, error: "Unauthorized" };
+    }
+
     const startOfDay = getStartOfDayPH(date);
     const endOfDay = getEndOfDayPH(date);
 
@@ -73,6 +91,20 @@ export async function updateAttendanceStatus(
           date: startOfDay,
           status,
         },
+      });
+    }
+
+    try {
+      await detectAndEmitFutureBookingConflicts({
+        businessId: employee.business_id,
+        changedDate: startOfDay,
+        trigger: "ATTENDANCE_UPDATED",
+      });
+    } catch (error) {
+      logger.warn("[BookingConflicts] Failed after attendance status update", {
+        employeeId,
+        businessSlug: auth.businessSlug,
+        error: error instanceof Error ? error.message : String(error),
       });
     }
 

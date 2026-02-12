@@ -1,0 +1,347 @@
+import { Resend } from "resend";
+
+import { logger } from "@/lib/logger";
+import { prisma } from "@/prisma/prisma";
+import { toAbsoluteUrl } from "@/lib/site-url";
+import type { OutboxEventType, OutboxPayloadMap } from "@/lib/services/outbox";
+import {
+  BOOKING_DETAILS_TOKEN_TTL_SECONDS,
+  createBookingSuccessToken,
+} from "@/lib/security/booking-success-token";
+
+export class NonRetryableOutboxError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "NonRetryableOutboxError";
+  }
+}
+
+export function isNonRetryableOutboxError(error: unknown) {
+  return error instanceof NonRetryableOutboxError;
+}
+
+function getResendClient() {
+  if (!process.env.RESEND_API_KEY) {
+    throw new Error("RESEND_API_KEY is not configured");
+  }
+  return new Resend(process.env.RESEND_API_KEY);
+}
+
+function formatPhpFromCentavos(amountCentavos: number) {
+  return new Intl.NumberFormat("en-PH", {
+    style: "currency",
+    currency: "PHP",
+  }).format(amountCentavos / 100);
+}
+
+async function sendHtmlEmail(params: {
+  to: string[];
+  subject: string;
+  html: string;
+  text: string;
+}) {
+  const resend = getResendClient();
+  const { error } = await resend.emails.send({
+    from: "ServiceFlow <notifications@serviceflow.store>",
+    to: params.to,
+    subject: params.subject,
+    html: params.html,
+    text: params.text,
+  });
+
+  if (error) {
+    throw new Error(
+      typeof error.message === "string"
+        ? error.message
+        : "Failed to send email via Resend",
+    );
+  }
+}
+
+async function sendBookingCancelledEmail(
+  payload: OutboxPayloadMap["BOOKING_CANCELLED"],
+) {
+  const booking = await prisma.booking.findUnique({
+    where: { id: payload.bookingId },
+    select: {
+      customer: {
+        select: {
+          email: true,
+          name: true,
+        },
+      },
+      business: {
+        select: {
+          name: true,
+        },
+      },
+    },
+  });
+
+  const recipientEmail = payload.email ?? booking?.customer.email ?? null;
+  if (!recipientEmail) {
+    throw new NonRetryableOutboxError(
+      `[Outbox:BOOKING_CANCELLED] Recipient email is missing for booking ${payload.bookingId}`,
+    );
+  }
+
+  const customerName =
+    payload.customerName?.trim() || booking?.customer.name || "there";
+  const businessName = booking?.business.name || "your service provider";
+  const reason = payload.reason;
+
+  await sendHtmlEmail({
+    to: [recipientEmail],
+    subject: `Booking canceled - ${businessName}`,
+    html: `
+      <p>Hi ${customerName},</p>
+      <p>Your booking with <strong>${businessName}</strong> was canceled.</p>
+      <p>Reason: ${reason}</p>
+      <p>If you need help rebooking, reply to this email.</p>
+    `,
+    text: `Hi ${customerName}, your booking with ${businessName} was canceled. Reason: ${reason}.`,
+  });
+}
+
+async function sendPaymentConfirmedEmail(
+  payload: OutboxPayloadMap["PAYMENT_CONFIRMED"],
+  businessId: string,
+) {
+  const business = await prisma.business.findUnique({
+    where: { id: businessId },
+    select: { name: true, slug: true },
+  });
+  const businessName = business?.name || "ServiceFlow";
+  const receiptAmount = formatPhpFromCentavos(
+    Math.round(payload.amount * 100),
+  );
+  const bookingToken =
+    business?.slug && payload.bookingId
+      ? createBookingSuccessToken({
+          bookingId: payload.bookingId,
+          businessSlug: business.slug,
+          purpose: "details",
+          ttlSeconds: BOOKING_DETAILS_TOKEN_TTL_SECONDS,
+        })
+      : null;
+  const bookingPath =
+    business?.slug && payload.bookingId && bookingToken
+      ? `/${business.slug}/bookings/${payload.bookingId}?token=${encodeURIComponent(bookingToken)}`
+      : null;
+  const bookingLink = bookingPath ? toAbsoluteUrl(bookingPath) : null;
+
+  await sendHtmlEmail({
+    to: [payload.email],
+    subject: `Payment received - ${businessName}`,
+    html: `
+      <p>Payment confirmed for booking #${payload.bookingId}.</p>
+      <p>Amount received: <strong>${receiptAmount}</strong></p>
+      ${bookingLink ? `<p>View booking: <a href="${bookingLink}">${bookingLink}</a></p>` : ""}
+    `,
+    text: `Payment confirmed for booking #${payload.bookingId}. Amount received: ${receiptAmount}.${bookingLink ? ` View booking: ${bookingLink}` : ""}`,
+  });
+}
+
+async function sendReminderDueEmail(
+  payload: OutboxPayloadMap["REMINDER_DUE"],
+  businessId: string,
+) {
+  const business = await prisma.business.findUnique({
+    where: { id: businessId },
+    select: { name: true },
+  });
+  const businessName = business?.name || "ServiceFlow";
+
+  await sendHtmlEmail({
+    to: [payload.email],
+    subject: `Upcoming appointment reminder - ${businessName}`,
+    html: `
+      <p>Hi ${payload.customerName},</p>
+      <p>This is a reminder for your upcoming appointment.</p>
+      <p>Scheduled at: <strong>${payload.scheduledAt}</strong></p>
+      <p>Booking reference: #${payload.bookingId}</p>
+    `,
+    text: `Hi ${payload.customerName}, reminder for your upcoming appointment at ${payload.scheduledAt}. Booking #${payload.bookingId}.`,
+  });
+}
+
+async function sendPayslipGeneratedEmail(
+  payload: OutboxPayloadMap["PAYSLIP_GENERATED"],
+) {
+  const payslip = await prisma.payslip.findUnique({
+    where: { id: payload.payslipId },
+    include: {
+      employee: {
+        include: {
+          user: {
+            select: { name: true },
+          },
+          business: {
+            select: { name: true },
+          },
+        },
+      },
+    },
+  });
+
+  const employeeName =
+    payload.employeeName ||
+    payslip?.employee.user.name ||
+    "team member";
+  const businessName = payslip?.employee.business.name || "ServiceFlow";
+  const periodText = payload.period || "latest payroll period";
+  const totalSalaryText =
+    typeof payload.totalSalary === "number"
+      ? new Intl.NumberFormat("en-PH", {
+          style: "currency",
+          currency: "PHP",
+        }).format(payload.totalSalary)
+      : null;
+
+  await sendHtmlEmail({
+    to: [payload.employeeEmail],
+    subject: `Payslip ready - ${businessName}`,
+    html: `
+      <p>Hi ${employeeName},</p>
+      <p>Your payslip is now available for ${periodText}.</p>
+      ${totalSalaryText ? `<p>Total: <strong>${totalSalaryText}</strong></p>` : ""}
+      <p>Please contact your owner/admin for details.</p>
+    `,
+    text: `Hi ${employeeName}, your payslip is now available for ${periodText}.${totalSalaryText ? ` Total: ${totalSalaryText}.` : ""}`,
+  });
+}
+
+function splitEmails(raw: string | undefined) {
+  if (!raw) return [];
+  return raw
+    .split(",")
+    .map((value) => value.trim())
+    .filter(Boolean);
+}
+
+async function getPlatformAdminRecipients() {
+  const envRecipients = new Set<string>([
+    ...splitEmails(process.env.PLATFORM_BILLING_EMAILS),
+    ...splitEmails(process.env.SEED_PLATFORM_ADMIN_EMAIL),
+  ]);
+
+  const admins = await prisma.user.findMany({
+    where: { role: "PLATFORM_ADMIN" },
+    select: { email: true },
+    take: 25,
+  });
+
+  for (const admin of admins) {
+    if (admin.email?.trim()) {
+      envRecipients.add(admin.email.trim());
+    }
+  }
+
+  return Array.from(envRecipients);
+}
+
+async function sendManualPaymentSubmittedEmail(
+  payload: OutboxPayloadMap["MANUAL_PAYMENT_SUBMITTED"],
+) {
+  const recipients = await getPlatformAdminRecipients();
+  if (recipients.length === 0) {
+    throw new NonRetryableOutboxError(
+      "[Outbox:MANUAL_PAYMENT_SUBMITTED] No platform admin recipients configured",
+    );
+  }
+
+  const invoice = await prisma.subscriptionInvoice.findUnique({
+    where: { id: payload.invoiceId },
+    include: {
+      business: {
+        select: { name: true, slug: true },
+      },
+    },
+  });
+
+  const businessName = invoice?.business.name || payload.businessSlug;
+  const amountText =
+    typeof payload.amountCentavos === "number"
+      ? formatPhpFromCentavos(payload.amountCentavos)
+      : "Not provided";
+  const proofText = payload.proofUrl ? `Proof URL: ${payload.proofUrl}` : "No proof URL";
+  const noteText = payload.note ? `Note: ${payload.note}` : "No note";
+
+  await sendHtmlEmail({
+    to: recipients,
+    subject: `Manual payment submitted - ${businessName}`,
+    html: `
+      <p>A business owner submitted a manual payment reference.</p>
+      <ul>
+        <li>Business: ${businessName}</li>
+        <li>Invoice ID: ${payload.invoiceId}</li>
+        <li>Reference: ${payload.paymentReference}</li>
+        <li>Amount: ${amountText}</li>
+        <li>${noteText}</li>
+        <li>${proofText}</li>
+        <li>Submitted at: ${payload.submittedAt}</li>
+      </ul>
+    `,
+    text: `Manual payment submitted. Business: ${businessName}. Invoice: ${payload.invoiceId}. Reference: ${payload.paymentReference}. Amount: ${amountText}. ${noteText}. ${proofText}. Submitted at: ${payload.submittedAt}.`,
+  });
+}
+
+export async function deliverOutboxEvent<TType extends OutboxEventType>(params: {
+  eventType: TType;
+  payload: OutboxPayloadMap[TType];
+  businessId: string;
+}) {
+  switch (params.eventType) {
+    case "BOOKING_CREATED":
+      return;
+    case "BOOKING_CONFIRMED": {
+      const { sendBookingConfirmation } = await import(
+        "@/lib/email/send-booking-details"
+      );
+      const result = await sendBookingConfirmation(
+        (params.payload as OutboxPayloadMap["BOOKING_CONFIRMED"]).bookingId,
+      );
+      if (!result?.success) {
+        throw new Error(
+          result?.error ? String(result.error) : "Failed to send booking confirmation",
+        );
+      }
+      return;
+    }
+    case "BOOKING_CANCELLED":
+      await sendBookingCancelledEmail(
+        params.payload as OutboxPayloadMap["BOOKING_CANCELLED"],
+      );
+      return;
+    case "BOOKING_STAFFING_CONFLICT_DETECTED":
+      return;
+    case "PAYMENT_CONFIRMED":
+      await sendPaymentConfirmedEmail(
+        params.payload as OutboxPayloadMap["PAYMENT_CONFIRMED"],
+        params.businessId,
+      );
+      return;
+    case "REMINDER_DUE":
+      await sendReminderDueEmail(
+        params.payload as OutboxPayloadMap["REMINDER_DUE"],
+        params.businessId,
+      );
+      return;
+    case "PAYSLIP_GENERATED":
+      await sendPayslipGeneratedEmail(
+        params.payload as OutboxPayloadMap["PAYSLIP_GENERATED"],
+      );
+      return;
+    case "MANUAL_PAYMENT_SUBMITTED":
+      await sendManualPaymentSubmittedEmail(
+        params.payload as OutboxPayloadMap["MANUAL_PAYMENT_SUBMITTED"],
+      );
+      return;
+    case "FLOW_REMINDER_SENT":
+      return;
+    default:
+      logger.warn("[Outbox] Unsupported event type in delivery", {
+        eventType: params.eventType,
+      });
+  }
+}

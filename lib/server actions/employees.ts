@@ -9,6 +9,8 @@ import crypto from "crypto";
 import { headers } from "next/headers";
 import { sendEmployeeInviteEmail } from "@/lib/services/employee-invite";
 import { getCurrentDateTimePH } from "@/lib/date-utils";
+import { detectAndEmitFutureBookingConflicts } from "@/lib/services/booking-conflicts";
+import { logger } from "@/lib/logger";
 
 // Get all employees for a business
 export async function getEmployeesAction() {
@@ -70,7 +72,7 @@ export async function createEmployeeAction(data: {
   commission_percentage: number;
   specialties?: string[];
 }) {
-  const auth = await requireAuth();
+  const auth = await requireAuth({ write: true });
   if (!auth.success) return auth;
   const { businessSlug } = auth;
 
@@ -178,7 +180,7 @@ export async function updateEmployeeAction(
     specialties?: string[];
   },
 ) {
-  const auth = await requireAuth();
+  const auth = await requireAuth({ write: true });
   if (!auth.success) return auth;
   const { businessSlug } = auth;
 
@@ -218,6 +220,21 @@ export async function updateEmployeeAction(
       });
     });
 
+    if (data.specialties !== undefined) {
+      try {
+        await detectAndEmitFutureBookingConflicts({
+          businessSlug,
+          trigger: "EMPLOYEE_SPECIALTIES_UPDATED",
+        });
+      } catch (error) {
+        logger.warn("[BookingConflicts] Failed after employee specialty update", {
+          employeeId,
+          businessSlug,
+          error: error instanceof Error ? error.message : String(error),
+        });
+      }
+    }
+
     revalidatePath(`/app/${businessSlug}/employees`);
     return { success: true };
   } catch (error) {
@@ -228,7 +245,7 @@ export async function updateEmployeeAction(
 
 // Delete an employee
 export async function deleteEmployeeAction(employeeId: number) {
-  const auth = await requireAuth();
+  const auth = await requireAuth({ write: true });
   if (!auth.success) return auth;
   const { businessSlug } = auth;
 
@@ -260,7 +277,7 @@ export async function resetEmployeePasswordAction(
   employeeId: number,
   newPassword: string,
 ) {
-  const auth = await requireAuth();
+  const auth = await requireAuth({ write: true });
   if (!auth.success) return auth;
 
   try {

@@ -10,6 +10,8 @@ import {
   getEmployeeSpecialtySet,
   isCategoryAllowedForEmployee,
 } from "@/lib/utils/employee-specialties";
+import { detectAndEmitFutureBookingConflicts } from "@/lib/services/booking-conflicts";
+import { logger } from "@/lib/logger";
 
 export async function getPendingServicesAction() {
   const auth = await requireAuth();
@@ -214,7 +216,7 @@ export async function updateOwnerSpecialties(
   ownerId: number,
   specialties: string[],
 ) {
-  const auth = await requireAuth();
+  const auth = await requireAuth({ write: true });
   if (!auth.success) return { success: false, error: "Unauthorized" };
 
   try {
@@ -235,6 +237,19 @@ export async function updateOwnerSpecialties(
       where: { id: ownerId },
       data: { specialties },
     });
+
+    try {
+      await detectAndEmitFutureBookingConflicts({
+        businessSlug: auth.businessSlug,
+        trigger: "OWNER_SPECIALTIES_UPDATED",
+      });
+    } catch (error) {
+      logger.warn("[BookingConflicts] Failed after owner specialty update", {
+        ownerId,
+        businessSlug: auth.businessSlug,
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
 
     revalidatePath(`/app/${auth.businessSlug}/owners`);
     return { success: true };

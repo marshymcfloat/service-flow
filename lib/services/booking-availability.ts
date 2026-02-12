@@ -1,0 +1,877 @@
+import { getCachedBusinessWithHoursAndEmployees } from "@/lib/data/cached";
+import { getCurrentDateTimePH } from "@/lib/date-utils";
+import { prisma } from "@/prisma/prisma";
+import type { Prisma, PrismaClient } from "@/prisma/generated/prisma/client";
+import { getBookingPolicyByBusinessSlug } from "./booking-policy";
+
+const MANILA_TIME_ZONE = "Asia/Manila";
+const ATTENDANCE_ACTIVE_STATUSES = ["PRESENT", "LATE"] as const;
+
+type AvailabilityDbClient = PrismaClient | Prisma.TransactionClient;
+
+export interface SelectedServiceInput {
+  id: number;
+  quantity?: number;
+}
+
+export type SlotAvailabilitySource = "ATTENDANCE" | "ROSTER";
+export type SlotConfidence = "CONFIRMED" | "TENTATIVE";
+
+export interface TimeSlot {
+  startTime: Date;
+  endTime: Date;
+  available: boolean;
+  availableEmployeeCount: number;
+  availableOwnerCount: number;
+  source: SlotAvailabilitySource;
+  confidence: SlotConfidence;
+}
+
+export type BookingAvailabilityErrorCode =
+  | "DATE_OUTSIDE_HORIZON"
+  | "LEAD_TIME_VIOLATION"
+  | "SLOT_JUST_TAKEN"
+  | "PAYMENT_TYPE_NOT_ALLOWED"
+  | "NO_CAPACITY_FOR_SELECTED_SERVICES";
+
+export class BookingAvailabilityError extends Error {
+  code: BookingAvailabilityErrorCode;
+  alternatives: TimeSlot[];
+
+  constructor(
+    code: BookingAvailabilityErrorCode,
+    message: string,
+    alternatives: TimeSlot[] = [],
+  ) {
+    super(message);
+    this.name = "BookingAvailabilityError";
+    this.code = code;
+    this.alternatives = alternatives;
+  }
+}
+
+function getPHDateComponents(d: Date) {
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    timeZone: MANILA_TIME_ZONE,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  });
+
+  const parts = formatter.formatToParts(d);
+  const getPart = (type: string) =>
+    parts.find((p) => p.type === type)?.value || "";
+
+  return {
+    year: getPart("year"),
+    month: getPart("month"),
+    day: getPart("day"),
+    hour: getPart("hour"),
+    minute: getPart("minute"),
+    second: getPart("second"),
+  };
+}
+
+function toPHDateString(d: Date) {
+  const parts = getPHDateComponents(d);
+  return `${parts.year}-${parts.month}-${parts.day}`;
+}
+
+function getPHDayBounds(date: Date) {
+  const dateStr = toPHDateString(date);
+  const dayStart = new Date(`${dateStr}T00:00:00+08:00`);
+  const dayEnd = new Date(dayStart.getTime() + 24 * 60 * 60 * 1000);
+  return { dateStr, dayStart, dayEnd };
+}
+
+type AttendanceWindow = {
+  timeIn: Date;
+  timeOut: Date | null;
+};
+
+type BusinessContext = NonNullable<
+  Awaited<ReturnType<typeof getCachedBusinessWithHoursAndEmployees>>
+>;
+
+type BookedServiceSegment = {
+  start: Date;
+  end: Date;
+  category: string;
+  servedByEmployeeId: number | null;
+  servedByOwnerId: number | null;
+};
+
+type SegmentAvailability = {
+  availableEmployees: number;
+  availableOwners: number;
+  totalAvailable: number;
+};
+
+async function getBusinessContext(
+  db: AvailabilityDbClient,
+  businessSlug: string,
+): Promise<BusinessContext> {
+  if (db === prisma) {
+    const cached = await getCachedBusinessWithHoursAndEmployees(businessSlug);
+    if (!cached) {
+      throw new Error("Business not found");
+    }
+    return cached;
+  }
+
+  const business = await db.business.findUnique({
+    where: { slug: businessSlug },
+    include: {
+      business_hours: true,
+      employees: {
+        include: {
+          user: { select: { name: true } },
+        },
+      },
+      owners: {
+        select: {
+          id: true,
+          specialties: true,
+          user: { select: { name: true } },
+        },
+      },
+    },
+  });
+
+  if (!business) {
+    throw new Error("Business not found");
+  }
+
+  return business as BusinessContext;
+}
+
+async function getAttendanceWindowsForDay({
+  db,
+  businessId,
+  dayStart,
+  dayEnd,
+}: {
+  db: AvailabilityDbClient;
+  businessId: string;
+  dayStart: Date;
+  dayEnd: Date;
+}) {
+  const records = await db.employeeAttendance.findMany({
+    where: {
+      employee: { business_id: businessId },
+      date: {
+        gte: dayStart,
+        lte: dayEnd,
+      },
+      status: {
+        in: [...ATTENDANCE_ACTIVE_STATUSES],
+      },
+      time_in: {
+        not: null,
+      },
+    },
+    select: {
+      employee_id: true,
+      time_in: true,
+      time_out: true,
+    },
+  });
+
+  const windowsByEmployee = new Map<number, AttendanceWindow[]>();
+  for (const record of records) {
+    if (!record.time_in) continue;
+    const windows = windowsByEmployee.get(record.employee_id) || [];
+    windows.push({ timeIn: record.time_in, timeOut: record.time_out });
+    windowsByEmployee.set(record.employee_id, windows);
+  }
+
+  return windowsByEmployee;
+}
+
+function isEmployeeClockedInForWindow(
+  windowsByEmployee: Map<number, AttendanceWindow[]>,
+  employeeId: number,
+  start: Date,
+  end: Date,
+) {
+  const windows = windowsByEmployee.get(employeeId);
+  if (!windows || windows.length === 0) return false;
+
+  return windows.some(
+    (window) =>
+      window.timeIn.getTime() <= start.getTime() &&
+      (!window.timeOut || window.timeOut.getTime() >= end.getTime()),
+  );
+}
+
+function isWithinWindows(
+  start: Date,
+  end: Date,
+  windows: { start: Date; end: Date }[],
+) {
+  return windows.some((window) => start >= window.start && end <= window.end);
+}
+
+function normalizeSlotIntervalMinutes(value: number) {
+  if (!Number.isFinite(value)) return 30;
+  return Math.max(5, Math.floor(value));
+}
+
+function applyUnassignedLoadToAvailability({
+  availableEmployees,
+  availableOwners,
+  unassignedCount,
+}: {
+  availableEmployees: number;
+  availableOwners: number;
+  unassignedCount: number;
+}) {
+  let nextEmployees = Math.max(0, availableEmployees);
+  let nextOwners = Math.max(0, availableOwners);
+  let remainingUnassigned = Math.max(0, unassignedCount);
+
+  if (remainingUnassigned > 0) {
+    const employeeReduction = Math.min(remainingUnassigned, nextEmployees);
+    nextEmployees -= employeeReduction;
+    remainingUnassigned -= employeeReduction;
+  }
+
+  if (remainingUnassigned > 0) {
+    nextOwners = Math.max(0, nextOwners - remainingUnassigned);
+  }
+
+  return {
+    availableEmployees: nextEmployees,
+    availableOwners: nextOwners,
+  };
+}
+
+function computeSegmentAvailability({
+  category,
+  start,
+  end,
+  bookedSegments,
+  eligibleEmployeeIds,
+  eligibleOwnerIds,
+}: {
+  category: string;
+  start: Date;
+  end: Date;
+  bookedSegments: BookedServiceSegment[];
+  eligibleEmployeeIds: number[];
+  eligibleOwnerIds: number[];
+}): SegmentAvailability {
+  if (eligibleEmployeeIds.length === 0 && eligibleOwnerIds.length === 0) {
+    return {
+      availableEmployees: 0,
+      availableOwners: 0,
+      totalAvailable: 0,
+    };
+  }
+
+  const eligibleEmployeeSet = new Set(eligibleEmployeeIds);
+  const eligibleOwnerSet = new Set(eligibleOwnerIds);
+  const busyEmployees = new Set<number>();
+  const busyOwners = new Set<number>();
+  let unassignedOverlapCount = 0;
+  const normalizedServiceCategory = category.toLowerCase();
+
+  for (const segment of bookedSegments) {
+    if (segment.category !== normalizedServiceCategory) continue;
+    const overlaps = start < segment.end && end > segment.start;
+    if (!overlaps) continue;
+
+    if (
+      segment.servedByEmployeeId &&
+      eligibleEmployeeSet.has(segment.servedByEmployeeId)
+    ) {
+      busyEmployees.add(segment.servedByEmployeeId);
+      continue;
+    }
+
+    if (
+      segment.servedByOwnerId &&
+      eligibleOwnerSet.has(segment.servedByOwnerId)
+    ) {
+      busyOwners.add(segment.servedByOwnerId);
+      continue;
+    }
+
+    unassignedOverlapCount += 1;
+  }
+
+  const adjusted = applyUnassignedLoadToAvailability({
+    availableEmployees: eligibleEmployeeIds.length - busyEmployees.size,
+    availableOwners: eligibleOwnerIds.length - busyOwners.size,
+    unassignedCount: unassignedOverlapCount,
+  });
+
+  return {
+    availableEmployees: adjusted.availableEmployees,
+    availableOwners: adjusted.availableOwners,
+    totalAvailable: adjusted.availableEmployees + adjusted.availableOwners,
+  };
+}
+
+async function getBookedServiceSegmentsForDay({
+  db,
+  businessId,
+  dayStart,
+  dayEnd,
+}: {
+  db: AvailabilityDbClient;
+  businessId: string;
+  dayStart: Date;
+  dayEnd: Date;
+}) {
+  const existingBookings = await db.booking.findMany({
+    where: {
+      business_id: businessId,
+      scheduled_at: {
+        gte: dayStart,
+        lte: dayEnd,
+      },
+      status: {
+        not: "CANCELLED",
+      },
+    },
+    include: {
+      availed_services: {
+        include: {
+          service: {
+            select: {
+              category: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  const segments: BookedServiceSegment[] = [];
+  for (const booking of existingBookings) {
+    for (const availed of booking.availed_services) {
+      if (availed.status === "CANCELLED") continue;
+
+      const start = availed.scheduled_at || booking.scheduled_at;
+      const end = availed.estimated_end || booking.estimated_end;
+      if (!start || !end) continue;
+
+      segments.push({
+        start,
+        end,
+        category: availed.service.category.toLowerCase(),
+        servedByEmployeeId: availed.served_by_id,
+        servedByOwnerId: availed.served_by_owner_id,
+      });
+    }
+  }
+
+  return segments;
+}
+
+function resolveBusinessHoursWindows({
+  business,
+  dayOfWeek,
+  dateStr,
+}: {
+  business: BusinessContext;
+  dayOfWeek: number;
+  dateStr: string;
+}) {
+  const hoursCache = new Map<
+    string,
+    { windows: { start: Date; end: Date }[]; windowMinutes: number }
+  >();
+
+  const buildWindowsForHours = (hours: {
+    open_time: string;
+    close_time: string;
+    is_closed: boolean;
+  }) => {
+    if (hours.is_closed) return [] as { start: Date; end: Date }[];
+
+    const openTime = new Date(`${dateStr}T${hours.open_time}:00+08:00`);
+    const closeTime = new Date(`${dateStr}T${hours.close_time}:00+08:00`);
+
+    if (hours.open_time === hours.close_time) {
+      const fullStart = new Date(`${dateStr}T00:00:00+08:00`);
+      return [
+        {
+          start: fullStart,
+          end: new Date(fullStart.getTime() + 24 * 60 * 60 * 1000),
+        },
+      ];
+    }
+
+    if (openTime < closeTime) {
+      return [{ start: openTime, end: closeTime }];
+    }
+
+    const dayStart = new Date(`${dateStr}T00:00:00+08:00`);
+    const dayEnd = new Date(dayStart.getTime() + 24 * 60 * 60 * 1000);
+    return [
+      { start: openTime, end: dayEnd },
+      { start: dayStart, end: closeTime },
+    ];
+  };
+
+  const sumWindowMinutes = (windows: { start: Date; end: Date }[]) =>
+    windows.reduce(
+      (total, window) =>
+        total + (window.end.getTime() - window.start.getTime()) / 60000,
+      0,
+    );
+
+  return (category: string) => {
+    const key = category.toLowerCase();
+    const cached = hoursCache.get(key);
+    if (cached) return cached;
+
+    let businessHours = business.business_hours.find(
+      (h) =>
+        h.day_of_week === dayOfWeek && h.category.toLowerCase() === key,
+    );
+    if (!businessHours) {
+      businessHours = business.business_hours.find(
+        (h) =>
+          h.day_of_week === dayOfWeek && h.category.toLowerCase() === "general",
+      );
+    }
+
+    if (!businessHours) {
+      const empty = { windows: [], windowMinutes: 0 };
+      hoursCache.set(key, empty);
+      return empty;
+    }
+
+    const windows = buildWindowsForHours(businessHours);
+    const windowMinutes = sumWindowMinutes(windows);
+    const result = { windows, windowMinutes };
+    hoursCache.set(key, result);
+    return result;
+  };
+}
+
+function getHorizonDayDiff(date: Date, now: Date) {
+  const { dayStart: selectedDayStart } = getPHDayBounds(date);
+  const { dayStart: todayStart } = getPHDayBounds(now);
+  return Math.floor(
+    (selectedDayStart.getTime() - todayStart.getTime()) / (24 * 60 * 60 * 1000),
+  );
+}
+
+export async function computeSlots({
+  businessSlug,
+  date,
+  services,
+  slotIntervalMinutes,
+  now = getCurrentDateTimePH(),
+  db = prisma,
+}: {
+  businessSlug: string;
+  date: Date;
+  services: SelectedServiceInput[];
+  slotIntervalMinutes?: number;
+  now?: Date;
+  db?: AvailabilityDbClient;
+}): Promise<TimeSlot[]> {
+  if (!services || services.length === 0) return [];
+
+  const [business, policy] = await Promise.all([
+    getBusinessContext(db, businessSlug),
+    getBookingPolicyByBusinessSlug(db, businessSlug),
+  ]);
+
+  const dayDiff = getHorizonDayDiff(date, now);
+  if (dayDiff < 0 || dayDiff >= policy.bookingHorizonDays) {
+    return [];
+  }
+
+  if (!policy.bookingV2Enabled && dayDiff > 0) {
+    return [];
+  }
+
+  const dayOfWeek = date.getDay();
+  const { dateStr, dayStart, dayEnd } = getPHDayBounds(date);
+  const nowStr = toPHDateString(now);
+  const phNow = getPHDateComponents(now);
+  const phNowDate = new Date(
+    `${nowStr}T${phNow.hour}:${phNow.minute}:${phNow.second}+08:00`,
+  );
+  const isToday = dateStr === nowStr;
+  const strictWindowMinutes = Math.max(
+    0,
+    policy.sameDayAttendanceStrictMinutes,
+  );
+  const strictCutoff = new Date(
+    phNowDate.getTime() + strictWindowMinutes * 60 * 1000,
+  );
+  const effectiveSlotInterval = normalizeSlotIntervalMinutes(
+    slotIntervalMinutes ?? policy.slotIntervalMinutes,
+  );
+
+  const attendanceWindowsByEmployee = isToday
+    ? await getAttendanceWindowsForDay({
+        db,
+        businessId: business.id,
+        dayStart,
+        dayEnd,
+      })
+    : new Map<number, AttendanceWindow[]>();
+
+  const selectedServiceRecords = await db.service.findMany({
+    where: {
+      id: { in: services.map((s) => s.id) },
+      business_id: business.id,
+    },
+    select: {
+      id: true,
+      category: true,
+      duration: true,
+    },
+  });
+  const serviceRecordMap = new Map(
+    selectedServiceRecords.map((service) => [service.id, service]),
+  );
+
+  const getHoursMeta = resolveBusinessHoursWindows({
+    business,
+    dayOfWeek,
+    dateStr,
+  });
+
+  const serviceEntries = services.flatMap((serviceInput) => {
+    const record = serviceRecordMap.get(serviceInput.id);
+    if (!record) return [];
+    const quantity = Math.max(1, Number(serviceInput.quantity) || 1);
+    const duration = record.duration || 30;
+    return Array.from({ length: quantity }).map(() => ({
+      id: record.id,
+      category: record.category,
+      duration,
+      hoursMeta: getHoursMeta(record.category),
+    }));
+  });
+
+  if (serviceEntries.length === 0) return [];
+  if (serviceEntries.some((entry) => entry.hoursMeta.windowMinutes <= 0)) {
+    return [];
+  }
+
+  const orderedServices = [...serviceEntries].sort((a, b) => {
+    if (a.hoursMeta.windowMinutes !== b.hoursMeta.windowMinutes) {
+      return a.hoursMeta.windowMinutes - b.hoursMeta.windowMinutes;
+    }
+    if (a.duration !== b.duration) {
+      return b.duration - a.duration;
+    }
+    return a.id - b.id;
+  });
+
+  const bookedSegments = await getBookedServiceSegmentsForDay({
+    db,
+    businessId: business.id,
+    dayStart,
+    dayEnd,
+  });
+
+  const qualifiedProvidersByCategory = new Map<
+    string,
+    { employeeIds: number[]; ownerIds: number[] }
+  >();
+  const getQualifiedProviderIds = (category: string) => {
+    const key = category.toLowerCase();
+    const cached = qualifiedProvidersByCategory.get(key);
+    if (cached) return cached;
+
+    const employeeIds = business.employees
+      .filter(
+        (emp) =>
+          emp.specialties.length === 0 ||
+          emp.specialties.some((specialty) => specialty.toLowerCase() === key),
+      )
+      .map((emp) => emp.id);
+
+    const ownerIds = business.owners
+      .filter(
+        (owner) =>
+          owner.specialties.length === 0 ||
+          owner.specialties.some((specialty) => specialty.toLowerCase() === key),
+      )
+      .map((owner) => owner.id);
+
+    const result = { employeeIds, ownerIds };
+    qualifiedProvidersByCategory.set(key, result);
+    return result;
+  };
+
+  const earliestWindowStart = Math.min(
+    ...orderedServices.flatMap((entry) =>
+      entry.hoursMeta.windows.map((window) => window.start.getTime()),
+    ),
+  );
+  const latestWindowEnd = Math.max(
+    ...orderedServices.flatMap((entry) =>
+      entry.hoursMeta.windows.map((window) => window.end.getTime()),
+    ),
+  );
+
+  const minLeadStart = new Date(phNowDate.getTime() + policy.minLeadMinutes * 60000);
+  let currentSlotStart = new Date(Math.max(dayStart.getTime(), earliestWindowStart));
+  const slotEndLimit = new Date(Math.min(dayEnd.getTime(), latestWindowEnd));
+  const slots: TimeSlot[] = [];
+
+  while (currentSlotStart < slotEndLimit) {
+    if (currentSlotStart < minLeadStart) {
+      currentSlotStart = new Date(
+        currentSlotStart.getTime() + effectiveSlotInterval * 60 * 1000,
+      );
+      continue;
+    }
+
+    let cursor = new Date(currentSlotStart);
+    let availableEmployeeCount = Number.POSITIVE_INFINITY;
+    let availableOwnerCount = Number.POSITIVE_INFINITY;
+    let slotFits = true;
+    const isStrictWindowSlot =
+      isToday && currentSlotStart.getTime() < strictCutoff.getTime();
+    let usedRosterFallback = !isToday;
+
+    for (const service of orderedServices) {
+      const serviceEnd = new Date(cursor.getTime() + service.duration * 60 * 1000);
+      if (!isWithinWindows(cursor, serviceEnd, service.hoursMeta.windows)) {
+        slotFits = false;
+        break;
+      }
+
+      const qualifiedProviders = getQualifiedProviderIds(service.category);
+      const rosterEmployeeIds = qualifiedProviders.employeeIds;
+      const rosterOwnerIds = qualifiedProviders.ownerIds;
+      const attendanceEmployeeIds = qualifiedProviders.employeeIds.filter(
+        (employeeId) =>
+          isEmployeeClockedInForWindow(
+            attendanceWindowsByEmployee,
+            employeeId,
+            cursor,
+            serviceEnd,
+          ),
+      );
+      const attendanceOwnerIds = qualifiedProviders.ownerIds;
+
+      const attendanceCapacity = computeSegmentAvailability({
+        category: service.category,
+        start: cursor,
+        end: serviceEnd,
+        bookedSegments,
+        eligibleEmployeeIds: attendanceEmployeeIds,
+        eligibleOwnerIds: attendanceOwnerIds,
+      });
+      const rosterCapacity = computeSegmentAvailability({
+        category: service.category,
+        start: cursor,
+        end: serviceEnd,
+        bookedSegments,
+        eligibleEmployeeIds: rosterEmployeeIds,
+        eligibleOwnerIds: rosterOwnerIds,
+      });
+
+      let chosenCapacity: SegmentAvailability | null = null;
+
+      if (!isToday) {
+        chosenCapacity = rosterCapacity.totalAvailable > 0 ? rosterCapacity : null;
+      } else if (isStrictWindowSlot) {
+        chosenCapacity =
+          attendanceCapacity.totalAvailable > 0 ? attendanceCapacity : null;
+      } else if (attendanceCapacity.totalAvailable > 0) {
+        chosenCapacity = attendanceCapacity;
+      } else if (rosterCapacity.totalAvailable > 0) {
+        chosenCapacity = rosterCapacity;
+        usedRosterFallback = true;
+      }
+
+      if (!chosenCapacity || chosenCapacity.totalAvailable <= 0) {
+        slotFits = false;
+        break;
+      }
+
+      availableEmployeeCount = Math.min(
+        availableEmployeeCount,
+        chosenCapacity.availableEmployees,
+      );
+      availableOwnerCount = Math.min(
+        availableOwnerCount,
+        chosenCapacity.availableOwners,
+      );
+
+      cursor = serviceEnd;
+    }
+
+    if (slotFits) {
+      const normalizedEmployeeCount =
+        availableEmployeeCount === Number.POSITIVE_INFINITY
+          ? 0
+          : Math.max(0, availableEmployeeCount);
+      const normalizedOwnerCount =
+        availableOwnerCount === Number.POSITIVE_INFINITY
+          ? 0
+          : Math.max(0, availableOwnerCount);
+
+      slots.push({
+        startTime: new Date(currentSlotStart),
+        endTime: new Date(cursor),
+        available: true,
+        availableEmployeeCount: normalizedEmployeeCount,
+        availableOwnerCount: normalizedOwnerCount,
+        source: usedRosterFallback ? "ROSTER" : "ATTENDANCE",
+        confidence: usedRosterFallback ? "TENTATIVE" : "CONFIRMED",
+      });
+    }
+
+    currentSlotStart = new Date(
+      currentSlotStart.getTime() + effectiveSlotInterval * 60 * 1000,
+    );
+  }
+
+  return slots;
+}
+
+export async function listAlternativeSlots({
+  businessSlug,
+  scheduledAt,
+  services,
+  limit = 6,
+  db = prisma,
+}: {
+  businessSlug: string;
+  scheduledAt: Date;
+  services: SelectedServiceInput[];
+  limit?: number;
+  db?: AvailabilityDbClient;
+}) {
+  const policy = await getBookingPolicyByBusinessSlug(db, businessSlug);
+  const now = getCurrentDateTimePH();
+  const startDiff = Math.max(0, getHorizonDayDiff(scheduledAt, now));
+  const collected: TimeSlot[] = [];
+
+  for (let dayOffset = startDiff; dayOffset < policy.bookingHorizonDays; dayOffset++) {
+    const targetDay = new Date(
+      getPHDayBounds(now).dayStart.getTime() + dayOffset * 24 * 60 * 60 * 1000,
+    );
+    const daySlots = await computeSlots({
+      businessSlug,
+      date: targetDay,
+      services,
+      db,
+      now,
+    });
+
+    const filtered = dayOffset === startDiff
+      ? daySlots.filter((slot) => slot.startTime.getTime() > scheduledAt.getTime())
+      : daySlots;
+
+    collected.push(...filtered);
+    if (collected.length >= limit) {
+      return collected.slice(0, limit);
+    }
+  }
+
+  return collected.slice(0, limit);
+}
+
+export async function validateBookingOrThrow({
+  businessSlug,
+  scheduledAt,
+  services,
+  paymentType,
+  isPublicBooking,
+  isWalkIn = false,
+  now = getCurrentDateTimePH(),
+  db = prisma,
+}: {
+  businessSlug: string;
+  scheduledAt: Date;
+  services: SelectedServiceInput[];
+  paymentType: "FULL" | "DOWNPAYMENT";
+  isPublicBooking: boolean;
+  isWalkIn?: boolean;
+  now?: Date;
+  db?: AvailabilityDbClient;
+}) {
+  const policy = await getBookingPolicyByBusinessSlug(db, businessSlug);
+  if (isPublicBooking) {
+    if (
+      (paymentType === "FULL" && !policy.allowPublicFullPayment) ||
+      (paymentType === "DOWNPAYMENT" && !policy.allowPublicDownpayment)
+    ) {
+      throw new BookingAvailabilityError(
+        "PAYMENT_TYPE_NOT_ALLOWED",
+        "Selected payment type is not available for this booking.",
+      );
+    }
+  }
+
+  if (isWalkIn) return;
+
+  const dayDiff = getHorizonDayDiff(scheduledAt, now);
+  if (dayDiff < 0 || dayDiff >= policy.bookingHorizonDays) {
+    throw new BookingAvailabilityError(
+      "DATE_OUTSIDE_HORIZON",
+      "Selected date is outside the booking window.",
+    );
+  }
+
+  const minLeadStart = new Date(
+    now.getTime() + policy.minLeadMinutes * 60 * 1000,
+  );
+  if (scheduledAt.getTime() < minLeadStart.getTime()) {
+    throw new BookingAvailabilityError(
+      "LEAD_TIME_VIOLATION",
+      "Selected time is too soon. Please choose a later slot.",
+    );
+  }
+
+  const daySlots = await computeSlots({
+    businessSlug,
+    date: scheduledAt,
+    services,
+    slotIntervalMinutes: policy.slotIntervalMinutes,
+    now,
+    db,
+  });
+
+  if (daySlots.length === 0) {
+    const alternatives = await listAlternativeSlots({
+      businessSlug,
+      scheduledAt,
+      services,
+      db,
+    });
+    throw new BookingAvailabilityError(
+      "NO_CAPACITY_FOR_SELECTED_SERVICES",
+      "No capacity is available for the selected services.",
+      alternatives,
+    );
+  }
+
+  const exactMatch = daySlots.some(
+    (slot) => slot.startTime.getTime() === scheduledAt.getTime(),
+  );
+  if (!exactMatch) {
+    const alternatives = await listAlternativeSlots({
+      businessSlug,
+      scheduledAt,
+      services,
+      db,
+    });
+    throw new BookingAvailabilityError(
+      "SLOT_JUST_TAKEN",
+      "The selected slot is no longer available.",
+      alternatives,
+    );
+  }
+}

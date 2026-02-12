@@ -29,11 +29,19 @@ export type AggregateBusiness = {
 export type BusinessAvgAggregateOutputType = {
   latitude: number | null
   longitude: number | null
+  booking_horizon_days: number | null
+  booking_min_lead_minutes: number | null
+  booking_slot_interval_minutes: number | null
+  same_day_attendance_strict_minutes: number | null
 }
 
 export type BusinessSumAggregateOutputType = {
   latitude: number | null
   longitude: number | null
+  booking_horizon_days: number | null
+  booking_min_lead_minutes: number | null
+  booking_slot_interval_minutes: number | null
+  same_day_attendance_strict_minutes: number | null
 }
 
 export type BusinessMinAggregateOutputType = {
@@ -45,6 +53,14 @@ export type BusinessMinAggregateOutputType = {
   imageUrl: string | null
   latitude: number | null
   longitude: number | null
+  booking_horizon_days: number | null
+  booking_min_lead_minutes: number | null
+  booking_slot_interval_minutes: number | null
+  public_allow_full_payment: boolean | null
+  public_allow_downpayment: boolean | null
+  public_default_payment_type: string | null
+  booking_v2_enabled: boolean | null
+  same_day_attendance_strict_minutes: number | null
   commission_calculation_basis: $Enums.CommissionCalculationBasis | null
   created_at: Date | null
   updated_at: Date | null
@@ -59,6 +75,14 @@ export type BusinessMaxAggregateOutputType = {
   imageUrl: string | null
   latitude: number | null
   longitude: number | null
+  booking_horizon_days: number | null
+  booking_min_lead_minutes: number | null
+  booking_slot_interval_minutes: number | null
+  public_allow_full_payment: boolean | null
+  public_allow_downpayment: boolean | null
+  public_default_payment_type: string | null
+  booking_v2_enabled: boolean | null
+  same_day_attendance_strict_minutes: number | null
   commission_calculation_basis: $Enums.CommissionCalculationBasis | null
   created_at: Date | null
   updated_at: Date | null
@@ -73,6 +97,14 @@ export type BusinessCountAggregateOutputType = {
   imageUrl: number
   latitude: number
   longitude: number
+  booking_horizon_days: number
+  booking_min_lead_minutes: number
+  booking_slot_interval_minutes: number
+  public_allow_full_payment: number
+  public_allow_downpayment: number
+  public_default_payment_type: number
+  booking_v2_enabled: number
+  same_day_attendance_strict_minutes: number
   commission_calculation_basis: number
   created_at: number
   updated_at: number
@@ -83,11 +115,19 @@ export type BusinessCountAggregateOutputType = {
 export type BusinessAvgAggregateInputType = {
   latitude?: true
   longitude?: true
+  booking_horizon_days?: true
+  booking_min_lead_minutes?: true
+  booking_slot_interval_minutes?: true
+  same_day_attendance_strict_minutes?: true
 }
 
 export type BusinessSumAggregateInputType = {
   latitude?: true
   longitude?: true
+  booking_horizon_days?: true
+  booking_min_lead_minutes?: true
+  booking_slot_interval_minutes?: true
+  same_day_attendance_strict_minutes?: true
 }
 
 export type BusinessMinAggregateInputType = {
@@ -99,6 +139,14 @@ export type BusinessMinAggregateInputType = {
   imageUrl?: true
   latitude?: true
   longitude?: true
+  booking_horizon_days?: true
+  booking_min_lead_minutes?: true
+  booking_slot_interval_minutes?: true
+  public_allow_full_payment?: true
+  public_allow_downpayment?: true
+  public_default_payment_type?: true
+  booking_v2_enabled?: true
+  same_day_attendance_strict_minutes?: true
   commission_calculation_basis?: true
   created_at?: true
   updated_at?: true
@@ -113,6 +161,14 @@ export type BusinessMaxAggregateInputType = {
   imageUrl?: true
   latitude?: true
   longitude?: true
+  booking_horizon_days?: true
+  booking_min_lead_minutes?: true
+  booking_slot_interval_minutes?: true
+  public_allow_full_payment?: true
+  public_allow_downpayment?: true
+  public_default_payment_type?: true
+  booking_v2_enabled?: true
+  same_day_attendance_strict_minutes?: true
   commission_calculation_basis?: true
   created_at?: true
   updated_at?: true
@@ -127,6 +183,14 @@ export type BusinessCountAggregateInputType = {
   imageUrl?: true
   latitude?: true
   longitude?: true
+  booking_horizon_days?: true
+  booking_min_lead_minutes?: true
+  booking_slot_interval_minutes?: true
+  public_allow_full_payment?: true
+  public_allow_downpayment?: true
+  public_default_payment_type?: true
+  booking_v2_enabled?: true
+  same_day_attendance_strict_minutes?: true
   commission_calculation_basis?: true
   created_at?: true
   updated_at?: true
@@ -228,6 +292,14 @@ export type BusinessGroupByOutputType = {
   imageUrl: string | null
   latitude: number | null
   longitude: number | null
+  booking_horizon_days: number
+  booking_min_lead_minutes: number
+  booking_slot_interval_minutes: number
+  public_allow_full_payment: boolean
+  public_allow_downpayment: boolean
+  public_default_payment_type: string
+  booking_v2_enabled: boolean
+  same_day_attendance_strict_minutes: number
   commission_calculation_basis: $Enums.CommissionCalculationBasis
   created_at: Date
   updated_at: Date
@@ -265,6 +337,14 @@ export type BusinessWhereInput = {
   imageUrl?: Prisma.StringNullableFilter<"Business"> | string | null
   latitude?: Prisma.FloatNullableFilter<"Business"> | number | null
   longitude?: Prisma.FloatNullableFilter<"Business"> | number | null
+  booking_horizon_days?: Prisma.IntFilter<"Business"> | number
+  booking_min_lead_minutes?: Prisma.IntFilter<"Business"> | number
+  booking_slot_interval_minutes?: Prisma.IntFilter<"Business"> | number
+  public_allow_full_payment?: Prisma.BoolFilter<"Business"> | boolean
+  public_allow_downpayment?: Prisma.BoolFilter<"Business"> | boolean
+  public_default_payment_type?: Prisma.StringFilter<"Business"> | string
+  booking_v2_enabled?: Prisma.BoolFilter<"Business"> | boolean
+  same_day_attendance_strict_minutes?: Prisma.IntFilter<"Business"> | number
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFilter<"Business"> | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFilter<"Business"> | Date | string
   updated_at?: Prisma.DateTimeFilter<"Business"> | Date | string
@@ -281,6 +361,14 @@ export type BusinessWhereInput = {
   leave_requests?: Prisma.LeaveRequestListRelationFilter
   business_hours?: Prisma.BusinessHoursListRelationFilter
   service_flows?: Prisma.ServiceFlowListRelationFilter
+  subscriptions?: Prisma.BusinessSubscriptionListRelationFilter
+  subscription_invoices?: Prisma.SubscriptionInvoiceListRelationFilter
+  referral_code?: Prisma.XOR<Prisma.ReferralCodeNullableScalarRelationFilter, Prisma.ReferralCodeWhereInput> | null
+  referral_leads_converted?: Prisma.ReferralLeadListRelationFilter
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionListRelationFilter
+  referral_attributions_as_referred?: Prisma.ReferralAttributionListRelationFilter
+  onboarding_applications_converted?: Prisma.OnboardingApplicationListRelationFilter
+  platform_action_logs?: Prisma.PlatformActionLogListRelationFilter
 }
 
 export type BusinessOrderByWithRelationInput = {
@@ -292,6 +380,14 @@ export type BusinessOrderByWithRelationInput = {
   imageUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   latitude?: Prisma.SortOrderInput | Prisma.SortOrder
   longitude?: Prisma.SortOrderInput | Prisma.SortOrder
+  booking_horizon_days?: Prisma.SortOrder
+  booking_min_lead_minutes?: Prisma.SortOrder
+  booking_slot_interval_minutes?: Prisma.SortOrder
+  public_allow_full_payment?: Prisma.SortOrder
+  public_allow_downpayment?: Prisma.SortOrder
+  public_default_payment_type?: Prisma.SortOrder
+  booking_v2_enabled?: Prisma.SortOrder
+  same_day_attendance_strict_minutes?: Prisma.SortOrder
   commission_calculation_basis?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
@@ -308,6 +404,14 @@ export type BusinessOrderByWithRelationInput = {
   leave_requests?: Prisma.LeaveRequestOrderByRelationAggregateInput
   business_hours?: Prisma.BusinessHoursOrderByRelationAggregateInput
   service_flows?: Prisma.ServiceFlowOrderByRelationAggregateInput
+  subscriptions?: Prisma.BusinessSubscriptionOrderByRelationAggregateInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceOrderByRelationAggregateInput
+  referral_code?: Prisma.ReferralCodeOrderByWithRelationInput
+  referral_leads_converted?: Prisma.ReferralLeadOrderByRelationAggregateInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionOrderByRelationAggregateInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionOrderByRelationAggregateInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationOrderByRelationAggregateInput
+  platform_action_logs?: Prisma.PlatformActionLogOrderByRelationAggregateInput
 }
 
 export type BusinessWhereUniqueInput = Prisma.AtLeast<{
@@ -322,6 +426,14 @@ export type BusinessWhereUniqueInput = Prisma.AtLeast<{
   imageUrl?: Prisma.StringNullableFilter<"Business"> | string | null
   latitude?: Prisma.FloatNullableFilter<"Business"> | number | null
   longitude?: Prisma.FloatNullableFilter<"Business"> | number | null
+  booking_horizon_days?: Prisma.IntFilter<"Business"> | number
+  booking_min_lead_minutes?: Prisma.IntFilter<"Business"> | number
+  booking_slot_interval_minutes?: Prisma.IntFilter<"Business"> | number
+  public_allow_full_payment?: Prisma.BoolFilter<"Business"> | boolean
+  public_allow_downpayment?: Prisma.BoolFilter<"Business"> | boolean
+  public_default_payment_type?: Prisma.StringFilter<"Business"> | string
+  booking_v2_enabled?: Prisma.BoolFilter<"Business"> | boolean
+  same_day_attendance_strict_minutes?: Prisma.IntFilter<"Business"> | number
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFilter<"Business"> | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFilter<"Business"> | Date | string
   updated_at?: Prisma.DateTimeFilter<"Business"> | Date | string
@@ -338,6 +450,14 @@ export type BusinessWhereUniqueInput = Prisma.AtLeast<{
   leave_requests?: Prisma.LeaveRequestListRelationFilter
   business_hours?: Prisma.BusinessHoursListRelationFilter
   service_flows?: Prisma.ServiceFlowListRelationFilter
+  subscriptions?: Prisma.BusinessSubscriptionListRelationFilter
+  subscription_invoices?: Prisma.SubscriptionInvoiceListRelationFilter
+  referral_code?: Prisma.XOR<Prisma.ReferralCodeNullableScalarRelationFilter, Prisma.ReferralCodeWhereInput> | null
+  referral_leads_converted?: Prisma.ReferralLeadListRelationFilter
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionListRelationFilter
+  referral_attributions_as_referred?: Prisma.ReferralAttributionListRelationFilter
+  onboarding_applications_converted?: Prisma.OnboardingApplicationListRelationFilter
+  platform_action_logs?: Prisma.PlatformActionLogListRelationFilter
 }, "id" | "slug">
 
 export type BusinessOrderByWithAggregationInput = {
@@ -349,6 +469,14 @@ export type BusinessOrderByWithAggregationInput = {
   imageUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   latitude?: Prisma.SortOrderInput | Prisma.SortOrder
   longitude?: Prisma.SortOrderInput | Prisma.SortOrder
+  booking_horizon_days?: Prisma.SortOrder
+  booking_min_lead_minutes?: Prisma.SortOrder
+  booking_slot_interval_minutes?: Prisma.SortOrder
+  public_allow_full_payment?: Prisma.SortOrder
+  public_allow_downpayment?: Prisma.SortOrder
+  public_default_payment_type?: Prisma.SortOrder
+  booking_v2_enabled?: Prisma.SortOrder
+  same_day_attendance_strict_minutes?: Prisma.SortOrder
   commission_calculation_basis?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
@@ -371,6 +499,14 @@ export type BusinessScalarWhereWithAggregatesInput = {
   imageUrl?: Prisma.StringNullableWithAggregatesFilter<"Business"> | string | null
   latitude?: Prisma.FloatNullableWithAggregatesFilter<"Business"> | number | null
   longitude?: Prisma.FloatNullableWithAggregatesFilter<"Business"> | number | null
+  booking_horizon_days?: Prisma.IntWithAggregatesFilter<"Business"> | number
+  booking_min_lead_minutes?: Prisma.IntWithAggregatesFilter<"Business"> | number
+  booking_slot_interval_minutes?: Prisma.IntWithAggregatesFilter<"Business"> | number
+  public_allow_full_payment?: Prisma.BoolWithAggregatesFilter<"Business"> | boolean
+  public_allow_downpayment?: Prisma.BoolWithAggregatesFilter<"Business"> | boolean
+  public_default_payment_type?: Prisma.StringWithAggregatesFilter<"Business"> | string
+  booking_v2_enabled?: Prisma.BoolWithAggregatesFilter<"Business"> | boolean
+  same_day_attendance_strict_minutes?: Prisma.IntWithAggregatesFilter<"Business"> | number
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisWithAggregatesFilter<"Business"> | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeWithAggregatesFilter<"Business"> | Date | string
   updated_at?: Prisma.DateTimeWithAggregatesFilter<"Business"> | Date | string
@@ -385,6 +521,14 @@ export type BusinessCreateInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  booking_horizon_days?: number
+  booking_min_lead_minutes?: number
+  booking_slot_interval_minutes?: number
+  public_allow_full_payment?: boolean
+  public_allow_downpayment?: boolean
+  public_default_payment_type?: string
+  booking_v2_enabled?: boolean
+  same_day_attendance_strict_minutes?: number
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -401,6 +545,14 @@ export type BusinessCreateInput = {
   leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.BusinessSubscriptionCreateNestedManyWithoutBusinessInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceCreateNestedManyWithoutBusinessInput
+  referral_code?: Prisma.ReferralCodeCreateNestedOneWithoutBusinessInput
+  referral_leads_converted?: Prisma.ReferralLeadCreateNestedManyWithoutConverted_businessInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionCreateNestedManyWithoutReferrer_businessInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionCreateNestedManyWithoutReferred_businessInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationCreateNestedManyWithoutConverted_businessInput
+  platform_action_logs?: Prisma.PlatformActionLogCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateInput = {
@@ -412,6 +564,14 @@ export type BusinessUncheckedCreateInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  booking_horizon_days?: number
+  booking_min_lead_minutes?: number
+  booking_slot_interval_minutes?: number
+  public_allow_full_payment?: boolean
+  public_allow_downpayment?: boolean
+  public_default_payment_type?: string
+  booking_v2_enabled?: boolean
+  same_day_attendance_strict_minutes?: number
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -428,6 +588,14 @@ export type BusinessUncheckedCreateInput = {
   leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.BusinessSubscriptionUncheckedCreateNestedManyWithoutBusinessInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedCreateNestedManyWithoutBusinessInput
+  referral_code?: Prisma.ReferralCodeUncheckedCreateNestedOneWithoutBusinessInput
+  referral_leads_converted?: Prisma.ReferralLeadUncheckedCreateNestedManyWithoutConverted_businessInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferrer_businessInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferred_businessInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedCreateNestedManyWithoutConverted_businessInput
+  platform_action_logs?: Prisma.PlatformActionLogUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUpdateInput = {
@@ -439,6 +607,14 @@ export type BusinessUpdateInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -455,6 +631,14 @@ export type BusinessUpdateInput = {
   leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.BusinessSubscriptionUpdateManyWithoutBusinessNestedInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUpdateManyWithoutBusinessNestedInput
+  referral_code?: Prisma.ReferralCodeUpdateOneWithoutBusinessNestedInput
+  referral_leads_converted?: Prisma.ReferralLeadUpdateManyWithoutConverted_businessNestedInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUpdateManyWithoutReferrer_businessNestedInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUpdateManyWithoutReferred_businessNestedInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUpdateManyWithoutConverted_businessNestedInput
+  platform_action_logs?: Prisma.PlatformActionLogUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateInput = {
@@ -466,6 +650,14 @@ export type BusinessUncheckedUpdateInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -482,6 +674,14 @@ export type BusinessUncheckedUpdateInput = {
   leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.BusinessSubscriptionUncheckedUpdateManyWithoutBusinessNestedInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedUpdateManyWithoutBusinessNestedInput
+  referral_code?: Prisma.ReferralCodeUncheckedUpdateOneWithoutBusinessNestedInput
+  referral_leads_converted?: Prisma.ReferralLeadUncheckedUpdateManyWithoutConverted_businessNestedInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferrer_businessNestedInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferred_businessNestedInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedUpdateManyWithoutConverted_businessNestedInput
+  platform_action_logs?: Prisma.PlatformActionLogUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessCreateManyInput = {
@@ -493,6 +693,14 @@ export type BusinessCreateManyInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  booking_horizon_days?: number
+  booking_min_lead_minutes?: number
+  booking_slot_interval_minutes?: number
+  public_allow_full_payment?: boolean
+  public_allow_downpayment?: boolean
+  public_default_payment_type?: string
+  booking_v2_enabled?: boolean
+  same_day_attendance_strict_minutes?: number
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -507,6 +715,14 @@ export type BusinessUpdateManyMutationInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -521,6 +737,14 @@ export type BusinessUncheckedUpdateManyInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -535,6 +759,14 @@ export type BusinessCountOrderByAggregateInput = {
   imageUrl?: Prisma.SortOrder
   latitude?: Prisma.SortOrder
   longitude?: Prisma.SortOrder
+  booking_horizon_days?: Prisma.SortOrder
+  booking_min_lead_minutes?: Prisma.SortOrder
+  booking_slot_interval_minutes?: Prisma.SortOrder
+  public_allow_full_payment?: Prisma.SortOrder
+  public_allow_downpayment?: Prisma.SortOrder
+  public_default_payment_type?: Prisma.SortOrder
+  booking_v2_enabled?: Prisma.SortOrder
+  same_day_attendance_strict_minutes?: Prisma.SortOrder
   commission_calculation_basis?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
@@ -543,6 +775,10 @@ export type BusinessCountOrderByAggregateInput = {
 export type BusinessAvgOrderByAggregateInput = {
   latitude?: Prisma.SortOrder
   longitude?: Prisma.SortOrder
+  booking_horizon_days?: Prisma.SortOrder
+  booking_min_lead_minutes?: Prisma.SortOrder
+  booking_slot_interval_minutes?: Prisma.SortOrder
+  same_day_attendance_strict_minutes?: Prisma.SortOrder
 }
 
 export type BusinessMaxOrderByAggregateInput = {
@@ -554,6 +790,14 @@ export type BusinessMaxOrderByAggregateInput = {
   imageUrl?: Prisma.SortOrder
   latitude?: Prisma.SortOrder
   longitude?: Prisma.SortOrder
+  booking_horizon_days?: Prisma.SortOrder
+  booking_min_lead_minutes?: Prisma.SortOrder
+  booking_slot_interval_minutes?: Prisma.SortOrder
+  public_allow_full_payment?: Prisma.SortOrder
+  public_allow_downpayment?: Prisma.SortOrder
+  public_default_payment_type?: Prisma.SortOrder
+  booking_v2_enabled?: Prisma.SortOrder
+  same_day_attendance_strict_minutes?: Prisma.SortOrder
   commission_calculation_basis?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
@@ -568,6 +812,14 @@ export type BusinessMinOrderByAggregateInput = {
   imageUrl?: Prisma.SortOrder
   latitude?: Prisma.SortOrder
   longitude?: Prisma.SortOrder
+  booking_horizon_days?: Prisma.SortOrder
+  booking_min_lead_minutes?: Prisma.SortOrder
+  booking_slot_interval_minutes?: Prisma.SortOrder
+  public_allow_full_payment?: Prisma.SortOrder
+  public_allow_downpayment?: Prisma.SortOrder
+  public_default_payment_type?: Prisma.SortOrder
+  booking_v2_enabled?: Prisma.SortOrder
+  same_day_attendance_strict_minutes?: Prisma.SortOrder
   commission_calculation_basis?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
@@ -576,11 +828,20 @@ export type BusinessMinOrderByAggregateInput = {
 export type BusinessSumOrderByAggregateInput = {
   latitude?: Prisma.SortOrder
   longitude?: Prisma.SortOrder
+  booking_horizon_days?: Prisma.SortOrder
+  booking_min_lead_minutes?: Prisma.SortOrder
+  booking_slot_interval_minutes?: Prisma.SortOrder
+  same_day_attendance_strict_minutes?: Prisma.SortOrder
 }
 
 export type BusinessScalarRelationFilter = {
   is?: Prisma.BusinessWhereInput
   isNot?: Prisma.BusinessWhereInput
+}
+
+export type BusinessNullableScalarRelationFilter = {
+  is?: Prisma.BusinessWhereInput | null
+  isNot?: Prisma.BusinessWhereInput | null
 }
 
 export type StringFieldUpdateOperationsInput = {
@@ -597,6 +858,18 @@ export type NullableFloatFieldUpdateOperationsInput = {
   decrement?: number
   multiply?: number
   divide?: number
+}
+
+export type IntFieldUpdateOperationsInput = {
+  set?: number
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
+}
+
+export type BoolFieldUpdateOperationsInput = {
+  set?: boolean
 }
 
 export type EnumCommissionCalculationBasisFieldUpdateOperationsInput = {
@@ -689,6 +962,124 @@ export type BusinessUpdateOneRequiredWithoutOwnersNestedInput = {
   upsert?: Prisma.BusinessUpsertWithoutOwnersInput
   connect?: Prisma.BusinessWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.BusinessUpdateToOneWithWhereWithoutOwnersInput, Prisma.BusinessUpdateWithoutOwnersInput>, Prisma.BusinessUncheckedUpdateWithoutOwnersInput>
+}
+
+export type BusinessCreateNestedOneWithoutSubscriptionsInput = {
+  create?: Prisma.XOR<Prisma.BusinessCreateWithoutSubscriptionsInput, Prisma.BusinessUncheckedCreateWithoutSubscriptionsInput>
+  connectOrCreate?: Prisma.BusinessCreateOrConnectWithoutSubscriptionsInput
+  connect?: Prisma.BusinessWhereUniqueInput
+}
+
+export type BusinessUpdateOneRequiredWithoutSubscriptionsNestedInput = {
+  create?: Prisma.XOR<Prisma.BusinessCreateWithoutSubscriptionsInput, Prisma.BusinessUncheckedCreateWithoutSubscriptionsInput>
+  connectOrCreate?: Prisma.BusinessCreateOrConnectWithoutSubscriptionsInput
+  upsert?: Prisma.BusinessUpsertWithoutSubscriptionsInput
+  connect?: Prisma.BusinessWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.BusinessUpdateToOneWithWhereWithoutSubscriptionsInput, Prisma.BusinessUpdateWithoutSubscriptionsInput>, Prisma.BusinessUncheckedUpdateWithoutSubscriptionsInput>
+}
+
+export type BusinessCreateNestedOneWithoutSubscription_invoicesInput = {
+  create?: Prisma.XOR<Prisma.BusinessCreateWithoutSubscription_invoicesInput, Prisma.BusinessUncheckedCreateWithoutSubscription_invoicesInput>
+  connectOrCreate?: Prisma.BusinessCreateOrConnectWithoutSubscription_invoicesInput
+  connect?: Prisma.BusinessWhereUniqueInput
+}
+
+export type BusinessUpdateOneRequiredWithoutSubscription_invoicesNestedInput = {
+  create?: Prisma.XOR<Prisma.BusinessCreateWithoutSubscription_invoicesInput, Prisma.BusinessUncheckedCreateWithoutSubscription_invoicesInput>
+  connectOrCreate?: Prisma.BusinessCreateOrConnectWithoutSubscription_invoicesInput
+  upsert?: Prisma.BusinessUpsertWithoutSubscription_invoicesInput
+  connect?: Prisma.BusinessWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.BusinessUpdateToOneWithWhereWithoutSubscription_invoicesInput, Prisma.BusinessUpdateWithoutSubscription_invoicesInput>, Prisma.BusinessUncheckedUpdateWithoutSubscription_invoicesInput>
+}
+
+export type BusinessCreateNestedOneWithoutReferral_codeInput = {
+  create?: Prisma.XOR<Prisma.BusinessCreateWithoutReferral_codeInput, Prisma.BusinessUncheckedCreateWithoutReferral_codeInput>
+  connectOrCreate?: Prisma.BusinessCreateOrConnectWithoutReferral_codeInput
+  connect?: Prisma.BusinessWhereUniqueInput
+}
+
+export type BusinessUpdateOneRequiredWithoutReferral_codeNestedInput = {
+  create?: Prisma.XOR<Prisma.BusinessCreateWithoutReferral_codeInput, Prisma.BusinessUncheckedCreateWithoutReferral_codeInput>
+  connectOrCreate?: Prisma.BusinessCreateOrConnectWithoutReferral_codeInput
+  upsert?: Prisma.BusinessUpsertWithoutReferral_codeInput
+  connect?: Prisma.BusinessWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.BusinessUpdateToOneWithWhereWithoutReferral_codeInput, Prisma.BusinessUpdateWithoutReferral_codeInput>, Prisma.BusinessUncheckedUpdateWithoutReferral_codeInput>
+}
+
+export type BusinessCreateNestedOneWithoutReferral_leads_convertedInput = {
+  create?: Prisma.XOR<Prisma.BusinessCreateWithoutReferral_leads_convertedInput, Prisma.BusinessUncheckedCreateWithoutReferral_leads_convertedInput>
+  connectOrCreate?: Prisma.BusinessCreateOrConnectWithoutReferral_leads_convertedInput
+  connect?: Prisma.BusinessWhereUniqueInput
+}
+
+export type BusinessUpdateOneWithoutReferral_leads_convertedNestedInput = {
+  create?: Prisma.XOR<Prisma.BusinessCreateWithoutReferral_leads_convertedInput, Prisma.BusinessUncheckedCreateWithoutReferral_leads_convertedInput>
+  connectOrCreate?: Prisma.BusinessCreateOrConnectWithoutReferral_leads_convertedInput
+  upsert?: Prisma.BusinessUpsertWithoutReferral_leads_convertedInput
+  disconnect?: Prisma.BusinessWhereInput | boolean
+  delete?: Prisma.BusinessWhereInput | boolean
+  connect?: Prisma.BusinessWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.BusinessUpdateToOneWithWhereWithoutReferral_leads_convertedInput, Prisma.BusinessUpdateWithoutReferral_leads_convertedInput>, Prisma.BusinessUncheckedUpdateWithoutReferral_leads_convertedInput>
+}
+
+export type BusinessCreateNestedOneWithoutReferral_attributions_as_referrerInput = {
+  create?: Prisma.XOR<Prisma.BusinessCreateWithoutReferral_attributions_as_referrerInput, Prisma.BusinessUncheckedCreateWithoutReferral_attributions_as_referrerInput>
+  connectOrCreate?: Prisma.BusinessCreateOrConnectWithoutReferral_attributions_as_referrerInput
+  connect?: Prisma.BusinessWhereUniqueInput
+}
+
+export type BusinessCreateNestedOneWithoutReferral_attributions_as_referredInput = {
+  create?: Prisma.XOR<Prisma.BusinessCreateWithoutReferral_attributions_as_referredInput, Prisma.BusinessUncheckedCreateWithoutReferral_attributions_as_referredInput>
+  connectOrCreate?: Prisma.BusinessCreateOrConnectWithoutReferral_attributions_as_referredInput
+  connect?: Prisma.BusinessWhereUniqueInput
+}
+
+export type BusinessUpdateOneRequiredWithoutReferral_attributions_as_referrerNestedInput = {
+  create?: Prisma.XOR<Prisma.BusinessCreateWithoutReferral_attributions_as_referrerInput, Prisma.BusinessUncheckedCreateWithoutReferral_attributions_as_referrerInput>
+  connectOrCreate?: Prisma.BusinessCreateOrConnectWithoutReferral_attributions_as_referrerInput
+  upsert?: Prisma.BusinessUpsertWithoutReferral_attributions_as_referrerInput
+  connect?: Prisma.BusinessWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.BusinessUpdateToOneWithWhereWithoutReferral_attributions_as_referrerInput, Prisma.BusinessUpdateWithoutReferral_attributions_as_referrerInput>, Prisma.BusinessUncheckedUpdateWithoutReferral_attributions_as_referrerInput>
+}
+
+export type BusinessUpdateOneRequiredWithoutReferral_attributions_as_referredNestedInput = {
+  create?: Prisma.XOR<Prisma.BusinessCreateWithoutReferral_attributions_as_referredInput, Prisma.BusinessUncheckedCreateWithoutReferral_attributions_as_referredInput>
+  connectOrCreate?: Prisma.BusinessCreateOrConnectWithoutReferral_attributions_as_referredInput
+  upsert?: Prisma.BusinessUpsertWithoutReferral_attributions_as_referredInput
+  connect?: Prisma.BusinessWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.BusinessUpdateToOneWithWhereWithoutReferral_attributions_as_referredInput, Prisma.BusinessUpdateWithoutReferral_attributions_as_referredInput>, Prisma.BusinessUncheckedUpdateWithoutReferral_attributions_as_referredInput>
+}
+
+export type BusinessCreateNestedOneWithoutOnboarding_applications_convertedInput = {
+  create?: Prisma.XOR<Prisma.BusinessCreateWithoutOnboarding_applications_convertedInput, Prisma.BusinessUncheckedCreateWithoutOnboarding_applications_convertedInput>
+  connectOrCreate?: Prisma.BusinessCreateOrConnectWithoutOnboarding_applications_convertedInput
+  connect?: Prisma.BusinessWhereUniqueInput
+}
+
+export type BusinessUpdateOneWithoutOnboarding_applications_convertedNestedInput = {
+  create?: Prisma.XOR<Prisma.BusinessCreateWithoutOnboarding_applications_convertedInput, Prisma.BusinessUncheckedCreateWithoutOnboarding_applications_convertedInput>
+  connectOrCreate?: Prisma.BusinessCreateOrConnectWithoutOnboarding_applications_convertedInput
+  upsert?: Prisma.BusinessUpsertWithoutOnboarding_applications_convertedInput
+  disconnect?: Prisma.BusinessWhereInput | boolean
+  delete?: Prisma.BusinessWhereInput | boolean
+  connect?: Prisma.BusinessWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.BusinessUpdateToOneWithWhereWithoutOnboarding_applications_convertedInput, Prisma.BusinessUpdateWithoutOnboarding_applications_convertedInput>, Prisma.BusinessUncheckedUpdateWithoutOnboarding_applications_convertedInput>
+}
+
+export type BusinessCreateNestedOneWithoutPlatform_action_logsInput = {
+  create?: Prisma.XOR<Prisma.BusinessCreateWithoutPlatform_action_logsInput, Prisma.BusinessUncheckedCreateWithoutPlatform_action_logsInput>
+  connectOrCreate?: Prisma.BusinessCreateOrConnectWithoutPlatform_action_logsInput
+  connect?: Prisma.BusinessWhereUniqueInput
+}
+
+export type BusinessUpdateOneWithoutPlatform_action_logsNestedInput = {
+  create?: Prisma.XOR<Prisma.BusinessCreateWithoutPlatform_action_logsInput, Prisma.BusinessUncheckedCreateWithoutPlatform_action_logsInput>
+  connectOrCreate?: Prisma.BusinessCreateOrConnectWithoutPlatform_action_logsInput
+  upsert?: Prisma.BusinessUpsertWithoutPlatform_action_logsInput
+  disconnect?: Prisma.BusinessWhereInput | boolean
+  delete?: Prisma.BusinessWhereInput | boolean
+  connect?: Prisma.BusinessWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.BusinessUpdateToOneWithWhereWithoutPlatform_action_logsInput, Prisma.BusinessUpdateWithoutPlatform_action_logsInput>, Prisma.BusinessUncheckedUpdateWithoutPlatform_action_logsInput>
 }
 
 export type BusinessCreateNestedOneWithoutServicesInput = {
@@ -798,6 +1189,14 @@ export type BusinessCreateWithoutLeave_requestsInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  booking_horizon_days?: number
+  booking_min_lead_minutes?: number
+  booking_slot_interval_minutes?: number
+  public_allow_full_payment?: boolean
+  public_allow_downpayment?: boolean
+  public_default_payment_type?: string
+  booking_v2_enabled?: boolean
+  same_day_attendance_strict_minutes?: number
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -813,6 +1212,14 @@ export type BusinessCreateWithoutLeave_requestsInput = {
   packages?: Prisma.ServicePackageCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.BusinessSubscriptionCreateNestedManyWithoutBusinessInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceCreateNestedManyWithoutBusinessInput
+  referral_code?: Prisma.ReferralCodeCreateNestedOneWithoutBusinessInput
+  referral_leads_converted?: Prisma.ReferralLeadCreateNestedManyWithoutConverted_businessInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionCreateNestedManyWithoutReferrer_businessInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionCreateNestedManyWithoutReferred_businessInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationCreateNestedManyWithoutConverted_businessInput
+  platform_action_logs?: Prisma.PlatformActionLogCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateWithoutLeave_requestsInput = {
@@ -824,6 +1231,14 @@ export type BusinessUncheckedCreateWithoutLeave_requestsInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  booking_horizon_days?: number
+  booking_min_lead_minutes?: number
+  booking_slot_interval_minutes?: number
+  public_allow_full_payment?: boolean
+  public_allow_downpayment?: boolean
+  public_default_payment_type?: string
+  booking_v2_enabled?: boolean
+  same_day_attendance_strict_minutes?: number
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -839,6 +1254,14 @@ export type BusinessUncheckedCreateWithoutLeave_requestsInput = {
   packages?: Prisma.ServicePackageUncheckedCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.BusinessSubscriptionUncheckedCreateNestedManyWithoutBusinessInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedCreateNestedManyWithoutBusinessInput
+  referral_code?: Prisma.ReferralCodeUncheckedCreateNestedOneWithoutBusinessInput
+  referral_leads_converted?: Prisma.ReferralLeadUncheckedCreateNestedManyWithoutConverted_businessInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferrer_businessInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferred_businessInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedCreateNestedManyWithoutConverted_businessInput
+  platform_action_logs?: Prisma.PlatformActionLogUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessCreateOrConnectWithoutLeave_requestsInput = {
@@ -866,6 +1289,14 @@ export type BusinessUpdateWithoutLeave_requestsInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -881,6 +1312,14 @@ export type BusinessUpdateWithoutLeave_requestsInput = {
   packages?: Prisma.ServicePackageUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.BusinessSubscriptionUpdateManyWithoutBusinessNestedInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUpdateManyWithoutBusinessNestedInput
+  referral_code?: Prisma.ReferralCodeUpdateOneWithoutBusinessNestedInput
+  referral_leads_converted?: Prisma.ReferralLeadUpdateManyWithoutConverted_businessNestedInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUpdateManyWithoutReferrer_businessNestedInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUpdateManyWithoutReferred_businessNestedInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUpdateManyWithoutConverted_businessNestedInput
+  platform_action_logs?: Prisma.PlatformActionLogUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateWithoutLeave_requestsInput = {
@@ -892,6 +1331,14 @@ export type BusinessUncheckedUpdateWithoutLeave_requestsInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -907,6 +1354,14 @@ export type BusinessUncheckedUpdateWithoutLeave_requestsInput = {
   packages?: Prisma.ServicePackageUncheckedUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.BusinessSubscriptionUncheckedUpdateManyWithoutBusinessNestedInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedUpdateManyWithoutBusinessNestedInput
+  referral_code?: Prisma.ReferralCodeUncheckedUpdateOneWithoutBusinessNestedInput
+  referral_leads_converted?: Prisma.ReferralLeadUncheckedUpdateManyWithoutConverted_businessNestedInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferrer_businessNestedInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferred_businessNestedInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedUpdateManyWithoutConverted_businessNestedInput
+  platform_action_logs?: Prisma.PlatformActionLogUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessCreateWithoutBusiness_hoursInput = {
@@ -918,6 +1373,14 @@ export type BusinessCreateWithoutBusiness_hoursInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  booking_horizon_days?: number
+  booking_min_lead_minutes?: number
+  booking_slot_interval_minutes?: number
+  public_allow_full_payment?: boolean
+  public_allow_downpayment?: boolean
+  public_default_payment_type?: string
+  booking_v2_enabled?: boolean
+  same_day_attendance_strict_minutes?: number
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -933,6 +1396,14 @@ export type BusinessCreateWithoutBusiness_hoursInput = {
   packages?: Prisma.ServicePackageCreateNestedManyWithoutBusinessInput
   leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.BusinessSubscriptionCreateNestedManyWithoutBusinessInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceCreateNestedManyWithoutBusinessInput
+  referral_code?: Prisma.ReferralCodeCreateNestedOneWithoutBusinessInput
+  referral_leads_converted?: Prisma.ReferralLeadCreateNestedManyWithoutConverted_businessInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionCreateNestedManyWithoutReferrer_businessInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionCreateNestedManyWithoutReferred_businessInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationCreateNestedManyWithoutConverted_businessInput
+  platform_action_logs?: Prisma.PlatformActionLogCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateWithoutBusiness_hoursInput = {
@@ -944,6 +1415,14 @@ export type BusinessUncheckedCreateWithoutBusiness_hoursInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  booking_horizon_days?: number
+  booking_min_lead_minutes?: number
+  booking_slot_interval_minutes?: number
+  public_allow_full_payment?: boolean
+  public_allow_downpayment?: boolean
+  public_default_payment_type?: string
+  booking_v2_enabled?: boolean
+  same_day_attendance_strict_minutes?: number
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -959,6 +1438,14 @@ export type BusinessUncheckedCreateWithoutBusiness_hoursInput = {
   packages?: Prisma.ServicePackageUncheckedCreateNestedManyWithoutBusinessInput
   leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.BusinessSubscriptionUncheckedCreateNestedManyWithoutBusinessInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedCreateNestedManyWithoutBusinessInput
+  referral_code?: Prisma.ReferralCodeUncheckedCreateNestedOneWithoutBusinessInput
+  referral_leads_converted?: Prisma.ReferralLeadUncheckedCreateNestedManyWithoutConverted_businessInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferrer_businessInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferred_businessInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedCreateNestedManyWithoutConverted_businessInput
+  platform_action_logs?: Prisma.PlatformActionLogUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessCreateOrConnectWithoutBusiness_hoursInput = {
@@ -986,6 +1473,14 @@ export type BusinessUpdateWithoutBusiness_hoursInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1001,6 +1496,14 @@ export type BusinessUpdateWithoutBusiness_hoursInput = {
   packages?: Prisma.ServicePackageUpdateManyWithoutBusinessNestedInput
   leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.BusinessSubscriptionUpdateManyWithoutBusinessNestedInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUpdateManyWithoutBusinessNestedInput
+  referral_code?: Prisma.ReferralCodeUpdateOneWithoutBusinessNestedInput
+  referral_leads_converted?: Prisma.ReferralLeadUpdateManyWithoutConverted_businessNestedInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUpdateManyWithoutReferrer_businessNestedInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUpdateManyWithoutReferred_businessNestedInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUpdateManyWithoutConverted_businessNestedInput
+  platform_action_logs?: Prisma.PlatformActionLogUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateWithoutBusiness_hoursInput = {
@@ -1012,6 +1515,14 @@ export type BusinessUncheckedUpdateWithoutBusiness_hoursInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1027,6 +1538,14 @@ export type BusinessUncheckedUpdateWithoutBusiness_hoursInput = {
   packages?: Prisma.ServicePackageUncheckedUpdateManyWithoutBusinessNestedInput
   leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.BusinessSubscriptionUncheckedUpdateManyWithoutBusinessNestedInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedUpdateManyWithoutBusinessNestedInput
+  referral_code?: Prisma.ReferralCodeUncheckedUpdateOneWithoutBusinessNestedInput
+  referral_leads_converted?: Prisma.ReferralLeadUncheckedUpdateManyWithoutConverted_businessNestedInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferrer_businessNestedInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferred_businessNestedInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedUpdateManyWithoutConverted_businessNestedInput
+  platform_action_logs?: Prisma.PlatformActionLogUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessCreateWithoutSale_eventsInput = {
@@ -1038,6 +1557,14 @@ export type BusinessCreateWithoutSale_eventsInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  booking_horizon_days?: number
+  booking_min_lead_minutes?: number
+  booking_slot_interval_minutes?: number
+  public_allow_full_payment?: boolean
+  public_allow_downpayment?: boolean
+  public_default_payment_type?: string
+  booking_v2_enabled?: boolean
+  same_day_attendance_strict_minutes?: number
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -1053,6 +1580,14 @@ export type BusinessCreateWithoutSale_eventsInput = {
   leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.BusinessSubscriptionCreateNestedManyWithoutBusinessInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceCreateNestedManyWithoutBusinessInput
+  referral_code?: Prisma.ReferralCodeCreateNestedOneWithoutBusinessInput
+  referral_leads_converted?: Prisma.ReferralLeadCreateNestedManyWithoutConverted_businessInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionCreateNestedManyWithoutReferrer_businessInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionCreateNestedManyWithoutReferred_businessInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationCreateNestedManyWithoutConverted_businessInput
+  platform_action_logs?: Prisma.PlatformActionLogCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateWithoutSale_eventsInput = {
@@ -1064,6 +1599,14 @@ export type BusinessUncheckedCreateWithoutSale_eventsInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  booking_horizon_days?: number
+  booking_min_lead_minutes?: number
+  booking_slot_interval_minutes?: number
+  public_allow_full_payment?: boolean
+  public_allow_downpayment?: boolean
+  public_default_payment_type?: string
+  booking_v2_enabled?: boolean
+  same_day_attendance_strict_minutes?: number
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -1079,6 +1622,14 @@ export type BusinessUncheckedCreateWithoutSale_eventsInput = {
   leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.BusinessSubscriptionUncheckedCreateNestedManyWithoutBusinessInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedCreateNestedManyWithoutBusinessInput
+  referral_code?: Prisma.ReferralCodeUncheckedCreateNestedOneWithoutBusinessInput
+  referral_leads_converted?: Prisma.ReferralLeadUncheckedCreateNestedManyWithoutConverted_businessInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferrer_businessInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferred_businessInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedCreateNestedManyWithoutConverted_businessInput
+  platform_action_logs?: Prisma.PlatformActionLogUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessCreateOrConnectWithoutSale_eventsInput = {
@@ -1106,6 +1657,14 @@ export type BusinessUpdateWithoutSale_eventsInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1121,6 +1680,14 @@ export type BusinessUpdateWithoutSale_eventsInput = {
   leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.BusinessSubscriptionUpdateManyWithoutBusinessNestedInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUpdateManyWithoutBusinessNestedInput
+  referral_code?: Prisma.ReferralCodeUpdateOneWithoutBusinessNestedInput
+  referral_leads_converted?: Prisma.ReferralLeadUpdateManyWithoutConverted_businessNestedInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUpdateManyWithoutReferrer_businessNestedInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUpdateManyWithoutReferred_businessNestedInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUpdateManyWithoutConverted_businessNestedInput
+  platform_action_logs?: Prisma.PlatformActionLogUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateWithoutSale_eventsInput = {
@@ -1132,6 +1699,14 @@ export type BusinessUncheckedUpdateWithoutSale_eventsInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1147,6 +1722,14 @@ export type BusinessUncheckedUpdateWithoutSale_eventsInput = {
   leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.BusinessSubscriptionUncheckedUpdateManyWithoutBusinessNestedInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedUpdateManyWithoutBusinessNestedInput
+  referral_code?: Prisma.ReferralCodeUncheckedUpdateOneWithoutBusinessNestedInput
+  referral_leads_converted?: Prisma.ReferralLeadUncheckedUpdateManyWithoutConverted_businessNestedInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferrer_businessNestedInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferred_businessNestedInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedUpdateManyWithoutConverted_businessNestedInput
+  platform_action_logs?: Prisma.PlatformActionLogUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessCreateWithoutEmployeesInput = {
@@ -1158,6 +1741,14 @@ export type BusinessCreateWithoutEmployeesInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  booking_horizon_days?: number
+  booking_min_lead_minutes?: number
+  booking_slot_interval_minutes?: number
+  public_allow_full_payment?: boolean
+  public_allow_downpayment?: boolean
+  public_default_payment_type?: string
+  booking_v2_enabled?: boolean
+  same_day_attendance_strict_minutes?: number
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -1173,6 +1764,14 @@ export type BusinessCreateWithoutEmployeesInput = {
   leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.BusinessSubscriptionCreateNestedManyWithoutBusinessInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceCreateNestedManyWithoutBusinessInput
+  referral_code?: Prisma.ReferralCodeCreateNestedOneWithoutBusinessInput
+  referral_leads_converted?: Prisma.ReferralLeadCreateNestedManyWithoutConverted_businessInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionCreateNestedManyWithoutReferrer_businessInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionCreateNestedManyWithoutReferred_businessInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationCreateNestedManyWithoutConverted_businessInput
+  platform_action_logs?: Prisma.PlatformActionLogCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateWithoutEmployeesInput = {
@@ -1184,6 +1783,14 @@ export type BusinessUncheckedCreateWithoutEmployeesInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  booking_horizon_days?: number
+  booking_min_lead_minutes?: number
+  booking_slot_interval_minutes?: number
+  public_allow_full_payment?: boolean
+  public_allow_downpayment?: boolean
+  public_default_payment_type?: string
+  booking_v2_enabled?: boolean
+  same_day_attendance_strict_minutes?: number
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -1199,6 +1806,14 @@ export type BusinessUncheckedCreateWithoutEmployeesInput = {
   leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.BusinessSubscriptionUncheckedCreateNestedManyWithoutBusinessInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedCreateNestedManyWithoutBusinessInput
+  referral_code?: Prisma.ReferralCodeUncheckedCreateNestedOneWithoutBusinessInput
+  referral_leads_converted?: Prisma.ReferralLeadUncheckedCreateNestedManyWithoutConverted_businessInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferrer_businessInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferred_businessInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedCreateNestedManyWithoutConverted_businessInput
+  platform_action_logs?: Prisma.PlatformActionLogUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessCreateOrConnectWithoutEmployeesInput = {
@@ -1226,6 +1841,14 @@ export type BusinessUpdateWithoutEmployeesInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1241,6 +1864,14 @@ export type BusinessUpdateWithoutEmployeesInput = {
   leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.BusinessSubscriptionUpdateManyWithoutBusinessNestedInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUpdateManyWithoutBusinessNestedInput
+  referral_code?: Prisma.ReferralCodeUpdateOneWithoutBusinessNestedInput
+  referral_leads_converted?: Prisma.ReferralLeadUpdateManyWithoutConverted_businessNestedInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUpdateManyWithoutReferrer_businessNestedInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUpdateManyWithoutReferred_businessNestedInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUpdateManyWithoutConverted_businessNestedInput
+  platform_action_logs?: Prisma.PlatformActionLogUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateWithoutEmployeesInput = {
@@ -1252,6 +1883,14 @@ export type BusinessUncheckedUpdateWithoutEmployeesInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1267,6 +1906,14 @@ export type BusinessUncheckedUpdateWithoutEmployeesInput = {
   leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.BusinessSubscriptionUncheckedUpdateManyWithoutBusinessNestedInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedUpdateManyWithoutBusinessNestedInput
+  referral_code?: Prisma.ReferralCodeUncheckedUpdateOneWithoutBusinessNestedInput
+  referral_leads_converted?: Prisma.ReferralLeadUncheckedUpdateManyWithoutConverted_businessNestedInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferrer_businessNestedInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferred_businessNestedInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedUpdateManyWithoutConverted_businessNestedInput
+  platform_action_logs?: Prisma.PlatformActionLogUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessCreateWithoutSpecial_datesInput = {
@@ -1278,6 +1925,14 @@ export type BusinessCreateWithoutSpecial_datesInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  booking_horizon_days?: number
+  booking_min_lead_minutes?: number
+  booking_slot_interval_minutes?: number
+  public_allow_full_payment?: boolean
+  public_allow_downpayment?: boolean
+  public_default_payment_type?: string
+  booking_v2_enabled?: boolean
+  same_day_attendance_strict_minutes?: number
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -1293,6 +1948,14 @@ export type BusinessCreateWithoutSpecial_datesInput = {
   leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.BusinessSubscriptionCreateNestedManyWithoutBusinessInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceCreateNestedManyWithoutBusinessInput
+  referral_code?: Prisma.ReferralCodeCreateNestedOneWithoutBusinessInput
+  referral_leads_converted?: Prisma.ReferralLeadCreateNestedManyWithoutConverted_businessInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionCreateNestedManyWithoutReferrer_businessInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionCreateNestedManyWithoutReferred_businessInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationCreateNestedManyWithoutConverted_businessInput
+  platform_action_logs?: Prisma.PlatformActionLogCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateWithoutSpecial_datesInput = {
@@ -1304,6 +1967,14 @@ export type BusinessUncheckedCreateWithoutSpecial_datesInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  booking_horizon_days?: number
+  booking_min_lead_minutes?: number
+  booking_slot_interval_minutes?: number
+  public_allow_full_payment?: boolean
+  public_allow_downpayment?: boolean
+  public_default_payment_type?: string
+  booking_v2_enabled?: boolean
+  same_day_attendance_strict_minutes?: number
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -1319,6 +1990,14 @@ export type BusinessUncheckedCreateWithoutSpecial_datesInput = {
   leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.BusinessSubscriptionUncheckedCreateNestedManyWithoutBusinessInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedCreateNestedManyWithoutBusinessInput
+  referral_code?: Prisma.ReferralCodeUncheckedCreateNestedOneWithoutBusinessInput
+  referral_leads_converted?: Prisma.ReferralLeadUncheckedCreateNestedManyWithoutConverted_businessInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferrer_businessInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferred_businessInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedCreateNestedManyWithoutConverted_businessInput
+  platform_action_logs?: Prisma.PlatformActionLogUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessCreateOrConnectWithoutSpecial_datesInput = {
@@ -1346,6 +2025,14 @@ export type BusinessUpdateWithoutSpecial_datesInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1361,6 +2048,14 @@ export type BusinessUpdateWithoutSpecial_datesInput = {
   leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.BusinessSubscriptionUpdateManyWithoutBusinessNestedInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUpdateManyWithoutBusinessNestedInput
+  referral_code?: Prisma.ReferralCodeUpdateOneWithoutBusinessNestedInput
+  referral_leads_converted?: Prisma.ReferralLeadUpdateManyWithoutConverted_businessNestedInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUpdateManyWithoutReferrer_businessNestedInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUpdateManyWithoutReferred_businessNestedInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUpdateManyWithoutConverted_businessNestedInput
+  platform_action_logs?: Prisma.PlatformActionLogUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateWithoutSpecial_datesInput = {
@@ -1372,6 +2067,14 @@ export type BusinessUncheckedUpdateWithoutSpecial_datesInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1387,6 +2090,14 @@ export type BusinessUncheckedUpdateWithoutSpecial_datesInput = {
   leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.BusinessSubscriptionUncheckedUpdateManyWithoutBusinessNestedInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedUpdateManyWithoutBusinessNestedInput
+  referral_code?: Prisma.ReferralCodeUncheckedUpdateOneWithoutBusinessNestedInput
+  referral_leads_converted?: Prisma.ReferralLeadUncheckedUpdateManyWithoutConverted_businessNestedInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferrer_businessNestedInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferred_businessNestedInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedUpdateManyWithoutConverted_businessNestedInput
+  platform_action_logs?: Prisma.PlatformActionLogUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessCreateWithoutOwnersInput = {
@@ -1398,6 +2109,14 @@ export type BusinessCreateWithoutOwnersInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  booking_horizon_days?: number
+  booking_min_lead_minutes?: number
+  booking_slot_interval_minutes?: number
+  public_allow_full_payment?: boolean
+  public_allow_downpayment?: boolean
+  public_default_payment_type?: string
+  booking_v2_enabled?: boolean
+  same_day_attendance_strict_minutes?: number
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -1413,6 +2132,14 @@ export type BusinessCreateWithoutOwnersInput = {
   leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.BusinessSubscriptionCreateNestedManyWithoutBusinessInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceCreateNestedManyWithoutBusinessInput
+  referral_code?: Prisma.ReferralCodeCreateNestedOneWithoutBusinessInput
+  referral_leads_converted?: Prisma.ReferralLeadCreateNestedManyWithoutConverted_businessInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionCreateNestedManyWithoutReferrer_businessInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionCreateNestedManyWithoutReferred_businessInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationCreateNestedManyWithoutConverted_businessInput
+  platform_action_logs?: Prisma.PlatformActionLogCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateWithoutOwnersInput = {
@@ -1424,6 +2151,14 @@ export type BusinessUncheckedCreateWithoutOwnersInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  booking_horizon_days?: number
+  booking_min_lead_minutes?: number
+  booking_slot_interval_minutes?: number
+  public_allow_full_payment?: boolean
+  public_allow_downpayment?: boolean
+  public_default_payment_type?: string
+  booking_v2_enabled?: boolean
+  same_day_attendance_strict_minutes?: number
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -1439,6 +2174,14 @@ export type BusinessUncheckedCreateWithoutOwnersInput = {
   leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.BusinessSubscriptionUncheckedCreateNestedManyWithoutBusinessInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedCreateNestedManyWithoutBusinessInput
+  referral_code?: Prisma.ReferralCodeUncheckedCreateNestedOneWithoutBusinessInput
+  referral_leads_converted?: Prisma.ReferralLeadUncheckedCreateNestedManyWithoutConverted_businessInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferrer_businessInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferred_businessInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedCreateNestedManyWithoutConverted_businessInput
+  platform_action_logs?: Prisma.PlatformActionLogUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessCreateOrConnectWithoutOwnersInput = {
@@ -1466,6 +2209,14 @@ export type BusinessUpdateWithoutOwnersInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1481,6 +2232,14 @@ export type BusinessUpdateWithoutOwnersInput = {
   leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.BusinessSubscriptionUpdateManyWithoutBusinessNestedInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUpdateManyWithoutBusinessNestedInput
+  referral_code?: Prisma.ReferralCodeUpdateOneWithoutBusinessNestedInput
+  referral_leads_converted?: Prisma.ReferralLeadUpdateManyWithoutConverted_businessNestedInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUpdateManyWithoutReferrer_businessNestedInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUpdateManyWithoutReferred_businessNestedInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUpdateManyWithoutConverted_businessNestedInput
+  platform_action_logs?: Prisma.PlatformActionLogUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateWithoutOwnersInput = {
@@ -1492,6 +2251,14 @@ export type BusinessUncheckedUpdateWithoutOwnersInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1507,6 +2274,1486 @@ export type BusinessUncheckedUpdateWithoutOwnersInput = {
   leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.BusinessSubscriptionUncheckedUpdateManyWithoutBusinessNestedInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedUpdateManyWithoutBusinessNestedInput
+  referral_code?: Prisma.ReferralCodeUncheckedUpdateOneWithoutBusinessNestedInput
+  referral_leads_converted?: Prisma.ReferralLeadUncheckedUpdateManyWithoutConverted_businessNestedInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferrer_businessNestedInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferred_businessNestedInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedUpdateManyWithoutConverted_businessNestedInput
+  platform_action_logs?: Prisma.PlatformActionLogUncheckedUpdateManyWithoutBusinessNestedInput
+}
+
+export type BusinessCreateWithoutSubscriptionsInput = {
+  id?: string
+  name: string
+  slug: string
+  initials: string
+  description?: string | null
+  imageUrl?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  booking_horizon_days?: number
+  booking_min_lead_minutes?: number
+  booking_slot_interval_minutes?: number
+  public_allow_full_payment?: boolean
+  public_allow_downpayment?: boolean
+  public_default_payment_type?: string
+  booking_v2_enabled?: boolean
+  same_day_attendance_strict_minutes?: number
+  commission_calculation_basis?: $Enums.CommissionCalculationBasis
+  created_at?: Date | string
+  updated_at?: Date | string
+  services?: Prisma.ServiceCreateNestedManyWithoutBusinessInput
+  employees?: Prisma.EmployeeCreateNestedManyWithoutBusinessInput
+  owners?: Prisma.OwnerCreateNestedManyWithoutBusinessInput
+  customers?: Prisma.CustomerCreateNestedManyWithoutBusinessInput
+  bookings?: Prisma.BookingCreateNestedManyWithoutBusinessInput
+  sale_events?: Prisma.SaleEventCreateNestedManyWithoutBusinessInput
+  vouchers?: Prisma.VoucherCreateNestedManyWithoutBusinessInput
+  gift_cards?: Prisma.GiftCardCreateNestedManyWithoutBusinessInput
+  special_dates?: Prisma.SpecialDateCreateNestedManyWithoutBusinessInput
+  packages?: Prisma.ServicePackageCreateNestedManyWithoutBusinessInput
+  leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
+  business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
+  service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceCreateNestedManyWithoutBusinessInput
+  referral_code?: Prisma.ReferralCodeCreateNestedOneWithoutBusinessInput
+  referral_leads_converted?: Prisma.ReferralLeadCreateNestedManyWithoutConverted_businessInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionCreateNestedManyWithoutReferrer_businessInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionCreateNestedManyWithoutReferred_businessInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationCreateNestedManyWithoutConverted_businessInput
+  platform_action_logs?: Prisma.PlatformActionLogCreateNestedManyWithoutBusinessInput
+}
+
+export type BusinessUncheckedCreateWithoutSubscriptionsInput = {
+  id?: string
+  name: string
+  slug: string
+  initials: string
+  description?: string | null
+  imageUrl?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  booking_horizon_days?: number
+  booking_min_lead_minutes?: number
+  booking_slot_interval_minutes?: number
+  public_allow_full_payment?: boolean
+  public_allow_downpayment?: boolean
+  public_default_payment_type?: string
+  booking_v2_enabled?: boolean
+  same_day_attendance_strict_minutes?: number
+  commission_calculation_basis?: $Enums.CommissionCalculationBasis
+  created_at?: Date | string
+  updated_at?: Date | string
+  services?: Prisma.ServiceUncheckedCreateNestedManyWithoutBusinessInput
+  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutBusinessInput
+  owners?: Prisma.OwnerUncheckedCreateNestedManyWithoutBusinessInput
+  customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutBusinessInput
+  bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutBusinessInput
+  sale_events?: Prisma.SaleEventUncheckedCreateNestedManyWithoutBusinessInput
+  vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutBusinessInput
+  gift_cards?: Prisma.GiftCardUncheckedCreateNestedManyWithoutBusinessInput
+  special_dates?: Prisma.SpecialDateUncheckedCreateNestedManyWithoutBusinessInput
+  packages?: Prisma.ServicePackageUncheckedCreateNestedManyWithoutBusinessInput
+  leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
+  business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
+  service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedCreateNestedManyWithoutBusinessInput
+  referral_code?: Prisma.ReferralCodeUncheckedCreateNestedOneWithoutBusinessInput
+  referral_leads_converted?: Prisma.ReferralLeadUncheckedCreateNestedManyWithoutConverted_businessInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferrer_businessInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferred_businessInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedCreateNestedManyWithoutConverted_businessInput
+  platform_action_logs?: Prisma.PlatformActionLogUncheckedCreateNestedManyWithoutBusinessInput
+}
+
+export type BusinessCreateOrConnectWithoutSubscriptionsInput = {
+  where: Prisma.BusinessWhereUniqueInput
+  create: Prisma.XOR<Prisma.BusinessCreateWithoutSubscriptionsInput, Prisma.BusinessUncheckedCreateWithoutSubscriptionsInput>
+}
+
+export type BusinessUpsertWithoutSubscriptionsInput = {
+  update: Prisma.XOR<Prisma.BusinessUpdateWithoutSubscriptionsInput, Prisma.BusinessUncheckedUpdateWithoutSubscriptionsInput>
+  create: Prisma.XOR<Prisma.BusinessCreateWithoutSubscriptionsInput, Prisma.BusinessUncheckedCreateWithoutSubscriptionsInput>
+  where?: Prisma.BusinessWhereInput
+}
+
+export type BusinessUpdateToOneWithWhereWithoutSubscriptionsInput = {
+  where?: Prisma.BusinessWhereInput
+  data: Prisma.XOR<Prisma.BusinessUpdateWithoutSubscriptionsInput, Prisma.BusinessUncheckedUpdateWithoutSubscriptionsInput>
+}
+
+export type BusinessUpdateWithoutSubscriptionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  initials?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  services?: Prisma.ServiceUpdateManyWithoutBusinessNestedInput
+  employees?: Prisma.EmployeeUpdateManyWithoutBusinessNestedInput
+  owners?: Prisma.OwnerUpdateManyWithoutBusinessNestedInput
+  customers?: Prisma.CustomerUpdateManyWithoutBusinessNestedInput
+  bookings?: Prisma.BookingUpdateManyWithoutBusinessNestedInput
+  sale_events?: Prisma.SaleEventUpdateManyWithoutBusinessNestedInput
+  vouchers?: Prisma.VoucherUpdateManyWithoutBusinessNestedInput
+  gift_cards?: Prisma.GiftCardUpdateManyWithoutBusinessNestedInput
+  special_dates?: Prisma.SpecialDateUpdateManyWithoutBusinessNestedInput
+  packages?: Prisma.ServicePackageUpdateManyWithoutBusinessNestedInput
+  leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
+  business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
+  service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUpdateManyWithoutBusinessNestedInput
+  referral_code?: Prisma.ReferralCodeUpdateOneWithoutBusinessNestedInput
+  referral_leads_converted?: Prisma.ReferralLeadUpdateManyWithoutConverted_businessNestedInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUpdateManyWithoutReferrer_businessNestedInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUpdateManyWithoutReferred_businessNestedInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUpdateManyWithoutConverted_businessNestedInput
+  platform_action_logs?: Prisma.PlatformActionLogUpdateManyWithoutBusinessNestedInput
+}
+
+export type BusinessUncheckedUpdateWithoutSubscriptionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  initials?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  services?: Prisma.ServiceUncheckedUpdateManyWithoutBusinessNestedInput
+  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutBusinessNestedInput
+  owners?: Prisma.OwnerUncheckedUpdateManyWithoutBusinessNestedInput
+  customers?: Prisma.CustomerUncheckedUpdateManyWithoutBusinessNestedInput
+  bookings?: Prisma.BookingUncheckedUpdateManyWithoutBusinessNestedInput
+  sale_events?: Prisma.SaleEventUncheckedUpdateManyWithoutBusinessNestedInput
+  vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutBusinessNestedInput
+  gift_cards?: Prisma.GiftCardUncheckedUpdateManyWithoutBusinessNestedInput
+  special_dates?: Prisma.SpecialDateUncheckedUpdateManyWithoutBusinessNestedInput
+  packages?: Prisma.ServicePackageUncheckedUpdateManyWithoutBusinessNestedInput
+  leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
+  business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
+  service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedUpdateManyWithoutBusinessNestedInput
+  referral_code?: Prisma.ReferralCodeUncheckedUpdateOneWithoutBusinessNestedInput
+  referral_leads_converted?: Prisma.ReferralLeadUncheckedUpdateManyWithoutConverted_businessNestedInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferrer_businessNestedInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferred_businessNestedInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedUpdateManyWithoutConverted_businessNestedInput
+  platform_action_logs?: Prisma.PlatformActionLogUncheckedUpdateManyWithoutBusinessNestedInput
+}
+
+export type BusinessCreateWithoutSubscription_invoicesInput = {
+  id?: string
+  name: string
+  slug: string
+  initials: string
+  description?: string | null
+  imageUrl?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  booking_horizon_days?: number
+  booking_min_lead_minutes?: number
+  booking_slot_interval_minutes?: number
+  public_allow_full_payment?: boolean
+  public_allow_downpayment?: boolean
+  public_default_payment_type?: string
+  booking_v2_enabled?: boolean
+  same_day_attendance_strict_minutes?: number
+  commission_calculation_basis?: $Enums.CommissionCalculationBasis
+  created_at?: Date | string
+  updated_at?: Date | string
+  services?: Prisma.ServiceCreateNestedManyWithoutBusinessInput
+  employees?: Prisma.EmployeeCreateNestedManyWithoutBusinessInput
+  owners?: Prisma.OwnerCreateNestedManyWithoutBusinessInput
+  customers?: Prisma.CustomerCreateNestedManyWithoutBusinessInput
+  bookings?: Prisma.BookingCreateNestedManyWithoutBusinessInput
+  sale_events?: Prisma.SaleEventCreateNestedManyWithoutBusinessInput
+  vouchers?: Prisma.VoucherCreateNestedManyWithoutBusinessInput
+  gift_cards?: Prisma.GiftCardCreateNestedManyWithoutBusinessInput
+  special_dates?: Prisma.SpecialDateCreateNestedManyWithoutBusinessInput
+  packages?: Prisma.ServicePackageCreateNestedManyWithoutBusinessInput
+  leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
+  business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
+  service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.BusinessSubscriptionCreateNestedManyWithoutBusinessInput
+  referral_code?: Prisma.ReferralCodeCreateNestedOneWithoutBusinessInput
+  referral_leads_converted?: Prisma.ReferralLeadCreateNestedManyWithoutConverted_businessInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionCreateNestedManyWithoutReferrer_businessInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionCreateNestedManyWithoutReferred_businessInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationCreateNestedManyWithoutConverted_businessInput
+  platform_action_logs?: Prisma.PlatformActionLogCreateNestedManyWithoutBusinessInput
+}
+
+export type BusinessUncheckedCreateWithoutSubscription_invoicesInput = {
+  id?: string
+  name: string
+  slug: string
+  initials: string
+  description?: string | null
+  imageUrl?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  booking_horizon_days?: number
+  booking_min_lead_minutes?: number
+  booking_slot_interval_minutes?: number
+  public_allow_full_payment?: boolean
+  public_allow_downpayment?: boolean
+  public_default_payment_type?: string
+  booking_v2_enabled?: boolean
+  same_day_attendance_strict_minutes?: number
+  commission_calculation_basis?: $Enums.CommissionCalculationBasis
+  created_at?: Date | string
+  updated_at?: Date | string
+  services?: Prisma.ServiceUncheckedCreateNestedManyWithoutBusinessInput
+  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutBusinessInput
+  owners?: Prisma.OwnerUncheckedCreateNestedManyWithoutBusinessInput
+  customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutBusinessInput
+  bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutBusinessInput
+  sale_events?: Prisma.SaleEventUncheckedCreateNestedManyWithoutBusinessInput
+  vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutBusinessInput
+  gift_cards?: Prisma.GiftCardUncheckedCreateNestedManyWithoutBusinessInput
+  special_dates?: Prisma.SpecialDateUncheckedCreateNestedManyWithoutBusinessInput
+  packages?: Prisma.ServicePackageUncheckedCreateNestedManyWithoutBusinessInput
+  leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
+  business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
+  service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.BusinessSubscriptionUncheckedCreateNestedManyWithoutBusinessInput
+  referral_code?: Prisma.ReferralCodeUncheckedCreateNestedOneWithoutBusinessInput
+  referral_leads_converted?: Prisma.ReferralLeadUncheckedCreateNestedManyWithoutConverted_businessInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferrer_businessInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferred_businessInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedCreateNestedManyWithoutConverted_businessInput
+  platform_action_logs?: Prisma.PlatformActionLogUncheckedCreateNestedManyWithoutBusinessInput
+}
+
+export type BusinessCreateOrConnectWithoutSubscription_invoicesInput = {
+  where: Prisma.BusinessWhereUniqueInput
+  create: Prisma.XOR<Prisma.BusinessCreateWithoutSubscription_invoicesInput, Prisma.BusinessUncheckedCreateWithoutSubscription_invoicesInput>
+}
+
+export type BusinessUpsertWithoutSubscription_invoicesInput = {
+  update: Prisma.XOR<Prisma.BusinessUpdateWithoutSubscription_invoicesInput, Prisma.BusinessUncheckedUpdateWithoutSubscription_invoicesInput>
+  create: Prisma.XOR<Prisma.BusinessCreateWithoutSubscription_invoicesInput, Prisma.BusinessUncheckedCreateWithoutSubscription_invoicesInput>
+  where?: Prisma.BusinessWhereInput
+}
+
+export type BusinessUpdateToOneWithWhereWithoutSubscription_invoicesInput = {
+  where?: Prisma.BusinessWhereInput
+  data: Prisma.XOR<Prisma.BusinessUpdateWithoutSubscription_invoicesInput, Prisma.BusinessUncheckedUpdateWithoutSubscription_invoicesInput>
+}
+
+export type BusinessUpdateWithoutSubscription_invoicesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  initials?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  services?: Prisma.ServiceUpdateManyWithoutBusinessNestedInput
+  employees?: Prisma.EmployeeUpdateManyWithoutBusinessNestedInput
+  owners?: Prisma.OwnerUpdateManyWithoutBusinessNestedInput
+  customers?: Prisma.CustomerUpdateManyWithoutBusinessNestedInput
+  bookings?: Prisma.BookingUpdateManyWithoutBusinessNestedInput
+  sale_events?: Prisma.SaleEventUpdateManyWithoutBusinessNestedInput
+  vouchers?: Prisma.VoucherUpdateManyWithoutBusinessNestedInput
+  gift_cards?: Prisma.GiftCardUpdateManyWithoutBusinessNestedInput
+  special_dates?: Prisma.SpecialDateUpdateManyWithoutBusinessNestedInput
+  packages?: Prisma.ServicePackageUpdateManyWithoutBusinessNestedInput
+  leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
+  business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
+  service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.BusinessSubscriptionUpdateManyWithoutBusinessNestedInput
+  referral_code?: Prisma.ReferralCodeUpdateOneWithoutBusinessNestedInput
+  referral_leads_converted?: Prisma.ReferralLeadUpdateManyWithoutConverted_businessNestedInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUpdateManyWithoutReferrer_businessNestedInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUpdateManyWithoutReferred_businessNestedInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUpdateManyWithoutConverted_businessNestedInput
+  platform_action_logs?: Prisma.PlatformActionLogUpdateManyWithoutBusinessNestedInput
+}
+
+export type BusinessUncheckedUpdateWithoutSubscription_invoicesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  initials?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  services?: Prisma.ServiceUncheckedUpdateManyWithoutBusinessNestedInput
+  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutBusinessNestedInput
+  owners?: Prisma.OwnerUncheckedUpdateManyWithoutBusinessNestedInput
+  customers?: Prisma.CustomerUncheckedUpdateManyWithoutBusinessNestedInput
+  bookings?: Prisma.BookingUncheckedUpdateManyWithoutBusinessNestedInput
+  sale_events?: Prisma.SaleEventUncheckedUpdateManyWithoutBusinessNestedInput
+  vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutBusinessNestedInput
+  gift_cards?: Prisma.GiftCardUncheckedUpdateManyWithoutBusinessNestedInput
+  special_dates?: Prisma.SpecialDateUncheckedUpdateManyWithoutBusinessNestedInput
+  packages?: Prisma.ServicePackageUncheckedUpdateManyWithoutBusinessNestedInput
+  leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
+  business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
+  service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.BusinessSubscriptionUncheckedUpdateManyWithoutBusinessNestedInput
+  referral_code?: Prisma.ReferralCodeUncheckedUpdateOneWithoutBusinessNestedInput
+  referral_leads_converted?: Prisma.ReferralLeadUncheckedUpdateManyWithoutConverted_businessNestedInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferrer_businessNestedInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferred_businessNestedInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedUpdateManyWithoutConverted_businessNestedInput
+  platform_action_logs?: Prisma.PlatformActionLogUncheckedUpdateManyWithoutBusinessNestedInput
+}
+
+export type BusinessCreateWithoutReferral_codeInput = {
+  id?: string
+  name: string
+  slug: string
+  initials: string
+  description?: string | null
+  imageUrl?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  booking_horizon_days?: number
+  booking_min_lead_minutes?: number
+  booking_slot_interval_minutes?: number
+  public_allow_full_payment?: boolean
+  public_allow_downpayment?: boolean
+  public_default_payment_type?: string
+  booking_v2_enabled?: boolean
+  same_day_attendance_strict_minutes?: number
+  commission_calculation_basis?: $Enums.CommissionCalculationBasis
+  created_at?: Date | string
+  updated_at?: Date | string
+  services?: Prisma.ServiceCreateNestedManyWithoutBusinessInput
+  employees?: Prisma.EmployeeCreateNestedManyWithoutBusinessInput
+  owners?: Prisma.OwnerCreateNestedManyWithoutBusinessInput
+  customers?: Prisma.CustomerCreateNestedManyWithoutBusinessInput
+  bookings?: Prisma.BookingCreateNestedManyWithoutBusinessInput
+  sale_events?: Prisma.SaleEventCreateNestedManyWithoutBusinessInput
+  vouchers?: Prisma.VoucherCreateNestedManyWithoutBusinessInput
+  gift_cards?: Prisma.GiftCardCreateNestedManyWithoutBusinessInput
+  special_dates?: Prisma.SpecialDateCreateNestedManyWithoutBusinessInput
+  packages?: Prisma.ServicePackageCreateNestedManyWithoutBusinessInput
+  leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
+  business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
+  service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.BusinessSubscriptionCreateNestedManyWithoutBusinessInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceCreateNestedManyWithoutBusinessInput
+  referral_leads_converted?: Prisma.ReferralLeadCreateNestedManyWithoutConverted_businessInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionCreateNestedManyWithoutReferrer_businessInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionCreateNestedManyWithoutReferred_businessInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationCreateNestedManyWithoutConverted_businessInput
+  platform_action_logs?: Prisma.PlatformActionLogCreateNestedManyWithoutBusinessInput
+}
+
+export type BusinessUncheckedCreateWithoutReferral_codeInput = {
+  id?: string
+  name: string
+  slug: string
+  initials: string
+  description?: string | null
+  imageUrl?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  booking_horizon_days?: number
+  booking_min_lead_minutes?: number
+  booking_slot_interval_minutes?: number
+  public_allow_full_payment?: boolean
+  public_allow_downpayment?: boolean
+  public_default_payment_type?: string
+  booking_v2_enabled?: boolean
+  same_day_attendance_strict_minutes?: number
+  commission_calculation_basis?: $Enums.CommissionCalculationBasis
+  created_at?: Date | string
+  updated_at?: Date | string
+  services?: Prisma.ServiceUncheckedCreateNestedManyWithoutBusinessInput
+  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutBusinessInput
+  owners?: Prisma.OwnerUncheckedCreateNestedManyWithoutBusinessInput
+  customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutBusinessInput
+  bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutBusinessInput
+  sale_events?: Prisma.SaleEventUncheckedCreateNestedManyWithoutBusinessInput
+  vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutBusinessInput
+  gift_cards?: Prisma.GiftCardUncheckedCreateNestedManyWithoutBusinessInput
+  special_dates?: Prisma.SpecialDateUncheckedCreateNestedManyWithoutBusinessInput
+  packages?: Prisma.ServicePackageUncheckedCreateNestedManyWithoutBusinessInput
+  leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
+  business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
+  service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.BusinessSubscriptionUncheckedCreateNestedManyWithoutBusinessInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedCreateNestedManyWithoutBusinessInput
+  referral_leads_converted?: Prisma.ReferralLeadUncheckedCreateNestedManyWithoutConverted_businessInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferrer_businessInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferred_businessInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedCreateNestedManyWithoutConverted_businessInput
+  platform_action_logs?: Prisma.PlatformActionLogUncheckedCreateNestedManyWithoutBusinessInput
+}
+
+export type BusinessCreateOrConnectWithoutReferral_codeInput = {
+  where: Prisma.BusinessWhereUniqueInput
+  create: Prisma.XOR<Prisma.BusinessCreateWithoutReferral_codeInput, Prisma.BusinessUncheckedCreateWithoutReferral_codeInput>
+}
+
+export type BusinessUpsertWithoutReferral_codeInput = {
+  update: Prisma.XOR<Prisma.BusinessUpdateWithoutReferral_codeInput, Prisma.BusinessUncheckedUpdateWithoutReferral_codeInput>
+  create: Prisma.XOR<Prisma.BusinessCreateWithoutReferral_codeInput, Prisma.BusinessUncheckedCreateWithoutReferral_codeInput>
+  where?: Prisma.BusinessWhereInput
+}
+
+export type BusinessUpdateToOneWithWhereWithoutReferral_codeInput = {
+  where?: Prisma.BusinessWhereInput
+  data: Prisma.XOR<Prisma.BusinessUpdateWithoutReferral_codeInput, Prisma.BusinessUncheckedUpdateWithoutReferral_codeInput>
+}
+
+export type BusinessUpdateWithoutReferral_codeInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  initials?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  services?: Prisma.ServiceUpdateManyWithoutBusinessNestedInput
+  employees?: Prisma.EmployeeUpdateManyWithoutBusinessNestedInput
+  owners?: Prisma.OwnerUpdateManyWithoutBusinessNestedInput
+  customers?: Prisma.CustomerUpdateManyWithoutBusinessNestedInput
+  bookings?: Prisma.BookingUpdateManyWithoutBusinessNestedInput
+  sale_events?: Prisma.SaleEventUpdateManyWithoutBusinessNestedInput
+  vouchers?: Prisma.VoucherUpdateManyWithoutBusinessNestedInput
+  gift_cards?: Prisma.GiftCardUpdateManyWithoutBusinessNestedInput
+  special_dates?: Prisma.SpecialDateUpdateManyWithoutBusinessNestedInput
+  packages?: Prisma.ServicePackageUpdateManyWithoutBusinessNestedInput
+  leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
+  business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
+  service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.BusinessSubscriptionUpdateManyWithoutBusinessNestedInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUpdateManyWithoutBusinessNestedInput
+  referral_leads_converted?: Prisma.ReferralLeadUpdateManyWithoutConverted_businessNestedInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUpdateManyWithoutReferrer_businessNestedInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUpdateManyWithoutReferred_businessNestedInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUpdateManyWithoutConverted_businessNestedInput
+  platform_action_logs?: Prisma.PlatformActionLogUpdateManyWithoutBusinessNestedInput
+}
+
+export type BusinessUncheckedUpdateWithoutReferral_codeInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  initials?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  services?: Prisma.ServiceUncheckedUpdateManyWithoutBusinessNestedInput
+  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutBusinessNestedInput
+  owners?: Prisma.OwnerUncheckedUpdateManyWithoutBusinessNestedInput
+  customers?: Prisma.CustomerUncheckedUpdateManyWithoutBusinessNestedInput
+  bookings?: Prisma.BookingUncheckedUpdateManyWithoutBusinessNestedInput
+  sale_events?: Prisma.SaleEventUncheckedUpdateManyWithoutBusinessNestedInput
+  vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutBusinessNestedInput
+  gift_cards?: Prisma.GiftCardUncheckedUpdateManyWithoutBusinessNestedInput
+  special_dates?: Prisma.SpecialDateUncheckedUpdateManyWithoutBusinessNestedInput
+  packages?: Prisma.ServicePackageUncheckedUpdateManyWithoutBusinessNestedInput
+  leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
+  business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
+  service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.BusinessSubscriptionUncheckedUpdateManyWithoutBusinessNestedInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedUpdateManyWithoutBusinessNestedInput
+  referral_leads_converted?: Prisma.ReferralLeadUncheckedUpdateManyWithoutConverted_businessNestedInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferrer_businessNestedInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferred_businessNestedInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedUpdateManyWithoutConverted_businessNestedInput
+  platform_action_logs?: Prisma.PlatformActionLogUncheckedUpdateManyWithoutBusinessNestedInput
+}
+
+export type BusinessCreateWithoutReferral_leads_convertedInput = {
+  id?: string
+  name: string
+  slug: string
+  initials: string
+  description?: string | null
+  imageUrl?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  booking_horizon_days?: number
+  booking_min_lead_minutes?: number
+  booking_slot_interval_minutes?: number
+  public_allow_full_payment?: boolean
+  public_allow_downpayment?: boolean
+  public_default_payment_type?: string
+  booking_v2_enabled?: boolean
+  same_day_attendance_strict_minutes?: number
+  commission_calculation_basis?: $Enums.CommissionCalculationBasis
+  created_at?: Date | string
+  updated_at?: Date | string
+  services?: Prisma.ServiceCreateNestedManyWithoutBusinessInput
+  employees?: Prisma.EmployeeCreateNestedManyWithoutBusinessInput
+  owners?: Prisma.OwnerCreateNestedManyWithoutBusinessInput
+  customers?: Prisma.CustomerCreateNestedManyWithoutBusinessInput
+  bookings?: Prisma.BookingCreateNestedManyWithoutBusinessInput
+  sale_events?: Prisma.SaleEventCreateNestedManyWithoutBusinessInput
+  vouchers?: Prisma.VoucherCreateNestedManyWithoutBusinessInput
+  gift_cards?: Prisma.GiftCardCreateNestedManyWithoutBusinessInput
+  special_dates?: Prisma.SpecialDateCreateNestedManyWithoutBusinessInput
+  packages?: Prisma.ServicePackageCreateNestedManyWithoutBusinessInput
+  leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
+  business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
+  service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.BusinessSubscriptionCreateNestedManyWithoutBusinessInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceCreateNestedManyWithoutBusinessInput
+  referral_code?: Prisma.ReferralCodeCreateNestedOneWithoutBusinessInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionCreateNestedManyWithoutReferrer_businessInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionCreateNestedManyWithoutReferred_businessInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationCreateNestedManyWithoutConverted_businessInput
+  platform_action_logs?: Prisma.PlatformActionLogCreateNestedManyWithoutBusinessInput
+}
+
+export type BusinessUncheckedCreateWithoutReferral_leads_convertedInput = {
+  id?: string
+  name: string
+  slug: string
+  initials: string
+  description?: string | null
+  imageUrl?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  booking_horizon_days?: number
+  booking_min_lead_minutes?: number
+  booking_slot_interval_minutes?: number
+  public_allow_full_payment?: boolean
+  public_allow_downpayment?: boolean
+  public_default_payment_type?: string
+  booking_v2_enabled?: boolean
+  same_day_attendance_strict_minutes?: number
+  commission_calculation_basis?: $Enums.CommissionCalculationBasis
+  created_at?: Date | string
+  updated_at?: Date | string
+  services?: Prisma.ServiceUncheckedCreateNestedManyWithoutBusinessInput
+  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutBusinessInput
+  owners?: Prisma.OwnerUncheckedCreateNestedManyWithoutBusinessInput
+  customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutBusinessInput
+  bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutBusinessInput
+  sale_events?: Prisma.SaleEventUncheckedCreateNestedManyWithoutBusinessInput
+  vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutBusinessInput
+  gift_cards?: Prisma.GiftCardUncheckedCreateNestedManyWithoutBusinessInput
+  special_dates?: Prisma.SpecialDateUncheckedCreateNestedManyWithoutBusinessInput
+  packages?: Prisma.ServicePackageUncheckedCreateNestedManyWithoutBusinessInput
+  leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
+  business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
+  service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.BusinessSubscriptionUncheckedCreateNestedManyWithoutBusinessInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedCreateNestedManyWithoutBusinessInput
+  referral_code?: Prisma.ReferralCodeUncheckedCreateNestedOneWithoutBusinessInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferrer_businessInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferred_businessInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedCreateNestedManyWithoutConverted_businessInput
+  platform_action_logs?: Prisma.PlatformActionLogUncheckedCreateNestedManyWithoutBusinessInput
+}
+
+export type BusinessCreateOrConnectWithoutReferral_leads_convertedInput = {
+  where: Prisma.BusinessWhereUniqueInput
+  create: Prisma.XOR<Prisma.BusinessCreateWithoutReferral_leads_convertedInput, Prisma.BusinessUncheckedCreateWithoutReferral_leads_convertedInput>
+}
+
+export type BusinessUpsertWithoutReferral_leads_convertedInput = {
+  update: Prisma.XOR<Prisma.BusinessUpdateWithoutReferral_leads_convertedInput, Prisma.BusinessUncheckedUpdateWithoutReferral_leads_convertedInput>
+  create: Prisma.XOR<Prisma.BusinessCreateWithoutReferral_leads_convertedInput, Prisma.BusinessUncheckedCreateWithoutReferral_leads_convertedInput>
+  where?: Prisma.BusinessWhereInput
+}
+
+export type BusinessUpdateToOneWithWhereWithoutReferral_leads_convertedInput = {
+  where?: Prisma.BusinessWhereInput
+  data: Prisma.XOR<Prisma.BusinessUpdateWithoutReferral_leads_convertedInput, Prisma.BusinessUncheckedUpdateWithoutReferral_leads_convertedInput>
+}
+
+export type BusinessUpdateWithoutReferral_leads_convertedInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  initials?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  services?: Prisma.ServiceUpdateManyWithoutBusinessNestedInput
+  employees?: Prisma.EmployeeUpdateManyWithoutBusinessNestedInput
+  owners?: Prisma.OwnerUpdateManyWithoutBusinessNestedInput
+  customers?: Prisma.CustomerUpdateManyWithoutBusinessNestedInput
+  bookings?: Prisma.BookingUpdateManyWithoutBusinessNestedInput
+  sale_events?: Prisma.SaleEventUpdateManyWithoutBusinessNestedInput
+  vouchers?: Prisma.VoucherUpdateManyWithoutBusinessNestedInput
+  gift_cards?: Prisma.GiftCardUpdateManyWithoutBusinessNestedInput
+  special_dates?: Prisma.SpecialDateUpdateManyWithoutBusinessNestedInput
+  packages?: Prisma.ServicePackageUpdateManyWithoutBusinessNestedInput
+  leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
+  business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
+  service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.BusinessSubscriptionUpdateManyWithoutBusinessNestedInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUpdateManyWithoutBusinessNestedInput
+  referral_code?: Prisma.ReferralCodeUpdateOneWithoutBusinessNestedInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUpdateManyWithoutReferrer_businessNestedInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUpdateManyWithoutReferred_businessNestedInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUpdateManyWithoutConverted_businessNestedInput
+  platform_action_logs?: Prisma.PlatformActionLogUpdateManyWithoutBusinessNestedInput
+}
+
+export type BusinessUncheckedUpdateWithoutReferral_leads_convertedInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  initials?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  services?: Prisma.ServiceUncheckedUpdateManyWithoutBusinessNestedInput
+  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutBusinessNestedInput
+  owners?: Prisma.OwnerUncheckedUpdateManyWithoutBusinessNestedInput
+  customers?: Prisma.CustomerUncheckedUpdateManyWithoutBusinessNestedInput
+  bookings?: Prisma.BookingUncheckedUpdateManyWithoutBusinessNestedInput
+  sale_events?: Prisma.SaleEventUncheckedUpdateManyWithoutBusinessNestedInput
+  vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutBusinessNestedInput
+  gift_cards?: Prisma.GiftCardUncheckedUpdateManyWithoutBusinessNestedInput
+  special_dates?: Prisma.SpecialDateUncheckedUpdateManyWithoutBusinessNestedInput
+  packages?: Prisma.ServicePackageUncheckedUpdateManyWithoutBusinessNestedInput
+  leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
+  business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
+  service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.BusinessSubscriptionUncheckedUpdateManyWithoutBusinessNestedInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedUpdateManyWithoutBusinessNestedInput
+  referral_code?: Prisma.ReferralCodeUncheckedUpdateOneWithoutBusinessNestedInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferrer_businessNestedInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferred_businessNestedInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedUpdateManyWithoutConverted_businessNestedInput
+  platform_action_logs?: Prisma.PlatformActionLogUncheckedUpdateManyWithoutBusinessNestedInput
+}
+
+export type BusinessCreateWithoutReferral_attributions_as_referrerInput = {
+  id?: string
+  name: string
+  slug: string
+  initials: string
+  description?: string | null
+  imageUrl?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  booking_horizon_days?: number
+  booking_min_lead_minutes?: number
+  booking_slot_interval_minutes?: number
+  public_allow_full_payment?: boolean
+  public_allow_downpayment?: boolean
+  public_default_payment_type?: string
+  booking_v2_enabled?: boolean
+  same_day_attendance_strict_minutes?: number
+  commission_calculation_basis?: $Enums.CommissionCalculationBasis
+  created_at?: Date | string
+  updated_at?: Date | string
+  services?: Prisma.ServiceCreateNestedManyWithoutBusinessInput
+  employees?: Prisma.EmployeeCreateNestedManyWithoutBusinessInput
+  owners?: Prisma.OwnerCreateNestedManyWithoutBusinessInput
+  customers?: Prisma.CustomerCreateNestedManyWithoutBusinessInput
+  bookings?: Prisma.BookingCreateNestedManyWithoutBusinessInput
+  sale_events?: Prisma.SaleEventCreateNestedManyWithoutBusinessInput
+  vouchers?: Prisma.VoucherCreateNestedManyWithoutBusinessInput
+  gift_cards?: Prisma.GiftCardCreateNestedManyWithoutBusinessInput
+  special_dates?: Prisma.SpecialDateCreateNestedManyWithoutBusinessInput
+  packages?: Prisma.ServicePackageCreateNestedManyWithoutBusinessInput
+  leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
+  business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
+  service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.BusinessSubscriptionCreateNestedManyWithoutBusinessInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceCreateNestedManyWithoutBusinessInput
+  referral_code?: Prisma.ReferralCodeCreateNestedOneWithoutBusinessInput
+  referral_leads_converted?: Prisma.ReferralLeadCreateNestedManyWithoutConverted_businessInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionCreateNestedManyWithoutReferred_businessInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationCreateNestedManyWithoutConverted_businessInput
+  platform_action_logs?: Prisma.PlatformActionLogCreateNestedManyWithoutBusinessInput
+}
+
+export type BusinessUncheckedCreateWithoutReferral_attributions_as_referrerInput = {
+  id?: string
+  name: string
+  slug: string
+  initials: string
+  description?: string | null
+  imageUrl?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  booking_horizon_days?: number
+  booking_min_lead_minutes?: number
+  booking_slot_interval_minutes?: number
+  public_allow_full_payment?: boolean
+  public_allow_downpayment?: boolean
+  public_default_payment_type?: string
+  booking_v2_enabled?: boolean
+  same_day_attendance_strict_minutes?: number
+  commission_calculation_basis?: $Enums.CommissionCalculationBasis
+  created_at?: Date | string
+  updated_at?: Date | string
+  services?: Prisma.ServiceUncheckedCreateNestedManyWithoutBusinessInput
+  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutBusinessInput
+  owners?: Prisma.OwnerUncheckedCreateNestedManyWithoutBusinessInput
+  customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutBusinessInput
+  bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutBusinessInput
+  sale_events?: Prisma.SaleEventUncheckedCreateNestedManyWithoutBusinessInput
+  vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutBusinessInput
+  gift_cards?: Prisma.GiftCardUncheckedCreateNestedManyWithoutBusinessInput
+  special_dates?: Prisma.SpecialDateUncheckedCreateNestedManyWithoutBusinessInput
+  packages?: Prisma.ServicePackageUncheckedCreateNestedManyWithoutBusinessInput
+  leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
+  business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
+  service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.BusinessSubscriptionUncheckedCreateNestedManyWithoutBusinessInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedCreateNestedManyWithoutBusinessInput
+  referral_code?: Prisma.ReferralCodeUncheckedCreateNestedOneWithoutBusinessInput
+  referral_leads_converted?: Prisma.ReferralLeadUncheckedCreateNestedManyWithoutConverted_businessInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferred_businessInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedCreateNestedManyWithoutConverted_businessInput
+  platform_action_logs?: Prisma.PlatformActionLogUncheckedCreateNestedManyWithoutBusinessInput
+}
+
+export type BusinessCreateOrConnectWithoutReferral_attributions_as_referrerInput = {
+  where: Prisma.BusinessWhereUniqueInput
+  create: Prisma.XOR<Prisma.BusinessCreateWithoutReferral_attributions_as_referrerInput, Prisma.BusinessUncheckedCreateWithoutReferral_attributions_as_referrerInput>
+}
+
+export type BusinessCreateWithoutReferral_attributions_as_referredInput = {
+  id?: string
+  name: string
+  slug: string
+  initials: string
+  description?: string | null
+  imageUrl?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  booking_horizon_days?: number
+  booking_min_lead_minutes?: number
+  booking_slot_interval_minutes?: number
+  public_allow_full_payment?: boolean
+  public_allow_downpayment?: boolean
+  public_default_payment_type?: string
+  booking_v2_enabled?: boolean
+  same_day_attendance_strict_minutes?: number
+  commission_calculation_basis?: $Enums.CommissionCalculationBasis
+  created_at?: Date | string
+  updated_at?: Date | string
+  services?: Prisma.ServiceCreateNestedManyWithoutBusinessInput
+  employees?: Prisma.EmployeeCreateNestedManyWithoutBusinessInput
+  owners?: Prisma.OwnerCreateNestedManyWithoutBusinessInput
+  customers?: Prisma.CustomerCreateNestedManyWithoutBusinessInput
+  bookings?: Prisma.BookingCreateNestedManyWithoutBusinessInput
+  sale_events?: Prisma.SaleEventCreateNestedManyWithoutBusinessInput
+  vouchers?: Prisma.VoucherCreateNestedManyWithoutBusinessInput
+  gift_cards?: Prisma.GiftCardCreateNestedManyWithoutBusinessInput
+  special_dates?: Prisma.SpecialDateCreateNestedManyWithoutBusinessInput
+  packages?: Prisma.ServicePackageCreateNestedManyWithoutBusinessInput
+  leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
+  business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
+  service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.BusinessSubscriptionCreateNestedManyWithoutBusinessInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceCreateNestedManyWithoutBusinessInput
+  referral_code?: Prisma.ReferralCodeCreateNestedOneWithoutBusinessInput
+  referral_leads_converted?: Prisma.ReferralLeadCreateNestedManyWithoutConverted_businessInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionCreateNestedManyWithoutReferrer_businessInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationCreateNestedManyWithoutConverted_businessInput
+  platform_action_logs?: Prisma.PlatformActionLogCreateNestedManyWithoutBusinessInput
+}
+
+export type BusinessUncheckedCreateWithoutReferral_attributions_as_referredInput = {
+  id?: string
+  name: string
+  slug: string
+  initials: string
+  description?: string | null
+  imageUrl?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  booking_horizon_days?: number
+  booking_min_lead_minutes?: number
+  booking_slot_interval_minutes?: number
+  public_allow_full_payment?: boolean
+  public_allow_downpayment?: boolean
+  public_default_payment_type?: string
+  booking_v2_enabled?: boolean
+  same_day_attendance_strict_minutes?: number
+  commission_calculation_basis?: $Enums.CommissionCalculationBasis
+  created_at?: Date | string
+  updated_at?: Date | string
+  services?: Prisma.ServiceUncheckedCreateNestedManyWithoutBusinessInput
+  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutBusinessInput
+  owners?: Prisma.OwnerUncheckedCreateNestedManyWithoutBusinessInput
+  customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutBusinessInput
+  bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutBusinessInput
+  sale_events?: Prisma.SaleEventUncheckedCreateNestedManyWithoutBusinessInput
+  vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutBusinessInput
+  gift_cards?: Prisma.GiftCardUncheckedCreateNestedManyWithoutBusinessInput
+  special_dates?: Prisma.SpecialDateUncheckedCreateNestedManyWithoutBusinessInput
+  packages?: Prisma.ServicePackageUncheckedCreateNestedManyWithoutBusinessInput
+  leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
+  business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
+  service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.BusinessSubscriptionUncheckedCreateNestedManyWithoutBusinessInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedCreateNestedManyWithoutBusinessInput
+  referral_code?: Prisma.ReferralCodeUncheckedCreateNestedOneWithoutBusinessInput
+  referral_leads_converted?: Prisma.ReferralLeadUncheckedCreateNestedManyWithoutConverted_businessInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferrer_businessInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedCreateNestedManyWithoutConverted_businessInput
+  platform_action_logs?: Prisma.PlatformActionLogUncheckedCreateNestedManyWithoutBusinessInput
+}
+
+export type BusinessCreateOrConnectWithoutReferral_attributions_as_referredInput = {
+  where: Prisma.BusinessWhereUniqueInput
+  create: Prisma.XOR<Prisma.BusinessCreateWithoutReferral_attributions_as_referredInput, Prisma.BusinessUncheckedCreateWithoutReferral_attributions_as_referredInput>
+}
+
+export type BusinessUpsertWithoutReferral_attributions_as_referrerInput = {
+  update: Prisma.XOR<Prisma.BusinessUpdateWithoutReferral_attributions_as_referrerInput, Prisma.BusinessUncheckedUpdateWithoutReferral_attributions_as_referrerInput>
+  create: Prisma.XOR<Prisma.BusinessCreateWithoutReferral_attributions_as_referrerInput, Prisma.BusinessUncheckedCreateWithoutReferral_attributions_as_referrerInput>
+  where?: Prisma.BusinessWhereInput
+}
+
+export type BusinessUpdateToOneWithWhereWithoutReferral_attributions_as_referrerInput = {
+  where?: Prisma.BusinessWhereInput
+  data: Prisma.XOR<Prisma.BusinessUpdateWithoutReferral_attributions_as_referrerInput, Prisma.BusinessUncheckedUpdateWithoutReferral_attributions_as_referrerInput>
+}
+
+export type BusinessUpdateWithoutReferral_attributions_as_referrerInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  initials?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  services?: Prisma.ServiceUpdateManyWithoutBusinessNestedInput
+  employees?: Prisma.EmployeeUpdateManyWithoutBusinessNestedInput
+  owners?: Prisma.OwnerUpdateManyWithoutBusinessNestedInput
+  customers?: Prisma.CustomerUpdateManyWithoutBusinessNestedInput
+  bookings?: Prisma.BookingUpdateManyWithoutBusinessNestedInput
+  sale_events?: Prisma.SaleEventUpdateManyWithoutBusinessNestedInput
+  vouchers?: Prisma.VoucherUpdateManyWithoutBusinessNestedInput
+  gift_cards?: Prisma.GiftCardUpdateManyWithoutBusinessNestedInput
+  special_dates?: Prisma.SpecialDateUpdateManyWithoutBusinessNestedInput
+  packages?: Prisma.ServicePackageUpdateManyWithoutBusinessNestedInput
+  leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
+  business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
+  service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.BusinessSubscriptionUpdateManyWithoutBusinessNestedInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUpdateManyWithoutBusinessNestedInput
+  referral_code?: Prisma.ReferralCodeUpdateOneWithoutBusinessNestedInput
+  referral_leads_converted?: Prisma.ReferralLeadUpdateManyWithoutConverted_businessNestedInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUpdateManyWithoutReferred_businessNestedInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUpdateManyWithoutConverted_businessNestedInput
+  platform_action_logs?: Prisma.PlatformActionLogUpdateManyWithoutBusinessNestedInput
+}
+
+export type BusinessUncheckedUpdateWithoutReferral_attributions_as_referrerInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  initials?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  services?: Prisma.ServiceUncheckedUpdateManyWithoutBusinessNestedInput
+  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutBusinessNestedInput
+  owners?: Prisma.OwnerUncheckedUpdateManyWithoutBusinessNestedInput
+  customers?: Prisma.CustomerUncheckedUpdateManyWithoutBusinessNestedInput
+  bookings?: Prisma.BookingUncheckedUpdateManyWithoutBusinessNestedInput
+  sale_events?: Prisma.SaleEventUncheckedUpdateManyWithoutBusinessNestedInput
+  vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutBusinessNestedInput
+  gift_cards?: Prisma.GiftCardUncheckedUpdateManyWithoutBusinessNestedInput
+  special_dates?: Prisma.SpecialDateUncheckedUpdateManyWithoutBusinessNestedInput
+  packages?: Prisma.ServicePackageUncheckedUpdateManyWithoutBusinessNestedInput
+  leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
+  business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
+  service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.BusinessSubscriptionUncheckedUpdateManyWithoutBusinessNestedInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedUpdateManyWithoutBusinessNestedInput
+  referral_code?: Prisma.ReferralCodeUncheckedUpdateOneWithoutBusinessNestedInput
+  referral_leads_converted?: Prisma.ReferralLeadUncheckedUpdateManyWithoutConverted_businessNestedInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferred_businessNestedInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedUpdateManyWithoutConverted_businessNestedInput
+  platform_action_logs?: Prisma.PlatformActionLogUncheckedUpdateManyWithoutBusinessNestedInput
+}
+
+export type BusinessUpsertWithoutReferral_attributions_as_referredInput = {
+  update: Prisma.XOR<Prisma.BusinessUpdateWithoutReferral_attributions_as_referredInput, Prisma.BusinessUncheckedUpdateWithoutReferral_attributions_as_referredInput>
+  create: Prisma.XOR<Prisma.BusinessCreateWithoutReferral_attributions_as_referredInput, Prisma.BusinessUncheckedCreateWithoutReferral_attributions_as_referredInput>
+  where?: Prisma.BusinessWhereInput
+}
+
+export type BusinessUpdateToOneWithWhereWithoutReferral_attributions_as_referredInput = {
+  where?: Prisma.BusinessWhereInput
+  data: Prisma.XOR<Prisma.BusinessUpdateWithoutReferral_attributions_as_referredInput, Prisma.BusinessUncheckedUpdateWithoutReferral_attributions_as_referredInput>
+}
+
+export type BusinessUpdateWithoutReferral_attributions_as_referredInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  initials?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  services?: Prisma.ServiceUpdateManyWithoutBusinessNestedInput
+  employees?: Prisma.EmployeeUpdateManyWithoutBusinessNestedInput
+  owners?: Prisma.OwnerUpdateManyWithoutBusinessNestedInput
+  customers?: Prisma.CustomerUpdateManyWithoutBusinessNestedInput
+  bookings?: Prisma.BookingUpdateManyWithoutBusinessNestedInput
+  sale_events?: Prisma.SaleEventUpdateManyWithoutBusinessNestedInput
+  vouchers?: Prisma.VoucherUpdateManyWithoutBusinessNestedInput
+  gift_cards?: Prisma.GiftCardUpdateManyWithoutBusinessNestedInput
+  special_dates?: Prisma.SpecialDateUpdateManyWithoutBusinessNestedInput
+  packages?: Prisma.ServicePackageUpdateManyWithoutBusinessNestedInput
+  leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
+  business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
+  service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.BusinessSubscriptionUpdateManyWithoutBusinessNestedInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUpdateManyWithoutBusinessNestedInput
+  referral_code?: Prisma.ReferralCodeUpdateOneWithoutBusinessNestedInput
+  referral_leads_converted?: Prisma.ReferralLeadUpdateManyWithoutConverted_businessNestedInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUpdateManyWithoutReferrer_businessNestedInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUpdateManyWithoutConverted_businessNestedInput
+  platform_action_logs?: Prisma.PlatformActionLogUpdateManyWithoutBusinessNestedInput
+}
+
+export type BusinessUncheckedUpdateWithoutReferral_attributions_as_referredInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  initials?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  services?: Prisma.ServiceUncheckedUpdateManyWithoutBusinessNestedInput
+  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutBusinessNestedInput
+  owners?: Prisma.OwnerUncheckedUpdateManyWithoutBusinessNestedInput
+  customers?: Prisma.CustomerUncheckedUpdateManyWithoutBusinessNestedInput
+  bookings?: Prisma.BookingUncheckedUpdateManyWithoutBusinessNestedInput
+  sale_events?: Prisma.SaleEventUncheckedUpdateManyWithoutBusinessNestedInput
+  vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutBusinessNestedInput
+  gift_cards?: Prisma.GiftCardUncheckedUpdateManyWithoutBusinessNestedInput
+  special_dates?: Prisma.SpecialDateUncheckedUpdateManyWithoutBusinessNestedInput
+  packages?: Prisma.ServicePackageUncheckedUpdateManyWithoutBusinessNestedInput
+  leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
+  business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
+  service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.BusinessSubscriptionUncheckedUpdateManyWithoutBusinessNestedInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedUpdateManyWithoutBusinessNestedInput
+  referral_code?: Prisma.ReferralCodeUncheckedUpdateOneWithoutBusinessNestedInput
+  referral_leads_converted?: Prisma.ReferralLeadUncheckedUpdateManyWithoutConverted_businessNestedInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferrer_businessNestedInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedUpdateManyWithoutConverted_businessNestedInput
+  platform_action_logs?: Prisma.PlatformActionLogUncheckedUpdateManyWithoutBusinessNestedInput
+}
+
+export type BusinessCreateWithoutOnboarding_applications_convertedInput = {
+  id?: string
+  name: string
+  slug: string
+  initials: string
+  description?: string | null
+  imageUrl?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  booking_horizon_days?: number
+  booking_min_lead_minutes?: number
+  booking_slot_interval_minutes?: number
+  public_allow_full_payment?: boolean
+  public_allow_downpayment?: boolean
+  public_default_payment_type?: string
+  booking_v2_enabled?: boolean
+  same_day_attendance_strict_minutes?: number
+  commission_calculation_basis?: $Enums.CommissionCalculationBasis
+  created_at?: Date | string
+  updated_at?: Date | string
+  services?: Prisma.ServiceCreateNestedManyWithoutBusinessInput
+  employees?: Prisma.EmployeeCreateNestedManyWithoutBusinessInput
+  owners?: Prisma.OwnerCreateNestedManyWithoutBusinessInput
+  customers?: Prisma.CustomerCreateNestedManyWithoutBusinessInput
+  bookings?: Prisma.BookingCreateNestedManyWithoutBusinessInput
+  sale_events?: Prisma.SaleEventCreateNestedManyWithoutBusinessInput
+  vouchers?: Prisma.VoucherCreateNestedManyWithoutBusinessInput
+  gift_cards?: Prisma.GiftCardCreateNestedManyWithoutBusinessInput
+  special_dates?: Prisma.SpecialDateCreateNestedManyWithoutBusinessInput
+  packages?: Prisma.ServicePackageCreateNestedManyWithoutBusinessInput
+  leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
+  business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
+  service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.BusinessSubscriptionCreateNestedManyWithoutBusinessInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceCreateNestedManyWithoutBusinessInput
+  referral_code?: Prisma.ReferralCodeCreateNestedOneWithoutBusinessInput
+  referral_leads_converted?: Prisma.ReferralLeadCreateNestedManyWithoutConverted_businessInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionCreateNestedManyWithoutReferrer_businessInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionCreateNestedManyWithoutReferred_businessInput
+  platform_action_logs?: Prisma.PlatformActionLogCreateNestedManyWithoutBusinessInput
+}
+
+export type BusinessUncheckedCreateWithoutOnboarding_applications_convertedInput = {
+  id?: string
+  name: string
+  slug: string
+  initials: string
+  description?: string | null
+  imageUrl?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  booking_horizon_days?: number
+  booking_min_lead_minutes?: number
+  booking_slot_interval_minutes?: number
+  public_allow_full_payment?: boolean
+  public_allow_downpayment?: boolean
+  public_default_payment_type?: string
+  booking_v2_enabled?: boolean
+  same_day_attendance_strict_minutes?: number
+  commission_calculation_basis?: $Enums.CommissionCalculationBasis
+  created_at?: Date | string
+  updated_at?: Date | string
+  services?: Prisma.ServiceUncheckedCreateNestedManyWithoutBusinessInput
+  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutBusinessInput
+  owners?: Prisma.OwnerUncheckedCreateNestedManyWithoutBusinessInput
+  customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutBusinessInput
+  bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutBusinessInput
+  sale_events?: Prisma.SaleEventUncheckedCreateNestedManyWithoutBusinessInput
+  vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutBusinessInput
+  gift_cards?: Prisma.GiftCardUncheckedCreateNestedManyWithoutBusinessInput
+  special_dates?: Prisma.SpecialDateUncheckedCreateNestedManyWithoutBusinessInput
+  packages?: Prisma.ServicePackageUncheckedCreateNestedManyWithoutBusinessInput
+  leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
+  business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
+  service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.BusinessSubscriptionUncheckedCreateNestedManyWithoutBusinessInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedCreateNestedManyWithoutBusinessInput
+  referral_code?: Prisma.ReferralCodeUncheckedCreateNestedOneWithoutBusinessInput
+  referral_leads_converted?: Prisma.ReferralLeadUncheckedCreateNestedManyWithoutConverted_businessInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferrer_businessInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferred_businessInput
+  platform_action_logs?: Prisma.PlatformActionLogUncheckedCreateNestedManyWithoutBusinessInput
+}
+
+export type BusinessCreateOrConnectWithoutOnboarding_applications_convertedInput = {
+  where: Prisma.BusinessWhereUniqueInput
+  create: Prisma.XOR<Prisma.BusinessCreateWithoutOnboarding_applications_convertedInput, Prisma.BusinessUncheckedCreateWithoutOnboarding_applications_convertedInput>
+}
+
+export type BusinessUpsertWithoutOnboarding_applications_convertedInput = {
+  update: Prisma.XOR<Prisma.BusinessUpdateWithoutOnboarding_applications_convertedInput, Prisma.BusinessUncheckedUpdateWithoutOnboarding_applications_convertedInput>
+  create: Prisma.XOR<Prisma.BusinessCreateWithoutOnboarding_applications_convertedInput, Prisma.BusinessUncheckedCreateWithoutOnboarding_applications_convertedInput>
+  where?: Prisma.BusinessWhereInput
+}
+
+export type BusinessUpdateToOneWithWhereWithoutOnboarding_applications_convertedInput = {
+  where?: Prisma.BusinessWhereInput
+  data: Prisma.XOR<Prisma.BusinessUpdateWithoutOnboarding_applications_convertedInput, Prisma.BusinessUncheckedUpdateWithoutOnboarding_applications_convertedInput>
+}
+
+export type BusinessUpdateWithoutOnboarding_applications_convertedInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  initials?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  services?: Prisma.ServiceUpdateManyWithoutBusinessNestedInput
+  employees?: Prisma.EmployeeUpdateManyWithoutBusinessNestedInput
+  owners?: Prisma.OwnerUpdateManyWithoutBusinessNestedInput
+  customers?: Prisma.CustomerUpdateManyWithoutBusinessNestedInput
+  bookings?: Prisma.BookingUpdateManyWithoutBusinessNestedInput
+  sale_events?: Prisma.SaleEventUpdateManyWithoutBusinessNestedInput
+  vouchers?: Prisma.VoucherUpdateManyWithoutBusinessNestedInput
+  gift_cards?: Prisma.GiftCardUpdateManyWithoutBusinessNestedInput
+  special_dates?: Prisma.SpecialDateUpdateManyWithoutBusinessNestedInput
+  packages?: Prisma.ServicePackageUpdateManyWithoutBusinessNestedInput
+  leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
+  business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
+  service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.BusinessSubscriptionUpdateManyWithoutBusinessNestedInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUpdateManyWithoutBusinessNestedInput
+  referral_code?: Prisma.ReferralCodeUpdateOneWithoutBusinessNestedInput
+  referral_leads_converted?: Prisma.ReferralLeadUpdateManyWithoutConverted_businessNestedInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUpdateManyWithoutReferrer_businessNestedInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUpdateManyWithoutReferred_businessNestedInput
+  platform_action_logs?: Prisma.PlatformActionLogUpdateManyWithoutBusinessNestedInput
+}
+
+export type BusinessUncheckedUpdateWithoutOnboarding_applications_convertedInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  initials?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  services?: Prisma.ServiceUncheckedUpdateManyWithoutBusinessNestedInput
+  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutBusinessNestedInput
+  owners?: Prisma.OwnerUncheckedUpdateManyWithoutBusinessNestedInput
+  customers?: Prisma.CustomerUncheckedUpdateManyWithoutBusinessNestedInput
+  bookings?: Prisma.BookingUncheckedUpdateManyWithoutBusinessNestedInput
+  sale_events?: Prisma.SaleEventUncheckedUpdateManyWithoutBusinessNestedInput
+  vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutBusinessNestedInput
+  gift_cards?: Prisma.GiftCardUncheckedUpdateManyWithoutBusinessNestedInput
+  special_dates?: Prisma.SpecialDateUncheckedUpdateManyWithoutBusinessNestedInput
+  packages?: Prisma.ServicePackageUncheckedUpdateManyWithoutBusinessNestedInput
+  leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
+  business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
+  service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.BusinessSubscriptionUncheckedUpdateManyWithoutBusinessNestedInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedUpdateManyWithoutBusinessNestedInput
+  referral_code?: Prisma.ReferralCodeUncheckedUpdateOneWithoutBusinessNestedInput
+  referral_leads_converted?: Prisma.ReferralLeadUncheckedUpdateManyWithoutConverted_businessNestedInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferrer_businessNestedInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferred_businessNestedInput
+  platform_action_logs?: Prisma.PlatformActionLogUncheckedUpdateManyWithoutBusinessNestedInput
+}
+
+export type BusinessCreateWithoutPlatform_action_logsInput = {
+  id?: string
+  name: string
+  slug: string
+  initials: string
+  description?: string | null
+  imageUrl?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  booking_horizon_days?: number
+  booking_min_lead_minutes?: number
+  booking_slot_interval_minutes?: number
+  public_allow_full_payment?: boolean
+  public_allow_downpayment?: boolean
+  public_default_payment_type?: string
+  booking_v2_enabled?: boolean
+  same_day_attendance_strict_minutes?: number
+  commission_calculation_basis?: $Enums.CommissionCalculationBasis
+  created_at?: Date | string
+  updated_at?: Date | string
+  services?: Prisma.ServiceCreateNestedManyWithoutBusinessInput
+  employees?: Prisma.EmployeeCreateNestedManyWithoutBusinessInput
+  owners?: Prisma.OwnerCreateNestedManyWithoutBusinessInput
+  customers?: Prisma.CustomerCreateNestedManyWithoutBusinessInput
+  bookings?: Prisma.BookingCreateNestedManyWithoutBusinessInput
+  sale_events?: Prisma.SaleEventCreateNestedManyWithoutBusinessInput
+  vouchers?: Prisma.VoucherCreateNestedManyWithoutBusinessInput
+  gift_cards?: Prisma.GiftCardCreateNestedManyWithoutBusinessInput
+  special_dates?: Prisma.SpecialDateCreateNestedManyWithoutBusinessInput
+  packages?: Prisma.ServicePackageCreateNestedManyWithoutBusinessInput
+  leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
+  business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
+  service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.BusinessSubscriptionCreateNestedManyWithoutBusinessInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceCreateNestedManyWithoutBusinessInput
+  referral_code?: Prisma.ReferralCodeCreateNestedOneWithoutBusinessInput
+  referral_leads_converted?: Prisma.ReferralLeadCreateNestedManyWithoutConverted_businessInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionCreateNestedManyWithoutReferrer_businessInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionCreateNestedManyWithoutReferred_businessInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationCreateNestedManyWithoutConverted_businessInput
+}
+
+export type BusinessUncheckedCreateWithoutPlatform_action_logsInput = {
+  id?: string
+  name: string
+  slug: string
+  initials: string
+  description?: string | null
+  imageUrl?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  booking_horizon_days?: number
+  booking_min_lead_minutes?: number
+  booking_slot_interval_minutes?: number
+  public_allow_full_payment?: boolean
+  public_allow_downpayment?: boolean
+  public_default_payment_type?: string
+  booking_v2_enabled?: boolean
+  same_day_attendance_strict_minutes?: number
+  commission_calculation_basis?: $Enums.CommissionCalculationBasis
+  created_at?: Date | string
+  updated_at?: Date | string
+  services?: Prisma.ServiceUncheckedCreateNestedManyWithoutBusinessInput
+  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutBusinessInput
+  owners?: Prisma.OwnerUncheckedCreateNestedManyWithoutBusinessInput
+  customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutBusinessInput
+  bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutBusinessInput
+  sale_events?: Prisma.SaleEventUncheckedCreateNestedManyWithoutBusinessInput
+  vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutBusinessInput
+  gift_cards?: Prisma.GiftCardUncheckedCreateNestedManyWithoutBusinessInput
+  special_dates?: Prisma.SpecialDateUncheckedCreateNestedManyWithoutBusinessInput
+  packages?: Prisma.ServicePackageUncheckedCreateNestedManyWithoutBusinessInput
+  leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
+  business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
+  service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.BusinessSubscriptionUncheckedCreateNestedManyWithoutBusinessInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedCreateNestedManyWithoutBusinessInput
+  referral_code?: Prisma.ReferralCodeUncheckedCreateNestedOneWithoutBusinessInput
+  referral_leads_converted?: Prisma.ReferralLeadUncheckedCreateNestedManyWithoutConverted_businessInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferrer_businessInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferred_businessInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedCreateNestedManyWithoutConverted_businessInput
+}
+
+export type BusinessCreateOrConnectWithoutPlatform_action_logsInput = {
+  where: Prisma.BusinessWhereUniqueInput
+  create: Prisma.XOR<Prisma.BusinessCreateWithoutPlatform_action_logsInput, Prisma.BusinessUncheckedCreateWithoutPlatform_action_logsInput>
+}
+
+export type BusinessUpsertWithoutPlatform_action_logsInput = {
+  update: Prisma.XOR<Prisma.BusinessUpdateWithoutPlatform_action_logsInput, Prisma.BusinessUncheckedUpdateWithoutPlatform_action_logsInput>
+  create: Prisma.XOR<Prisma.BusinessCreateWithoutPlatform_action_logsInput, Prisma.BusinessUncheckedCreateWithoutPlatform_action_logsInput>
+  where?: Prisma.BusinessWhereInput
+}
+
+export type BusinessUpdateToOneWithWhereWithoutPlatform_action_logsInput = {
+  where?: Prisma.BusinessWhereInput
+  data: Prisma.XOR<Prisma.BusinessUpdateWithoutPlatform_action_logsInput, Prisma.BusinessUncheckedUpdateWithoutPlatform_action_logsInput>
+}
+
+export type BusinessUpdateWithoutPlatform_action_logsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  initials?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  services?: Prisma.ServiceUpdateManyWithoutBusinessNestedInput
+  employees?: Prisma.EmployeeUpdateManyWithoutBusinessNestedInput
+  owners?: Prisma.OwnerUpdateManyWithoutBusinessNestedInput
+  customers?: Prisma.CustomerUpdateManyWithoutBusinessNestedInput
+  bookings?: Prisma.BookingUpdateManyWithoutBusinessNestedInput
+  sale_events?: Prisma.SaleEventUpdateManyWithoutBusinessNestedInput
+  vouchers?: Prisma.VoucherUpdateManyWithoutBusinessNestedInput
+  gift_cards?: Prisma.GiftCardUpdateManyWithoutBusinessNestedInput
+  special_dates?: Prisma.SpecialDateUpdateManyWithoutBusinessNestedInput
+  packages?: Prisma.ServicePackageUpdateManyWithoutBusinessNestedInput
+  leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
+  business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
+  service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.BusinessSubscriptionUpdateManyWithoutBusinessNestedInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUpdateManyWithoutBusinessNestedInput
+  referral_code?: Prisma.ReferralCodeUpdateOneWithoutBusinessNestedInput
+  referral_leads_converted?: Prisma.ReferralLeadUpdateManyWithoutConverted_businessNestedInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUpdateManyWithoutReferrer_businessNestedInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUpdateManyWithoutReferred_businessNestedInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUpdateManyWithoutConverted_businessNestedInput
+}
+
+export type BusinessUncheckedUpdateWithoutPlatform_action_logsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  initials?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  services?: Prisma.ServiceUncheckedUpdateManyWithoutBusinessNestedInput
+  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutBusinessNestedInput
+  owners?: Prisma.OwnerUncheckedUpdateManyWithoutBusinessNestedInput
+  customers?: Prisma.CustomerUncheckedUpdateManyWithoutBusinessNestedInput
+  bookings?: Prisma.BookingUncheckedUpdateManyWithoutBusinessNestedInput
+  sale_events?: Prisma.SaleEventUncheckedUpdateManyWithoutBusinessNestedInput
+  vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutBusinessNestedInput
+  gift_cards?: Prisma.GiftCardUncheckedUpdateManyWithoutBusinessNestedInput
+  special_dates?: Prisma.SpecialDateUncheckedUpdateManyWithoutBusinessNestedInput
+  packages?: Prisma.ServicePackageUncheckedUpdateManyWithoutBusinessNestedInput
+  leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
+  business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
+  service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.BusinessSubscriptionUncheckedUpdateManyWithoutBusinessNestedInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedUpdateManyWithoutBusinessNestedInput
+  referral_code?: Prisma.ReferralCodeUncheckedUpdateOneWithoutBusinessNestedInput
+  referral_leads_converted?: Prisma.ReferralLeadUncheckedUpdateManyWithoutConverted_businessNestedInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferrer_businessNestedInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferred_businessNestedInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedUpdateManyWithoutConverted_businessNestedInput
 }
 
 export type BusinessCreateWithoutServicesInput = {
@@ -1518,6 +3765,14 @@ export type BusinessCreateWithoutServicesInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  booking_horizon_days?: number
+  booking_min_lead_minutes?: number
+  booking_slot_interval_minutes?: number
+  public_allow_full_payment?: boolean
+  public_allow_downpayment?: boolean
+  public_default_payment_type?: string
+  booking_v2_enabled?: boolean
+  same_day_attendance_strict_minutes?: number
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -1533,6 +3788,14 @@ export type BusinessCreateWithoutServicesInput = {
   leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.BusinessSubscriptionCreateNestedManyWithoutBusinessInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceCreateNestedManyWithoutBusinessInput
+  referral_code?: Prisma.ReferralCodeCreateNestedOneWithoutBusinessInput
+  referral_leads_converted?: Prisma.ReferralLeadCreateNestedManyWithoutConverted_businessInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionCreateNestedManyWithoutReferrer_businessInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionCreateNestedManyWithoutReferred_businessInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationCreateNestedManyWithoutConverted_businessInput
+  platform_action_logs?: Prisma.PlatformActionLogCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateWithoutServicesInput = {
@@ -1544,6 +3807,14 @@ export type BusinessUncheckedCreateWithoutServicesInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  booking_horizon_days?: number
+  booking_min_lead_minutes?: number
+  booking_slot_interval_minutes?: number
+  public_allow_full_payment?: boolean
+  public_allow_downpayment?: boolean
+  public_default_payment_type?: string
+  booking_v2_enabled?: boolean
+  same_day_attendance_strict_minutes?: number
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -1559,6 +3830,14 @@ export type BusinessUncheckedCreateWithoutServicesInput = {
   leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.BusinessSubscriptionUncheckedCreateNestedManyWithoutBusinessInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedCreateNestedManyWithoutBusinessInput
+  referral_code?: Prisma.ReferralCodeUncheckedCreateNestedOneWithoutBusinessInput
+  referral_leads_converted?: Prisma.ReferralLeadUncheckedCreateNestedManyWithoutConverted_businessInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferrer_businessInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferred_businessInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedCreateNestedManyWithoutConverted_businessInput
+  platform_action_logs?: Prisma.PlatformActionLogUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessCreateOrConnectWithoutServicesInput = {
@@ -1586,6 +3865,14 @@ export type BusinessUpdateWithoutServicesInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1601,6 +3888,14 @@ export type BusinessUpdateWithoutServicesInput = {
   leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.BusinessSubscriptionUpdateManyWithoutBusinessNestedInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUpdateManyWithoutBusinessNestedInput
+  referral_code?: Prisma.ReferralCodeUpdateOneWithoutBusinessNestedInput
+  referral_leads_converted?: Prisma.ReferralLeadUpdateManyWithoutConverted_businessNestedInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUpdateManyWithoutReferrer_businessNestedInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUpdateManyWithoutReferred_businessNestedInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUpdateManyWithoutConverted_businessNestedInput
+  platform_action_logs?: Prisma.PlatformActionLogUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateWithoutServicesInput = {
@@ -1612,6 +3907,14 @@ export type BusinessUncheckedUpdateWithoutServicesInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1627,6 +3930,14 @@ export type BusinessUncheckedUpdateWithoutServicesInput = {
   leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.BusinessSubscriptionUncheckedUpdateManyWithoutBusinessNestedInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedUpdateManyWithoutBusinessNestedInput
+  referral_code?: Prisma.ReferralCodeUncheckedUpdateOneWithoutBusinessNestedInput
+  referral_leads_converted?: Prisma.ReferralLeadUncheckedUpdateManyWithoutConverted_businessNestedInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferrer_businessNestedInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferred_businessNestedInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedUpdateManyWithoutConverted_businessNestedInput
+  platform_action_logs?: Prisma.PlatformActionLogUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessCreateWithoutPackagesInput = {
@@ -1638,6 +3949,14 @@ export type BusinessCreateWithoutPackagesInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  booking_horizon_days?: number
+  booking_min_lead_minutes?: number
+  booking_slot_interval_minutes?: number
+  public_allow_full_payment?: boolean
+  public_allow_downpayment?: boolean
+  public_default_payment_type?: string
+  booking_v2_enabled?: boolean
+  same_day_attendance_strict_minutes?: number
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -1653,6 +3972,14 @@ export type BusinessCreateWithoutPackagesInput = {
   leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.BusinessSubscriptionCreateNestedManyWithoutBusinessInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceCreateNestedManyWithoutBusinessInput
+  referral_code?: Prisma.ReferralCodeCreateNestedOneWithoutBusinessInput
+  referral_leads_converted?: Prisma.ReferralLeadCreateNestedManyWithoutConverted_businessInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionCreateNestedManyWithoutReferrer_businessInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionCreateNestedManyWithoutReferred_businessInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationCreateNestedManyWithoutConverted_businessInput
+  platform_action_logs?: Prisma.PlatformActionLogCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateWithoutPackagesInput = {
@@ -1664,6 +3991,14 @@ export type BusinessUncheckedCreateWithoutPackagesInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  booking_horizon_days?: number
+  booking_min_lead_minutes?: number
+  booking_slot_interval_minutes?: number
+  public_allow_full_payment?: boolean
+  public_allow_downpayment?: boolean
+  public_default_payment_type?: string
+  booking_v2_enabled?: boolean
+  same_day_attendance_strict_minutes?: number
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -1679,6 +4014,14 @@ export type BusinessUncheckedCreateWithoutPackagesInput = {
   leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.BusinessSubscriptionUncheckedCreateNestedManyWithoutBusinessInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedCreateNestedManyWithoutBusinessInput
+  referral_code?: Prisma.ReferralCodeUncheckedCreateNestedOneWithoutBusinessInput
+  referral_leads_converted?: Prisma.ReferralLeadUncheckedCreateNestedManyWithoutConverted_businessInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferrer_businessInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferred_businessInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedCreateNestedManyWithoutConverted_businessInput
+  platform_action_logs?: Prisma.PlatformActionLogUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessCreateOrConnectWithoutPackagesInput = {
@@ -1706,6 +4049,14 @@ export type BusinessUpdateWithoutPackagesInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1721,6 +4072,14 @@ export type BusinessUpdateWithoutPackagesInput = {
   leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.BusinessSubscriptionUpdateManyWithoutBusinessNestedInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUpdateManyWithoutBusinessNestedInput
+  referral_code?: Prisma.ReferralCodeUpdateOneWithoutBusinessNestedInput
+  referral_leads_converted?: Prisma.ReferralLeadUpdateManyWithoutConverted_businessNestedInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUpdateManyWithoutReferrer_businessNestedInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUpdateManyWithoutReferred_businessNestedInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUpdateManyWithoutConverted_businessNestedInput
+  platform_action_logs?: Prisma.PlatformActionLogUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateWithoutPackagesInput = {
@@ -1732,6 +4091,14 @@ export type BusinessUncheckedUpdateWithoutPackagesInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1747,6 +4114,14 @@ export type BusinessUncheckedUpdateWithoutPackagesInput = {
   leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.BusinessSubscriptionUncheckedUpdateManyWithoutBusinessNestedInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedUpdateManyWithoutBusinessNestedInput
+  referral_code?: Prisma.ReferralCodeUncheckedUpdateOneWithoutBusinessNestedInput
+  referral_leads_converted?: Prisma.ReferralLeadUncheckedUpdateManyWithoutConverted_businessNestedInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferrer_businessNestedInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferred_businessNestedInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedUpdateManyWithoutConverted_businessNestedInput
+  platform_action_logs?: Prisma.PlatformActionLogUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessCreateWithoutCustomersInput = {
@@ -1758,6 +4133,14 @@ export type BusinessCreateWithoutCustomersInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  booking_horizon_days?: number
+  booking_min_lead_minutes?: number
+  booking_slot_interval_minutes?: number
+  public_allow_full_payment?: boolean
+  public_allow_downpayment?: boolean
+  public_default_payment_type?: string
+  booking_v2_enabled?: boolean
+  same_day_attendance_strict_minutes?: number
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -1773,6 +4156,14 @@ export type BusinessCreateWithoutCustomersInput = {
   leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.BusinessSubscriptionCreateNestedManyWithoutBusinessInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceCreateNestedManyWithoutBusinessInput
+  referral_code?: Prisma.ReferralCodeCreateNestedOneWithoutBusinessInput
+  referral_leads_converted?: Prisma.ReferralLeadCreateNestedManyWithoutConverted_businessInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionCreateNestedManyWithoutReferrer_businessInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionCreateNestedManyWithoutReferred_businessInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationCreateNestedManyWithoutConverted_businessInput
+  platform_action_logs?: Prisma.PlatformActionLogCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateWithoutCustomersInput = {
@@ -1784,6 +4175,14 @@ export type BusinessUncheckedCreateWithoutCustomersInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  booking_horizon_days?: number
+  booking_min_lead_minutes?: number
+  booking_slot_interval_minutes?: number
+  public_allow_full_payment?: boolean
+  public_allow_downpayment?: boolean
+  public_default_payment_type?: string
+  booking_v2_enabled?: boolean
+  same_day_attendance_strict_minutes?: number
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -1799,6 +4198,14 @@ export type BusinessUncheckedCreateWithoutCustomersInput = {
   leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.BusinessSubscriptionUncheckedCreateNestedManyWithoutBusinessInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedCreateNestedManyWithoutBusinessInput
+  referral_code?: Prisma.ReferralCodeUncheckedCreateNestedOneWithoutBusinessInput
+  referral_leads_converted?: Prisma.ReferralLeadUncheckedCreateNestedManyWithoutConverted_businessInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferrer_businessInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferred_businessInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedCreateNestedManyWithoutConverted_businessInput
+  platform_action_logs?: Prisma.PlatformActionLogUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessCreateOrConnectWithoutCustomersInput = {
@@ -1826,6 +4233,14 @@ export type BusinessUpdateWithoutCustomersInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1841,6 +4256,14 @@ export type BusinessUpdateWithoutCustomersInput = {
   leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.BusinessSubscriptionUpdateManyWithoutBusinessNestedInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUpdateManyWithoutBusinessNestedInput
+  referral_code?: Prisma.ReferralCodeUpdateOneWithoutBusinessNestedInput
+  referral_leads_converted?: Prisma.ReferralLeadUpdateManyWithoutConverted_businessNestedInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUpdateManyWithoutReferrer_businessNestedInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUpdateManyWithoutReferred_businessNestedInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUpdateManyWithoutConverted_businessNestedInput
+  platform_action_logs?: Prisma.PlatformActionLogUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateWithoutCustomersInput = {
@@ -1852,6 +4275,14 @@ export type BusinessUncheckedUpdateWithoutCustomersInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1867,6 +4298,14 @@ export type BusinessUncheckedUpdateWithoutCustomersInput = {
   leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.BusinessSubscriptionUncheckedUpdateManyWithoutBusinessNestedInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedUpdateManyWithoutBusinessNestedInput
+  referral_code?: Prisma.ReferralCodeUncheckedUpdateOneWithoutBusinessNestedInput
+  referral_leads_converted?: Prisma.ReferralLeadUncheckedUpdateManyWithoutConverted_businessNestedInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferrer_businessNestedInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferred_businessNestedInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedUpdateManyWithoutConverted_businessNestedInput
+  platform_action_logs?: Prisma.PlatformActionLogUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessCreateWithoutBookingsInput = {
@@ -1878,6 +4317,14 @@ export type BusinessCreateWithoutBookingsInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  booking_horizon_days?: number
+  booking_min_lead_minutes?: number
+  booking_slot_interval_minutes?: number
+  public_allow_full_payment?: boolean
+  public_allow_downpayment?: boolean
+  public_default_payment_type?: string
+  booking_v2_enabled?: boolean
+  same_day_attendance_strict_minutes?: number
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -1893,6 +4340,14 @@ export type BusinessCreateWithoutBookingsInput = {
   leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.BusinessSubscriptionCreateNestedManyWithoutBusinessInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceCreateNestedManyWithoutBusinessInput
+  referral_code?: Prisma.ReferralCodeCreateNestedOneWithoutBusinessInput
+  referral_leads_converted?: Prisma.ReferralLeadCreateNestedManyWithoutConverted_businessInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionCreateNestedManyWithoutReferrer_businessInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionCreateNestedManyWithoutReferred_businessInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationCreateNestedManyWithoutConverted_businessInput
+  platform_action_logs?: Prisma.PlatformActionLogCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateWithoutBookingsInput = {
@@ -1904,6 +4359,14 @@ export type BusinessUncheckedCreateWithoutBookingsInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  booking_horizon_days?: number
+  booking_min_lead_minutes?: number
+  booking_slot_interval_minutes?: number
+  public_allow_full_payment?: boolean
+  public_allow_downpayment?: boolean
+  public_default_payment_type?: string
+  booking_v2_enabled?: boolean
+  same_day_attendance_strict_minutes?: number
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -1919,6 +4382,14 @@ export type BusinessUncheckedCreateWithoutBookingsInput = {
   leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.BusinessSubscriptionUncheckedCreateNestedManyWithoutBusinessInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedCreateNestedManyWithoutBusinessInput
+  referral_code?: Prisma.ReferralCodeUncheckedCreateNestedOneWithoutBusinessInput
+  referral_leads_converted?: Prisma.ReferralLeadUncheckedCreateNestedManyWithoutConverted_businessInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferrer_businessInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferred_businessInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedCreateNestedManyWithoutConverted_businessInput
+  platform_action_logs?: Prisma.PlatformActionLogUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessCreateOrConnectWithoutBookingsInput = {
@@ -1946,6 +4417,14 @@ export type BusinessUpdateWithoutBookingsInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1961,6 +4440,14 @@ export type BusinessUpdateWithoutBookingsInput = {
   leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.BusinessSubscriptionUpdateManyWithoutBusinessNestedInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUpdateManyWithoutBusinessNestedInput
+  referral_code?: Prisma.ReferralCodeUpdateOneWithoutBusinessNestedInput
+  referral_leads_converted?: Prisma.ReferralLeadUpdateManyWithoutConverted_businessNestedInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUpdateManyWithoutReferrer_businessNestedInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUpdateManyWithoutReferred_businessNestedInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUpdateManyWithoutConverted_businessNestedInput
+  platform_action_logs?: Prisma.PlatformActionLogUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateWithoutBookingsInput = {
@@ -1972,6 +4459,14 @@ export type BusinessUncheckedUpdateWithoutBookingsInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1987,6 +4482,14 @@ export type BusinessUncheckedUpdateWithoutBookingsInput = {
   leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.BusinessSubscriptionUncheckedUpdateManyWithoutBusinessNestedInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedUpdateManyWithoutBusinessNestedInput
+  referral_code?: Prisma.ReferralCodeUncheckedUpdateOneWithoutBusinessNestedInput
+  referral_leads_converted?: Prisma.ReferralLeadUncheckedUpdateManyWithoutConverted_businessNestedInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferrer_businessNestedInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferred_businessNestedInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedUpdateManyWithoutConverted_businessNestedInput
+  platform_action_logs?: Prisma.PlatformActionLogUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessCreateWithoutVouchersInput = {
@@ -1998,6 +4501,14 @@ export type BusinessCreateWithoutVouchersInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  booking_horizon_days?: number
+  booking_min_lead_minutes?: number
+  booking_slot_interval_minutes?: number
+  public_allow_full_payment?: boolean
+  public_allow_downpayment?: boolean
+  public_default_payment_type?: string
+  booking_v2_enabled?: boolean
+  same_day_attendance_strict_minutes?: number
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -2013,6 +4524,14 @@ export type BusinessCreateWithoutVouchersInput = {
   leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.BusinessSubscriptionCreateNestedManyWithoutBusinessInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceCreateNestedManyWithoutBusinessInput
+  referral_code?: Prisma.ReferralCodeCreateNestedOneWithoutBusinessInput
+  referral_leads_converted?: Prisma.ReferralLeadCreateNestedManyWithoutConverted_businessInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionCreateNestedManyWithoutReferrer_businessInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionCreateNestedManyWithoutReferred_businessInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationCreateNestedManyWithoutConverted_businessInput
+  platform_action_logs?: Prisma.PlatformActionLogCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateWithoutVouchersInput = {
@@ -2024,6 +4543,14 @@ export type BusinessUncheckedCreateWithoutVouchersInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  booking_horizon_days?: number
+  booking_min_lead_minutes?: number
+  booking_slot_interval_minutes?: number
+  public_allow_full_payment?: boolean
+  public_allow_downpayment?: boolean
+  public_default_payment_type?: string
+  booking_v2_enabled?: boolean
+  same_day_attendance_strict_minutes?: number
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -2039,6 +4566,14 @@ export type BusinessUncheckedCreateWithoutVouchersInput = {
   leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.BusinessSubscriptionUncheckedCreateNestedManyWithoutBusinessInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedCreateNestedManyWithoutBusinessInput
+  referral_code?: Prisma.ReferralCodeUncheckedCreateNestedOneWithoutBusinessInput
+  referral_leads_converted?: Prisma.ReferralLeadUncheckedCreateNestedManyWithoutConverted_businessInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferrer_businessInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferred_businessInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedCreateNestedManyWithoutConverted_businessInput
+  platform_action_logs?: Prisma.PlatformActionLogUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessCreateOrConnectWithoutVouchersInput = {
@@ -2066,6 +4601,14 @@ export type BusinessUpdateWithoutVouchersInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2081,6 +4624,14 @@ export type BusinessUpdateWithoutVouchersInput = {
   leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.BusinessSubscriptionUpdateManyWithoutBusinessNestedInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUpdateManyWithoutBusinessNestedInput
+  referral_code?: Prisma.ReferralCodeUpdateOneWithoutBusinessNestedInput
+  referral_leads_converted?: Prisma.ReferralLeadUpdateManyWithoutConverted_businessNestedInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUpdateManyWithoutReferrer_businessNestedInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUpdateManyWithoutReferred_businessNestedInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUpdateManyWithoutConverted_businessNestedInput
+  platform_action_logs?: Prisma.PlatformActionLogUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateWithoutVouchersInput = {
@@ -2092,6 +4643,14 @@ export type BusinessUncheckedUpdateWithoutVouchersInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2107,6 +4666,14 @@ export type BusinessUncheckedUpdateWithoutVouchersInput = {
   leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.BusinessSubscriptionUncheckedUpdateManyWithoutBusinessNestedInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedUpdateManyWithoutBusinessNestedInput
+  referral_code?: Prisma.ReferralCodeUncheckedUpdateOneWithoutBusinessNestedInput
+  referral_leads_converted?: Prisma.ReferralLeadUncheckedUpdateManyWithoutConverted_businessNestedInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferrer_businessNestedInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferred_businessNestedInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedUpdateManyWithoutConverted_businessNestedInput
+  platform_action_logs?: Prisma.PlatformActionLogUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessCreateWithoutGift_cardsInput = {
@@ -2118,6 +4685,14 @@ export type BusinessCreateWithoutGift_cardsInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  booking_horizon_days?: number
+  booking_min_lead_minutes?: number
+  booking_slot_interval_minutes?: number
+  public_allow_full_payment?: boolean
+  public_allow_downpayment?: boolean
+  public_default_payment_type?: string
+  booking_v2_enabled?: boolean
+  same_day_attendance_strict_minutes?: number
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -2133,6 +4708,14 @@ export type BusinessCreateWithoutGift_cardsInput = {
   leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.BusinessSubscriptionCreateNestedManyWithoutBusinessInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceCreateNestedManyWithoutBusinessInput
+  referral_code?: Prisma.ReferralCodeCreateNestedOneWithoutBusinessInput
+  referral_leads_converted?: Prisma.ReferralLeadCreateNestedManyWithoutConverted_businessInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionCreateNestedManyWithoutReferrer_businessInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionCreateNestedManyWithoutReferred_businessInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationCreateNestedManyWithoutConverted_businessInput
+  platform_action_logs?: Prisma.PlatformActionLogCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateWithoutGift_cardsInput = {
@@ -2144,6 +4727,14 @@ export type BusinessUncheckedCreateWithoutGift_cardsInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  booking_horizon_days?: number
+  booking_min_lead_minutes?: number
+  booking_slot_interval_minutes?: number
+  public_allow_full_payment?: boolean
+  public_allow_downpayment?: boolean
+  public_default_payment_type?: string
+  booking_v2_enabled?: boolean
+  same_day_attendance_strict_minutes?: number
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -2159,6 +4750,14 @@ export type BusinessUncheckedCreateWithoutGift_cardsInput = {
   leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
   service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.BusinessSubscriptionUncheckedCreateNestedManyWithoutBusinessInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedCreateNestedManyWithoutBusinessInput
+  referral_code?: Prisma.ReferralCodeUncheckedCreateNestedOneWithoutBusinessInput
+  referral_leads_converted?: Prisma.ReferralLeadUncheckedCreateNestedManyWithoutConverted_businessInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferrer_businessInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferred_businessInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedCreateNestedManyWithoutConverted_businessInput
+  platform_action_logs?: Prisma.PlatformActionLogUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessCreateOrConnectWithoutGift_cardsInput = {
@@ -2186,6 +4785,14 @@ export type BusinessUpdateWithoutGift_cardsInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2201,6 +4808,14 @@ export type BusinessUpdateWithoutGift_cardsInput = {
   leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.BusinessSubscriptionUpdateManyWithoutBusinessNestedInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUpdateManyWithoutBusinessNestedInput
+  referral_code?: Prisma.ReferralCodeUpdateOneWithoutBusinessNestedInput
+  referral_leads_converted?: Prisma.ReferralLeadUpdateManyWithoutConverted_businessNestedInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUpdateManyWithoutReferrer_businessNestedInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUpdateManyWithoutReferred_businessNestedInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUpdateManyWithoutConverted_businessNestedInput
+  platform_action_logs?: Prisma.PlatformActionLogUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateWithoutGift_cardsInput = {
@@ -2212,6 +4827,14 @@ export type BusinessUncheckedUpdateWithoutGift_cardsInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2227,6 +4850,14 @@ export type BusinessUncheckedUpdateWithoutGift_cardsInput = {
   leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
   service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.BusinessSubscriptionUncheckedUpdateManyWithoutBusinessNestedInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedUpdateManyWithoutBusinessNestedInput
+  referral_code?: Prisma.ReferralCodeUncheckedUpdateOneWithoutBusinessNestedInput
+  referral_leads_converted?: Prisma.ReferralLeadUncheckedUpdateManyWithoutConverted_businessNestedInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferrer_businessNestedInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferred_businessNestedInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedUpdateManyWithoutConverted_businessNestedInput
+  platform_action_logs?: Prisma.PlatformActionLogUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessCreateWithoutService_flowsInput = {
@@ -2238,6 +4869,14 @@ export type BusinessCreateWithoutService_flowsInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  booking_horizon_days?: number
+  booking_min_lead_minutes?: number
+  booking_slot_interval_minutes?: number
+  public_allow_full_payment?: boolean
+  public_allow_downpayment?: boolean
+  public_default_payment_type?: string
+  booking_v2_enabled?: boolean
+  same_day_attendance_strict_minutes?: number
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -2253,6 +4892,14 @@ export type BusinessCreateWithoutService_flowsInput = {
   packages?: Prisma.ServicePackageCreateNestedManyWithoutBusinessInput
   leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.BusinessSubscriptionCreateNestedManyWithoutBusinessInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceCreateNestedManyWithoutBusinessInput
+  referral_code?: Prisma.ReferralCodeCreateNestedOneWithoutBusinessInput
+  referral_leads_converted?: Prisma.ReferralLeadCreateNestedManyWithoutConverted_businessInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionCreateNestedManyWithoutReferrer_businessInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionCreateNestedManyWithoutReferred_businessInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationCreateNestedManyWithoutConverted_businessInput
+  platform_action_logs?: Prisma.PlatformActionLogCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateWithoutService_flowsInput = {
@@ -2264,6 +4911,14 @@ export type BusinessUncheckedCreateWithoutService_flowsInput = {
   imageUrl?: string | null
   latitude?: number | null
   longitude?: number | null
+  booking_horizon_days?: number
+  booking_min_lead_minutes?: number
+  booking_slot_interval_minutes?: number
+  public_allow_full_payment?: boolean
+  public_allow_downpayment?: boolean
+  public_default_payment_type?: string
+  booking_v2_enabled?: boolean
+  same_day_attendance_strict_minutes?: number
   commission_calculation_basis?: $Enums.CommissionCalculationBasis
   created_at?: Date | string
   updated_at?: Date | string
@@ -2279,6 +4934,14 @@ export type BusinessUncheckedCreateWithoutService_flowsInput = {
   packages?: Prisma.ServicePackageUncheckedCreateNestedManyWithoutBusinessInput
   leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
   business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.BusinessSubscriptionUncheckedCreateNestedManyWithoutBusinessInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedCreateNestedManyWithoutBusinessInput
+  referral_code?: Prisma.ReferralCodeUncheckedCreateNestedOneWithoutBusinessInput
+  referral_leads_converted?: Prisma.ReferralLeadUncheckedCreateNestedManyWithoutConverted_businessInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferrer_businessInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferred_businessInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedCreateNestedManyWithoutConverted_businessInput
+  platform_action_logs?: Prisma.PlatformActionLogUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessCreateOrConnectWithoutService_flowsInput = {
@@ -2306,6 +4969,14 @@ export type BusinessUpdateWithoutService_flowsInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2321,6 +4992,14 @@ export type BusinessUpdateWithoutService_flowsInput = {
   packages?: Prisma.ServicePackageUpdateManyWithoutBusinessNestedInput
   leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.BusinessSubscriptionUpdateManyWithoutBusinessNestedInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUpdateManyWithoutBusinessNestedInput
+  referral_code?: Prisma.ReferralCodeUpdateOneWithoutBusinessNestedInput
+  referral_leads_converted?: Prisma.ReferralLeadUpdateManyWithoutConverted_businessNestedInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUpdateManyWithoutReferrer_businessNestedInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUpdateManyWithoutReferred_businessNestedInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUpdateManyWithoutConverted_businessNestedInput
+  platform_action_logs?: Prisma.PlatformActionLogUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateWithoutService_flowsInput = {
@@ -2332,6 +5011,14 @@ export type BusinessUncheckedUpdateWithoutService_flowsInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
   commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2347,6 +5034,14 @@ export type BusinessUncheckedUpdateWithoutService_flowsInput = {
   packages?: Prisma.ServicePackageUncheckedUpdateManyWithoutBusinessNestedInput
   leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
   business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.BusinessSubscriptionUncheckedUpdateManyWithoutBusinessNestedInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedUpdateManyWithoutBusinessNestedInput
+  referral_code?: Prisma.ReferralCodeUncheckedUpdateOneWithoutBusinessNestedInput
+  referral_leads_converted?: Prisma.ReferralLeadUncheckedUpdateManyWithoutConverted_businessNestedInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferrer_businessNestedInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferred_businessNestedInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedUpdateManyWithoutConverted_businessNestedInput
+  platform_action_logs?: Prisma.PlatformActionLogUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 
@@ -2368,6 +5063,13 @@ export type BusinessCountOutputType = {
   leave_requests: number
   business_hours: number
   service_flows: number
+  subscriptions: number
+  subscription_invoices: number
+  referral_leads_converted: number
+  referral_attributions_as_referrer: number
+  referral_attributions_as_referred: number
+  onboarding_applications_converted: number
+  platform_action_logs: number
 }
 
 export type BusinessCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2384,6 +5086,13 @@ export type BusinessCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensio
   leave_requests?: boolean | BusinessCountOutputTypeCountLeave_requestsArgs
   business_hours?: boolean | BusinessCountOutputTypeCountBusiness_hoursArgs
   service_flows?: boolean | BusinessCountOutputTypeCountService_flowsArgs
+  subscriptions?: boolean | BusinessCountOutputTypeCountSubscriptionsArgs
+  subscription_invoices?: boolean | BusinessCountOutputTypeCountSubscription_invoicesArgs
+  referral_leads_converted?: boolean | BusinessCountOutputTypeCountReferral_leads_convertedArgs
+  referral_attributions_as_referrer?: boolean | BusinessCountOutputTypeCountReferral_attributions_as_referrerArgs
+  referral_attributions_as_referred?: boolean | BusinessCountOutputTypeCountReferral_attributions_as_referredArgs
+  onboarding_applications_converted?: boolean | BusinessCountOutputTypeCountOnboarding_applications_convertedArgs
+  platform_action_logs?: boolean | BusinessCountOutputTypeCountPlatform_action_logsArgs
 }
 
 /**
@@ -2487,6 +5196,55 @@ export type BusinessCountOutputTypeCountService_flowsArgs<ExtArgs extends runtim
   where?: Prisma.ServiceFlowWhereInput
 }
 
+/**
+ * BusinessCountOutputType without action
+ */
+export type BusinessCountOutputTypeCountSubscriptionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.BusinessSubscriptionWhereInput
+}
+
+/**
+ * BusinessCountOutputType without action
+ */
+export type BusinessCountOutputTypeCountSubscription_invoicesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SubscriptionInvoiceWhereInput
+}
+
+/**
+ * BusinessCountOutputType without action
+ */
+export type BusinessCountOutputTypeCountReferral_leads_convertedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ReferralLeadWhereInput
+}
+
+/**
+ * BusinessCountOutputType without action
+ */
+export type BusinessCountOutputTypeCountReferral_attributions_as_referrerArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ReferralAttributionWhereInput
+}
+
+/**
+ * BusinessCountOutputType without action
+ */
+export type BusinessCountOutputTypeCountReferral_attributions_as_referredArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ReferralAttributionWhereInput
+}
+
+/**
+ * BusinessCountOutputType without action
+ */
+export type BusinessCountOutputTypeCountOnboarding_applications_convertedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.OnboardingApplicationWhereInput
+}
+
+/**
+ * BusinessCountOutputType without action
+ */
+export type BusinessCountOutputTypeCountPlatform_action_logsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PlatformActionLogWhereInput
+}
+
 
 export type BusinessSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -2497,6 +5255,14 @@ export type BusinessSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   imageUrl?: boolean
   latitude?: boolean
   longitude?: boolean
+  booking_horizon_days?: boolean
+  booking_min_lead_minutes?: boolean
+  booking_slot_interval_minutes?: boolean
+  public_allow_full_payment?: boolean
+  public_allow_downpayment?: boolean
+  public_default_payment_type?: boolean
+  booking_v2_enabled?: boolean
+  same_day_attendance_strict_minutes?: boolean
   commission_calculation_basis?: boolean
   created_at?: boolean
   updated_at?: boolean
@@ -2513,6 +5279,14 @@ export type BusinessSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   leave_requests?: boolean | Prisma.Business$leave_requestsArgs<ExtArgs>
   business_hours?: boolean | Prisma.Business$business_hoursArgs<ExtArgs>
   service_flows?: boolean | Prisma.Business$service_flowsArgs<ExtArgs>
+  subscriptions?: boolean | Prisma.Business$subscriptionsArgs<ExtArgs>
+  subscription_invoices?: boolean | Prisma.Business$subscription_invoicesArgs<ExtArgs>
+  referral_code?: boolean | Prisma.Business$referral_codeArgs<ExtArgs>
+  referral_leads_converted?: boolean | Prisma.Business$referral_leads_convertedArgs<ExtArgs>
+  referral_attributions_as_referrer?: boolean | Prisma.Business$referral_attributions_as_referrerArgs<ExtArgs>
+  referral_attributions_as_referred?: boolean | Prisma.Business$referral_attributions_as_referredArgs<ExtArgs>
+  onboarding_applications_converted?: boolean | Prisma.Business$onboarding_applications_convertedArgs<ExtArgs>
+  platform_action_logs?: boolean | Prisma.Business$platform_action_logsArgs<ExtArgs>
   _count?: boolean | Prisma.BusinessCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["business"]>
 
@@ -2525,6 +5299,14 @@ export type BusinessSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   imageUrl?: boolean
   latitude?: boolean
   longitude?: boolean
+  booking_horizon_days?: boolean
+  booking_min_lead_minutes?: boolean
+  booking_slot_interval_minutes?: boolean
+  public_allow_full_payment?: boolean
+  public_allow_downpayment?: boolean
+  public_default_payment_type?: boolean
+  booking_v2_enabled?: boolean
+  same_day_attendance_strict_minutes?: boolean
   commission_calculation_basis?: boolean
   created_at?: boolean
   updated_at?: boolean
@@ -2539,6 +5321,14 @@ export type BusinessSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   imageUrl?: boolean
   latitude?: boolean
   longitude?: boolean
+  booking_horizon_days?: boolean
+  booking_min_lead_minutes?: boolean
+  booking_slot_interval_minutes?: boolean
+  public_allow_full_payment?: boolean
+  public_allow_downpayment?: boolean
+  public_default_payment_type?: boolean
+  booking_v2_enabled?: boolean
+  same_day_attendance_strict_minutes?: boolean
   commission_calculation_basis?: boolean
   created_at?: boolean
   updated_at?: boolean
@@ -2553,12 +5343,20 @@ export type BusinessSelectScalar = {
   imageUrl?: boolean
   latitude?: boolean
   longitude?: boolean
+  booking_horizon_days?: boolean
+  booking_min_lead_minutes?: boolean
+  booking_slot_interval_minutes?: boolean
+  public_allow_full_payment?: boolean
+  public_allow_downpayment?: boolean
+  public_default_payment_type?: boolean
+  booking_v2_enabled?: boolean
+  same_day_attendance_strict_minutes?: boolean
   commission_calculation_basis?: boolean
   created_at?: boolean
   updated_at?: boolean
 }
 
-export type BusinessOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "initials" | "description" | "imageUrl" | "latitude" | "longitude" | "commission_calculation_basis" | "created_at" | "updated_at", ExtArgs["result"]["business"]>
+export type BusinessOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "initials" | "description" | "imageUrl" | "latitude" | "longitude" | "booking_horizon_days" | "booking_min_lead_minutes" | "booking_slot_interval_minutes" | "public_allow_full_payment" | "public_allow_downpayment" | "public_default_payment_type" | "booking_v2_enabled" | "same_day_attendance_strict_minutes" | "commission_calculation_basis" | "created_at" | "updated_at", ExtArgs["result"]["business"]>
 export type BusinessInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   services?: boolean | Prisma.Business$servicesArgs<ExtArgs>
   employees?: boolean | Prisma.Business$employeesArgs<ExtArgs>
@@ -2573,6 +5371,14 @@ export type BusinessInclude<ExtArgs extends runtime.Types.Extensions.InternalArg
   leave_requests?: boolean | Prisma.Business$leave_requestsArgs<ExtArgs>
   business_hours?: boolean | Prisma.Business$business_hoursArgs<ExtArgs>
   service_flows?: boolean | Prisma.Business$service_flowsArgs<ExtArgs>
+  subscriptions?: boolean | Prisma.Business$subscriptionsArgs<ExtArgs>
+  subscription_invoices?: boolean | Prisma.Business$subscription_invoicesArgs<ExtArgs>
+  referral_code?: boolean | Prisma.Business$referral_codeArgs<ExtArgs>
+  referral_leads_converted?: boolean | Prisma.Business$referral_leads_convertedArgs<ExtArgs>
+  referral_attributions_as_referrer?: boolean | Prisma.Business$referral_attributions_as_referrerArgs<ExtArgs>
+  referral_attributions_as_referred?: boolean | Prisma.Business$referral_attributions_as_referredArgs<ExtArgs>
+  onboarding_applications_converted?: boolean | Prisma.Business$onboarding_applications_convertedArgs<ExtArgs>
+  platform_action_logs?: boolean | Prisma.Business$platform_action_logsArgs<ExtArgs>
   _count?: boolean | Prisma.BusinessCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type BusinessIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -2594,6 +5400,14 @@ export type $BusinessPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     leave_requests: Prisma.$LeaveRequestPayload<ExtArgs>[]
     business_hours: Prisma.$BusinessHoursPayload<ExtArgs>[]
     service_flows: Prisma.$ServiceFlowPayload<ExtArgs>[]
+    subscriptions: Prisma.$BusinessSubscriptionPayload<ExtArgs>[]
+    subscription_invoices: Prisma.$SubscriptionInvoicePayload<ExtArgs>[]
+    referral_code: Prisma.$ReferralCodePayload<ExtArgs> | null
+    referral_leads_converted: Prisma.$ReferralLeadPayload<ExtArgs>[]
+    referral_attributions_as_referrer: Prisma.$ReferralAttributionPayload<ExtArgs>[]
+    referral_attributions_as_referred: Prisma.$ReferralAttributionPayload<ExtArgs>[]
+    onboarding_applications_converted: Prisma.$OnboardingApplicationPayload<ExtArgs>[]
+    platform_action_logs: Prisma.$PlatformActionLogPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -2604,6 +5418,14 @@ export type $BusinessPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     imageUrl: string | null
     latitude: number | null
     longitude: number | null
+    booking_horizon_days: number
+    booking_min_lead_minutes: number
+    booking_slot_interval_minutes: number
+    public_allow_full_payment: boolean
+    public_allow_downpayment: boolean
+    public_default_payment_type: string
+    booking_v2_enabled: boolean
+    same_day_attendance_strict_minutes: number
     commission_calculation_basis: $Enums.CommissionCalculationBasis
     created_at: Date
     updated_at: Date
@@ -3014,6 +5836,14 @@ export interface Prisma__BusinessClient<T, Null = never, ExtArgs extends runtime
   leave_requests<T extends Prisma.Business$leave_requestsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Business$leave_requestsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LeaveRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   business_hours<T extends Prisma.Business$business_hoursArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Business$business_hoursArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BusinessHoursPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   service_flows<T extends Prisma.Business$service_flowsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Business$service_flowsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ServiceFlowPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  subscriptions<T extends Prisma.Business$subscriptionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Business$subscriptionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BusinessSubscriptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  subscription_invoices<T extends Prisma.Business$subscription_invoicesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Business$subscription_invoicesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SubscriptionInvoicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  referral_code<T extends Prisma.Business$referral_codeArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Business$referral_codeArgs<ExtArgs>>): Prisma.Prisma__ReferralCodeClient<runtime.Types.Result.GetResult<Prisma.$ReferralCodePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  referral_leads_converted<T extends Prisma.Business$referral_leads_convertedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Business$referral_leads_convertedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReferralLeadPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  referral_attributions_as_referrer<T extends Prisma.Business$referral_attributions_as_referrerArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Business$referral_attributions_as_referrerArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReferralAttributionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  referral_attributions_as_referred<T extends Prisma.Business$referral_attributions_as_referredArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Business$referral_attributions_as_referredArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReferralAttributionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  onboarding_applications_converted<T extends Prisma.Business$onboarding_applications_convertedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Business$onboarding_applications_convertedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OnboardingApplicationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  platform_action_logs<T extends Prisma.Business$platform_action_logsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Business$platform_action_logsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PlatformActionLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3051,6 +5881,14 @@ export interface BusinessFieldRefs {
   readonly imageUrl: Prisma.FieldRef<"Business", 'String'>
   readonly latitude: Prisma.FieldRef<"Business", 'Float'>
   readonly longitude: Prisma.FieldRef<"Business", 'Float'>
+  readonly booking_horizon_days: Prisma.FieldRef<"Business", 'Int'>
+  readonly booking_min_lead_minutes: Prisma.FieldRef<"Business", 'Int'>
+  readonly booking_slot_interval_minutes: Prisma.FieldRef<"Business", 'Int'>
+  readonly public_allow_full_payment: Prisma.FieldRef<"Business", 'Boolean'>
+  readonly public_allow_downpayment: Prisma.FieldRef<"Business", 'Boolean'>
+  readonly public_default_payment_type: Prisma.FieldRef<"Business", 'String'>
+  readonly booking_v2_enabled: Prisma.FieldRef<"Business", 'Boolean'>
+  readonly same_day_attendance_strict_minutes: Prisma.FieldRef<"Business", 'Int'>
   readonly commission_calculation_basis: Prisma.FieldRef<"Business", 'CommissionCalculationBasis'>
   readonly created_at: Prisma.FieldRef<"Business", 'DateTime'>
   readonly updated_at: Prisma.FieldRef<"Business", 'DateTime'>
@@ -3751,6 +6589,193 @@ export type Business$service_flowsArgs<ExtArgs extends runtime.Types.Extensions.
   take?: number
   skip?: number
   distinct?: Prisma.ServiceFlowScalarFieldEnum | Prisma.ServiceFlowScalarFieldEnum[]
+}
+
+/**
+ * Business.subscriptions
+ */
+export type Business$subscriptionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the BusinessSubscription
+   */
+  select?: Prisma.BusinessSubscriptionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the BusinessSubscription
+   */
+  omit?: Prisma.BusinessSubscriptionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BusinessSubscriptionInclude<ExtArgs> | null
+  where?: Prisma.BusinessSubscriptionWhereInput
+  orderBy?: Prisma.BusinessSubscriptionOrderByWithRelationInput | Prisma.BusinessSubscriptionOrderByWithRelationInput[]
+  cursor?: Prisma.BusinessSubscriptionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.BusinessSubscriptionScalarFieldEnum | Prisma.BusinessSubscriptionScalarFieldEnum[]
+}
+
+/**
+ * Business.subscription_invoices
+ */
+export type Business$subscription_invoicesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SubscriptionInvoice
+   */
+  select?: Prisma.SubscriptionInvoiceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the SubscriptionInvoice
+   */
+  omit?: Prisma.SubscriptionInvoiceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SubscriptionInvoiceInclude<ExtArgs> | null
+  where?: Prisma.SubscriptionInvoiceWhereInput
+  orderBy?: Prisma.SubscriptionInvoiceOrderByWithRelationInput | Prisma.SubscriptionInvoiceOrderByWithRelationInput[]
+  cursor?: Prisma.SubscriptionInvoiceWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.SubscriptionInvoiceScalarFieldEnum | Prisma.SubscriptionInvoiceScalarFieldEnum[]
+}
+
+/**
+ * Business.referral_code
+ */
+export type Business$referral_codeArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ReferralCode
+   */
+  select?: Prisma.ReferralCodeSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ReferralCode
+   */
+  omit?: Prisma.ReferralCodeOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ReferralCodeInclude<ExtArgs> | null
+  where?: Prisma.ReferralCodeWhereInput
+}
+
+/**
+ * Business.referral_leads_converted
+ */
+export type Business$referral_leads_convertedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ReferralLead
+   */
+  select?: Prisma.ReferralLeadSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ReferralLead
+   */
+  omit?: Prisma.ReferralLeadOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ReferralLeadInclude<ExtArgs> | null
+  where?: Prisma.ReferralLeadWhereInput
+  orderBy?: Prisma.ReferralLeadOrderByWithRelationInput | Prisma.ReferralLeadOrderByWithRelationInput[]
+  cursor?: Prisma.ReferralLeadWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ReferralLeadScalarFieldEnum | Prisma.ReferralLeadScalarFieldEnum[]
+}
+
+/**
+ * Business.referral_attributions_as_referrer
+ */
+export type Business$referral_attributions_as_referrerArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ReferralAttribution
+   */
+  select?: Prisma.ReferralAttributionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ReferralAttribution
+   */
+  omit?: Prisma.ReferralAttributionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ReferralAttributionInclude<ExtArgs> | null
+  where?: Prisma.ReferralAttributionWhereInput
+  orderBy?: Prisma.ReferralAttributionOrderByWithRelationInput | Prisma.ReferralAttributionOrderByWithRelationInput[]
+  cursor?: Prisma.ReferralAttributionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ReferralAttributionScalarFieldEnum | Prisma.ReferralAttributionScalarFieldEnum[]
+}
+
+/**
+ * Business.referral_attributions_as_referred
+ */
+export type Business$referral_attributions_as_referredArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ReferralAttribution
+   */
+  select?: Prisma.ReferralAttributionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ReferralAttribution
+   */
+  omit?: Prisma.ReferralAttributionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ReferralAttributionInclude<ExtArgs> | null
+  where?: Prisma.ReferralAttributionWhereInput
+  orderBy?: Prisma.ReferralAttributionOrderByWithRelationInput | Prisma.ReferralAttributionOrderByWithRelationInput[]
+  cursor?: Prisma.ReferralAttributionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ReferralAttributionScalarFieldEnum | Prisma.ReferralAttributionScalarFieldEnum[]
+}
+
+/**
+ * Business.onboarding_applications_converted
+ */
+export type Business$onboarding_applications_convertedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the OnboardingApplication
+   */
+  select?: Prisma.OnboardingApplicationSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the OnboardingApplication
+   */
+  omit?: Prisma.OnboardingApplicationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OnboardingApplicationInclude<ExtArgs> | null
+  where?: Prisma.OnboardingApplicationWhereInput
+  orderBy?: Prisma.OnboardingApplicationOrderByWithRelationInput | Prisma.OnboardingApplicationOrderByWithRelationInput[]
+  cursor?: Prisma.OnboardingApplicationWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.OnboardingApplicationScalarFieldEnum | Prisma.OnboardingApplicationScalarFieldEnum[]
+}
+
+/**
+ * Business.platform_action_logs
+ */
+export type Business$platform_action_logsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the PlatformActionLog
+   */
+  select?: Prisma.PlatformActionLogSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the PlatformActionLog
+   */
+  omit?: Prisma.PlatformActionLogOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PlatformActionLogInclude<ExtArgs> | null
+  where?: Prisma.PlatformActionLogWhereInput
+  orderBy?: Prisma.PlatformActionLogOrderByWithRelationInput | Prisma.PlatformActionLogOrderByWithRelationInput[]
+  cursor?: Prisma.PlatformActionLogWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PlatformActionLogScalarFieldEnum | Prisma.PlatformActionLogScalarFieldEnum[]
 }
 
 /**

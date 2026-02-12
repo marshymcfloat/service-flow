@@ -13,6 +13,13 @@ import { rateLimit } from "@/lib/rate-limit";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/next auth/options";
 import { getQrExpirySeconds } from "@/lib/payments/config";
+import { getTenantAccessState, SUBSCRIPTION_READ_ONLY_ERROR } from "@/features/billing/subscription-service";
+import {
+  BookingAvailabilityError,
+  validateBookingOrThrow,
+} from "@/lib/services/booking-availability";
+import { recordBookingMetric } from "@/lib/services/booking-metrics";
+import { logger } from "@/lib/logger";
 
 interface CreateBookingParams {
   customerId?: string;
@@ -84,6 +91,8 @@ export async function createBooking({
 }: CreateBookingParams & {
   currentEmployeeId?: number;
 }): Promise<CreateBookingResult> {
+  let metricBusinessId: string | null = null;
+  let metricIsPublicBooking = false;
   try {
     const headersList = await headers();
     const forwardedFor = headersList.get("x-forwarded-for") || "";
@@ -91,16 +100,56 @@ export async function createBooking({
     const session = await getServerSession(authOptions);
 
     if (!session) {
-      const limiter = rateLimit(`public-booking:${businessSlug}:${clientIp}`, {
+      const limiter = await rateLimit(
+        `public-booking:${businessSlug}:${clientIp}`,
+        {
         windowMs: 10 * 60 * 1000,
         maxRequests: 8,
-      });
+      },
+      );
 
       if (!limiter.success) {
         throw new Error(
           "Too many booking attempts. Please wait a few minutes and try again.",
         );
       }
+    }
+
+    const accessState = await getTenantAccessState(businessSlug);
+    if (!accessState.exists) {
+      throw new Error("Business not found");
+    }
+    if (accessState.readOnly) {
+      throw new Error(SUBSCRIPTION_READ_ONLY_ERROR);
+    }
+    metricBusinessId = accessState.businessId;
+    metricIsPublicBooking = !session;
+
+    if (metricBusinessId) {
+      if (metricIsPublicBooking) {
+        await recordBookingMetric({
+          businessId: metricBusinessId,
+          action: "PUBLIC_BOOKING_STARTED",
+          outcome: "STARTED",
+          metadata: {
+            paymentMethod,
+            paymentType,
+            isWalkIn,
+          },
+        });
+      }
+
+      await recordBookingMetric({
+        businessId: metricBusinessId,
+        action: "BOOKING_SUBMIT_ATTEMPT",
+        outcome: "STARTED",
+        metadata: {
+          isPublicBooking: metricIsPublicBooking,
+          paymentMethod,
+          paymentType,
+          isWalkIn,
+        },
+      });
     }
 
     const pricing = await buildBookingPricingSnapshot({
@@ -115,6 +164,19 @@ export async function createBooking({
     const processedServices = pricing.services;
     const amountToPay = pricing.amountToPay;
     const estimatedEnd = pricing.estimatedEnd;
+
+    await validateBookingOrThrow({
+      businessSlug,
+      scheduledAt,
+      services: processedServices.map((service) => ({
+        id: service.id,
+        quantity: service.quantity,
+      })),
+      paymentType,
+      isPublicBooking: !session,
+      isWalkIn,
+      db: prisma,
+    });
 
     if (paymentMethod === "CASH") {
       const booking = await createBookingInDb({
@@ -132,7 +194,34 @@ export async function createBooking({
         phone,
         voucherCode: pricing.voucher?.code,
         totalDiscount: pricing.voucherDiscount,
+        isPublicBooking: !session,
+        isWalkIn,
       });
+
+      if (metricBusinessId) {
+        await recordBookingMetric({
+          businessId: metricBusinessId,
+          action: "BOOKING_SUBMIT_SUCCESS",
+          outcome: "SUCCESS",
+          metadata: {
+            isPublicBooking: metricIsPublicBooking,
+            paymentMethod,
+            paymentType,
+            bookingId: booking.id,
+          },
+        });
+        if (metricIsPublicBooking) {
+          await recordBookingMetric({
+            businessId: metricBusinessId,
+            action: "PUBLIC_BOOKING_COMPLETED",
+            outcome: "COMPLETED",
+            metadata: {
+              bookingId: booking.id,
+              completionPath: "CASH",
+            },
+          });
+        }
+      }
 
       if (!isWalkIn) {
         // Email is handled via Outbox (BOOKING_CONFIRMED event)
@@ -220,7 +309,24 @@ export async function createBooking({
       totalDiscount: pricing.voucherDiscount,
       paymongoPaymentIntentId: qrPayment.paymentIntentId,
       paymongoPaymentMethodId: qrPayment.paymentMethodId,
+      isPublicBooking: !session,
+      isWalkIn,
     });
+
+    if (metricBusinessId) {
+      await recordBookingMetric({
+        businessId: metricBusinessId,
+        action: "BOOKING_SUBMIT_SUCCESS",
+        outcome: "SUCCESS",
+        metadata: {
+          isPublicBooking: metricIsPublicBooking,
+          paymentMethod,
+          paymentType,
+          bookingId: booking.id,
+          completionPath: "QRPH_HOLD",
+        },
+      });
+    }
 
     revalidatePath(`/app/${businessSlug}`);
 
@@ -237,6 +343,30 @@ export async function createBooking({
       expiresAt: qrPayment.expiresAt,
     };
   } catch (err) {
+    if (err instanceof BookingAvailabilityError) {
+      if (metricBusinessId) {
+        await recordBookingMetric({
+          businessId: metricBusinessId,
+          action: "BOOKING_SUBMIT_REJECTION",
+          outcome: "REJECTED",
+          reason: err.code,
+          metadata: {
+            isPublicBooking: metricIsPublicBooking,
+          },
+        });
+      }
+      logger.warn("[BookingSubmit] Rejected", {
+        businessSlug,
+        code: err.code,
+        isPublicBooking: metricIsPublicBooking,
+      });
+      throw new Error(err.code);
+    }
+    logger.error("[BookingSubmit] Failed", {
+      businessSlug,
+      isPublicBooking: metricIsPublicBooking,
+      error: err instanceof Error ? err.message : String(err),
+    });
     console.error("Error creating booking:", err);
     throw err;
   }

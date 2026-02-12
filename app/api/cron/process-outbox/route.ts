@@ -1,123 +1,181 @@
 import { NextResponse, connection } from "next/server";
 import { prisma } from "@/prisma/prisma";
-import type { OutboxEventType } from "@/lib/services/outbox";
+import {
+  isOutboxEventType,
+  parseOutboxPayload,
+} from "@/lib/services/outbox";
 import { getCurrentDateTimePH } from "@/lib/date-utils";
+import {
+  deliverOutboxEvent,
+  isNonRetryableOutboxError,
+} from "@/lib/services/outbox-delivery";
+import { logger } from "@/lib/logger";
+import {
+  isCronAuthorized,
+  unauthorizedCronResponse,
+} from "@/lib/security/cron-auth";
 
 const MAX_ATTEMPTS = 3;
 const BATCH_SIZE = 10;
 
-/**
- * Event handler registry - add handlers for each event type here
- */
-async function handleEvent(
+type EventSummary = {
+  processed: number;
+  succeeded: number;
+  failed: number;
+  terminalFailures: number;
+  skippedNonRetryable: number;
+};
+
+function ensureEventSummary(
+  byEventType: Record<string, EventSummary>,
   eventType: string,
-  payload: Record<string, unknown>,
-  businessId: string,
-): Promise<void> {
-  switch (eventType as OutboxEventType) {
-    case "BOOKING_CREATED":
-      await handleBookingCreated(payload, businessId);
-      break;
-    case "BOOKING_CONFIRMED":
-      await handleBookingConfirmed(payload, businessId);
-      break;
-    case "BOOKING_CANCELLED":
-      await handleBookingCancelled(payload, businessId);
-      break;
-    case "PAYMENT_CONFIRMED":
-      await handlePaymentConfirmed(payload, businessId);
-      break;
-    case "REMINDER_DUE":
-      await handleReminderDue(payload, businessId);
-      break;
-    case "PAYSLIP_GENERATED":
-      await handlePayslipGenerated(payload, businessId);
-      break;
-    default:
-      console.warn(`Unknown event type: ${eventType}`);
+) {
+  if (!byEventType[eventType]) {
+    byEventType[eventType] = {
+      processed: 0,
+      succeeded: 0,
+      failed: 0,
+      terminalFailures: 0,
+      skippedNonRetryable: 0,
+    };
   }
+  return byEventType[eventType];
 }
 
-// Event handlers - implement your email/webhook logic here
-// Event handlers - implement your email/webhook logic here
-async function handleBookingCreated(
-  _payload: Record<string, unknown>,
-  _businessId: string,
-) {
-  // HOLD bookings should not trigger a confirmation email.
-  // Confirmation is emitted only after payment transitions the booking to ACCEPTED.
-  void _payload;
-  void _businessId;
-}
+export async function processOutboxBatch(input?: {
+  batchSize?: number;
+  maxAttempts?: number;
+}) {
+  const maxAttempts = input?.maxAttempts ?? MAX_ATTEMPTS;
+  const batchSize = input?.batchSize ?? BATCH_SIZE;
 
-async function handleBookingConfirmed(
-  payload: Record<string, unknown>,
-  _businessId: string,
-) {
-  void _businessId;
-  // exact same logic as created for now, as sendBookingConfirmation handles the template
-  const bookingId = payload.bookingId as number;
-  if (bookingId) {
-    const { sendBookingConfirmation } =
-      await import("@/lib/email/send-booking-details");
-    const result = await sendBookingConfirmation(bookingId);
-    if (!result || !result.success) {
-      throw new Error(
-        `Failed to send booking confirmed email: ${result?.error}`,
-      );
+  const messages = await prisma.outboxMessage.findMany({
+    where: {
+      processed: false,
+      attempts: { lt: maxAttempts },
+    },
+    orderBy: { created_at: "asc" },
+    take: batchSize,
+  });
+
+  const results: { id: string; success: boolean; error?: string }[] = [];
+  const byEventType: Record<string, EventSummary> = {};
+
+  for (const message of messages) {
+    const eventSummary = ensureEventSummary(byEventType, message.event_type);
+    eventSummary.processed += 1;
+
+    try {
+      if (!isOutboxEventType(message.event_type)) {
+        throw new Error(
+          `[Outbox] Unsupported event type "${message.event_type}"`,
+        );
+      }
+
+      const payload = parseOutboxPayload(message.event_type, message.payload);
+      await deliverOutboxEvent({
+        eventType: message.event_type,
+        payload,
+        businessId: message.business_id,
+      });
+
+      await prisma.outboxMessage.update({
+        where: { id: message.id },
+        data: {
+          processed: true,
+          processed_at: getCurrentDateTimePH(),
+        },
+      });
+
+      eventSummary.succeeded += 1;
+      results.push({ id: message.id, success: true });
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      const nonRetryable = isNonRetryableOutboxError(error);
+      const nextAttempts = message.attempts + 1;
+      const reachedTerminalAttempts = nonRetryable || nextAttempts >= maxAttempts;
+
+      if (nonRetryable) {
+        await prisma.outboxMessage.update({
+          where: { id: message.id },
+          data: {
+            processed: true,
+            processed_at: getCurrentDateTimePH(),
+            attempts: { increment: 1 },
+            last_error: `[SKIPPED_NON_RETRYABLE] ${errorMessage}`,
+          },
+        });
+      } else {
+        await prisma.outboxMessage.update({
+          where: { id: message.id },
+          data: {
+            attempts: { increment: 1 },
+            last_error: errorMessage,
+          },
+        });
+      }
+
+      eventSummary.failed += 1;
+      if (reachedTerminalAttempts) {
+        eventSummary.terminalFailures += 1;
+        if (nonRetryable) {
+          eventSummary.skippedNonRetryable += 1;
+        }
+        logger.error("[Outbox] Event reached terminal failure state", {
+          outboxMessageId: message.id,
+          eventType: message.event_type,
+          attempts: nextAttempts,
+          maxAttempts,
+          businessId: message.business_id,
+          nonRetryable,
+          errorMessage,
+        });
+      } else {
+        logger.warn("[Outbox] Event processing failed and will be retried", {
+          outboxMessageId: message.id,
+          eventType: message.event_type,
+          attempts: nextAttempts,
+          maxAttempts,
+          businessId: message.business_id,
+          errorMessage,
+        });
+      }
+
+      results.push({ id: message.id, success: false, error: errorMessage });
     }
   }
-}
 
-async function handleBookingCancelled(
-  payload: Record<string, unknown>,
-  _businessId: string,
-) {
-  void _businessId;
-  const { email, customerName, reason } = payload;
-  if (email && typeof email === "string") {
-    console.log(
-      `[Outbox] Would send cancellation email to ${email} for ${customerName}, reason: ${reason}`,
-    );
-  }
-}
+  const succeeded = results.filter((result) => result.success).length;
+  const failed = results.filter((result) => !result.success).length;
+  const terminalFailures = Object.values(byEventType).reduce(
+    (sum, item) => sum + item.terminalFailures,
+    0,
+  );
+  const skippedNonRetryable = Object.values(byEventType).reduce(
+    (sum, item) => sum + item.skippedNonRetryable,
+    0,
+  );
 
-async function handlePaymentConfirmed(
-  payload: Record<string, unknown>,
-  _businessId: string,
-) {
-  void _businessId;
-  const { email, amount } = payload;
-  if (email && typeof email === "string") {
-    console.log(
-      `[Outbox] Would send payment receipt to ${email} for ${amount}`,
-    );
-  }
-}
+  logger.info("[Outbox] Processed batch", {
+    processed: messages.length,
+    succeeded,
+    failed,
+    terminalFailures,
+    skippedNonRetryable,
+    byEventType,
+  });
 
-async function handleReminderDue(
-  payload: Record<string, unknown>,
-  _businessId: string,
-) {
-  void _businessId;
-  const { email, customerName, scheduledAt } = payload;
-  if (email && typeof email === "string") {
-    console.log(
-      `[Outbox] Would send reminder to ${email} for ${customerName} at ${scheduledAt}`,
-    );
-  }
-}
-
-async function handlePayslipGenerated(
-  payload: Record<string, unknown>,
-  _businessId: string,
-) {
-  void _businessId;
-  const { employeeEmail, period } = payload;
-  void period;
-  if (employeeEmail && typeof employeeEmail === "string") {
-    // console.log("Email sent successfully");
-  }
+  return {
+    success: true as const,
+    processed: messages.length,
+    succeeded,
+    failed,
+    terminalFailures,
+    skippedNonRetryable,
+    byEventType,
+    processedAt: getCurrentDateTimePH().toISOString(),
+  };
 }
 
 /**
@@ -127,95 +185,17 @@ async function handlePayslipGenerated(
 export async function GET(request: Request) {
   await connection();
   try {
-    const authHeader = request.headers.get("authorization");
-
-    if (!authHeader) {
-      return new NextResponse("Unauthorized", {
-        status: 401,
-        headers: { "WWW-Authenticate": "Basic realm='Secure Area'" },
-      });
-    }
-
-    const [scheme, encoded] = authHeader.split(" ");
-
-    if (scheme !== "Basic" || !encoded) {
-      return new NextResponse("Unauthorized", { status: 401 });
-    }
-
-    const decoded = Buffer.from(encoded, "base64").toString();
-    const [user, pass] = decoded.split(":");
-
-    const validUser = process.env.CRON_USER || "admin";
-    const validPass = process.env.CRON_PASSWORD;
-
-    if (!validPass || user !== validUser || pass !== validPass) {
+    if (!isCronAuthorized(request)) {
       console.error("Invalid cron credentials");
-      return new NextResponse("Unauthorized", { status: 401 });
+      return unauthorizedCronResponse();
     }
 
-    // Fetch unprocessed messages that haven't exceeded max attempts
-    const messages = await prisma.outboxMessage.findMany({
-      where: {
-        processed: false,
-        attempts: { lt: MAX_ATTEMPTS },
-      },
-      orderBy: { created_at: "asc" },
-      take: BATCH_SIZE,
+    const result = await processOutboxBatch({
+      batchSize: BATCH_SIZE,
+      maxAttempts: MAX_ATTEMPTS,
     });
 
-    const results: { id: string; success: boolean; error?: string }[] = [];
-
-    for (const msg of messages) {
-      try {
-        await handleEvent(
-          msg.event_type,
-          msg.payload as Record<string, unknown>,
-          msg.business_id,
-        );
-
-        // Mark as processed
-        await prisma.outboxMessage.update({
-          where: { id: msg.id },
-          data: {
-            processed: true,
-            processed_at: getCurrentDateTimePH(),
-          },
-        });
-
-        results.push({ id: msg.id, success: true });
-      } catch (error) {
-        const errorMessage =
-          error instanceof Error ? error.message : String(error);
-
-        // console.log("Processing failed:", error);      // Increment attempts and record error
-        await prisma.outboxMessage.update({
-          where: { id: msg.id },
-          data: {
-            attempts: { increment: 1 },
-            last_error: errorMessage,
-          },
-        });
-
-        results.push({ id: msg.id, success: false, error: errorMessage });
-        console.error(`[Outbox] Failed to process ${msg.id}:`, errorMessage);
-      }
-    }
-
-    const successCount = results.filter((r) => r.success).length;
-    const failCount = results.filter((r) => !r.success).length;
-
-    // console.log("Processing batch of", pendingMessages.length);success, ${failCount} failed`,
-    console.log(
-      `[Outbox] Processed ${messages.length} messages: ${successCount} success, ${failCount} failed`,
-    );
-
-    return NextResponse.json({
-      success: true,
-      processed: messages.length,
-      succeeded: successCount,
-      failed: failCount,
-      processedAt: getCurrentDateTimePH().toISOString(),
-    });
+    return NextResponse.json(result);
   } catch (error) {
     console.error("Process outbox cron error:", error);
     return NextResponse.json(

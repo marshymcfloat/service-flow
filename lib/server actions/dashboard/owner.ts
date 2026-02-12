@@ -29,7 +29,7 @@ export async function claimServiceAsOwnerAction(serviceId: number) {
     return { success: false, error: "Invalid input" };
   }
 
-  const auth = await requireAuth();
+  const auth = await requireAuth({ write: true });
   if (!auth.success) return auth;
   const { businessSlug, session } = auth;
 
@@ -127,7 +127,7 @@ export async function unclaimServiceAsOwnerAction(serviceId: number) {
     return { success: false, error: "Invalid input" };
   }
 
-  const auth = await requireAuth();
+  const auth = await requireAuth({ write: true });
   if (!auth.success) return auth;
   const { businessSlug, session } = auth;
 
@@ -198,7 +198,7 @@ export async function markServiceServedAsOwnerAction(serviceId: number) {
     return { success: false, error: "Invalid input" };
   }
 
-  const auth = await requireAuth();
+  const auth = await requireAuth({ write: true });
   if (!auth.success) return auth;
   const { businessSlug, session } = auth;
 
@@ -269,7 +269,7 @@ export async function unserveServiceAsOwnerAction(serviceId: number) {
     return { success: false, error: "Invalid input" };
   }
 
-  const auth = await requireAuth();
+  const auth = await requireAuth({ write: true });
   if (!auth.success) return auth;
   const { businessSlug, session } = auth;
 
@@ -346,7 +346,7 @@ export async function updateBookingStatusAction(
     return { success: false, error: "Invalid input" };
   }
 
-  const auth = await requireAuth();
+  const auth = await requireAuth({ write: true });
   if (!auth.success) return auth;
   const { businessSlug } = auth;
 
@@ -398,7 +398,7 @@ export async function deleteBookingAction(bookingId: number) {
     return { success: false, error: "Invalid input" };
   }
 
-  const auth = await requireAuth();
+  const auth = await requireAuth({ write: true });
   if (!auth.success) return auth;
   const { session } = auth;
 
@@ -508,7 +508,7 @@ export async function createBookingBalanceQrAction(bookingId: number) {
     return { success: false, error: "Invalid booking ID." };
   }
 
-  const auth = await requireAuth();
+  const auth = await requireAuth({ write: true });
   if (!auth.success) return auth;
   const { session, businessSlug } = auth;
 
@@ -789,7 +789,7 @@ export async function markBookingPaidAction(bookingId: number) {
     return { success: false, error: "Invalid booking ID." };
   }
 
-  const auth = await requireAuth();
+  const auth = await requireAuth({ write: true });
   if (!auth.success) return auth;
   const { session, businessSlug } = auth;
 

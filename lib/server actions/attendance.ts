@@ -10,6 +10,8 @@ import {
 } from "../date-utils";
 import { requireAuth } from "@/lib/auth/guards";
 import { Role } from "@/prisma/generated/prisma/enums";
+import { detectAndEmitFutureBookingConflicts } from "@/lib/services/booking-conflicts";
+import { logger } from "@/lib/logger";
 
 const MAX_DISTANCE_METERS = 100;
 
@@ -90,7 +92,7 @@ export async function clockInAction(
   longitude: number,
   businessSlug: string,
 ) {
-  const auth = await requireAuth();
+  const auth = await requireAuth({ write: true });
   if (!auth.success) return auth;
   const { session } = auth;
 
@@ -166,6 +168,20 @@ export async function clockInAction(
       },
     });
 
+    try {
+      await detectAndEmitFutureBookingConflicts({
+        businessSlug,
+        changedDate: datePH,
+        trigger: "ATTENDANCE_UPDATED",
+      });
+    } catch (error) {
+      logger.warn("[BookingConflicts] Failed after clock-in", {
+        employeeId,
+        businessSlug,
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
+
     revalidatePath(`/${businessSlug}`);
     return { success: true, data: attendance };
   } catch (error) {
@@ -175,7 +191,7 @@ export async function clockInAction(
 }
 
 export async function clockOutAction(employeeId: number) {
-  const auth = await requireAuth();
+  const auth = await requireAuth({ write: true });
   if (!auth.success) return auth;
   const { session } = auth;
 
@@ -220,6 +236,25 @@ export async function clockOutAction(employeeId: number) {
         time_out: now,
       },
     });
+
+    try {
+      const employee = await prisma.employee.findUnique({
+        where: { id: employeeId },
+        select: { business: { select: { slug: true } } },
+      });
+      if (employee?.business.slug) {
+        await detectAndEmitFutureBookingConflicts({
+          businessSlug: employee.business.slug,
+          changedDate: startOfDay,
+          trigger: "ATTENDANCE_UPDATED",
+        });
+      }
+    } catch (error) {
+      logger.warn("[BookingConflicts] Failed after clock-out", {
+        employeeId,
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
 
     revalidatePath("/[businessSlug]");
     return { success: true, data: updated };

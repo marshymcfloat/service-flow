@@ -12,33 +12,50 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
-    
+
 model Business {
-  id   String @id @default(cuid())
-  name String
-  slug String @unique
-  initials String @db.Char(2)
+  id          String  @id @default(cuid())
+  name        String
+  slug        String  @unique
+  initials    String  @db.Char(2)
   description String?
 
   imageUrl String?
 
-  latitude Float?
+  latitude  Float?
   longitude Float?
 
-  services Service[]
-  employees Employee[]
-  owners    Owner[]
-  customers Customer[]
-  bookings Booking[]
-  sale_events SaleEvent[]
-  vouchers Voucher[]
-  gift_cards GiftCard[]
-  special_dates SpecialDate[]
-  packages ServicePackage[]
-  leave_requests LeaveRequest[]
-  business_hours BusinessHours[]
-  service_flows ServiceFlow[]
-  commission_calculation_basis CommissionCalculationBasis @default(ORIGINAL_PRICE)
+  booking_horizon_days       Int     @default(14)
+  booking_min_lead_minutes   Int     @default(30)
+  booking_slot_interval_minutes Int  @default(30)
+  public_allow_full_payment  Boolean @default(true)
+  public_allow_downpayment   Boolean @default(true)
+  public_default_payment_type String @default("FULL")
+  booking_v2_enabled         Boolean @default(true)
+  same_day_attendance_strict_minutes Int @default(120)
+
+  services                          Service[]
+  employees                         Employee[]
+  owners                            Owner[]
+  customers                         Customer[]
+  bookings                          Booking[]
+  sale_events                       SaleEvent[]
+  vouchers                          Voucher[]
+  gift_cards                        GiftCard[]
+  special_dates                     SpecialDate[]
+  packages                          ServicePackage[]
+  leave_requests                    LeaveRequest[]
+  business_hours                    BusinessHours[]
+  service_flows                     ServiceFlow[]
+  subscriptions                     BusinessSubscription[]
+  subscription_invoices             SubscriptionInvoice[]
+  referral_code                     ReferralCode?
+  referral_leads_converted          ReferralLead[]             @relation("ConvertedBusinessReferralLead")
+  referral_attributions_as_referrer ReferralAttribution[]      @relation("ReferrerBusiness")
+  referral_attributions_as_referred ReferralAttribution[]      @relation("ReferredBusiness")
+  onboarding_applications_converted OnboardingApplication[]    @relation("ConvertedBusinessOnboardingApplication")
+  platform_action_logs              PlatformActionLog[]
+  commission_calculation_basis      CommissionCalculationBasis @default(ORIGINAL_PRICE)
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -46,28 +63,83 @@ model Business {
   @@index([slug])
 }
 
-/* model LeaveRequest {
-  id Int @id @default(autoincrement())
-  
-  employee_id Int
-  employee Employee @relation(fields: [employee_id], references: [id], onDelete: Cascade)
-
-  business_id String
-  business Business @relation(fields: [business_id], references: [id], onDelete: Cascade)
-
-  start_date DateTime
-  end_date DateTime
-  reason String
-  status LeaveRequestStatus @default(PENDING)
-  admin_comment String?
-
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-} */
+/**
+ * model LeaveRequest {
+ * id Int @id @default(autoincrement())
+ * employee_id Int
+ * employee Employee @relation(fields: [employee_id], references: [id], onDelete: Cascade)
+ * business_id String
+ * business Business @relation(fields: [business_id], references: [id], onDelete: Cascade)
+ * start_date DateTime
+ * end_date DateTime
+ * reason String
+ * status LeaveRequestStatus @default(PENDING)
+ * admin_comment String?
+ * created_at DateTime @default(now())
+ * updated_at DateTime @updatedAt
+ * }
+ */
 
 enum Role {
   OWNER
   EMPLOYEE
+  PLATFORM_ADMIN
+}
+
+enum BillingInterval {
+  MONTHLY
+  YEARLY
+}
+
+enum SubscriptionStatus {
+  TRIALING
+  ACTIVE
+  GRACE_PERIOD
+  SUSPENDED
+  CANCELED
+}
+
+enum CollectionMethod {
+  MANUAL_CHECKOUT
+  AUTO_CHARGE
+}
+
+enum InvoiceStatus {
+  DRAFT
+  OPEN
+  PAID
+  VOID
+  FAILED
+  EXPIRED
+}
+
+enum CreditSource {
+  TRIAL_GRANT
+  REFERRAL_REWARD
+  ADMIN_ADJUSTMENT
+  MANUAL_COMP
+}
+
+enum ReferralStatus {
+  PENDING
+  QUALIFIED
+  REWARDED
+  REJECTED
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  CONVERTED
+  REJECTED
+}
+
+enum OnboardingApplicationStatus {
+  NEW
+  CONTACTED
+  APPROVED
+  REJECTED
+  CONVERTED
 }
 
 enum VoucherType {
@@ -79,8 +151,9 @@ enum DiscountType {
   PERCENTAGE
   FLAT
 }
+
 enum BookingStatus {
-  HOLD       // Slot reserved during payment
+  HOLD // Slot reserved during payment
   ACCEPTED
   COMPLETED
   CANCELLED
@@ -127,18 +200,17 @@ enum BookingPaymentStatus {
 }
 
 enum AvailedServiceStatus {
-  PENDING     // No employee claimed yet
-  CLAIMED     // Employee claimed, not yet served
-  SERVING     // Currently being served
-  COMPLETED   // Service finished
-  CANCELLED   // Service cancelled
+  PENDING // No employee claimed yet
+  CLAIMED // Employee claimed, not yet served
+  SERVING // Currently being served
+  COMPLETED // Service finished
+  CANCELLED // Service cancelled
 }
 
 enum ServiceProviderType {
   EMPLOYEE
   OWNER
 }
-
 
 enum LeaveRequestStatus {
   PENDING
@@ -155,33 +227,37 @@ enum LeaveType {
 
 model LeaveRequest {
   id Int @id @default(autoincrement())
-  
+
   employee_id Int
-  employee Employee @relation(fields: [employee_id], references: [id], onDelete: Cascade)
+  employee    Employee @relation(fields: [employee_id], references: [id], onDelete: Cascade)
 
   business_id String
-  business Business @relation(fields: [business_id], references: [id], onDelete: Cascade)
+  business    Business @relation(fields: [business_id], references: [id], onDelete: Cascade)
 
-  start_date DateTime
-  end_date DateTime
-  reason String
-  type LeaveType @default(VACATION)
-  status LeaveRequestStatus @default(PENDING)
+  start_date    DateTime
+  end_date      DateTime
+  reason        String
+  type          LeaveType          @default(VACATION)
+  status        LeaveRequestStatus @default(PENDING)
   admin_comment String?
-  is_paid Boolean @default(false)
+  is_paid       Boolean            @default(false)
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+
+  @@index([business_id, created_at])
+  @@index([employee_id, created_at])
+  @@index([employee_id, start_date, end_date])
 }
 
 model BusinessHours {
   id          Int     @id @default(autoincrement())
-  day_of_week Int     
-  open_time   String  // "09:00" (24hr format)
-  close_time  String  // "18:00"
+  day_of_week Int
+  open_time   String // "09:00" (24hr format)
+  close_time  String // "18:00"
   is_closed   Boolean @default(false)
-  
-  category    String  @default("GENERAL") // "GENERAL", "Spa", "Nails", etc.
+
+  category String @default("GENERAL") // "GENERAL", "Spa", "Nails", etc.
 
   business_id String
   business    Business @relation(fields: [business_id], references: [id], onDelete: Cascade)
@@ -192,14 +268,14 @@ model BusinessHours {
 model SaleEvent {
   id Int @id @default(autoincrement())
 
-  title String 
+  title       String
   description String?
 
   start_date DateTime
-  end_date DateTime
+  end_date   DateTime
 
-  discount_type DiscountType @default(PERCENTAGE)
-  discount_value Float @default(0)
+  discount_type  DiscountType @default(PERCENTAGE)
+  discount_value Float        @default(0)
 
   applicable_services Service[]
   applicable_packages ServicePackage[]
@@ -209,19 +285,25 @@ model SaleEvent {
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+
+  @@index([business_id, created_at])
+  @@index([business_id, start_date, end_date])
 }
 
 model User {
-  id    String @id @default(cuid())
-  email String @unique
+  id              String @id @default(cuid())
+  email           String @unique
   hashed_password String
-  name  String
+  name            String
 
-  role      Role       @default(EMPLOYEE)
-  employee  Employee?
-  owner     Owner?
+  role                             Role                       @default(EMPLOYEE)
+  employee                         Employee?
+  owner                            Owner?
+  awarded_subscription_credits     SubscriptionCreditLedger[] @relation("CreditAwardedByUser")
+  platform_action_logs             PlatformActionLog[]        @relation("PlatformActorUser")
+  reviewed_onboarding_applications OnboardingApplication[]    @relation("ReviewedByPlatformUser")
 
-  must_change_password Boolean @default(false)
+  must_change_password     Boolean   @default(false)
   temp_password_expires_at DateTime?
 
   created_at DateTime @default(now())
@@ -229,21 +311,18 @@ model User {
 }
 
 model Employee {
-  id      Int    @id @default(autoincrement())
-  user_id String @unique
-  user    User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  salary Float
-  commission_percentage Float @default(0)
-  daily_rate Float @default(0)
-  specialties String[] @default([]) // Array of service categories this employee can perform
-  attendance EmployeeAttendance[]
-
-
+  id                    Int                  @id @default(autoincrement())
+  user_id               String               @unique
+  user                  User                 @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  salary                Float
+  commission_percentage Float                @default(0)
+  daily_rate            Float                @default(0)
+  specialties           String[]             @default([]) // Array of service categories this employee can perform
+  attendance            EmployeeAttendance[]
 
   served_services AvailedService[]
-  payslips Payslip[]
-  leave_requests LeaveRequest[]
-
+  payslips        Payslip[]
+  leave_requests  LeaveRequest[]
 
   business_id String
   business    Business @relation(fields: [business_id], references: [id], onDelete: Cascade)
@@ -252,25 +331,30 @@ model Employee {
   @@index([business_id])
 }
 
-model EmployeeAttendance{
-  id Int @id @default(autoincrement())
+model EmployeeAttendance {
+  id          Int      @id @default(autoincrement())
   employee_id Int
-  employee Employee @relation(fields: [employee_id], references: [id], onDelete: Cascade)
+  employee    Employee @relation(fields: [employee_id], references: [id], onDelete: Cascade)
 
-  date DateTime
+  date   DateTime
   status AttendanceStatus @default(PRESENT)
-  
-  time_in DateTime?
-  time_out DateTime?
-  location_verified Boolean @default(false)
-  latitude Float?
-  longitude Float?
-  
+
+  time_in           DateTime?
+  time_out          DateTime?
+  location_verified Boolean   @default(false)
+  latitude          Float?
+  longitude         Float?
+
   is_paid_leave Boolean @default(false)
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+
+  @@index([employee_id, date])
+  @@index([employee_id, status, date])
+  @@index([date])
 }
+
 model Payslip {
   id Int @id @default(autoincrement())
 
@@ -278,23 +362,26 @@ model Payslip {
   employee    Employee @relation(fields: [employee_id], references: [id], onDelete: Cascade)
 
   starting_date DateTime
-  ending_date DateTime
-  comment String?
-  deduction Float @default(0)
-  status PayslipStatus @default(PENDING)
+  ending_date   DateTime
+  comment       String?
+  deduction     Float         @default(0)
+  status        PayslipStatus @default(PENDING)
 
   total_salary Float
+
+  @@index([employee_id, ending_date])
+  @@index([employee_id, status, ending_date])
 }
 
 model SpecialDate {
-  id Int @id @default(autoincrement())
+  id   Int      @id @default(autoincrement())
   date DateTime
-  
-  salary_multiplier Float @default(1)
+
+  salary_multiplier     Float @default(1)
   commission_multiplier Float @default(1)
 
   business_id String
-  business Business @relation(fields: [business_id], references: [id], onDelete: Cascade)
+  business    Business @relation(fields: [business_id], references: [id], onDelete: Cascade)
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -315,47 +402,311 @@ model Owner {
   @@unique([business_id, user_id])
 }
 
-model Service {
-  id Int @id @default(autoincrement())
-  name String
-  description String?
-  price Float
-  duration Int?
-  category String
+model SubscriptionPlan {
+  id               String          @id @default(cuid())
+  code             String          @unique
+  name             String
+  description      String?
+  billing_interval BillingInterval
+  price_amount     Int
+  currency         String          @default("PHP")
+  is_active        Boolean         @default(true)
+
+  subscriptions BusinessSubscription[]
+  invoices      SubscriptionInvoice[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([is_active])
+}
+
+model BusinessSubscription {
+  id String @id @default(cuid())
+
+  business_id String   @unique
+  business    Business @relation(fields: [business_id], references: [id], onDelete: Cascade)
+
+  plan_id String
+  plan    SubscriptionPlan @relation(fields: [plan_id], references: [id], onDelete: Restrict)
+
+  status            SubscriptionStatus @default(TRIALING)
+  collection_method CollectionMethod   @default(MANUAL_CHECKOUT)
+  recurring_enabled Boolean            @default(false)
+
+  current_period_start DateTime
+  current_period_end   DateTime
+  trial_ends_at        DateTime?
+  grace_ends_at        DateTime?
+  suspended_at         DateTime?
+  cancel_at_period_end Boolean   @default(false)
+  canceled_at          DateTime?
+  started_at           DateTime  @default(now())
+
+  payment_method SubscriptionPaymentMethod?
+  invoices       SubscriptionInvoice[]
+  credits        SubscriptionCreditLedger[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([status, current_period_end])
+  @@index([plan_id])
+}
+
+model SubscriptionPaymentMethod {
+  id String @id @default(cuid())
+
+  business_subscription_id String               @unique
+  business_subscription    BusinessSubscription @relation(fields: [business_subscription_id], references: [id], onDelete: Cascade)
+
+  provider                   String  @default("PAYMONGO")
+  provider_customer_id       String?
+  provider_payment_method_id String?
+  provider_payment_intent_id String?
+  brand                      String?
+  last4                      String?
+  is_default                 Boolean @default(true)
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([provider, provider_customer_id])
+}
+
+model SubscriptionInvoice {
+  id String @id @default(cuid())
+
+  business_subscription_id String
+  business_subscription    BusinessSubscription @relation(fields: [business_subscription_id], references: [id], onDelete: Cascade)
 
   business_id String
   business    Business @relation(fields: [business_id], references: [id], onDelete: Cascade)
 
-  availed_services AvailedService[]
-  sale_events SaleEvent[]
-  package_items PackageItem[]
-  gift_card_items GiftCardService[]
+  plan_id String
+  plan    SubscriptionPlan @relation(fields: [plan_id], references: [id], onDelete: Restrict)
 
-  flow_triggers ServiceFlow[] @relation("FlowTrigger")
-  flow_suggestions ServiceFlow[] @relation("FlowSuggestion")
+  status   InvoiceStatus @default(OPEN)
+  currency String        @default("PHP")
+  reason   String?
+
+  period_start DateTime
+  period_end   DateTime
+  due_at       DateTime
+
+  amount_subtotal       Int
+  amount_credit_applied Int @default(0)
+  amount_due            Int
+  amount_paid           Int @default(0)
+
+  paymongo_checkout_session_id String?   @unique
+  paymongo_payment_intent_id   String?   @unique
+  paymongo_payment_method_id   String?
+  paymongo_payment_id          String?
+  paid_at                      DateTime?
+  metadata                     Json?
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([business_subscription_id, status])
+  @@index([business_id, created_at])
+  @@index([due_at, status])
+}
+
+model SubscriptionCreditLedger {
+  id String @id @default(cuid())
+
+  business_subscription_id String
+  business_subscription    BusinessSubscription @relation(fields: [business_subscription_id], references: [id], onDelete: Cascade)
+
+  source           CreditSource
+  amount_total     Int
+  amount_remaining Int
+  description      String?
+  expires_at       DateTime?
+
+  awarded_by_user_id String?
+  awarded_by_user    User?   @relation("CreditAwardedByUser", fields: [awarded_by_user_id], references: [id], onDelete: SetNull)
+
+  referral_reward_attribution ReferralAttribution? @relation("RewardCreditAttribution")
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([business_subscription_id, created_at])
+  @@index([amount_remaining, expires_at])
+}
+
+model ReferralCode {
+  id String @id @default(cuid())
+
+  business_id String   @unique
+  business    Business @relation(fields: [business_id], references: [id], onDelete: Cascade)
+
+  code      String  @unique
+  is_active Boolean @default(true)
+
+  leads                   ReferralLead[]
+  attributions            ReferralAttribution[]
+  onboarding_applications OnboardingApplication[]
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 }
 
-model ServicePackage {
-  id Int @id @default(autoincrement())
-  name String
+model ReferralLead {
+  id String @id @default(cuid())
+
+  referral_code_id String
+  referral_code    ReferralCode @relation(fields: [referral_code_id], references: [id], onDelete: Cascade)
+
+  referred_business_name String
+  owner_name             String
+  owner_email            String
+  owner_phone            String?
+  notes                  String?
+
+  status LeadStatus @default(NEW)
+
+  converted_business_id String?
+  converted_business    Business? @relation("ConvertedBusinessReferralLead", fields: [converted_business_id], references: [id], onDelete: SetNull)
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([status, created_at])
+  @@index([referral_code_id, created_at])
+  @@index([owner_email])
+}
+
+model ReferralAttribution {
+  id String @id @default(cuid())
+
+  referral_code_id String
+  referral_code    ReferralCode @relation(fields: [referral_code_id], references: [id], onDelete: Restrict)
+
+  referrer_business_id String
+  referrer_business    Business @relation("ReferrerBusiness", fields: [referrer_business_id], references: [id], onDelete: Restrict)
+
+  referred_business_id String   @unique
+  referred_business    Business @relation("ReferredBusiness", fields: [referred_business_id], references: [id], onDelete: Restrict)
+
+  status           ReferralStatus @default(PENDING)
+  qualified_at     DateTime?
+  rewarded_at      DateTime?
+  rejected_at      DateTime?
+  rejection_reason String?
+
+  reward_credit_ledger_id String?                   @unique
+  reward_credit_ledger    SubscriptionCreditLedger? @relation("RewardCreditAttribution", fields: [reward_credit_ledger_id], references: [id], onDelete: SetNull)
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([referrer_business_id, status])
+  @@index([referred_business_id, status])
+}
+
+model OnboardingApplication {
+  id String @id @default(cuid())
+
+  business_name String
+  owner_name    String
+  owner_email   String
+  owner_phone   String?
+  notes         String?
+
+  referral_code_input String?
+  referral_code_id    String?
+  referral_code       ReferralCode? @relation(fields: [referral_code_id], references: [id], onDelete: SetNull)
+
+  status       OnboardingApplicationStatus @default(NEW)
+  review_notes String?
+
+  reviewed_by_user_id String?
+  reviewed_by_user    User?     @relation("ReviewedByPlatformUser", fields: [reviewed_by_user_id], references: [id], onDelete: SetNull)
+  reviewed_at         DateTime?
+
+  converted_business_id String?
+  converted_business    Business? @relation("ConvertedBusinessOnboardingApplication", fields: [converted_business_id], references: [id], onDelete: SetNull)
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([status, created_at])
+  @@index([owner_email])
+  @@index([referral_code_id])
+}
+
+model PlatformActionLog {
+  id String @id @default(cuid())
+
+  actor_user_id String?
+  actor_user    User?   @relation("PlatformActorUser", fields: [actor_user_id], references: [id], onDelete: SetNull)
+  actor_email   String?
+
+  action      String
+  target_type String
+  target_id   String
+
+  business_id String?
+  business    Business? @relation(fields: [business_id], references: [id], onDelete: SetNull)
+
+  metadata   Json?
+  created_at DateTime @default(now())
+
+  @@index([created_at])
+  @@index([business_id, created_at])
+  @@index([action, created_at])
+}
+
+model Service {
+  id          Int     @id @default(autoincrement())
+  name        String
   description String?
-  price Float
-  duration Int?
-  category String
+  price       Float
+  duration    Int?
+  category    String
 
   business_id String
   business    Business @relation(fields: [business_id], references: [id], onDelete: Cascade)
 
-  items PackageItem[]
   availed_services AvailedService[]
-  sale_events SaleEvent[]
-  gift_card_items GiftCardPackage[]
+  sale_events      SaleEvent[]
+  package_items    PackageItem[]
+  gift_card_items  GiftCardService[]
+
+  flow_triggers    ServiceFlow[] @relation("FlowTrigger")
+  flow_suggestions ServiceFlow[] @relation("FlowSuggestion")
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+
+  @@index([business_id, category, name])
+  @@index([business_id, name])
+}
+
+model ServicePackage {
+  id          Int     @id @default(autoincrement())
+  name        String
+  description String?
+  price       Float
+  duration    Int?
+  category    String
+
+  business_id String
+  business    Business @relation(fields: [business_id], references: [id], onDelete: Cascade)
+
+  items            PackageItem[]
+  availed_services AvailedService[]
+  sale_events      SaleEvent[]
+  gift_card_items  GiftCardPackage[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([business_id, name])
 }
 
 model PackageItem {
@@ -372,66 +723,62 @@ model PackageItem {
   @@unique([package_id, service_id])
 }
 
-
 model Customer {
-  id String @id @default(cuid())
-  name String
+  id    String  @id @default(cuid())
+  name  String
   email String?
   phone String?
-  
+
   business_id String
   business    Business @relation(fields: [business_id], references: [id], onDelete: Cascade)
 
-  bookings Booking[]
+  bookings           Booking[]
   claimed_gift_cards GiftCard[] @relation("GiftCardClaimedBy")
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
+  @@index([business_id, name])
   @@index([business_id, email])
   @@index([business_id, phone])
 }
 
-
-
-
 model Booking {
-
   id Int @id @default(autoincrement())
 
-  status BookingStatus @default(ACCEPTED)
-  customer Customer @relation(fields: [customer_id], references: [id], onDelete: Cascade)
+  status      BookingStatus @default(ACCEPTED)
+  customer    Customer      @relation(fields: [customer_id], references: [id], onDelete: Cascade)
   customer_id String
 
-  business Business @relation(fields: [business_id], references: [id], onDelete: Cascade)
+  business    Business @relation(fields: [business_id], references: [id], onDelete: Cascade)
   business_id String
 
   vouchers Voucher[]
 
-  payment_method PaymentMethod @default(CASH)
-  payment_status PaymentStatus @default(UNPAID)
-  amount_paid Float @default(0)
-  paymongo_checkout_session_id String? @unique
-  paymongo_payment_intent_id String? @unique
-  paymongo_payment_method_id String?
-  paymongo_payment_id String?
-  availed_services AvailedService[]
-  payments BookingPayment[]
-  grand_total Float
-  total_discount Float
-  downpayment Float?
-  downpayment_status BookingStatus? @default(ACCEPTED)
-  downpayment_date DateTime?
+  payment_method               PaymentMethod    @default(CASH)
+  payment_status               PaymentStatus    @default(UNPAID)
+  amount_paid                  Float            @default(0)
+  paymongo_checkout_session_id String?          @unique
+  paymongo_payment_intent_id   String?          @unique
+  paymongo_payment_method_id   String?
+  paymongo_payment_id          String?
+  availed_services             AvailedService[]
+  payments                     BookingPayment[]
+  grand_total                  Float
+  total_discount               Float
+  downpayment                  Float?
+  downpayment_status           BookingStatus?   @default(ACCEPTED)
+  downpayment_date             DateTime?
 
   // Scheduling fields
-  scheduled_at  DateTime?  // When the booking is scheduled to start
-  estimated_end DateTime?  // Calculated from service durations
-  reminder_sent Boolean @default(false)
+  scheduled_at    DateTime? // When the booking is scheduled to start
+  estimated_end   DateTime? // Calculated from service durations
+  reminder_sent   Boolean   @default(false)
   hold_expires_at DateTime? // When HOLD status expires (for online payments)
-  
+
   // Computed columns for double-booking prevention (maintained by DB triggers)
   /// @ignore - Managed by database triggers, do not write directly
-  booking_range String? @ignore
+  booking_range     String?  @ignore
   /// @ignore - Managed by database triggers, do not write directly  
   is_active_booking Boolean? @ignore
 
@@ -439,6 +786,11 @@ model Booking {
   updated_at DateTime @updatedAt
 
   @@index([business_id, status])
+  @@index([business_id, scheduled_at])
+  @@index([business_id, created_at])
+  @@index([customer_id, business_id, scheduled_at])
+  @@index([status, hold_expires_at])
+  @@index([status, reminder_sent, scheduled_at])
   @@index([customer_id])
   @@index([created_at])
   @@index([scheduled_at])
@@ -448,68 +800,70 @@ model BookingPayment {
   id Int @id @default(autoincrement())
 
   booking_id Int
-  booking Booking @relation(fields: [booking_id], references: [id], onDelete: Cascade)
+  booking    Booking @relation(fields: [booking_id], references: [id], onDelete: Cascade)
 
-  type BookingPaymentType
-  status BookingPaymentStatus @default(PENDING)
-  payment_method PaymentMethod @default(QRPH)
+  type           BookingPaymentType
+  status         BookingPaymentStatus @default(PENDING)
+  payment_method PaymentMethod        @default(QRPH)
 
   amount_principal Float
-  amount_charged Float
+  amount_charged   Float
 
   paymongo_payment_intent_id String? @unique
   paymongo_payment_method_id String?
-  paymongo_payment_id String? @unique
+  paymongo_payment_id        String? @unique
 
   expires_at DateTime?
-  paid_at DateTime?
-  metadata Json?
+  paid_at    DateTime?
+  metadata   Json?
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
   @@index([booking_id, status])
+  @@index([status, payment_method, created_at])
   @@index([created_at])
 }
 
-model Voucher{
-  id Int @id @default(autoincrement())
-  code String @unique
-  value Float
-  type VoucherType @default(PERCENTAGE)
-  minimum_amount Float @default(0)
+model Voucher {
+  id             Int         @id @default(autoincrement())
+  code           String      @unique
+  value          Float
+  type           VoucherType @default(PERCENTAGE)
+  minimum_amount Float       @default(0)
 
   expires_at DateTime
-  is_active Boolean @default(true)
+  is_active  Boolean  @default(true)
 
   used_by_id Int?
-  used_by Booking? @relation(fields: [used_by_id], references: [id], onDelete: Cascade)
- 
+  used_by    Booking? @relation(fields: [used_by_id], references: [id], onDelete: Cascade)
+
   business_id String
-  business Business @relation(fields: [business_id], references: [id], onDelete: Cascade)
+  business    Business @relation(fields: [business_id], references: [id], onDelete: Cascade)
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
-
+  @@index([business_id, created_at])
+  @@index([used_by_id])
 }
 
 model GiftCard {
   id Int @id @default(autoincrement())
 
-  code String @unique
-  customer_name String
+  code           String   @unique
+  customer_name  String
   customer_email String
-  expires_at DateTime
+  expires_at     DateTime
 
-  is_claimed Boolean @default(false)
+  is_claimed Boolean   @default(false)
   claimed_at DateTime?
 
   claimed_by_customer_id String?
-  claimed_by_customer Customer? @relation("GiftCardClaimedBy", fields: [claimed_by_customer_id], references: [id], onDelete: SetNull)
+  claimed_by_customer    Customer? @relation("GiftCardClaimedBy", fields: [claimed_by_customer_id], references: [id], onDelete: SetNull)
 
   business_id String
-  business Business @relation(fields: [business_id], references: [id], onDelete: Cascade)
+  business    Business @relation(fields: [business_id], references: [id], onDelete: Cascade)
 
   included_services GiftCardService[]
   included_packages GiftCardPackage[]
@@ -526,10 +880,10 @@ model GiftCardService {
   id Int @id @default(autoincrement())
 
   gift_card_id Int
-  gift_card GiftCard @relation(fields: [gift_card_id], references: [id], onDelete: Cascade)
+  gift_card    GiftCard @relation(fields: [gift_card_id], references: [id], onDelete: Cascade)
 
   service_id Int
-  service Service @relation(fields: [service_id], references: [id], onDelete: Cascade)
+  service    Service @relation(fields: [service_id], references: [id], onDelete: Cascade)
 
   @@unique([gift_card_id, service_id])
   @@index([service_id])
@@ -539,10 +893,10 @@ model GiftCardPackage {
   id Int @id @default(autoincrement())
 
   gift_card_id Int
-  gift_card GiftCard @relation(fields: [gift_card_id], references: [id], onDelete: Cascade)
+  gift_card    GiftCard @relation(fields: [gift_card_id], references: [id], onDelete: Cascade)
 
   package_id Int
-  package ServicePackage @relation(fields: [package_id], references: [id], onDelete: Cascade)
+  package    ServicePackage @relation(fields: [package_id], references: [id], onDelete: Cascade)
 
   @@unique([gift_card_id, package_id])
   @@index([package_id])
@@ -550,54 +904,55 @@ model GiftCardPackage {
 
 model AvailedService {
   id Int @id @default(autoincrement())
-  
+
   // Pricing
-  price Float                      // Original service price at time of booking
-  discount Float @default(0)       // Discount amount applied
-  discount_reason String?          // "SALE_EVENT", "MANUAL", "FAMILY_DISCOUNT", etc.
-  final_price Float                // price - discount = what customer pays
-  commission_base Float             // What the employee's commission is calculated on
+  price           Float // Original service price at time of booking
+  discount        Float   @default(0) // Discount amount applied
+  discount_reason String? // "SALE_EVENT", "MANUAL", "FAMILY_DISCOUNT", etc.
+  final_price     Float // price - discount = what customer pays
+  commission_base Float // What the employee's commission is calculated on
 
   // Claiming status
-  status AvailedServiceStatus @default(PENDING)
-  claimed_at DateTime?              // When employee claimed this service
-  served_at DateTime?               // When service actually started
-  completed_at DateTime?            // When service finished
+  status       AvailedServiceStatus @default(PENDING)
+  claimed_at   DateTime? // When employee claimed this service
+  served_at    DateTime? // When service actually started
+  completed_at DateTime? // When service finished
   cancelled_at DateTime?
 
   booking_id Int
-  booking    Booking  @relation(fields: [booking_id], references: [id], onDelete: Cascade)
+  booking    Booking @relation(fields: [booking_id], references: [id], onDelete: Cascade)
 
   service_id Int
-  service    Service  @relation(fields: [service_id], references: [id], onDelete: Cascade)
+  service    Service @relation(fields: [service_id], references: [id], onDelete: Cascade)
 
   // Optional: track if this came from a package
   package_id Int?
   package    ServicePackage? @relation(fields: [package_id], references: [id], onDelete: SetNull)
 
   served_by_id Int?
-  served_by Employee? @relation(fields: [served_by_id], references: [id], onDelete: SetNull)
+  served_by    Employee? @relation(fields: [served_by_id], references: [id], onDelete: SetNull)
 
   served_by_owner_id Int?
-  served_by_owner Owner? @relation("OwnerServedServices", fields: [served_by_owner_id], references: [id], onDelete: SetNull)
-  served_by_type ServiceProviderType?
+  served_by_owner    Owner?               @relation("OwnerServedServices", fields: [served_by_owner_id], references: [id], onDelete: SetNull)
+  served_by_type     ServiceProviderType?
 
   // Scheduling fields
-  scheduled_at  DateTime?  // When this specific service starts
-  estimated_end DateTime?  // scheduled_at + duration
+  scheduled_at  DateTime? // When this specific service starts
+  estimated_end DateTime? // scheduled_at + duration
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
   @@index([served_by_owner_id, status])
+  @@index([served_by_id, status, completed_at])
+  @@index([service_id, status, completed_at])
+  @@index([service_id, status, served_at])
   @@index([booking_id])
   @@index([service_id])
   @@index([package_id])
   @@index([served_by_id])
   @@index([served_by_owner_id])
 }
-
-
 
 model ServiceFlow {
   id String @id @default(cuid())
@@ -611,11 +966,11 @@ model ServiceFlow {
   suggested_service    Service @relation("FlowSuggestion", fields: [suggested_service_id], references: [id], onDelete: Cascade)
 
   // Timing
-  delay_duration Int            // e.g., 2
-  delay_unit     FlowDelayUnit  // e.g., DAYS
+  delay_duration Int // e.g., 2
+  delay_unit     FlowDelayUnit // e.g., DAYS
 
   // Logic
-  type FlowType @default(SUGGESTED) 
+  type FlowType @default(SUGGESTED)
 
   business_id String
   business    Business @relation(fields: [business_id], references: [id], onDelete: Cascade)
@@ -635,8 +990,8 @@ enum FlowDelayUnit {
 }
 
 enum FlowType {
-  REQUIRED   // "Part of a process" - User expects this to happen
-  SUGGESTED  // "Recommendation" - User might want this
+  REQUIRED // "Part of a process" - User expects this to happen
+  SUGGESTED // "Recommendation" - User might want this
 }
 
 enum CommissionCalculationBasis {
@@ -646,39 +1001,41 @@ enum CommissionCalculationBasis {
 
 // Transactional Outbox: ensures side-effects are sent iff transaction commits
 model OutboxMessage {
-  id            String   @id @default(cuid())
-  event_type    String   // "BOOKING_CREATED", "PAYMENT_CONFIRMED"
-  aggregate_type String  // "Booking", "Payslip"
-  aggregate_id  String
-  payload       Json
-  
-  processed     Boolean  @default(false)
-  processed_at  DateTime?
-  attempts      Int      @default(0)
-  last_error    String?
-  
-  business_id   String
-  created_at    DateTime @default(now())
-  
+  id             String @id @default(cuid())
+  event_type     String // "BOOKING_CREATED", "PAYMENT_CONFIRMED"
+  aggregate_type String // "Booking", "Payslip"
+  aggregate_id   String
+  payload        Json
+
+  processed    Boolean   @default(false)
+  processed_at DateTime?
+  attempts     Int       @default(0)
+  last_error   String?
+
+  business_id String
+  created_at  DateTime @default(now())
+
   @@index([processed, created_at])
+  @@index([processed, attempts, created_at])
   @@index([business_id])
   @@index([event_type])
 }
 
 // Audit Trail: records who changed what and when
 model AuditLog {
-  id           String   @id @default(cuid())
-  entity_type  String   // "Booking", "Payslip"
-  entity_id    String
-  action       String   // "CREATED", "STATUS_CHANGED"
-  actor_id     String?  // User ID (nullable for system actions)
-  actor_type   String   @default("USER") // "USER", "SYSTEM", "WEBHOOK"
-  changes      Json?    // { before: {...}, after: {...} }
-  
-  business_id  String
-  created_at   DateTime @default(now())
-  
+  id          String  @id @default(cuid())
+  entity_type String // "Booking", "Payslip"
+  entity_id   String
+  action      String // "CREATED", "STATUS_CHANGED"
+  actor_id    String? // User ID (nullable for system actions)
+  actor_type  String  @default("USER") // "USER", "SYSTEM", "WEBHOOK"
+  changes     Json? // { before: {...}, after: {...} }
+
+  business_id String
+  created_at  DateTime @default(now())
+
   @@index([entity_type, entity_id])
+  @@index([entity_type, entity_id, action])
   @@index([business_id, created_at])
   @@index([actor_id])
 }
