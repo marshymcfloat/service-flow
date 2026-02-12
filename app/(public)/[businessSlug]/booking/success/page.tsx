@@ -69,6 +69,7 @@ async function BookingSuccessContent({
       token,
       bookingId: validBookingId,
       businessSlug,
+      purpose: "success",
     }),
   );
 

@@ -570,18 +570,6 @@ export type EnumLeaveRequestStatusFieldUpdateOperationsInput = {
   set?: $Enums.LeaveRequestStatus
 }
 
-export type BoolFieldUpdateOperationsInput = {
-  set?: boolean
-}
-
-export type IntFieldUpdateOperationsInput = {
-  set?: number
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
-}
-
 export type LeaveRequestCreateNestedManyWithoutEmployeeInput = {
   create?: Prisma.XOR<Prisma.LeaveRequestCreateWithoutEmployeeInput, Prisma.LeaveRequestUncheckedCreateWithoutEmployeeInput> | Prisma.LeaveRequestCreateWithoutEmployeeInput[] | Prisma.LeaveRequestUncheckedCreateWithoutEmployeeInput[]
   connectOrCreate?: Prisma.LeaveRequestCreateOrConnectWithoutEmployeeInput | Prisma.LeaveRequestCreateOrConnectWithoutEmployeeInput[]

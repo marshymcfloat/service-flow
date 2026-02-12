@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Suspense } from "react";
 import BusinessFacingSkeleton from "@/components/skeletons/BusinessFacingSkeleton";
+import { toAbsoluteUrl } from "@/lib/site-url";
 
 interface Props {
   params: Promise<{
@@ -52,6 +53,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       business.description ||
       `Book appointments at ${business.name}. Check available services, business hours, and secure your slot today.`,
     image: imageUrl,
+    canonical: `/${business.slug}`,
   });
 }
 
@@ -113,10 +115,10 @@ async function FacingWebsiteContent({ params }: Props) {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
     name: business.name,
-    url: `${process.env.NEXT_PUBLIC_APP_URL || "https://www.serviceflow.store"}/${business.slug}`,
+    url: toAbsoluteUrl(`/${business.slug}`),
     image:
       business.imageUrl ||
-      `${process.env.NEXT_PUBLIC_APP_URL || "https://www.serviceflow.store"}/og-image.png`,
+      toAbsoluteUrl("/og-image.png"),
     priceRange: "PHP",
     description: business.description || undefined,
     openingHoursSpecification: hoursForSchema.map((hour) => ({

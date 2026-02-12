@@ -13,19 +13,53 @@ import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 import { CheckCircle2, XCircle, Calendar, Clock } from "lucide-react";
 import { prisma } from "@/prisma/prisma";
+import type { Metadata } from "next";
+import { verifyBookingSuccessToken } from "@/lib/security/booking-success-token";
+
+export const metadata: Metadata = {
+  title: "Booking Details",
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 interface BookingPageProps {
   params: Promise<{
     businessSlug: string;
     bookingId: string;
   }>;
+  searchParams: Promise<{
+    token?: string | string[];
+  }>;
 }
 
-export default async function BookingPage({ params }: BookingPageProps) {
+export default async function BookingPage({
+  params,
+  searchParams,
+}: BookingPageProps) {
   const { businessSlug, bookingId } = await params;
-  const id = parseInt(bookingId);
+  const resolvedSearchParams = await searchParams;
+  const id = parseInt(bookingId, 10);
 
   if (isNaN(id)) {
+    return notFound();
+  }
+
+  const tokenParam = Array.isArray(resolvedSearchParams?.token)
+    ? resolvedSearchParams.token[0]
+    : resolvedSearchParams?.token;
+  const canViewBooking = Boolean(
+    tokenParam &&
+    verifyBookingSuccessToken({
+      token: tokenParam,
+      bookingId: id,
+      businessSlug,
+      purpose: "details",
+    }),
+  );
+
+  if (!canViewBooking) {
     return notFound();
   }
 

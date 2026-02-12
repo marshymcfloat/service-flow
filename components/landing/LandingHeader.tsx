@@ -70,9 +70,15 @@ export default function LandingHeader() {
 
           <div className="flex items-center gap-4">
             <div className="hidden md:block w-px h-6 bg-border/50"></div>
+            <Button
+              asChild
+              className="rounded-full px-6 bg-zinc-900 hover:bg-zinc-800 cursor-pointer text-white shadow-lg shadow-zinc-900/20 transition-all hover:scale-105 active:scale-95"
+            >
+              <Link href="/apply">Apply</Link>
+            </Button>
             <AuthDialog>
-              <Button className="rounded-full px-6 bg-zinc-900 hover:bg-zinc-800 cursor-pointer text-white shadow-lg shadow-zinc-900/20 transition-all hover:scale-105 active:scale-95">
-                Get Started
+              <Button variant="outline" className="rounded-full px-6">
+                Sign in
               </Button>
             </AuthDialog>
           </div>

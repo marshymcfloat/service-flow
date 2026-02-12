@@ -1,12 +1,11 @@
 import { Metadata } from "next";
+import { getSiteUrl } from "@/lib/site-url";
 
 // Define the default configuration
-// TODO: Replace with your actual domain and deployment URL
 const defaultTitle = "Service Flow";
 const defaultDescription =
   "The all-in-one platform for salons, barbershops, and spas. Manage appointments, staff, and payments with ease.";
-const defaultUrl =
-  process.env.NEXT_PUBLIC_APP_URL || "https://www.serviceflow.store";
+const defaultUrl = getSiteUrl();
 
 type MetadataProps = {
   title?: string;
@@ -14,7 +13,16 @@ type MetadataProps = {
   image?: string;
   icons?: string;
   noIndex?: boolean;
+  canonical?: string;
 };
+
+function normalizeCanonical(canonical: string) {
+  if (canonical.startsWith("http://") || canonical.startsWith("https://")) {
+    return canonical;
+  }
+
+  return canonical.startsWith("/") ? canonical : `/${canonical}`;
+}
 
 export function constructMetadata({
   title = defaultTitle,
@@ -22,7 +30,10 @@ export function constructMetadata({
   image = "/og-image.png",
   icons = "/favicon.ico",
   noIndex = false,
+  canonical = "/",
 }: MetadataProps = {}): Metadata {
+  const canonicalUrl = normalizeCanonical(canonical);
+
   return {
     title: {
       template: `%s | ${defaultTitle}`,
@@ -32,7 +43,7 @@ export function constructMetadata({
     openGraph: {
       title,
       description,
-      url: defaultUrl,
+      url: canonicalUrl,
       siteName: defaultTitle,
       images: [
         {
@@ -61,7 +72,7 @@ export function constructMetadata({
       },
     }),
     alternates: {
-      canonical: "./",
+      canonical: canonicalUrl,
     },
   };
 }

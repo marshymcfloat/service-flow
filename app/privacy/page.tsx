@@ -77,7 +77,12 @@ export default function PrivacyPolicyPage() {
               </li>
               <li>
                 <strong>Payment Information:</strong> Billing address, payment
-                method details (processed securely by third-party providers)
+                records, and manual payment references submitted during
+                onboarding and billing support
+              </li>
+              <li>
+                <strong>Referral Program Data:</strong> Referral codes, referral
+                lead details, and referral attribution status
               </li>
               <li>
                 <strong>Customer Data:</strong> Information about your customers
@@ -118,6 +123,10 @@ export default function PrivacyPolicyPage() {
               <li>Process bookings and transactions</li>
               <li>Send booking confirmations and reminders</li>
               <li>
+                Administer onboarding applications, trial periods, billing
+                reminders, manual payment reconciliation, and referral rewards
+              </li>
+              <li>
                 Communicate with you about updates, support, and marketing
               </li>
               <li>Analyze usage patterns to enhance user experience</li>
@@ -130,7 +139,7 @@ export default function PrivacyPolicyPage() {
             <ul>
               <li>
                 <strong>With Service Providers:</strong> Third-party vendors who
-                help us operate our platform (hosting, payment processing, email
+                help us operate our platform (hosting, communication, email
                 services)
               </li>
               <li>
@@ -241,8 +250,8 @@ export default function PrivacyPolicyPage() {
             <p>Our Service may integrate with third-party services:</p>
             <ul>
               <li>
-                <strong>Payment Processors:</strong> PayMongo for secure payment
-                handling
+                <strong>Billing Partners:</strong> Payment channels and banking
+                partners used for manual billing collection
               </li>
               <li>
                 <strong>Email Services:</strong> Resend for transactional emails

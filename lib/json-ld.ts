@@ -1,6 +1,7 @@
+import { getSiteUrl } from "@/lib/site-url";
+
 export function organizationSchema() {
-  const baseUrl =
-    process.env.NEXT_PUBLIC_APP_URL || "https://www.serviceflow.store";
+  const baseUrl = getSiteUrl();
   return {
     "@context": "https://schema.org",
     "@type": "Organization",
@@ -23,24 +24,17 @@ export function organizationSchema() {
 }
 
 export function websiteSchema() {
-  const baseUrl =
-    process.env.NEXT_PUBLIC_APP_URL || "https://www.serviceflow.store";
+  const baseUrl = getSiteUrl();
   return {
     "@context": "https://schema.org",
     "@type": "WebSite",
     name: "Service Flow",
     url: baseUrl,
-    potentialAction: {
-      "@type": "SearchAction",
-      target: `${baseUrl}/search?q={search_term_string}`,
-      "query-input": "required name=search_term_string",
-    },
   };
 }
 
 export function breadcrumbSchema(items: { name: string; item: string }[]) {
-  const baseUrl =
-    process.env.NEXT_PUBLIC_APP_URL || "https://www.serviceflow.store";
+  const baseUrl = getSiteUrl();
   return {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",

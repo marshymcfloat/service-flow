@@ -4,6 +4,11 @@ import BookingConfirmationEmail from "@/components/emails/BookingConfirmationEma
 import { prisma } from "@/prisma/prisma";
 import { formatPH } from "@/lib/date-utils";
 import { logger } from "@/lib/logger";
+import { toAbsoluteUrl } from "@/lib/site-url";
+import {
+  BOOKING_DETAILS_TOKEN_TTL_SECONDS,
+  createBookingSuccessToken,
+} from "@/lib/security/booking-success-token";
 
 const resend = new Resend(process.env.RESEND_API_KEY!);
 
@@ -49,7 +54,15 @@ export async function sendBookingConfirmation(bookingId: number) {
     const scheduledTime = scheduledAt ? formatPH(scheduledAt, "h:mm a") : "N/A";
     const businessName = booking.business.name;
     const customerName = booking.customer.name;
-    const bookingUrl = `${process.env.NEXT_PUBLIC_APP_URL}/${booking.business.slug}/bookings/${booking.id}`;
+    const bookingToken = createBookingSuccessToken({
+      bookingId: booking.id,
+      businessSlug: booking.business.slug,
+      purpose: "details",
+      ttlSeconds: BOOKING_DETAILS_TOKEN_TTL_SECONDS,
+    });
+    const bookingUrl = toAbsoluteUrl(
+      `/${booking.business.slug}/bookings/${booking.id}?token=${encodeURIComponent(bookingToken)}`,
+    );
 
     const emailHtml = await render(
       BookingConfirmationEmail({

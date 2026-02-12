@@ -1,10 +1,13 @@
 import crypto from "crypto";
 
-const BOOKING_SUCCESS_TOKEN_TTL_SECONDS = 30 * 60;
+export const BOOKING_SUCCESS_TOKEN_TTL_SECONDS = 30 * 60;
+export const BOOKING_DETAILS_TOKEN_TTL_SECONDS = 30 * 24 * 60 * 60;
+export type BookingTokenPurpose = "success" | "details";
 
 type BookingSuccessPayload = {
   bookingId: number;
   businessSlug: string;
+  purpose: BookingTokenPurpose;
   exp: number;
 };
 
@@ -42,11 +45,14 @@ export function createBookingSuccessToken(params: {
   bookingId: number;
   businessSlug: string;
   ttlSeconds?: number;
+  purpose?: BookingTokenPurpose;
 }) {
   const ttlSeconds = params.ttlSeconds ?? BOOKING_SUCCESS_TOKEN_TTL_SECONDS;
+  const purpose = params.purpose ?? "success";
   const payload: BookingSuccessPayload = {
     bookingId: params.bookingId,
     businessSlug: params.businessSlug,
+    purpose,
     exp: Math.floor(Date.now() / 1000) + ttlSeconds,
   };
 
@@ -59,11 +65,13 @@ export function verifyBookingSuccessToken(params: {
   token: string;
   bookingId: number;
   businessSlug: string;
+  purpose?: BookingTokenPurpose;
 }) {
   const [payloadBase64, signature] = params.token.split(".");
   if (!payloadBase64 || !signature) {
     return false;
   }
+  const expectedPurpose = params.purpose ?? "success";
 
   const expectedSignature = signPayload(payloadBase64);
 
@@ -83,15 +91,18 @@ export function verifyBookingSuccessToken(params: {
   try {
     const payload = JSON.parse(
       base64UrlDecode(payloadBase64),
-    ) as BookingSuccessPayload;
+    ) as Partial<BookingSuccessPayload>;
+    const tokenPurpose =
+      payload.purpose === "details" ? "details" : "success";
 
-    if (payload.exp < Math.floor(Date.now() / 1000)) {
+    if (typeof payload.exp !== "number" || payload.exp < Math.floor(Date.now() / 1000)) {
       return false;
     }
 
     return (
       payload.bookingId === params.bookingId &&
-      payload.businessSlug === params.businessSlug
+      payload.businessSlug === params.businessSlug &&
+      tokenPurpose === expectedPurpose
     );
   } catch {
     return false;

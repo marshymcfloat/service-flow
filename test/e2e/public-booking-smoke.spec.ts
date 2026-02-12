@@ -3,21 +3,35 @@ import "dotenv/config";
 import { Client } from "pg";
 
 const hasDatabase = Boolean(process.env.DATABASE_URL);
+const runDbE2E =
+  process.env.RUN_DB_E2E === "true" || process.env.CI === "true";
 const businessSlug = `e2e-booking-${Date.now()}`;
 const businessName = "E2E Booking Salon";
 const businessId = `e2e_${Date.now()}`;
 let dbClient: Client | null = null;
-let dbReady = false;
 
 test.describe("Public booking smoke", () => {
-  test.skip(!hasDatabase, "DATABASE_URL is required for booking smoke E2E.");
+  test.skip(
+    !hasDatabase || !runDbE2E,
+    "DATABASE_URL and RUN_DB_E2E=true are required for booking smoke E2E.",
+  );
 
   test.beforeAll(async () => {
-    dbClient = new Client({
-      connectionString: process.env.DATABASE_URL,
-    });
-    await dbClient.connect();
-    dbReady = true;
+    try {
+      dbClient = new Client({
+        connectionString: process.env.DATABASE_URL,
+        connectionTimeoutMillis: 4000,
+      });
+      await dbClient.connect();
+    } catch (error) {
+      const reason =
+        error instanceof Error ? error.message : "Unknown DB connection error";
+      if (dbClient) {
+        await dbClient.end().catch(() => undefined);
+        dbClient = null;
+      }
+      throw new Error(`Database is not reachable for booking smoke E2E: ${reason}`);
+    }
 
     await dbClient.query(
       `INSERT INTO "Business" ("id", "name", "slug", "initials", "description", "created_at", "updated_at")
@@ -39,7 +53,7 @@ test.describe("Public booking smoke", () => {
   });
 
   test.afterAll(async () => {
-    if (!dbClient || !dbReady) return;
+    if (!dbClient) return;
     await dbClient.query(`DELETE FROM "Business" WHERE "slug" = $1`, [
       businessSlug,
     ]);

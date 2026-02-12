@@ -11,6 +11,7 @@ export const metadata = constructMetadata({
   description:
     "Browse trusted local businesses using Service Flow for their appointments and management.",
   image: "/og-image.png",
+  canonical: "/explore",
 });
 
 export default function ExplorePage() {

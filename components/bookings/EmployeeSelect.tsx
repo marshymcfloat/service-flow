@@ -19,6 +19,7 @@ interface EmployeeSelectProps {
   isLoading?: boolean;
   serviceCategories?: string[];
   ownerAvailableFallback?: boolean;
+  showOptionalHint?: boolean;
 }
 
 const EmployeeSelect = React.memo(function EmployeeSelect({
@@ -28,6 +29,7 @@ const EmployeeSelect = React.memo(function EmployeeSelect({
   isLoading = false,
   serviceCategories,
   ownerAvailableFallback = false,
+  showOptionalHint = true,
 }: EmployeeSelectProps) {
   const categorySet = React.useMemo(() => {
     if (!serviceCategories || serviceCategories.length === 0) return null;
@@ -80,6 +82,25 @@ const EmployeeSelect = React.memo(function EmployeeSelect({
 
   return (
     <div className="space-y-4">
+      {showOptionalHint && (
+        <div className="rounded-lg border bg-muted/30 p-3 text-xs text-muted-foreground">
+          Staff selection is optional. Leave unselected to assign any available
+          staff.
+        </div>
+      )}
+
+      <div
+        onClick={() => onChange(null)}
+        className={cn(
+          "cursor-pointer rounded-xl border p-3 text-sm transition-colors",
+          value == null
+            ? "border-primary bg-primary/5 text-primary"
+            : "border-border hover:border-primary/40",
+        )}
+      >
+        Any available staff
+      </div>
+
       {availableEmployees.length === 0 && unavailableEmployees.length > 0 && (
         <div className="text-center py-2 text-muted-foreground">
           <p>

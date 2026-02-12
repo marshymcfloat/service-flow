@@ -110,15 +110,22 @@ Open `http://localhost:3000`.
 - `GET /api/paymongo/webhook` - webhook health
 - `POST /api/paymongo/webhook` - PayMongo webhook receiver
 
-### Cron routes (HTTP Basic auth required)
+### Cron routes (authenticated)
 
 - `GET /api/cron/expire-holds`
 - `GET /api/cron/reminders`
 - `GET /api/cron/re-engagement`
 - `GET /api/cron/flow-reminders`
 - `GET /api/cron/process-outbox`
+- `GET /api/cron/reconcile-payments`
+- `GET /api/cron/subscription-renewals`
+- `GET /api/cron/subscription-dunning`
+- `GET /api/cron/subscription-referral-rewards`
 
-Auth credentials are validated against `CRON_USER` (default `admin`) and `CRON_PASSWORD`.
+Cron auth supports either:
+
+- Bearer token via `CRON_SECRET`
+- HTTP Basic auth via `CRON_USER` (default `admin`) + `CRON_PASSWORD`
 
 Example:
 
@@ -129,7 +136,7 @@ curl -u "$CRON_USER:$CRON_PASSWORD" http://localhost:3000/api/cron/expire-holds
 ## Security and platform notes
 
 - Route access is enforced in `proxy.ts` (redirects unauthenticated `/app/*` traffic).
-- API rate limiting is currently in-memory (`lib/rate-limit.ts`).
+- API rate limiting uses Upstash Redis when configured (`UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN`) with local in-memory fallback.
 - Security headers are configured in both `proxy.ts` and `next.config.ts`.
 - Private dashboard pages are marked `noindex`.
 
@@ -145,7 +152,7 @@ docker run -p 3000:3000 --env-file .env service-flow
 ### Vercel
 
 - Set the same environment variables in your Vercel project.
-- Configure cron schedules in Vercel dashboard (current `vercel.json` has no cron entries).
+- Configure external scheduler jobs (for example `cron-job.org`) to hit the cron endpoints with auth.
 - Ensure PayMongo webhook points to `/api/paymongo/webhook`.
 
 ## Project structure

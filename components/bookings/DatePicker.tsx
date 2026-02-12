@@ -16,6 +16,7 @@ interface DatePickerProps {
   value?: Date;
   onChange: (date: Date | undefined) => void;
   minDate?: Date;
+  maxDate?: Date;
   placeholder?: string;
 }
 
@@ -23,9 +24,16 @@ export default function DatePicker({
   value,
   onChange,
   minDate = new Date(),
+  maxDate,
   placeholder = "Pick a date",
 }: DatePickerProps) {
   const [open, setOpen] = React.useState(false);
+  const minStart = new Date(minDate);
+  minStart.setHours(0, 0, 0, 0);
+  const maxEnd = maxDate ? new Date(maxDate) : undefined;
+  if (maxEnd) {
+    maxEnd.setHours(23, 59, 59, 999);
+  }
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -50,7 +58,7 @@ export default function DatePicker({
             setOpen(false);
           }}
           disabled={(date: Date) =>
-            date < new Date(minDate.setHours(0, 0, 0, 0))
+            date < minStart || (!!maxEnd && date > maxEnd)
           }
           initialFocus
         />

@@ -138,18 +138,26 @@ export default function TermsOfServicePage() {
 
             <h2>6. Payment Terms</h2>
             <p>
-              Payment processing is handled through third-party payment
-              processors. By using our payment features, you agree to:
+              ServiceFlow currently uses an admin-reviewed onboarding and manual
+              billing process. By using our service, you agree to:
             </p>
             <ul>
-              <li>Pay all fees associated with your subscription plan</li>
+              <li>Pay all fees associated with your approved plan</li>
               <li>
-                Provide valid payment information and authorize recurring
-                charges
+                Understand that free demo months, credits, and referral rewards
+                are promotional and may have qualification conditions
               </li>
               <li>
-                Accept that subscription fees are billed in advance on a monthly
-                or annual basis
+                Provide accurate billing details and settle invoices through the
+                payment channels coordinated by our team
+              </li>
+              <li>
+                Accept that self-serve online checkout may be unavailable during
+                manual billing rollout
+              </li>
+              <li>
+                Accept that unpaid accounts may enter grace period and then
+                read-only suspension until payment is confirmed
               </li>
               <li>Understand that refunds are subject to our refund policy</li>
             </ul>

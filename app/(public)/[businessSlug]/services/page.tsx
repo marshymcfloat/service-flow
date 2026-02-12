@@ -8,6 +8,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Suspense } from "react";
 import BusinessFacingSkeleton from "@/components/skeletons/BusinessFacingSkeleton";
+import { constructMetadata } from "@/lib/metadata";
 
 interface Props {
   params: Promise<{ businessSlug: string }>;
@@ -17,20 +18,24 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { businessSlug } = await params;
   const business = await prisma.business.findUnique({
     where: { slug: businessSlug },
-    select: { name: true, slug: true },
+    select: { name: true, slug: true, description: true, imageUrl: true },
   });
 
   if (!business) {
-    return { title: "Services" };
+    return constructMetadata({
+      title: "Business Not Found",
+      noIndex: true,
+    });
   }
 
-  return {
-    title: `${business.name} Services`,
-    description: `Explore ${business.name}'s services and book an appointment.`,
-    alternates: {
-      canonical: `/${business.slug}/services`,
-    },
-  };
+  return constructMetadata({
+    title: `${business.name} Services | Book Online`,
+    description:
+      business.description ||
+      `Explore ${business.name}'s services and book an appointment online.`,
+    image: business.imageUrl || "/og-image.png",
+    canonical: `/${business.slug}/services`,
+  });
 }
 
 export default function BusinessServicesPage({ params }: Props) {

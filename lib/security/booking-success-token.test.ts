@@ -47,6 +47,24 @@ describe("booking success token", () => {
     expect(valid).toBe(false);
   });
 
+  it("rejects token when purpose does not match", () => {
+    const token = createBookingSuccessToken({
+      bookingId: 123,
+      businessSlug: "beautyfeel",
+      purpose: "details",
+      ttlSeconds: 60,
+    });
+
+    const valid = verifyBookingSuccessToken({
+      token,
+      bookingId: 123,
+      businessSlug: "beautyfeel",
+      purpose: "success",
+    });
+
+    expect(valid).toBe(false);
+  });
+
   it("rejects expired token", () => {
     const token = createBookingSuccessToken({
       bookingId: 123,

@@ -82,6 +82,7 @@ jobs:
       NEXT_PUBLIC_APP_URL: http://127.0.0.1:3100
       CRON_USER: admin
       CRON_PASSWORD: test-cron-password
+      RUN_DB_E2E: "true"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -101,5 +102,12 @@ jobs:
       - name: Install Playwright browser
         run: npx playwright install --with-deps chromium
 
-      - name: Booking smoke E2E
-        run: npm run test:e2e
+      - name: Platform route-protection E2E (core)
+        run: npm run test:e2e:core
+
+      - name: Check DB health for booking smoke (required)
+        run: |
+          node -e "const { Client } = require('pg'); const client = new Client({ connectionString: process.env.DATABASE_URL, connectionTimeoutMillis: 3000 }); client.connect().then(() => client.end()).catch((error) => { console.error('DB health check failed:', error.message); process.exit(1); });"
+
+      - name: Booking smoke E2E (db)
+        run: npm run test:e2e:db

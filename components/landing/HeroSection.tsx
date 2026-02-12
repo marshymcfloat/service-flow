@@ -10,7 +10,6 @@ import {
   CalendarCheck,
   TrendingUp,
 } from "lucide-react";
-import AuthDialog from "@/components/auth/AuthDialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
@@ -50,15 +49,18 @@ export default function HeroSection() {
 
             <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-lg leading-relaxed animate-in fade-in slide-in-from-bottom-8 duration-700 fill-mode-backwards delay-200">
               Streamline appointments, manage staff attendance, and track
-              payments all in one unified platform.
+              operations in one unified platform with admin-guided onboarding.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center md:items-start gap-4 animate-in fade-in slide-in-from-bottom-8 duration-700 fill-mode-backwards delay-300">
-              <AuthDialog>
-                <Button className="rounded-full h-12 px-8 text-base font-semibold shadow-lg shadow-green-200/50 hover:shadow-green-300/50 transition-all hover:scale-105 active:scale-95">
-                  Start for free <ArrowRight className="ml-2 size-4" />
-                </Button>
-              </AuthDialog>
+              <Button
+                asChild
+                className="rounded-full h-12 px-8 text-base font-semibold shadow-lg shadow-green-200/50 hover:shadow-green-300/50 transition-all hover:scale-105 active:scale-95"
+              >
+                <Link href="/apply">
+                  Apply for ServiceFlow <ArrowRight className="ml-2 size-4" />
+                </Link>
+              </Button>
               <Button
                 asChild
                 variant="outline"
