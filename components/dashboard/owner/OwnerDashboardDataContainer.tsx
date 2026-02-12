@@ -5,7 +5,11 @@ import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import OwnerDashboard from "./OwnerDashboard";
 import { prisma } from "@/prisma/prisma";
-import { getEndOfDayPH, getStartOfDayPH } from "@/lib/date-utils";
+import {
+  getCurrentDateTimePH,
+  getEndOfDayPH,
+  getStartOfDayPH,
+} from "@/lib/date-utils";
 import { getThisWeeksFlowRemindersCount } from "@/lib/data/flow-reminder-queries";
 
 function toObjectRecord(value: unknown): Record<string, unknown> {
@@ -229,7 +233,9 @@ export default async function OwnerDashboardDataContainer({
     business.id,
   );
 
-  const metricWindowStart = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+  const metricWindowStart = new Date(
+    getCurrentDateTimePH().getTime() - 7 * 24 * 60 * 60 * 1000,
+  );
   const bookingMetricLogs = await prisma.auditLog.findMany({
     where: {
       business_id: business.id,
