@@ -317,7 +317,9 @@ export async function createBookingInDb({
           }
 
           const eventType =
-            bookingStatus === "ACCEPTED" ? "BOOKING_CONFIRMED" : "BOOKING_CREATED";
+            bookingStatus === "ACCEPTED" && !isWalkIn
+              ? "BOOKING_CONFIRMED"
+              : "BOOKING_CREATED";
 
           await publishEvent(tx as Prisma.TransactionClient, {
             type: eventType,
