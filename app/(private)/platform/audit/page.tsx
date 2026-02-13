@@ -9,6 +9,7 @@ import {
   platformTableClass,
   platformTableContainerClass,
   platformTableHeadClass,
+  platformTableWrapCellClass,
 } from "../_components/platform-ui";
 
 export default async function PlatformAuditPage() {
@@ -59,17 +60,17 @@ export default async function PlatformAuditPage() {
                   <td className={`${platformTableCellClass} min-w-[160px]`}>
                     {formatPlatformDateTime(log.created_at)}
                   </td>
-                  <td className={`${platformTableCellClass} min-w-[190px] whitespace-normal`}>
+                  <td className={`${platformTableCellClass} min-w-[190px] max-w-[260px] ${platformTableWrapCellClass}`}>
                     <p className="font-medium text-[var(--pf-text)]">{log.action}</p>
                   </td>
-                  <td className={`${platformTableCellClass} min-w-[210px] whitespace-normal`}>
+                  <td className={`${platformTableCellClass} min-w-[210px] max-w-[320px] ${platformTableWrapCellClass}`}>
                     <p>{log.target_type}</p>
                     <p className="text-xs text-[var(--pf-muted)]">{log.target_id}</p>
                   </td>
-                  <td className={`${platformTableCellClass} min-w-[160px] whitespace-normal`}>
+                  <td className={`${platformTableCellClass} min-w-[160px] max-w-[220px] ${platformTableWrapCellClass}`}>
                     {log.business?.name ?? "-"}
                   </td>
-                  <td className={`${platformTableCellClass} min-w-[200px] whitespace-normal`}>
+                  <td className={`${platformTableCellClass} min-w-[200px] max-w-[280px] ${platformTableWrapCellClass}`}>
                     {log.actor_user?.name ?? log.actor_user?.email ?? log.actor_email ?? "SYSTEM"}
                   </td>
                 </tr>

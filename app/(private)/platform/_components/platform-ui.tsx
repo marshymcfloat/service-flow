@@ -44,6 +44,8 @@ export const platformTableHeadClass =
   "px-4 py-3 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--pf-muted)]";
 export const platformTableCellClass =
   "px-4 py-3 align-top text-[var(--pf-text)] whitespace-nowrap";
+export const platformTableWrapCellClass =
+  "whitespace-normal break-words [overflow-wrap:anywhere]";
 
 export const platformInputClass =
   "h-10 w-full rounded-xl border border-[var(--pf-border)] bg-white px-3 text-sm text-[var(--pf-text)] outline-none transition focus-visible:border-[var(--pf-primary)] focus-visible:ring-2 focus-visible:ring-cyan-200";

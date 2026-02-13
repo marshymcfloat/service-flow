@@ -26,6 +26,7 @@ import {
   platformTableClass,
   platformTableContainerClass,
   platformTableHeadClass,
+  platformTableWrapCellClass,
 } from "../_components/platform-ui";
 
 type PlatformReferralsPageProps = {
@@ -208,10 +209,10 @@ export default async function PlatformReferralsPage({
             <tbody>
               {leads.map((lead) => (
                 <tr key={lead.id} className="border-b border-[var(--pf-border)]/80 last:border-0">
-                  <td className={`${platformTableCellClass} min-w-[180px] whitespace-normal`}>
+                  <td className={`${platformTableCellClass} min-w-[180px] max-w-[220px] ${platformTableWrapCellClass}`}>
                     {lead.referral_code.business.name}
                   </td>
-                  <td className={`${platformTableCellClass} min-w-[220px] whitespace-normal`}>
+                  <td className={`${platformTableCellClass} min-w-[220px] max-w-[280px] ${platformTableWrapCellClass}`}>
                     <p className="font-medium text-[var(--pf-text)]">{lead.referred_business_name}</p>
                     <p className="text-xs text-[var(--pf-muted)]">{lead.owner_email}</p>
                   </td>
@@ -254,10 +255,10 @@ export default async function PlatformReferralsPage({
             <tbody>
               {attributions.map((item) => (
                 <tr key={item.id} className="border-b border-[var(--pf-border)]/80 last:border-0">
-                  <td className={`${platformTableCellClass} min-w-[180px] whitespace-normal`}>
+                  <td className={`${platformTableCellClass} min-w-[180px] max-w-[220px] ${platformTableWrapCellClass}`}>
                     {item.referrer_business.name}
                   </td>
-                  <td className={`${platformTableCellClass} min-w-[180px] whitespace-normal`}>
+                  <td className={`${platformTableCellClass} min-w-[180px] max-w-[220px] ${platformTableWrapCellClass}`}>
                     {item.referred_business.name}
                   </td>
                   <td className={platformTableCellClass}>

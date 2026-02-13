@@ -29,6 +29,7 @@ import {
   platformTableClass,
   platformTableContainerClass,
   platformTableHeadClass,
+  platformTableWrapCellClass,
 } from "../_components/platform-ui";
 
 type PlatformInvoicesPageProps = {
@@ -267,7 +268,7 @@ export default async function PlatformInvoicesPage({
 
                 return (
                   <tr key={invoice.id} className="border-b border-[var(--pf-border)]/80 last:border-0">
-                    <td className={`${platformTableCellClass} min-w-[180px] whitespace-normal`}>
+                    <td className={`${platformTableCellClass} min-w-[180px] max-w-[260px] ${platformTableWrapCellClass}`}>
                       <p className="font-medium text-[var(--pf-text)]">{invoice.business.name}</p>
                       <p className="text-xs text-[var(--pf-muted)]">{invoice.business.slug}</p>
                     </td>

@@ -30,6 +30,7 @@ import {
   platformTableClass,
   platformTableContainerClass,
   platformTableHeadClass,
+  platformTableWrapCellClass,
 } from "../_components/platform-ui";
 
 type PlatformApplicationsPageProps = {
@@ -260,7 +261,7 @@ export default async function PlatformApplicationsPage({
 
                 return (
                   <tr key={application.id} className="border-b border-[var(--pf-border)]/80 last:border-0">
-                    <td className={`${platformTableCellClass} min-w-[220px] whitespace-normal`}>
+                    <td className={`${platformTableCellClass} min-w-[220px] max-w-[280px] ${platformTableWrapCellClass}`}>
                       <p className="font-semibold text-[var(--pf-text)]">{application.business_name}</p>
                       <p className="mt-1 text-xs text-[var(--pf-muted)]">
                         Submitted {formatPlatformDate(application.created_at)}
@@ -271,14 +272,14 @@ export default async function PlatformApplicationsPage({
                         </p>
                       ) : null}
                     </td>
-                    <td className={`${platformTableCellClass} min-w-[220px] whitespace-normal`}>
+                    <td className={`${platformTableCellClass} min-w-[220px] max-w-[280px] ${platformTableWrapCellClass}`}>
                       <p>{application.owner_name}</p>
                       <p className="text-xs text-[var(--pf-muted)]">{application.owner_email}</p>
                       {application.owner_phone ? (
                         <p className="text-xs text-[var(--pf-muted)]">{application.owner_phone}</p>
                       ) : null}
                     </td>
-                    <td className={`${platformTableCellClass} min-w-[130px] whitespace-normal`}>
+                    <td className={`${platformTableCellClass} min-w-[130px] max-w-[180px] ${platformTableWrapCellClass}`}>
                       {application.referral_code?.code ?? application.referral_code_input ?? "-"}
                     </td>
                     <td className={platformTableCellClass}>
@@ -293,7 +294,7 @@ export default async function PlatformApplicationsPage({
                         ) : null}
                       </div>
                     </td>
-                    <td className={`${platformTableCellClass} min-w-[160px] whitespace-normal`}>
+                    <td className={`${platformTableCellClass} min-w-[160px] max-w-[220px] ${platformTableWrapCellClass}`}>
                       {application.reviewed_by_user?.name ?? application.reviewed_by_user?.email ?? "-"}
                     </td>
                     <td className={`${platformTableCellClass} min-w-[260px]`}>

@@ -30,6 +30,7 @@ import {
   platformTableClass,
   platformTableContainerClass,
   platformTableHeadClass,
+  platformTableWrapCellClass,
 } from "../_components/platform-ui";
 
 type PlatformBusinessesPageProps = {
@@ -270,14 +271,14 @@ export default async function PlatformBusinessesPage({
                 const subscription = business.subscriptions[0];
                 return (
                   <tr key={business.id} className="border-b border-[var(--pf-border)]/80 last:border-0">
-                    <td className={`${platformTableCellClass} min-w-[200px] whitespace-normal`}>
+                    <td className={`${platformTableCellClass} min-w-[200px] max-w-[280px] ${platformTableWrapCellClass}`}>
                       <p className="font-semibold text-[var(--pf-text)]">{business.name}</p>
                       <p className="text-xs text-[var(--pf-muted)]">{business.slug}</p>
                       <p className="mt-1 text-xs text-[var(--pf-muted)]">
                         Created {formatPlatformDate(business.created_at)}
                       </p>
                     </td>
-                    <td className={`${platformTableCellClass} min-w-[200px] whitespace-normal`}>
+                    <td className={`${platformTableCellClass} min-w-[200px] max-w-[260px] ${platformTableWrapCellClass}`}>
                       <p>{business.owners[0]?.user.name ?? "-"}</p>
                       <p className="text-xs text-[var(--pf-muted)]">{business.owners[0]?.user.email ?? "-"}</p>
                     </td>
