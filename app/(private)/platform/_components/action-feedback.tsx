@@ -46,10 +46,33 @@ function sanitizeFlashMessage(rawMessage: string, fallback: string) {
   return capLength(normalized);
 }
 
+function isRedirectControlFlowError(error: unknown) {
+  if (!error) return false;
+
+  if (typeof error === "object") {
+    const digest = (error as { digest?: unknown }).digest;
+    if (typeof digest === "string" && digest.startsWith("NEXT_REDIRECT")) {
+      return true;
+    }
+  }
+
+  return error instanceof Error && error.message === "NEXT_REDIRECT";
+}
+
+export function rethrowIfRedirectError(error: unknown) {
+  if (isRedirectControlFlowError(error)) {
+    throw error;
+  }
+}
+
 export function toActionErrorMessage(
   error: unknown,
   fallback = DEFAULT_ERROR_MESSAGE,
 ) {
+  if (isRedirectControlFlowError(error)) {
+    return fallback;
+  }
+
   if (error instanceof Error) {
     return sanitizeFlashMessage(error.message, fallback);
   }

@@ -11,6 +11,7 @@ import {
   buildPlatformSuccessPath,
   getPlatformFlashMessage,
   PlatformFlashNotice,
+  rethrowIfRedirectError,
   toActionErrorMessage,
 } from "../_components/action-feedback";
 import {
@@ -74,6 +75,7 @@ export default async function PlatformReferralsPage({
 
       redirect(buildPlatformSuccessPath("/platform/referrals", "Referral qualification run completed."));
     } catch (error) {
+      rethrowIfRedirectError(error);
       redirect(
         buildPlatformErrorPath(
           "/platform/referrals",
@@ -96,6 +98,7 @@ export default async function PlatformReferralsPage({
 
       redirect(buildPlatformSuccessPath("/platform/referrals", "Referral lead marked contacted."));
     } catch (error) {
+      rethrowIfRedirectError(error);
       redirect(
         buildPlatformErrorPath(
           "/platform/referrals",
@@ -118,6 +121,7 @@ export default async function PlatformReferralsPage({
 
       redirect(buildPlatformSuccessPath("/platform/referrals", "Referral lead rejected."));
     } catch (error) {
+      rethrowIfRedirectError(error);
       redirect(
         buildPlatformErrorPath(
           "/platform/referrals",
@@ -137,6 +141,7 @@ export default async function PlatformReferralsPage({
 
       redirect(buildPlatformSuccessPath("/platform/referrals", "Referral attribution rejected."));
     } catch (error) {
+      rethrowIfRedirectError(error);
       redirect(
         buildPlatformErrorPath(
           "/platform/referrals",

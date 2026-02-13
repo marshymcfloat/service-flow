@@ -7,6 +7,7 @@ import {
   buildPlatformSuccessPath,
   getPlatformFlashMessage,
   PlatformFlashNotice,
+  rethrowIfRedirectError,
   toActionErrorMessage,
 } from "../_components/action-feedback";
 import {
@@ -69,6 +70,7 @@ export default async function PlatformPlansPage({
 
                 redirect(buildPlatformSuccessPath("/platform/plans", "Subscription plan updated."));
               } catch (error) {
+                rethrowIfRedirectError(error);
                 redirect(
                   buildPlatformErrorPath(
                     "/platform/plans",

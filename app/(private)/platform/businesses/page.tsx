@@ -13,6 +13,7 @@ import {
   buildPlatformSuccessPath,
   getPlatformFlashMessage,
   PlatformFlashNotice,
+  rethrowIfRedirectError,
   toActionErrorMessage,
 } from "../_components/action-feedback";
 import {
@@ -88,6 +89,7 @@ export default async function PlatformBusinessesPage({
 
       redirect(buildPlatformSuccessPath("/platform/businesses", "Business created successfully."));
     } catch (error) {
+      rethrowIfRedirectError(error);
       redirect(
         buildPlatformErrorPath(
           "/platform/businesses",
@@ -107,6 +109,7 @@ export default async function PlatformBusinessesPage({
 
       redirect(buildPlatformSuccessPath("/platform/businesses", "Trial month granted."));
     } catch (error) {
+      rethrowIfRedirectError(error);
       redirect(
         buildPlatformErrorPath(
           "/platform/businesses",
@@ -130,6 +133,7 @@ export default async function PlatformBusinessesPage({
 
       redirect(buildPlatformSuccessPath("/platform/businesses", "Credit adjustment applied."));
     } catch (error) {
+      rethrowIfRedirectError(error);
       redirect(
         buildPlatformErrorPath(
           "/platform/businesses",
@@ -149,6 +153,7 @@ export default async function PlatformBusinessesPage({
 
       redirect(buildPlatformSuccessPath("/platform/businesses", "Business suspended."));
     } catch (error) {
+      rethrowIfRedirectError(error);
       redirect(
         buildPlatformErrorPath(
           "/platform/businesses",
@@ -168,6 +173,7 @@ export default async function PlatformBusinessesPage({
 
       redirect(buildPlatformSuccessPath("/platform/businesses", "Business reactivated."));
     } catch (error) {
+      rethrowIfRedirectError(error);
       redirect(
         buildPlatformErrorPath(
           "/platform/businesses",

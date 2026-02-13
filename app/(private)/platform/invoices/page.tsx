@@ -13,6 +13,7 @@ import {
   buildPlatformSuccessPath,
   getPlatformFlashMessage,
   PlatformFlashNotice,
+  rethrowIfRedirectError,
   toActionErrorMessage,
 } from "../_components/action-feedback";
 import {
@@ -105,6 +106,7 @@ export default async function PlatformInvoicesPage({
 
       redirect(buildPlatformSuccessPath("/platform/invoices", "Invoice created."));
     } catch (error) {
+      rethrowIfRedirectError(error);
       redirect(
         buildPlatformErrorPath(
           "/platform/invoices",
@@ -124,6 +126,7 @@ export default async function PlatformInvoicesPage({
 
       redirect(buildPlatformSuccessPath("/platform/invoices", "Checkout link created."));
     } catch (error) {
+      rethrowIfRedirectError(error);
       redirect(
         buildPlatformErrorPath(
           "/platform/invoices",
@@ -143,6 +146,7 @@ export default async function PlatformInvoicesPage({
 
       redirect(buildPlatformSuccessPath("/platform/invoices", "Collection retry queued."));
     } catch (error) {
+      rethrowIfRedirectError(error);
       redirect(
         buildPlatformErrorPath(
           "/platform/invoices",
@@ -166,6 +170,7 @@ export default async function PlatformInvoicesPage({
 
       redirect(buildPlatformSuccessPath("/platform/invoices", "Invoice marked paid."));
     } catch (error) {
+      rethrowIfRedirectError(error);
       redirect(
         buildPlatformErrorPath(
           "/platform/invoices",

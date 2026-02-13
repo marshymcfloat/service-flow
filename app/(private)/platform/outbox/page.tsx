@@ -12,6 +12,7 @@ import {
   buildPlatformSuccessPath,
   getPlatformFlashMessage,
   PlatformFlashNotice,
+  rethrowIfRedirectError,
   toActionErrorMessage,
 } from "../_components/action-feedback";
 import {
@@ -101,6 +102,7 @@ export default async function PlatformOutboxPage({
 
       redirect(buildPlatformSuccessPath("/platform/outbox", "Outbox message queued for retry."));
     } catch (error) {
+      rethrowIfRedirectError(error);
       redirect(
         buildPlatformErrorPath(
           "/platform/outbox",
@@ -123,6 +125,7 @@ export default async function PlatformOutboxPage({
 
       redirect(buildPlatformSuccessPath("/platform/outbox", "Outbox message marked as skipped."));
     } catch (error) {
+      rethrowIfRedirectError(error);
       redirect(
         buildPlatformErrorPath(
           "/platform/outbox",

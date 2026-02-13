@@ -1,6 +1,8 @@
 import { cn, formatCurrency } from "@/lib/utils";
 import { type ReactNode } from "react";
 
+const PLATFORM_TIME_ZONE = "Asia/Manila";
+
 const POSITIVE_STATUSES = new Set([
   "ACTIVE",
   "APPROVED",
@@ -129,6 +131,7 @@ export function PlatformStatusBadge({
 
 export function formatPlatformDate(date: Date) {
   return date.toLocaleDateString("en-PH", {
+    timeZone: PLATFORM_TIME_ZONE,
     month: "short",
     day: "numeric",
     year: "numeric",
@@ -137,6 +140,7 @@ export function formatPlatformDate(date: Date) {
 
 export function formatPlatformDateTime(date: Date) {
   return date.toLocaleString("en-PH", {
+    timeZone: PLATFORM_TIME_ZONE,
     month: "short",
     day: "numeric",
     year: "numeric",

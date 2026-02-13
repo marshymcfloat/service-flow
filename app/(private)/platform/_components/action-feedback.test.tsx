@@ -6,6 +6,7 @@ import {
   buildPlatformSuccessPath,
   getPlatformFlashMessage,
   PlatformFlashNotice,
+  rethrowIfRedirectError,
   toActionErrorMessage,
 } from "./action-feedback";
 
@@ -23,6 +24,18 @@ describe("action-feedback", () => {
     expect(toActionErrorMessage(new Error("  Invalid payload  "))).toBe("Invalid payload");
     expect(toActionErrorMessage("  Something failed   ")).toBe("Something failed");
     expect(toActionErrorMessage(null)).toBe("We couldn't complete that action. Please try again.");
+  });
+
+  it("treats redirect control-flow errors as fallback messages", () => {
+    expect(
+      toActionErrorMessage({ digest: "NEXT_REDIRECT;replace;/platform/outbox;307;" }, "Retry failed"),
+    ).toBe("Retry failed");
+  });
+
+  it("rethrows redirect control-flow errors", () => {
+    expect(() =>
+      rethrowIfRedirectError({ digest: "NEXT_REDIRECT;replace;/platform/outbox;307;" }),
+    ).toThrow();
   });
 
   it("resolves error flash message before success", async () => {

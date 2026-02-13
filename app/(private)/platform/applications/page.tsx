@@ -15,6 +15,7 @@ import {
   buildPlatformSuccessPath,
   getPlatformFlashMessage,
   PlatformFlashNotice,
+  rethrowIfRedirectError,
   toActionErrorMessage,
 } from "../_components/action-feedback";
 import {
@@ -119,6 +120,7 @@ export default async function PlatformApplicationsPage({
 
       redirect(buildPlatformSuccessPath("/platform/applications", "Application marked as contacted."));
     } catch (error) {
+      rethrowIfRedirectError(error);
       redirect(
         buildPlatformErrorPath(
           "/platform/applications",
@@ -141,6 +143,7 @@ export default async function PlatformApplicationsPage({
 
       redirect(buildPlatformSuccessPath("/platform/applications", "Application approved."));
     } catch (error) {
+      rethrowIfRedirectError(error);
       redirect(
         buildPlatformErrorPath(
           "/platform/applications",
@@ -164,6 +167,7 @@ export default async function PlatformApplicationsPage({
 
       redirect(buildPlatformSuccessPath("/platform/applications", "Application rejected."));
     } catch (error) {
+      rethrowIfRedirectError(error);
       redirect(
         buildPlatformErrorPath(
           "/platform/applications",
@@ -187,6 +191,7 @@ export default async function PlatformApplicationsPage({
 
       redirect(buildPlatformSuccessPath("/platform/applications", "Application converted to a business."));
     } catch (error) {
+      rethrowIfRedirectError(error);
       redirect(
         buildPlatformErrorPath(
           "/platform/applications",

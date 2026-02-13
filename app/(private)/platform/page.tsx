@@ -9,6 +9,7 @@ import {
   PlatformMetricCard,
   PlatformPageHeader,
   formatPhpFromCentavos,
+  formatPlatformDate,
   platformPanelClass,
 } from "./_components/platform-ui";
 
@@ -561,7 +562,7 @@ export default async function PlatformOverviewPage() {
             </p>
           </div>
           <p className="rounded-lg border border-[var(--pf-border)] bg-white px-3 py-1.5 text-xs font-semibold text-[var(--pf-muted)]">
-            Window start: {weekWindowStart.toLocaleDateString("en-PH")}
+            Window start: {formatPlatformDate(weekWindowStart)}
           </p>
         </div>
 
