@@ -47,6 +47,15 @@ async function BusinessList() {
   await connection();
 
   const businesses = await prisma.business.findMany({
+    where: {
+      subscriptions: {
+        some: {
+          status: {
+            notIn: ["SUSPENDED", "CANCELED"],
+          },
+        },
+      },
+    },
     select: {
       id: true,
       name: true,
