@@ -57,4 +57,16 @@ describe("parseOutboxPayload", () => {
       }),
     );
   });
+
+  it("parses social target publish payload", () => {
+    const parsed = parseOutboxPayload("SOCIAL_TARGET_PUBLISH", {
+      socialPostTargetId: "spt_123",
+      businessId: "biz_123",
+    });
+
+    expect(parsed).toEqual({
+      socialPostTargetId: "spt_123",
+      businessId: "biz_123",
+    });
+  });
 });

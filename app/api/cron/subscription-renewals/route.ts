@@ -14,6 +14,21 @@ import {
 } from "@/lib/security/cron-auth";
 import { prisma } from "@/prisma/prisma";
 
+const BUSINESS_SYNC_CONCURRENCY = 20;
+const INVOICE_CONCURRENCY = 20;
+const DUE_SUBSCRIPTION_BATCH_SIZE = 300;
+
+async function runInChunks<T>(
+  items: T[],
+  chunkSize: number,
+  task: (item: T) => Promise<void>,
+) {
+  for (let i = 0; i < items.length; i += chunkSize) {
+    const chunk = items.slice(i, i + chunkSize);
+    await Promise.allSettled(chunk.map((item) => task(item)));
+  }
+}
+
 export async function GET(request: Request) {
   await connection();
   if (!isCronAuthorized(request)) {
@@ -35,9 +50,13 @@ export async function GET(request: Request) {
       select: { id: true },
     });
 
-    for (const business of businesses) {
-      await ensureBusinessSubscription(business.id);
-    }
+    await runInChunks(
+      businesses,
+      BUSINESS_SYNC_CONCURRENCY,
+      async (business) => {
+        await ensureBusinessSubscription(business.id);
+      },
+    );
 
     const now = getCurrentDateTimePH();
     const dueSubscriptions = await prisma.businessSubscription.findMany({
@@ -46,15 +65,22 @@ export async function GET(request: Request) {
         status: { in: ["ACTIVE", "TRIALING", "GRACE_PERIOD"] },
       },
       select: { id: true },
+      orderBy: {
+        current_period_end: "asc",
+      },
+      take: DUE_SUBSCRIPTION_BATCH_SIZE,
     });
 
     let invoicesCreated = 0;
-    for (const sub of dueSubscriptions) {
-      const invoice = await createInvoiceForSubscription(sub.id, "SCHEDULED_RENEWAL");
+    await runInChunks(dueSubscriptions, INVOICE_CONCURRENCY, async (sub) => {
+      const invoice = await createInvoiceForSubscription(
+        sub.id,
+        "SCHEDULED_RENEWAL",
+      );
       if (invoice.status === "OPEN" || invoice.status === "PAID") {
         invoicesCreated += 1;
       }
-    }
+    });
 
     const graceTransitions = await moveDueSubscriptionsToGracePeriod();
     return NextResponse.json({

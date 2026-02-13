@@ -585,14 +585,6 @@ export type ServiceUncheckedUpdateManyWithoutSale_eventsNestedInput = {
   deleteMany?: Prisma.ServiceScalarWhereInput | Prisma.ServiceScalarWhereInput[]
 }
 
-export type NullableIntFieldUpdateOperationsInput = {
-  set?: number | null
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
-}
-
 export type ServiceCreateNestedOneWithoutPackage_itemsInput = {
   create?: Prisma.XOR<Prisma.ServiceCreateWithoutPackage_itemsInput, Prisma.ServiceUncheckedCreateWithoutPackage_itemsInput>
   connectOrCreate?: Prisma.ServiceCreateOrConnectWithoutPackage_itemsInput

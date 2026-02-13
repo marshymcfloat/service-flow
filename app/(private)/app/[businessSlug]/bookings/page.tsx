@@ -6,6 +6,8 @@ import { PageHeader } from "@/components/dashboard/PageHeader";
 import { Suspense } from "react";
 import { connection } from "next/server";
 import { Skeleton } from "@/components/ui/skeleton";
+import { BookingStatus } from "@/prisma/generated/prisma/enums";
+import { requireTenantAccess } from "@/lib/auth/guards";
 
 function BookingsPageSkeleton() {
   return (
@@ -44,8 +46,10 @@ function BookingsPageSkeleton() {
 
 export default function BookingsPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ businessSlug: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   return (
     <div className="min-h-screen flex flex-col p-4 md:p-8 bg-zinc-50/50">
@@ -56,49 +60,132 @@ export default function BookingsPage({
           className="mb-6"
         />
         <Suspense fallback={<BookingsPageSkeleton />}>
-          <BookingsContent params={params} />
+          <BookingsContent params={params} searchParams={searchParams} />
         </Suspense>
       </section>
     </div>
   );
 }
 
+const PAGE_SIZE = 50;
+const ALLOWED_STATUS = new Set<BookingStatus>([
+  BookingStatus.HOLD,
+  BookingStatus.ACCEPTED,
+  BookingStatus.COMPLETED,
+  BookingStatus.CANCELLED,
+]);
+
 async function BookingsContent({
   params,
+  searchParams,
 }: {
   params: Promise<{ businessSlug: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   await connection();
-  const { businessSlug } = await params;
+  const [{ businessSlug }, query] = await Promise.all([params, searchParams]);
+  const auth = await requireTenantAccess(businessSlug);
+  if (!auth.success) {
+    return notFound();
+  }
+
   const business = await getCachedBusinessBySlug(businessSlug);
 
   if (!business) {
     return notFound();
   }
 
-  const allBookings = await prisma.booking.findMany({
+  const rawSearch = query.q;
+  const rawStatus = query.status;
+  const rawPage = query.page;
+
+  const searchTerm =
+    typeof rawSearch === "string" ? rawSearch.trim() : "";
+  const requestedStatus = typeof rawStatus === "string" ? rawStatus : "ALL";
+  const status =
+    requestedStatus === "ALL"
+      ? "ALL"
+      : ALLOWED_STATUS.has(requestedStatus as BookingStatus)
+        ? (requestedStatus as BookingStatus)
+        : "ALL";
+
+  const pageValue =
+    typeof rawPage === "string" ? Number.parseInt(rawPage, 10) : 1;
+  const currentPage =
+    Number.isFinite(pageValue) && pageValue > 0 ? pageValue : 1;
+  const skip = (currentPage - 1) * PAGE_SIZE;
+
+  const parsedId = Number.parseInt(searchTerm, 10);
+  const hasIdSearch = Number.isInteger(parsedId);
+
+  const whereClause = {
     where: {
       business_id: business.id,
+      ...(status === "ALL" ? {} : { status }),
+      ...(searchTerm.length === 0
+        ? {}
+        : {
+            OR: [
+              {
+                customer: {
+                  name: {
+                    contains: searchTerm,
+                    mode: "insensitive" as const,
+                  },
+                },
+              },
+              {
+                customer: {
+                  phone: {
+                    contains: searchTerm,
+                  },
+                },
+              },
+              ...(hasIdSearch ? [{ id: parsedId }] : []),
+            ],
+          }),
     },
-    include: {
-      customer: true,
-      availed_services: {
-        include: {
-          service: true,
-          served_by: {
-            include: { user: true },
-          },
-          served_by_owner: {
-            include: { user: true },
+  };
+
+  const [totalBookings, bookings] = await prisma.$transaction([
+    prisma.booking.count(whereClause),
+    prisma.booking.findMany({
+      ...whereClause,
+      skip,
+      take: PAGE_SIZE,
+      include: {
+        customer: true,
+        availed_services: {
+          include: {
+            service: true,
+            served_by: {
+              include: { user: true },
+            },
+            served_by_owner: {
+              include: { user: true },
+            },
           },
         },
+        vouchers: true,
       },
-      vouchers: true,
-    },
-    orderBy: {
-      created_at: "desc",
-    },
-  });
+      orderBy: {
+        created_at: "desc",
+      },
+    }),
+  ]);
 
-  return <BookingList bookings={allBookings} />;
+  return (
+    <BookingList
+      key={`${businessSlug}:${status}:${searchTerm}:${currentPage}`}
+      bookings={bookings}
+      businessSlug={businessSlug}
+      queryState={{
+        page: currentPage,
+        pageSize: PAGE_SIZE,
+        total: totalBookings,
+        search: searchTerm,
+        status: status === "ALL" ? "ALL" : status,
+      }}
+    />
+  );
 }

@@ -12,6 +12,20 @@ import {
 } from "@/lib/security/cron-auth";
 import { prisma } from "@/prisma/prisma";
 
+const CHECKOUT_RETRY_CONCURRENCY = 15;
+const OVERDUE_BATCH_SIZE = 250;
+
+async function runInChunks<T>(
+  items: T[],
+  chunkSize: number,
+  task: (item: T) => Promise<void>,
+) {
+  for (let i = 0; i < items.length; i += chunkSize) {
+    const chunk = items.slice(i, i + chunkSize);
+    await Promise.allSettled(chunk.map((item) => task(item)));
+  }
+}
+
 export async function GET(request: Request) {
   await connection();
   if (!isCronAuthorized(request)) {
@@ -41,18 +55,21 @@ export async function GET(request: Request) {
       select: {
         id: true,
       },
-      take: 100,
+      orderBy: {
+        due_at: "asc",
+      },
+      take: OVERDUE_BATCH_SIZE,
     });
 
     let retryCheckoutCount = 0;
-    for (const invoice of openOverdueInvoices) {
-      try {
+    await runInChunks(
+      openOverdueInvoices,
+      CHECKOUT_RETRY_CONCURRENCY,
+      async (invoice) => {
         await createCheckoutForInvoice(invoice.id);
         retryCheckoutCount += 1;
-      } catch {
-        // Keep moving; a failed checkout generation should not stop the batch.
-      }
-    }
+      },
+    );
 
     return NextResponse.json({
       success: true,

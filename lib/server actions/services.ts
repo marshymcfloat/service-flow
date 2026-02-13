@@ -2,7 +2,32 @@
 
 import { prisma } from "@/prisma/prisma";
 import { requireAuth } from "@/lib/auth/guards";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
+import { tenantCacheTags } from "@/lib/data/cached";
+
+async function resolveTenantBusinessId(businessSlug: string) {
+  const business = await prisma.business.findUnique({
+    where: { slug: businessSlug },
+    select: { id: true },
+  });
+  return business?.id ?? null;
+}
+
+async function hasInvalidSuggestedServices(
+  businessId: string,
+  suggestedServiceIds: number[],
+) {
+  if (suggestedServiceIds.length === 0) return false;
+
+  const count = await prisma.service.count({
+    where: {
+      business_id: businessId,
+      id: { in: suggestedServiceIds },
+    },
+  });
+
+  return count !== suggestedServiceIds.length;
+}
 
 // Get all services for a business
 export async function getServicesAction() {
@@ -52,12 +77,19 @@ export async function createServiceAction(data: {
   const { businessSlug } = auth;
 
   try {
-    const business = await prisma.business.findUnique({
-      where: { slug: businessSlug },
-    });
-
-    if (!business) {
+    const businessId = await resolveTenantBusinessId(businessSlug);
+    if (!businessId) {
       return { success: false, error: "Business not found" };
+    }
+
+    const suggestedIds = Array.from(
+      new Set((data.flows ?? []).map((flow) => flow.suggested_service_id)),
+    );
+    if (await hasInvalidSuggestedServices(businessId, suggestedIds)) {
+      return {
+        success: false,
+        error: "One or more suggested services are invalid for this business.",
+      };
     }
 
     const service = await prisma.service.create({
@@ -67,7 +99,7 @@ export async function createServiceAction(data: {
         price: data.price,
         duration: data.duration || null,
         category: data.category,
-        business_id: business.id,
+        business_id: businessId,
         flow_triggers: {
           createMany: {
             data:
@@ -76,7 +108,7 @@ export async function createServiceAction(data: {
                 delay_duration: flow.delay_duration,
                 delay_unit: flow.delay_unit,
                 type: flow.type,
-                business_id: business.id,
+                business_id: businessId,
               })) || [],
           },
         },
@@ -84,6 +116,7 @@ export async function createServiceAction(data: {
     });
 
     revalidatePath(`/app/${businessSlug}/services`);
+    revalidateTag(tenantCacheTags.servicesByBusiness(businessId), "max");
     return { success: true, data: service };
   } catch (error) {
     console.error("Failed to create service:", error);
@@ -113,15 +146,38 @@ export async function updateServiceAction(
   const { businessSlug } = auth;
 
   try {
-    const business = await prisma.business.findUnique({
-      where: { slug: businessSlug },
-    }); // Need business ID for flow creation
+    const businessId = await resolveTenantBusinessId(businessSlug);
+    if (!businessId) {
+      return { success: false, error: "Business not found" };
+    }
+
+    const suggestedIds = Array.from(
+      new Set((data.flows ?? []).map((flow) => flow.suggested_service_id)),
+    );
+    if (await hasInvalidSuggestedServices(businessId, suggestedIds)) {
+      return {
+        success: false,
+        error: "One or more suggested services are invalid for this business.",
+      };
+    }
+
+    const existingService = await prisma.service.findFirst({
+      where: {
+        id: serviceId,
+        business_id: businessId,
+      },
+      select: { id: true },
+    });
+
+    if (!existingService) {
+      return { success: false, error: "Service not found or unauthorized" };
+    }
 
     // Transaction to handle flow updates (delete all existing for this trigger and re-create)
     // This is simplest for now.
     const service = await prisma.$transaction(async (tx) => {
       const updatedService = await tx.service.update({
-        where: { id: serviceId },
+        where: { id: existingService.id },
         data: {
           name: data.name,
           description: data.description,
@@ -131,10 +187,13 @@ export async function updateServiceAction(
         },
       });
 
-      if (data.flows && business) {
+      if (data.flows) {
         // Delete existing flows triggered by this service
         await tx.serviceFlow.deleteMany({
-          where: { trigger_service_id: serviceId },
+          where: {
+            trigger_service_id: serviceId,
+            business_id: businessId,
+          },
         });
 
         // Create new ones
@@ -146,7 +205,7 @@ export async function updateServiceAction(
               delay_duration: flow.delay_duration,
               delay_unit: flow.delay_unit,
               type: flow.type,
-              business_id: business.id,
+              business_id: businessId,
             })),
           });
         }
@@ -155,6 +214,7 @@ export async function updateServiceAction(
     });
 
     revalidatePath(`/app/${businessSlug}/services`);
+    revalidateTag(tenantCacheTags.servicesByBusiness(businessId), "max");
     return { success: true, data: service };
   } catch (error) {
     console.error("Failed to update service:", error);
@@ -169,11 +229,24 @@ export async function deleteServiceAction(serviceId: number) {
   const { businessSlug } = auth;
 
   try {
-    await prisma.service.delete({
-      where: { id: serviceId },
+    const businessId = await resolveTenantBusinessId(businessSlug);
+    if (!businessId) {
+      return { success: false, error: "Business not found" };
+    }
+
+    const deleted = await prisma.service.deleteMany({
+      where: {
+        id: serviceId,
+        business_id: businessId,
+      },
     });
 
+    if (deleted.count === 0) {
+      return { success: false, error: "Service not found or unauthorized" };
+    }
+
     revalidatePath(`/app/${businessSlug}/services`);
+    revalidateTag(tenantCacheTags.servicesByBusiness(businessId), "max");
     return { success: true };
   } catch (error) {
     console.error("Failed to delete service:", error);

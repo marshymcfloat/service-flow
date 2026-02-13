@@ -6,12 +6,15 @@ import { deleteSaleEvent } from "@/lib/server actions/sale-event";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { Percent } from "lucide-react";
+import { SocialPlatform } from "@/prisma/generated/prisma/enums";
 
 interface SaleEventsPageClientProps {
   businessSlug: string;
   initialEvents: SaleEvent[];
   services: { id: number; name: string; category: string }[];
   packages: { id: number; name: string }[];
+  connectedPlatforms: SocialPlatform[];
+  socialPublishingEnabled: boolean;
 }
 
 export function SaleEventsPageClient({
@@ -19,6 +22,8 @@ export function SaleEventsPageClient({
   initialEvents,
   services,
   packages,
+  connectedPlatforms,
+  socialPublishingEnabled,
 }: SaleEventsPageClientProps) {
   const router = useRouter();
 
@@ -54,6 +59,8 @@ export function SaleEventsPageClient({
           businessSlug={businessSlug}
           services={services}
           packages={packages}
+          connectedPlatforms={connectedPlatforms}
+          socialPublishingEnabled={socialPublishingEnabled}
         />
       </div>
 

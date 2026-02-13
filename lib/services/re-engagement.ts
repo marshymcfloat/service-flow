@@ -4,13 +4,39 @@ import { getCurrentDateTimePH, getStartOfDayPH } from "@/lib/date-utils";
 import { logger } from "@/lib/logger";
 
 const RE_ENGAGEMENT_EVENT_TYPE = "RE_ENGAGEMENT_REMINDER_SENT";
+const RE_ENGAGEMENT_SEND_CONCURRENCY = 5;
+
+type ReEngagementSendResult = {
+  business: string;
+  customerId: string;
+  customerEmail: string;
+  success: boolean;
+  error?: unknown;
+};
+
+function getPublicBookingLink(businessSlug: string) {
+  const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://serviceflow.store")
+    .replace(/\/$/, "");
+  return `${baseUrl}/${businessSlug}`;
+}
+
+async function runInChunks<T>(
+  items: T[],
+  chunkSize: number,
+  task: (item: T) => Promise<void>,
+) {
+  for (let i = 0; i < items.length; i += chunkSize) {
+    const chunk = items.slice(i, i + chunkSize);
+    await Promise.allSettled(chunk.map((item) => task(item)));
+  }
+}
 
 export async function sendReEngagementEmails() {
   const resend = new Resend(process.env.RESEND_API_KEY);
 
   try {
     // Get current date in Philippine timezone
-    const nowPH = getStartOfDayPH(new Date());
+    const nowPH = getStartOfDayPH(getCurrentDateTimePH());
     // Calculate 60 days ago in Philippine timezone
     const sixtyDaysAgo = new Date(nowPH.getTime() - 60 * 24 * 60 * 60 * 1000);
 
@@ -28,7 +54,7 @@ export async function sendReEngagementEmails() {
       `[Re-engagement] Cutoff date (60 days ago PH time): ${sixtyDaysAgo.toISOString()}`,
     );
 
-    const allResults = [];
+    const allResults: ReEngagementSendResult[] = [];
     let duplicateSkips = 0;
 
     for (const business of businesses) {
@@ -44,7 +70,13 @@ export async function sendReEngagementEmails() {
           },
           bookings: {
             some: {
-              status: "COMPLETED", // Must have at least one completed booking
+              status: "COMPLETED",
+            },
+            none: {
+              status: "COMPLETED",
+              created_at: {
+                gt: sixtyDaysAgo,
+              },
             },
           },
         },
@@ -62,31 +94,13 @@ export async function sendReEngagementEmails() {
       });
 
       logger.info(
-        `[Re-engagement] Business "${business.name}": Found ${inactiveCustomers.length} customers with completed bookings`,
+        `[Re-engagement] Business "${business.name}": Found ${inactiveCustomers.length} inactive customers`,
       );
-
-      // Filter customers whose last booking was 60+ days ago
-      const customersToEmail = inactiveCustomers.filter((customer) => {
-        if (customer.bookings.length === 0) return false;
-        const lastBooking = customer.bookings[0];
-        const isInactive = lastBooking.created_at <= sixtyDaysAgo;
-
-        if (process.env.NODE_ENV !== "production") {
-          logger.debug(
-            `[Re-engagement] Customer ${customer.name} (${customer.email}): Last booking ${lastBooking.created_at.toISOString()}, 60 days ago: ${sixtyDaysAgo.toISOString()}, Inactive: ${isInactive}`,
-          );
-        }
-
-        return isInactive;
-      });
-
-      logger.info(
-        `[Re-engagement] Business "${business.name}": ${customersToEmail.length} customers inactive for 60+ days`,
-      );
+      const customersToEmail = inactiveCustomers;
 
       let lastSentByCustomer = new Map<string, Date>();
 
-      if (customersToEmail.length > 0) {
+      if (inactiveCustomers.length > 0) {
         const customerIds = customersToEmail.map((customer) =>
           String(customer.id),
         );
@@ -125,90 +139,102 @@ export async function sendReEngagementEmails() {
       }
 
       // Send emails
-      for (const customer of customersToEmail) {
-        if (!customer.email) continue;
+      await runInChunks(
+        customersToEmail,
+        RE_ENGAGEMENT_SEND_CONCURRENCY,
+        async (customer) => {
+          if (!customer.email) {
+            return;
+          }
 
-        const lastBookingDate = customer.bookings[0]?.created_at;
-        if (!lastBookingDate) continue;
+          const lastBookingDate = customer.bookings[0]?.created_at;
+          if (!lastBookingDate) {
+            return;
+          }
 
-        const customerId = String(customer.id);
-        const lastSentAt = lastSentByCustomer.get(customerId);
-        if (lastSentAt && lastSentAt >= lastBookingDate) {
-          duplicateSkips += 1;
-          continue;
-        }
+          const customerId = String(customer.id);
+          const lastSentAt = lastSentByCustomer.get(customerId);
+          if (lastSentAt && lastSentAt >= lastBookingDate) {
+            duplicateSkips += 1;
+            return;
+          }
 
-        const emailHtml = generateReEngagementEmail(
-          business.name,
-          customer.name,
-        );
+          const emailHtml = generateReEngagementEmail(
+            business.name,
+            customer.name,
+            getPublicBookingLink(business.slug),
+          );
 
-        try {
-          const { error } = await resend.emails.send({
-            from: "ServiceFlow <reminders@serviceflow.store>",
-            to: [customer.email],
-            subject: `We Miss You at ${business.name}!`,
-            html: emailHtml,
-          });
+          try {
+            const { error } = await resend.emails.send({
+              from: "ServiceFlow <reminders@serviceflow.store>",
+              to: [customer.email],
+              subject: `We Miss You at ${business.name}!`,
+              html: emailHtml,
+            });
 
-          if (error) {
+            if (error) {
+              logger.error(
+                `[Re-engagement] Failed to send email to ${customer.email}:`,
+                { error },
+              );
+              allResults.push({
+                business: business.name,
+                customerId: customer.id,
+                customerEmail: customer.email,
+                success: false,
+                error,
+              });
+            } else {
+              const sentAt = getCurrentDateTimePH();
+              logger.info(
+                `[Re-engagement] Email sent to ${customer.email} (last booking: ${lastBookingDate.toISOString()})`,
+              );
+
+              await prisma.outboxMessage.create({
+                data: {
+                  event_type: RE_ENGAGEMENT_EVENT_TYPE,
+                  aggregate_type: "Customer",
+                  aggregate_id: customerId,
+                  business_id: business.id,
+                  payload: {
+                    customerId,
+                    customerName: customer.name,
+                    customerEmail: customer.email,
+                    lastCompletedBookingId: customer.bookings[0]?.id ?? null,
+                    lastCompletedBookingAt: lastBookingDate.toISOString(),
+                    sentAt: sentAt.toISOString(),
+                  },
+                  processed: true,
+                  processed_at: sentAt,
+                },
+              });
+              lastSentByCustomer.set(customerId, sentAt);
+
+              allResults.push({
+                business: business.name,
+                customerId: customer.id,
+                customerEmail: customer.email,
+                success: true,
+              });
+            }
+          } catch (emailError) {
             logger.error(
-              `[Re-engagement] Failed to send email to ${customer.email}:`,
-              { error },
+              `[Re-engagement] Error sending to ${customer.email}:`,
+              {
+                emailError,
+              },
             );
             allResults.push({
               business: business.name,
               customerId: customer.id,
               customerEmail: customer.email,
               success: false,
-              error,
-            });
-          } else {
-            const sentAt = getCurrentDateTimePH();
-            logger.info(
-              `[Re-engagement] Email sent to ${customer.email} (last booking: ${lastBookingDate?.toISOString()})`,
-            );
-
-            await prisma.outboxMessage.create({
-              data: {
-                event_type: RE_ENGAGEMENT_EVENT_TYPE,
-                aggregate_type: "Customer",
-                aggregate_id: customerId,
-                business_id: business.id,
-                payload: {
-                  customerId,
-                  customerName: customer.name,
-                  customerEmail: customer.email,
-                  lastCompletedBookingId: customer.bookings[0]?.id ?? null,
-                  lastCompletedBookingAt: lastBookingDate.toISOString(),
-                  sentAt: sentAt.toISOString(),
-                },
-                processed: true,
-                processed_at: sentAt,
-              },
-            });
-            lastSentByCustomer.set(customerId, sentAt);
-
-            allResults.push({
-              business: business.name,
-              customerId: customer.id,
-              customerEmail: customer.email,
-              success: true,
+              error: emailError,
             });
           }
-        } catch (emailError) {
-          logger.error(`[Re-engagement] Error sending to ${customer.email}:`, {
-            emailError,
-          });
-          allResults.push({
-            business: business.name,
-            customerId: customer.id,
-            customerEmail: customer.email,
-            success: false,
-            error: emailError,
-          });
-        }
-      }
+        },
+      );
     }
 
     const successCount = allResults.filter((r) => r.success).length;
@@ -235,11 +261,8 @@ export async function sendReEngagementEmails() {
 function generateReEngagementEmail(
   businessName: string,
   customerName: string,
+  bookingLink: string,
 ): string {
-  const bookingLink = `https://www.serviceflow.store/${businessName
-    .toLowerCase()
-    .replace(/\s+/g, "-")}`;
-
   return `
 <!DOCTYPE html>
 <html lang="en">

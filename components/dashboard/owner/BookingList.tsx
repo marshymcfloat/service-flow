@@ -1,7 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type {
   Booking,
   Customer,
@@ -84,23 +84,98 @@ type BookingWithDetails = Booking & {
   })[];
 };
 
+type BookingListQueryState = {
+  page: number;
+  pageSize: number;
+  total: number;
+  search: string;
+  status: string;
+};
+
 export function BookingList({
   bookings,
   variant = "card",
   className,
+  businessSlug,
+  queryState,
 }: {
   bookings: BookingWithDetails[];
   variant?: "card" | "embedded";
   className?: string;
+  businessSlug?: string;
+  queryState?: BookingListQueryState;
 }) {
   const router = useRouter();
-  const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("ALL");
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const [search, setSearch] = useState(queryState?.search ?? "");
+  const [statusFilter, setStatusFilter] = useState(queryState?.status ?? "ALL");
   const [selectedBooking, setSelectedBooking] =
     useState<BookingWithDetails | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const isServerFiltered = Boolean(queryState && businessSlug);
+
+  const updateServerFilters = useCallback(
+    (next: { search?: string; status?: string; page?: number }) => {
+      if (!isServerFiltered) return;
+
+      const params = new URLSearchParams(searchParams.toString());
+      const nextSearch = next.search ?? search;
+      const nextStatus = next.status ?? statusFilter;
+      const nextPage = next.page ?? queryState?.page ?? 1;
+
+      const trimmedSearch = nextSearch.trim();
+      if (trimmedSearch) {
+        params.set("q", trimmedSearch);
+      } else {
+        params.delete("q");
+      }
+
+      if (nextStatus !== "ALL") {
+        params.set("status", nextStatus);
+      } else {
+        params.delete("status");
+      }
+
+      if (nextPage > 1) {
+        params.set("page", String(nextPage));
+      } else {
+        params.delete("page");
+      }
+
+      const nextQuery = params.toString();
+      const currentQuery = searchParams.toString();
+      if (nextQuery === currentQuery) {
+        return;
+      }
+
+      router.replace(nextQuery ? `${pathname}?${nextQuery}` : pathname);
+    },
+    [
+      isServerFiltered,
+      pathname,
+      queryState?.page,
+      router,
+      search,
+      searchParams,
+      statusFilter,
+    ],
+  );
+
+  useEffect(() => {
+    if (!isServerFiltered) return;
+    const timeout = setTimeout(() => {
+      updateServerFilters({ search, page: 1 });
+    }, 300);
+
+    return () => clearTimeout(timeout);
+  }, [isServerFiltered, search, updateServerFilters]);
 
   const filteredBookings = useMemo(() => {
+    if (isServerFiltered) {
+      return bookings;
+    }
+
     return bookings.filter((booking) => {
       // Search Logic
       const searchLower = search.toLowerCase();
@@ -116,7 +191,14 @@ export function BookingList({
 
       return matchesSearch && matchesStatus;
     });
-  }, [bookings, search, statusFilter]);
+  }, [bookings, isServerFiltered, search, statusFilter]);
+
+  const totalBookings = queryState?.total ?? filteredBookings.length;
+  const currentPage = queryState?.page ?? 1;
+  const pageSize = queryState?.pageSize ?? Math.max(filteredBookings.length, 1);
+  const totalPages = Math.max(1, Math.ceil(totalBookings / pageSize));
+  const hasPreviousPage = currentPage > 1;
+  const hasNextPage = currentPage < totalPages;
 
   const getStatusColor = (status: BookingStatus) => {
     switch (status) {
@@ -289,7 +371,15 @@ export function BookingList({
                 onChange={(e) => setSearch(e.target.value)}
               />
             </div>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <Select
+              value={statusFilter}
+              onValueChange={(value) => {
+                setStatusFilter(value);
+                if (isServerFiltered) {
+                  updateServerFilters({ status: value, page: 1 });
+                }
+              }}
+            >
               <SelectTrigger className="w-full sm:w-[150px] h-11 rounded-xl border-zinc-200 bg-white focus:ring-emerald-500">
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
@@ -594,6 +684,42 @@ export function BookingList({
             </Table>
           </div>
         </CardContent>
+        {isServerFiltered && (
+          <div className="border-t border-zinc-100 px-4 py-3 md:px-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-xs text-zinc-500">
+              Showing {bookings.length} of {totalBookings} bookings
+            </p>
+            <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                className="rounded-lg"
+                disabled={!hasPreviousPage}
+                onClick={() =>
+                  updateServerFilters({ page: Math.max(1, currentPage - 1) })
+                }
+              >
+                Previous
+              </Button>
+              <span className="text-xs text-zinc-500 min-w-[90px] text-center">
+                Page {currentPage} of {totalPages}
+              </span>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                className="rounded-lg"
+                disabled={!hasNextPage}
+                onClick={() =>
+                  updateServerFilters({ page: Math.min(totalPages, currentPage + 1) })
+                }
+              >
+                Next
+              </Button>
+            </div>
+          </div>
+        )}
       </Card>
 
       <BookingDetailsDialog

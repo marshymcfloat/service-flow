@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal } from "lucide-react";
 import { DiscountType } from "@/prisma/generated/prisma/enums";
+import type { SocialPostStatus } from "@/prisma/generated/prisma/enums";
 import type { SaleEventRef } from "@/lib/utils/pricing";
 
 export interface SaleEvent {
@@ -32,6 +33,7 @@ export interface SaleEvent {
   discount_value: number;
   applicable_services: SaleEventRef[];
   applicable_packages: SaleEventRef[];
+  social_posts?: { id: string; status: SocialPostStatus }[];
 }
 
 interface SaleEventListProps {
@@ -40,6 +42,23 @@ interface SaleEventListProps {
 }
 
 export function SaleEventList({ events, onDelete }: SaleEventListProps) {
+  const getSocialSummary = (event: SaleEvent) => {
+    if (!event.social_posts || event.social_posts.length === 0) {
+      return null;
+    }
+
+    const published = event.social_posts.filter(
+      (post) => post.status === "PUBLISHED",
+    ).length;
+    const failed = event.social_posts.filter(
+      (post) => post.status === "FAILED",
+    ).length;
+
+    if (failed > 0) return `${failed} failed`;
+    if (published === event.social_posts.length) return "Published";
+    return `${event.social_posts.length} draft(s)`;
+  };
+
   const getStatusBadge = (event: SaleEvent) => {
     const now = new Date();
     const start = new Date(event.start_date);
@@ -118,6 +137,11 @@ export function SaleEventList({ events, onDelete }: SaleEventListProps) {
                     {event.applicable_services.length} Services,{" "}
                     {event.applicable_packages.length} Packages
                   </span>
+                  {getSocialSummary(event) && (
+                    <span className="text-xs text-zinc-600">
+                      Social: {getSocialSummary(event)}
+                    </span>
+                  )}
                 </div>
               </div>
 
@@ -192,13 +216,18 @@ export function SaleEventList({ events, onDelete }: SaleEventListProps) {
                 className="hover:bg-zinc-50/50 transition-colors border-zinc-100 group"
               >
                 <TableCell className="pl-6 py-4">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-zinc-100 bg-zinc-50/50 group-hover:bg-white transition-colors">
                       <Sparkles className="h-3.5 w-3.5 text-zinc-400 group-hover:text-emerald-500 transition-colors" />
                       <span className="font-medium text-sm text-zinc-700">
                         {event.title}
                       </span>
                     </div>
+                    {getSocialSummary(event) && (
+                      <span className="text-xs text-zinc-500">
+                        Social: {getSocialSummary(event)}
+                      </span>
+                    )}
                   </div>
                 </TableCell>
                 <TableCell className="py-4">

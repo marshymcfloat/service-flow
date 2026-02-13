@@ -1,8 +1,9 @@
 "use server";
 
 import { prisma } from "@/prisma/prisma";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { requireTenantWriteAccess } from "@/lib/auth/guards";
+import { tenantCacheTags } from "@/lib/data/cached";
 
 export async function updateBusinessAction(
   businessSlug: string,
@@ -61,6 +62,8 @@ export async function updateBusinessAction(
     revalidatePath(`/app/${businessSlug}`);
     revalidatePath(`/app/${businessSlug}/business`);
     revalidatePath(`/explore`);
+    revalidateTag(tenantCacheTags.businessBySlug(businessSlug), "max");
+    revalidateTag(tenantCacheTags.businessHoursAndEmployees(businessSlug), "max");
 
     return { success: true };
   } catch (error) {

@@ -7,8 +7,20 @@ import { extractPaymentIntentReferences } from "@/lib/paymongo/webhook-utils";
 import { publishEvent } from "@/lib/services/outbox";
 import { getCurrentDateTimePH } from "@/lib/date-utils";
 import { recordBookingMetric } from "@/lib/services/booking-metrics";
+import { rateLimit } from "@/lib/rate-limit";
 
 const WEBHOOK_TIMESTAMP_TOLERANCE_SECONDS = 5 * 60;
+const WEBHOOK_RATE_LIMIT = {
+  windowMs: 60 * 1000,
+  maxRequests: 120,
+  namespace: "service-flow:rate-limit:paymongo-webhook",
+  onStoreError: "deny" as const,
+};
+
+function getClientIp(req: Request) {
+  const forwardedFor = req.headers.get("x-forwarded-for") || "";
+  return forwardedFor.split(",")[0]?.trim() || "unknown";
+}
 
 // Handle preflight requests (CORS)
 export async function OPTIONS() {
@@ -270,6 +282,19 @@ export async function POST(req: Request) {
   let lockAcquired = false;
 
   try {
+    const limiter = await rateLimit(
+      `paymongo-webhook:${getClientIp(req)}`,
+      WEBHOOK_RATE_LIMIT,
+    );
+    if (!limiter.success) {
+      return new Response("Too many requests", {
+        status: 429,
+        headers: {
+          "Retry-After": "60",
+        },
+      });
+    }
+
     const rawBody = await req.text();
     const signatureHeader = req.headers.get("paymongo-signature");
 

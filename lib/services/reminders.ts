@@ -3,6 +3,19 @@ import { Resend } from "resend";
 import { formatPH } from "@/lib/date-utils";
 import { logger } from "@/lib/logger";
 
+const BOOKING_REMINDER_CONCURRENCY = 8;
+
+async function runInChunks<T>(
+  items: T[],
+  chunkSize: number,
+  task: (item: T) => Promise<void>,
+) {
+  for (let i = 0; i < items.length; i += chunkSize) {
+    const chunk = items.slice(i, i + chunkSize);
+    await Promise.allSettled(chunk.map((item) => task(item)));
+  }
+}
+
 export async function sendBookingReminders() {
   const resend = new Resend(process.env.RESEND_API_KEY);
   try {
@@ -30,11 +43,24 @@ export async function sendBookingReminders() {
         },
       },
       include: {
-        customer: true,
-        business: true,
+        customer: {
+          select: {
+            name: true,
+            email: true,
+          },
+        },
+        business: {
+          select: {
+            name: true,
+          },
+        },
         availed_services: {
-          include: {
-            service: true,
+          select: {
+            service: {
+              select: {
+                name: true,
+              },
+            },
           },
         },
       },
@@ -45,43 +71,23 @@ export async function sendBookingReminders() {
     );
     logger.info(`[Reminders] Found ${bookings.length} bookings to remind.`);
 
-    // DEBUG: Check for bookings that SHOULD have been found but weren't
-    if (bookings.length === 0) {
-      const debugBookings = await prisma.booking.findMany({
-        where: {
-          status: "ACCEPTED",
-          scheduled_at: {
-            gte: new Date(now.getTime() - 24 * 60 * 60 * 1000), // Last 24 hours
-            lte: new Date(now.getTime() + 24 * 60 * 60 * 1000), // Next 24 hours
-          },
-        },
-        select: {
-          id: true,
-          scheduled_at: true,
-          reminder_sent: true,
-          customer: { select: { name: true, email: true } },
-        },
-        take: 5,
-      });
-      logger.debug(
-        "[Reminders DEBUG] Recent/Upcoming bookings in DB: " +
-          JSON.stringify(debugBookings, null, 2),
-      );
-    }
+    const results: { id: number; success: boolean; error?: unknown }[] = [];
+    await runInChunks(bookings, BOOKING_REMINDER_CONCURRENCY, async (booking) => {
+      if (!booking.customer.email) {
+        return;
+      }
 
-    const results = await Promise.all(
-      bookings.map(async (booking) => {
-        if (!booking.customer.email) return null;
+      const scheduledAt = booking.scheduled_at;
+      if (!scheduledAt) {
+        return;
+      }
 
-        const scheduledAt = booking.scheduled_at;
-        if (!scheduledAt) return null;
+      const scheduledTime = formatPH(scheduledAt, "h:mm a");
+      const scheduledDate = formatPH(scheduledAt, "MMMM d, yyyy");
+      const businessName = booking.business.name;
+      const customerName = booking.customer.name;
 
-        const scheduledTime = formatPH(scheduledAt, "h:mm a");
-        const scheduledDate = formatPH(scheduledAt, "MMMM d, yyyy");
-        const businessName = booking.business.name;
-        const customerName = booking.customer.name;
-
-        const emailHtml = `
+      const emailHtml = `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -173,28 +179,28 @@ export async function sendBookingReminders() {
 </html>
       `;
 
-        const { error } = await resend.emails.send({
-          from: "ServiceFlow <reminders@serviceflow.store>",
-          to: [booking.customer.email],
-          subject: `Reminder: Appointment at ${businessName} - ${scheduledTime}`,
-          html: emailHtml,
+      const { error } = await resend.emails.send({
+        from: "ServiceFlow <reminders@serviceflow.store>",
+        to: [booking.customer.email],
+        subject: `Reminder: Appointment at ${businessName} - ${scheduledTime}`,
+        html: emailHtml,
+      });
+
+      if (error) {
+        logger.error(`Failed to send email to ${booking.customer.email}:`, {
+          error,
         });
+        results.push({ id: booking.id, success: false, error });
+        return;
+      }
 
-        if (error) {
-          logger.error(`Failed to send email to ${booking.customer.email}:`, {
-            error,
-          });
-          return { id: booking.id, success: false, error };
-        }
+      await prisma.booking.update({
+        where: { id: booking.id },
+        data: { reminder_sent: true },
+      });
 
-        await prisma.booking.update({
-          where: { id: booking.id },
-          data: { reminder_sent: true },
-        });
-
-        return { id: booking.id, success: true };
-      }),
-    );
+      results.push({ id: booking.id, success: true });
+    });
 
     return {
       success: true,

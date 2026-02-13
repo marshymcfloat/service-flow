@@ -263,6 +263,7 @@ export type SaleEventWhereInput = {
   applicable_services?: Prisma.ServiceListRelationFilter
   applicable_packages?: Prisma.ServicePackageListRelationFilter
   business?: Prisma.XOR<Prisma.BusinessScalarRelationFilter, Prisma.BusinessWhereInput>
+  social_posts?: Prisma.SocialPostListRelationFilter
 }
 
 export type SaleEventOrderByWithRelationInput = {
@@ -279,6 +280,7 @@ export type SaleEventOrderByWithRelationInput = {
   applicable_services?: Prisma.ServiceOrderByRelationAggregateInput
   applicable_packages?: Prisma.ServicePackageOrderByRelationAggregateInput
   business?: Prisma.BusinessOrderByWithRelationInput
+  social_posts?: Prisma.SocialPostOrderByRelationAggregateInput
 }
 
 export type SaleEventWhereUniqueInput = Prisma.AtLeast<{
@@ -298,6 +300,7 @@ export type SaleEventWhereUniqueInput = Prisma.AtLeast<{
   applicable_services?: Prisma.ServiceListRelationFilter
   applicable_packages?: Prisma.ServicePackageListRelationFilter
   business?: Prisma.XOR<Prisma.BusinessScalarRelationFilter, Prisma.BusinessWhereInput>
+  social_posts?: Prisma.SocialPostListRelationFilter
 }, "id">
 
 export type SaleEventOrderByWithAggregationInput = {
@@ -346,6 +349,7 @@ export type SaleEventCreateInput = {
   applicable_services?: Prisma.ServiceCreateNestedManyWithoutSale_eventsInput
   applicable_packages?: Prisma.ServicePackageCreateNestedManyWithoutSale_eventsInput
   business: Prisma.BusinessCreateNestedOneWithoutSale_eventsInput
+  social_posts?: Prisma.SocialPostCreateNestedManyWithoutSale_eventInput
 }
 
 export type SaleEventUncheckedCreateInput = {
@@ -361,6 +365,7 @@ export type SaleEventUncheckedCreateInput = {
   updated_at?: Date | string
   applicable_services?: Prisma.ServiceUncheckedCreateNestedManyWithoutSale_eventsInput
   applicable_packages?: Prisma.ServicePackageUncheckedCreateNestedManyWithoutSale_eventsInput
+  social_posts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutSale_eventInput
 }
 
 export type SaleEventUpdateInput = {
@@ -375,6 +380,7 @@ export type SaleEventUpdateInput = {
   applicable_services?: Prisma.ServiceUpdateManyWithoutSale_eventsNestedInput
   applicable_packages?: Prisma.ServicePackageUpdateManyWithoutSale_eventsNestedInput
   business?: Prisma.BusinessUpdateOneRequiredWithoutSale_eventsNestedInput
+  social_posts?: Prisma.SocialPostUpdateManyWithoutSale_eventNestedInput
 }
 
 export type SaleEventUncheckedUpdateInput = {
@@ -390,6 +396,7 @@ export type SaleEventUncheckedUpdateInput = {
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   applicable_services?: Prisma.ServiceUncheckedUpdateManyWithoutSale_eventsNestedInput
   applicable_packages?: Prisma.ServicePackageUncheckedUpdateManyWithoutSale_eventsNestedInput
+  social_posts?: Prisma.SocialPostUncheckedUpdateManyWithoutSale_eventNestedInput
 }
 
 export type SaleEventCreateManyInput = {
@@ -488,6 +495,11 @@ export type SaleEventSumOrderByAggregateInput = {
   discount_value?: Prisma.SortOrder
 }
 
+export type SaleEventNullableScalarRelationFilter = {
+  is?: Prisma.SaleEventWhereInput | null
+  isNot?: Prisma.SaleEventWhereInput | null
+}
+
 export type SaleEventCreateNestedManyWithoutBusinessInput = {
   create?: Prisma.XOR<Prisma.SaleEventCreateWithoutBusinessInput, Prisma.SaleEventUncheckedCreateWithoutBusinessInput> | Prisma.SaleEventCreateWithoutBusinessInput[] | Prisma.SaleEventUncheckedCreateWithoutBusinessInput[]
   connectOrCreate?: Prisma.SaleEventCreateOrConnectWithoutBusinessInput | Prisma.SaleEventCreateOrConnectWithoutBusinessInput[]
@@ -540,6 +552,22 @@ export type FloatFieldUpdateOperationsInput = {
   decrement?: number
   multiply?: number
   divide?: number
+}
+
+export type SaleEventCreateNestedOneWithoutSocial_postsInput = {
+  create?: Prisma.XOR<Prisma.SaleEventCreateWithoutSocial_postsInput, Prisma.SaleEventUncheckedCreateWithoutSocial_postsInput>
+  connectOrCreate?: Prisma.SaleEventCreateOrConnectWithoutSocial_postsInput
+  connect?: Prisma.SaleEventWhereUniqueInput
+}
+
+export type SaleEventUpdateOneWithoutSocial_postsNestedInput = {
+  create?: Prisma.XOR<Prisma.SaleEventCreateWithoutSocial_postsInput, Prisma.SaleEventUncheckedCreateWithoutSocial_postsInput>
+  connectOrCreate?: Prisma.SaleEventCreateOrConnectWithoutSocial_postsInput
+  upsert?: Prisma.SaleEventUpsertWithoutSocial_postsInput
+  disconnect?: Prisma.SaleEventWhereInput | boolean
+  delete?: Prisma.SaleEventWhereInput | boolean
+  connect?: Prisma.SaleEventWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.SaleEventUpdateToOneWithWhereWithoutSocial_postsInput, Prisma.SaleEventUpdateWithoutSocial_postsInput>, Prisma.SaleEventUncheckedUpdateWithoutSocial_postsInput>
 }
 
 export type SaleEventCreateNestedManyWithoutApplicable_servicesInput = {
@@ -629,6 +657,7 @@ export type SaleEventCreateWithoutBusinessInput = {
   updated_at?: Date | string
   applicable_services?: Prisma.ServiceCreateNestedManyWithoutSale_eventsInput
   applicable_packages?: Prisma.ServicePackageCreateNestedManyWithoutSale_eventsInput
+  social_posts?: Prisma.SocialPostCreateNestedManyWithoutSale_eventInput
 }
 
 export type SaleEventUncheckedCreateWithoutBusinessInput = {
@@ -643,6 +672,7 @@ export type SaleEventUncheckedCreateWithoutBusinessInput = {
   updated_at?: Date | string
   applicable_services?: Prisma.ServiceUncheckedCreateNestedManyWithoutSale_eventsInput
   applicable_packages?: Prisma.ServicePackageUncheckedCreateNestedManyWithoutSale_eventsInput
+  social_posts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutSale_eventInput
 }
 
 export type SaleEventCreateOrConnectWithoutBusinessInput = {
@@ -687,6 +717,80 @@ export type SaleEventScalarWhereInput = {
   updated_at?: Prisma.DateTimeFilter<"SaleEvent"> | Date | string
 }
 
+export type SaleEventCreateWithoutSocial_postsInput = {
+  title: string
+  description?: string | null
+  start_date: Date | string
+  end_date: Date | string
+  discount_type?: $Enums.DiscountType
+  discount_value?: number
+  created_at?: Date | string
+  updated_at?: Date | string
+  applicable_services?: Prisma.ServiceCreateNestedManyWithoutSale_eventsInput
+  applicable_packages?: Prisma.ServicePackageCreateNestedManyWithoutSale_eventsInput
+  business: Prisma.BusinessCreateNestedOneWithoutSale_eventsInput
+}
+
+export type SaleEventUncheckedCreateWithoutSocial_postsInput = {
+  id?: number
+  title: string
+  description?: string | null
+  start_date: Date | string
+  end_date: Date | string
+  discount_type?: $Enums.DiscountType
+  discount_value?: number
+  business_id: string
+  created_at?: Date | string
+  updated_at?: Date | string
+  applicable_services?: Prisma.ServiceUncheckedCreateNestedManyWithoutSale_eventsInput
+  applicable_packages?: Prisma.ServicePackageUncheckedCreateNestedManyWithoutSale_eventsInput
+}
+
+export type SaleEventCreateOrConnectWithoutSocial_postsInput = {
+  where: Prisma.SaleEventWhereUniqueInput
+  create: Prisma.XOR<Prisma.SaleEventCreateWithoutSocial_postsInput, Prisma.SaleEventUncheckedCreateWithoutSocial_postsInput>
+}
+
+export type SaleEventUpsertWithoutSocial_postsInput = {
+  update: Prisma.XOR<Prisma.SaleEventUpdateWithoutSocial_postsInput, Prisma.SaleEventUncheckedUpdateWithoutSocial_postsInput>
+  create: Prisma.XOR<Prisma.SaleEventCreateWithoutSocial_postsInput, Prisma.SaleEventUncheckedCreateWithoutSocial_postsInput>
+  where?: Prisma.SaleEventWhereInput
+}
+
+export type SaleEventUpdateToOneWithWhereWithoutSocial_postsInput = {
+  where?: Prisma.SaleEventWhereInput
+  data: Prisma.XOR<Prisma.SaleEventUpdateWithoutSocial_postsInput, Prisma.SaleEventUncheckedUpdateWithoutSocial_postsInput>
+}
+
+export type SaleEventUpdateWithoutSocial_postsInput = {
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  start_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  end_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  discount_type?: Prisma.EnumDiscountTypeFieldUpdateOperationsInput | $Enums.DiscountType
+  discount_value?: Prisma.FloatFieldUpdateOperationsInput | number
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  applicable_services?: Prisma.ServiceUpdateManyWithoutSale_eventsNestedInput
+  applicable_packages?: Prisma.ServicePackageUpdateManyWithoutSale_eventsNestedInput
+  business?: Prisma.BusinessUpdateOneRequiredWithoutSale_eventsNestedInput
+}
+
+export type SaleEventUncheckedUpdateWithoutSocial_postsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  start_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  end_date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  discount_type?: Prisma.EnumDiscountTypeFieldUpdateOperationsInput | $Enums.DiscountType
+  discount_value?: Prisma.FloatFieldUpdateOperationsInput | number
+  business_id?: Prisma.StringFieldUpdateOperationsInput | string
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  applicable_services?: Prisma.ServiceUncheckedUpdateManyWithoutSale_eventsNestedInput
+  applicable_packages?: Prisma.ServicePackageUncheckedUpdateManyWithoutSale_eventsNestedInput
+}
+
 export type SaleEventCreateWithoutApplicable_servicesInput = {
   title: string
   description?: string | null
@@ -698,6 +802,7 @@ export type SaleEventCreateWithoutApplicable_servicesInput = {
   updated_at?: Date | string
   applicable_packages?: Prisma.ServicePackageCreateNestedManyWithoutSale_eventsInput
   business: Prisma.BusinessCreateNestedOneWithoutSale_eventsInput
+  social_posts?: Prisma.SocialPostCreateNestedManyWithoutSale_eventInput
 }
 
 export type SaleEventUncheckedCreateWithoutApplicable_servicesInput = {
@@ -712,6 +817,7 @@ export type SaleEventUncheckedCreateWithoutApplicable_servicesInput = {
   created_at?: Date | string
   updated_at?: Date | string
   applicable_packages?: Prisma.ServicePackageUncheckedCreateNestedManyWithoutSale_eventsInput
+  social_posts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutSale_eventInput
 }
 
 export type SaleEventCreateOrConnectWithoutApplicable_servicesInput = {
@@ -746,6 +852,7 @@ export type SaleEventCreateWithoutApplicable_packagesInput = {
   updated_at?: Date | string
   applicable_services?: Prisma.ServiceCreateNestedManyWithoutSale_eventsInput
   business: Prisma.BusinessCreateNestedOneWithoutSale_eventsInput
+  social_posts?: Prisma.SocialPostCreateNestedManyWithoutSale_eventInput
 }
 
 export type SaleEventUncheckedCreateWithoutApplicable_packagesInput = {
@@ -760,6 +867,7 @@ export type SaleEventUncheckedCreateWithoutApplicable_packagesInput = {
   created_at?: Date | string
   updated_at?: Date | string
   applicable_services?: Prisma.ServiceUncheckedCreateNestedManyWithoutSale_eventsInput
+  social_posts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutSale_eventInput
 }
 
 export type SaleEventCreateOrConnectWithoutApplicable_packagesInput = {
@@ -806,6 +914,7 @@ export type SaleEventUpdateWithoutBusinessInput = {
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   applicable_services?: Prisma.ServiceUpdateManyWithoutSale_eventsNestedInput
   applicable_packages?: Prisma.ServicePackageUpdateManyWithoutSale_eventsNestedInput
+  social_posts?: Prisma.SocialPostUpdateManyWithoutSale_eventNestedInput
 }
 
 export type SaleEventUncheckedUpdateWithoutBusinessInput = {
@@ -820,6 +929,7 @@ export type SaleEventUncheckedUpdateWithoutBusinessInput = {
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   applicable_services?: Prisma.ServiceUncheckedUpdateManyWithoutSale_eventsNestedInput
   applicable_packages?: Prisma.ServicePackageUncheckedUpdateManyWithoutSale_eventsNestedInput
+  social_posts?: Prisma.SocialPostUncheckedUpdateManyWithoutSale_eventNestedInput
 }
 
 export type SaleEventUncheckedUpdateManyWithoutBusinessInput = {
@@ -845,6 +955,7 @@ export type SaleEventUpdateWithoutApplicable_servicesInput = {
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   applicable_packages?: Prisma.ServicePackageUpdateManyWithoutSale_eventsNestedInput
   business?: Prisma.BusinessUpdateOneRequiredWithoutSale_eventsNestedInput
+  social_posts?: Prisma.SocialPostUpdateManyWithoutSale_eventNestedInput
 }
 
 export type SaleEventUncheckedUpdateWithoutApplicable_servicesInput = {
@@ -859,6 +970,7 @@ export type SaleEventUncheckedUpdateWithoutApplicable_servicesInput = {
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   applicable_packages?: Prisma.ServicePackageUncheckedUpdateManyWithoutSale_eventsNestedInput
+  social_posts?: Prisma.SocialPostUncheckedUpdateManyWithoutSale_eventNestedInput
 }
 
 export type SaleEventUncheckedUpdateManyWithoutApplicable_servicesInput = {
@@ -885,6 +997,7 @@ export type SaleEventUpdateWithoutApplicable_packagesInput = {
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   applicable_services?: Prisma.ServiceUpdateManyWithoutSale_eventsNestedInput
   business?: Prisma.BusinessUpdateOneRequiredWithoutSale_eventsNestedInput
+  social_posts?: Prisma.SocialPostUpdateManyWithoutSale_eventNestedInput
 }
 
 export type SaleEventUncheckedUpdateWithoutApplicable_packagesInput = {
@@ -899,6 +1012,7 @@ export type SaleEventUncheckedUpdateWithoutApplicable_packagesInput = {
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   applicable_services?: Prisma.ServiceUncheckedUpdateManyWithoutSale_eventsNestedInput
+  social_posts?: Prisma.SocialPostUncheckedUpdateManyWithoutSale_eventNestedInput
 }
 
 export type SaleEventUncheckedUpdateManyWithoutApplicable_packagesInput = {
@@ -922,11 +1036,13 @@ export type SaleEventUncheckedUpdateManyWithoutApplicable_packagesInput = {
 export type SaleEventCountOutputType = {
   applicable_services: number
   applicable_packages: number
+  social_posts: number
 }
 
 export type SaleEventCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   applicable_services?: boolean | SaleEventCountOutputTypeCountApplicable_servicesArgs
   applicable_packages?: boolean | SaleEventCountOutputTypeCountApplicable_packagesArgs
+  social_posts?: boolean | SaleEventCountOutputTypeCountSocial_postsArgs
 }
 
 /**
@@ -953,6 +1069,13 @@ export type SaleEventCountOutputTypeCountApplicable_packagesArgs<ExtArgs extends
   where?: Prisma.ServicePackageWhereInput
 }
 
+/**
+ * SaleEventCountOutputType without action
+ */
+export type SaleEventCountOutputTypeCountSocial_postsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SocialPostWhereInput
+}
+
 
 export type SaleEventSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -968,6 +1091,7 @@ export type SaleEventSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   applicable_services?: boolean | Prisma.SaleEvent$applicable_servicesArgs<ExtArgs>
   applicable_packages?: boolean | Prisma.SaleEvent$applicable_packagesArgs<ExtArgs>
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
+  social_posts?: boolean | Prisma.SaleEvent$social_postsArgs<ExtArgs>
   _count?: boolean | Prisma.SaleEventCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["saleEvent"]>
 
@@ -1017,6 +1141,7 @@ export type SaleEventInclude<ExtArgs extends runtime.Types.Extensions.InternalAr
   applicable_services?: boolean | Prisma.SaleEvent$applicable_servicesArgs<ExtArgs>
   applicable_packages?: boolean | Prisma.SaleEvent$applicable_packagesArgs<ExtArgs>
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
+  social_posts?: boolean | Prisma.SaleEvent$social_postsArgs<ExtArgs>
   _count?: boolean | Prisma.SaleEventCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type SaleEventIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1032,6 +1157,7 @@ export type $SaleEventPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     applicable_services: Prisma.$ServicePayload<ExtArgs>[]
     applicable_packages: Prisma.$ServicePackagePayload<ExtArgs>[]
     business: Prisma.$BusinessPayload<ExtArgs>
+    social_posts: Prisma.$SocialPostPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1441,6 +1567,7 @@ export interface Prisma__SaleEventClient<T, Null = never, ExtArgs extends runtim
   applicable_services<T extends Prisma.SaleEvent$applicable_servicesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SaleEvent$applicable_servicesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ServicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   applicable_packages<T extends Prisma.SaleEvent$applicable_packagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SaleEvent$applicable_packagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ServicePackagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   business<T extends Prisma.BusinessDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.BusinessDefaultArgs<ExtArgs>>): Prisma.Prisma__BusinessClient<runtime.Types.Result.GetResult<Prisma.$BusinessPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  social_posts<T extends Prisma.SaleEvent$social_postsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SaleEvent$social_postsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SocialPostPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1921,6 +2048,30 @@ export type SaleEvent$applicable_packagesArgs<ExtArgs extends runtime.Types.Exte
   take?: number
   skip?: number
   distinct?: Prisma.ServicePackageScalarFieldEnum | Prisma.ServicePackageScalarFieldEnum[]
+}
+
+/**
+ * SaleEvent.social_posts
+ */
+export type SaleEvent$social_postsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SocialPost
+   */
+  select?: Prisma.SocialPostSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the SocialPost
+   */
+  omit?: Prisma.SocialPostOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SocialPostInclude<ExtArgs> | null
+  where?: Prisma.SocialPostWhereInput
+  orderBy?: Prisma.SocialPostOrderByWithRelationInput | Prisma.SocialPostOrderByWithRelationInput[]
+  cursor?: Prisma.SocialPostWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.SocialPostScalarFieldEnum | Prisma.SocialPostScalarFieldEnum[]
 }
 
 /**

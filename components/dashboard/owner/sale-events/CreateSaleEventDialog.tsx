@@ -1,6 +1,15 @@
 "use client";
 
+import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { Check, Loader2, Plus, Sparkles } from "lucide-react";
+import { toast } from "sonner";
+
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -12,103 +21,229 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Plus, Loader2, Check } from "lucide-react";
-import { useState, useMemo } from "react";
-import { useForm, useWatch } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Textarea } from "@/components/ui/textarea";
+  DiscountType,
+  SocialPlatform,
+} from "@/prisma/generated/prisma/enums";
 import { createSaleEvent } from "@/lib/server actions/sale-event";
-import { toast } from "sonner";
-import { useRouter } from "next/navigation";
-import { DiscountType } from "@/prisma/generated/prisma/enums";
-import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
+import { generateSocialCaptionAction } from "@/lib/server actions/social";
+import { uploadImageAction } from "@/lib/server actions/upload";
+import { Textarea } from "@/components/ui/textarea";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  DEFAULT_SOCIAL_IMAGE_PROFILE,
+  SOCIAL_IMAGE_PROFILES,
+  SOCIAL_IMAGE_PROFILE_OPTIONS,
+} from "@/lib/services/social/image-profiles";
 
-const saleEventSchema = z.object({
-  title: z.string().min(1, "Title is required"),
+const schema = z.object({
+  title: z.string().min(1),
   description: z.string().optional(),
-  startDate: z
-    .string()
-    .refine((val) => !isNaN(Date.parse(val)), "Invalid date"),
-  endDate: z.string().refine((val) => !isNaN(Date.parse(val)), "Invalid date"),
+  startDate: z.string(),
+  endDate: z.string(),
   discountType: z.enum([DiscountType.PERCENTAGE, DiscountType.FLAT]),
-  discountValue: z.coerce.number<number>().min(0, "Value must be positive"),
+  discountValue: z.coerce.number<number>().min(0),
   serviceIds: z.array(z.number()),
   packageIds: z.array(z.number()),
+  createSocialDraft: z.boolean(),
+  targetPlatforms: z.array(
+    z.enum([SocialPlatform.FACEBOOK_PAGE, SocialPlatform.INSTAGRAM_BUSINESS]),
+  ),
+  socialCaptionOverride: z.string().optional(),
+  socialImageProfile: z.enum(SOCIAL_IMAGE_PROFILES),
 });
 
-type SaleEventFormValues = z.infer<typeof saleEventSchema>;
+type Values = z.infer<typeof schema>;
 
-interface CreateSaleEventDialogProps {
+type Props = {
   businessSlug: string;
   services: { id: number; name: string; category: string }[];
   packages: { id: number; name: string }[];
-}
+  connectedPlatforms: SocialPlatform[];
+  socialPublishingEnabled: boolean;
+};
 
-const initialStartDate = new Date().toISOString().slice(0, 16);
-const initialEndDate = new Date(
-  new Date().getTime() + 7 * 24 * 60 * 60 * 1000,
-)
+const defaultStart = new Date().toISOString().slice(0, 16);
+const defaultEnd = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
   .toISOString()
   .slice(0, 16);
 
-export function CreateSaleEventDialog({
-  businessSlug,
-  services,
-  packages,
-}: CreateSaleEventDialogProps) {
-  const [open, setOpen] = useState(false);
+export function CreateSaleEventDialog(props: Props) {
   const router = useRouter();
+  const [open, setOpen] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [mediaFile, setMediaFile] = useState<File | null>(null);
 
-  const form = useForm<SaleEventFormValues>({
-    resolver: zodResolver(saleEventSchema),
+  const servicesByCategory = useMemo(() => {
+    const grouped = props.services.reduce(
+      (acc, service) => {
+        const category = service.category.trim() || "Uncategorized";
+        if (!acc[category]) {
+          acc[category] = [];
+        }
+        acc[category].push(service);
+        return acc;
+      },
+      {} as Record<string, Props["services"]>,
+    );
+
+    return Object.entries(grouped)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([category, services]) => ({
+        category,
+        services: [...services].sort((a, b) => a.name.localeCompare(b.name)),
+      }));
+  }, [props.services]);
+
+  const allServiceIds = useMemo(
+    () => props.services.map((service) => service.id),
+    [props.services],
+  );
+  const allPackageIds = useMemo(
+    () => props.packages.map((pkg) => pkg.id),
+    [props.packages],
+  );
+
+  const form = useForm<Values>({
+    resolver: zodResolver(schema),
     defaultValues: {
       title: "",
       description: "",
-      startDate: initialStartDate,
-      endDate: initialEndDate,
-      discountType: "PERCENTAGE" as DiscountType,
+      startDate: defaultStart,
+      endDate: defaultEnd,
+      discountType: "PERCENTAGE",
       discountValue: 10,
       serviceIds: [],
       packageIds: [],
+      createSocialDraft: false,
+      targetPlatforms: props.connectedPlatforms,
+      socialCaptionOverride: "",
+      socialImageProfile: DEFAULT_SOCIAL_IMAGE_PROFILE,
     },
   });
 
-  // Group services by category
-  const groupedServices = useMemo(() => {
-    const groups: Record<string, typeof services> = {};
-    services.forEach((service) => {
-      const category = service.category || "Uncategorized";
-      if (!groups[category]) {
-        groups[category] = [];
-      }
-      groups[category].push(service);
-    });
-    return groups;
-  }, [services]);
+  const values = form.watch();
 
-  const onSubmit = async (data: SaleEventFormValues) => {
+  const toggleNumber = (key: "serviceIds" | "packageIds", value: number) => {
+    const current = form.getValues(key);
+    const updated = new Set(current);
+    if (updated.has(value)) {
+      updated.delete(value);
+    } else {
+      updated.add(value);
+    }
+    form.setValue(key, Array.from(updated), { shouldDirty: true });
+  };
+
+  const setManyNumbers = (
+    key: "serviceIds" | "packageIds",
+    values: number[],
+    checked: boolean,
+  ) => {
+    const current = form.getValues(key);
+    const updated = new Set(current);
+
+    values.forEach((value) => {
+      if (checked) {
+        updated.add(value);
+      } else {
+        updated.delete(value);
+      }
+    });
+
+    form.setValue(key, Array.from(updated), { shouldDirty: true });
+  };
+
+  const isAllSelected = (selectedIds: number[], ids: number[]) =>
+    ids.length > 0 && ids.every((id) => selectedIds.includes(id));
+
+  const isPartiallySelected = (selectedIds: number[], ids: number[]) =>
+    ids.some((id) => selectedIds.includes(id));
+
+  const servicesAllSelected = isAllSelected(values.serviceIds, allServiceIds);
+  const servicesPartiallySelected =
+    !servicesAllSelected && isPartiallySelected(values.serviceIds, allServiceIds);
+  const packagesAllSelected = isAllSelected(values.packageIds, allPackageIds);
+  const packagesPartiallySelected =
+    !packagesAllSelected && isPartiallySelected(values.packageIds, allPackageIds);
+
+  const clearSelection = (key: "serviceIds" | "packageIds") => {
+    form.setValue(key, [], { shouldDirty: true });
+  };
+
+  const togglePlatform = (platform: SocialPlatform) => {
+    const current = form.getValues("targetPlatforms");
+    if (current.includes(platform)) {
+      form.setValue(
+        "targetPlatforms",
+        current.filter((item) => item !== platform),
+      );
+    } else {
+      form.setValue("targetPlatforms", [...current, platform]);
+    }
+  };
+
+  const generateCaption = async () => {
+    if (!values.title.trim()) {
+      toast.error("Add an event title first.");
+      return;
+    }
+
+    setIsGenerating(true);
     try {
+      const serviceNames = props.services
+        .filter((service) => values.serviceIds.includes(service.id))
+        .map((service) => service.name);
+      const serviceCategories = Array.from(
+        new Set(
+          props.services
+            .filter((service) => values.serviceIds.includes(service.id))
+            .map((service) => service.category.trim())
+            .filter(Boolean),
+        ),
+      );
+      const packageNames = props.packages
+        .filter((pkg) => values.packageIds.includes(pkg.id))
+        .map((pkg) => pkg.name);
+      const result = await generateSocialCaptionAction({
+        businessSlug: props.businessSlug,
+        saleTitle: values.title,
+        saleDescription: values.description,
+        discountType: values.discountType,
+        discountValue: values.discountValue,
+        startDate: new Date(values.startDate),
+        endDate: new Date(values.endDate),
+        serviceNames,
+        serviceCategories,
+        packageNames,
+      });
+
+      if (!result.success) {
+        toast.error(result.error || "Failed to generate caption.");
+        return;
+      }
+
+      form.setValue(
+        "socialCaptionOverride",
+        `${result.data.caption}\n\n${result.data.hashtags.join(" ")}`,
+      );
+      toast.success("Caption generated.");
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const onSubmit = form.handleSubmit(async (data) => {
+    try {
+      let uploadedUrl: string | undefined;
+      if (mediaFile) {
+        const formData = new FormData();
+        formData.set("file", mediaFile);
+        uploadedUrl = await uploadImageAction(formData);
+      }
+
       const result = await createSaleEvent({
-        businessSlug,
+        businessSlug: props.businessSlug,
         title: data.title,
         description: data.description,
         startDate: new Date(data.startDate),
@@ -117,458 +252,351 @@ export function CreateSaleEventDialog({
         discountValue: data.discountValue,
         serviceIds: data.serviceIds,
         packageIds: data.packageIds,
+        createSocialDraft: data.createSocialDraft,
+        targetPlatforms: data.targetPlatforms,
+        socialCaptionOverride: data.socialCaptionOverride,
+        socialMediaUrl: uploadedUrl,
+        socialImageProfile: data.socialImageProfile,
       });
 
-      if (result.success) {
-        toast.success("Sale event created successfully");
-        setOpen(false);
-        form.reset();
-        router.refresh();
-      } else {
-        toast.error(result.error || "Failed to create sale event");
+      if (!result.success) {
+        toast.error(result.error || "Failed to create event.");
+        return;
       }
-    } catch {
-      toast.error("An unexpected error occurred");
-    }
-  };
 
-  const selectedServiceIds =
-    useWatch({ control: form.control, name: "serviceIds" }) ?? [];
-  const selectedPackageIds =
-    useWatch({ control: form.control, name: "packageIds" }) ?? [];
-
-  // Helper functions for services
-  const toggleService = (id: number) => {
-    const current = form.getValues("serviceIds");
-    if (current.includes(id)) {
-      form.setValue(
-        "serviceIds",
-        current.filter((i) => i !== id),
-      );
-    } else {
-      form.setValue("serviceIds", [...current, id]);
-    }
-  };
-
-  const toggleCategory = (category: string) => {
-    const categoryServiceIds = groupedServices[category].map((s) => s.id);
-    const current = form.getValues("serviceIds");
-    const allSelected = categoryServiceIds.every((id) => current.includes(id));
-
-    if (allSelected) {
-      // Deselect all in category
-      form.setValue(
-        "serviceIds",
-        current.filter((id) => !categoryServiceIds.includes(id)),
-      );
-    } else {
-      // Select all in category
-      const uniqueIds = Array.from(
-        new Set([...current, ...categoryServiceIds]),
-      );
-      form.setValue("serviceIds", uniqueIds);
-    }
-  };
-
-  const toggleAllServices = () => {
-    if (selectedServiceIds.length === services.length) {
-      form.setValue("serviceIds", []);
-    } else {
-      form.setValue(
-        "serviceIds",
-        services.map((s) => s.id),
+      toast.success("Sale event created.");
+      setOpen(false);
+      setMediaFile(null);
+      form.reset();
+      router.refresh();
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Failed to create event. Please try again.",
       );
     }
-  };
-
-  // Helper functions for packages
-  const togglePackage = (id: number) => {
-    const current = form.getValues("packageIds");
-    if (current.includes(id)) {
-      form.setValue(
-        "packageIds",
-        current.filter((i) => i !== id),
-      );
-    } else {
-      form.setValue("packageIds", [...current, id]);
-    }
-  };
-
-  const toggleAllPackages = () => {
-    if (selectedPackageIds.length === packages.length) {
-      form.setValue("packageIds", []);
-    } else {
-      form.setValue(
-        "packageIds",
-        packages.map((p) => p.id),
-      );
-    }
-  };
+  });
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-md shadow-emerald-600/10 active:scale-[0.98] transition-all font-medium">
+        <Button className="bg-emerald-600 hover:bg-emerald-700 text-white">
           <Plus className="mr-2 h-4 w-4" />
           Create Event
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[700px] max-h-[90vh] flex flex-col p-0 gap-0 bg-white">
-        <DialogHeader className="p-6 pb-2">
-          <DialogTitle className="text-xl font-bold text-zinc-900">
-            Create Sale Event
-          </DialogTitle>
-          <DialogDescription className="text-zinc-500">
-            Configure a new promotional campaign.
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-3xl">
+        <DialogHeader>
+          <DialogTitle>Create Sale Event</DialogTitle>
+          <DialogDescription>
+            Create discounts and optionally prepare social drafts.
           </DialogDescription>
         </DialogHeader>
 
-        <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="flex-1 flex flex-col min-h-0"
-          >
-            <ScrollArea className="flex-1 overflow-y-auto">
-              <div className="p-6 pt-2 space-y-8">
-                {/* Basic Info Section */}
-                <div className="space-y-4">
-                  <h3 className="text-sm font-semibold text-zinc-900 flex items-center gap-2">
-                    <span className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs">
-                      1
-                    </span>
-                    Event Details
-                  </h3>
-                  <div className="grid gap-4 pl-4 sm:pl-8">
-                    <FormField
-                      control={form.control}
-                      name="title"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Event Title</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="e.g. Summer Flash Sale"
-                              className="focus-visible:ring-emerald-500"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="description"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Description (Optional)</FormLabel>
-                          <FormControl>
-                            <Textarea
-                              placeholder="Internal notes or details about the sale..."
-                              className="resize-none h-20 focus-visible:ring-emerald-500"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <FormField
-                        control={form.control}
-                        name="startDate"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Start Date</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="datetime-local"
-                                className="focus-visible:ring-emerald-500"
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="endDate"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>End Date</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="datetime-local"
-                                className="focus-visible:ring-emerald-500"
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <Separator />
-
-                {/* Discount Section */}
-                <div className="space-y-4">
-                  <h3 className="text-sm font-semibold text-zinc-900 flex items-center gap-2">
-                    <span className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs">
-                      2
-                    </span>
-                    Discount Configuration
-                  </h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pl-4 sm:pl-8">
-                    <FormField
-                      control={form.control}
-                      name="discountType"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Discount Type</FormLabel>
-                          <Select
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                          >
-                            <FormControl>
-                              <SelectTrigger className="focus:ring-emerald-500">
-                                <SelectValue placeholder="Select type" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="PERCENTAGE">
-                                Percentage (%)
-                              </SelectItem>
-                              <SelectItem value="FLAT">
-                                Flat Amount (₱)
-                              </SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="discountValue"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Value</FormLabel>
-                          <FormControl>
-                            <Input
-                              type="number"
-                              step="0.01"
-                              className="focus-visible:ring-emerald-500"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </div>
-
-                <Separator />
-
-                {/* Scope Section */}
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-semibold text-zinc-900 flex items-center gap-2">
-                      <span className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs">
-                        3
-                      </span>
-                      Applicable Items
-                    </h3>
-                    <div className="flex gap-2">
-                      <Badge
-                        variant="outline"
-                        className="font-normal text-zinc-500"
-                      >
-                        {selectedServiceIds.length} Services
-                      </Badge>
-                      <Badge
-                        variant="outline"
-                        className="font-normal text-zinc-500"
-                      >
-                        {selectedPackageIds.length} Packages
-                      </Badge>
-                    </div>
-                  </div>
-
-                  <div className="pl-4 sm:pl-8 space-y-6">
-                    {/* Services Grouped by Category */}
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <Label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">
-                          Services
-                        </Label>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          className="h-6 text-xs text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
-                          onClick={toggleAllServices}
-                        >
-                          {selectedServiceIds.length === services.length
-                            ? "Deselect All"
-                            : "Select All Services"}
-                        </Button>
-                      </div>
-
-                      <div className="border rounded-xl divide-y overflow-hidden border-zinc-200">
-                        {Object.entries(groupedServices).map(
-                          ([category, categoryServices]) => {
-                            const isCategoryFullySelected =
-                              categoryServices.every((s) =>
-                                selectedServiceIds.includes(s.id),
-                              );
-                            const isCategoryPartiallySelected =
-                              categoryServices.some((s) =>
-                                selectedServiceIds.includes(s.id),
-                              ) && !isCategoryFullySelected;
-
-                            return (
-                              <div key={category} className="bg-zinc-50/50">
-                                <div className="px-4 py-2 bg-zinc-100/80 flex items-center justify-between">
-                                  <div className="flex items-center gap-2">
-                                    <Checkbox
-                                      id={`cat-${category}`}
-                                      checked={
-                                        isCategoryFullySelected
-                                          ? true
-                                          : isCategoryPartiallySelected
-                                            ? "indeterminate"
-                                            : false
-                                      }
-                                      onCheckedChange={() =>
-                                        toggleCategory(category)
-                                      }
-                                      className="data-[state=checked]:bg-emerald-600 data-[state=checked]:border-emerald-600 data-[state=indeterminate]:bg-emerald-600 data-[state=indeterminate]:border-emerald-600"
-                                    />
-                                    <label
-                                      htmlFor={`cat-${category}`}
-                                      className="text-sm font-semibold text-zinc-700 cursor-pointer select-none"
-                                    >
-                                      {category}
-                                    </label>
-                                  </div>
-                                  <span className="text-xs text-zinc-500">
-                                    {categoryServices.length} items
-                                  </span>
-                                </div>
-                                <div className="p-3 grid grid-cols-1 sm:grid-cols-2 gap-3 bg-white">
-                                  {categoryServices.map((service) => (
-                                    <div
-                                      key={service.id}
-                                      className="flex items-start space-x-2 p-2 rounded-lg hover:bg-zinc-50 transition-colors"
-                                    >
-                                      <Checkbox
-                                        id={`service-${service.id}`}
-                                        checked={selectedServiceIds.includes(
-                                          service.id,
-                                        )}
-                                        onCheckedChange={() =>
-                                          toggleService(service.id)
-                                        }
-                                        className="mt-0.5"
-                                      />
-                                      <div className="grid gap-0.5 leading-none">
-                                        <label
-                                          htmlFor={`service-${service.id}`}
-                                          className="text-sm font-medium leading-tight cursor-pointer select-none text-zinc-700"
-                                        >
-                                          {service.name}
-                                        </label>
-                                      </div>
-                                    </div>
-                                  ))}
-                                </div>
-                              </div>
-                            );
-                          },
-                        )}
-                        {services.length === 0 && (
-                          <div className="p-8 text-center text-sm text-zinc-500">
-                            No services available.
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Packages */}
-                    {packages.length > 0 && (
-                      <div className="space-y-3">
-                        <div className="flex items-center justify-between">
-                          <Label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">
-                            Packages
-                          </Label>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            className="h-6 text-xs text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
-                            onClick={toggleAllPackages}
-                          >
-                            {selectedPackageIds.length === packages.length
-                              ? "Deselect All"
-                              : "Select All Packages"}
-                          </Button>
-                        </div>
-                        <div className="border rounded-xl p-3 bg-white grid grid-cols-1 sm:grid-cols-2 gap-3">
-                          {packages.map((pkg) => (
-                            <div
-                              key={pkg.id}
-                              className="flex items-center space-x-2 p-2 rounded-lg hover:bg-zinc-50 transition-colors"
-                            >
-                              <Checkbox
-                                id={`package-${pkg.id}`}
-                                checked={selectedPackageIds.includes(pkg.id)}
-                                onCheckedChange={() => togglePackage(pkg.id)}
-                              />
-                              <label
-                                htmlFor={`package-${pkg.id}`}
-                                className="text-sm font-medium leading-none cursor-pointer select-none text-zinc-700"
-                              >
-                                {pkg.name}
-                              </label>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </ScrollArea>
-
-            <DialogFooter className="p-4 pt-2 border-t bg-zinc-50/50">
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={() => setOpen(false)}
-                className="hover:bg-zinc-200/50 text-zinc-600"
+        <div className="space-y-4">
+          <div className="grid gap-2">
+            <Label>Title</Label>
+            <Input {...form.register("title")} />
+          </div>
+          <div className="grid gap-2">
+            <Label>Description</Label>
+            <Textarea {...form.register("description")} />
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-2">
+              <Label>Start</Label>
+              <Input type="datetime-local" {...form.register("startDate")} />
+            </div>
+            <div className="grid gap-2">
+              <Label>End</Label>
+              <Input type="datetime-local" {...form.register("endDate")} />
+            </div>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-2">
+              <Label>Discount Type</Label>
+              <select
+                className="h-10 rounded-md border border-input bg-background px-3 text-sm"
+                {...form.register("discountType")}
               >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                className="bg-emerald-600 hover:bg-emerald-700 text-white min-w-[120px]"
-                disabled={form.formState.isSubmitting}
-              >
-                {form.formState.isSubmitting ? (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <option value="PERCENTAGE">Percentage</option>
+                <option value="FLAT">Flat</option>
+              </select>
+            </div>
+            <div className="grid gap-2">
+              <Label>Discount Value</Label>
+              <Input type="number" step="0.01" {...form.register("discountValue")} />
+            </div>
+          </div>
+
+          <div className="grid gap-2">
+            <Label>Applies To</Label>
+            <Tabs defaultValue="services" className="rounded-md border p-3">
+              <TabsList className="grid h-10 w-full grid-cols-2">
+                <TabsTrigger value="services">
+                  Services ({values.serviceIds.length}/{allServiceIds.length})
+                </TabsTrigger>
+                <TabsTrigger value="packages">
+                  Packages ({values.packageIds.length}/{allPackageIds.length})
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="services" className="mt-3 space-y-3">
+                <div className="flex flex-wrap items-center justify-between gap-2 rounded-md border p-2">
+                  <label className="flex items-center gap-2 text-sm font-medium">
+                    <Checkbox
+                      checked={
+                        servicesAllSelected
+                          ? true
+                          : servicesPartiallySelected
+                            ? "indeterminate"
+                            : false
+                      }
+                      disabled={allServiceIds.length === 0}
+                      onCheckedChange={(checked) =>
+                        setManyNumbers("serviceIds", allServiceIds, checked === true)
+                      }
+                    />
+                    Select all services
+                  </label>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="xs"
+                    onClick={() => clearSelection("serviceIds")}
+                    disabled={values.serviceIds.length === 0}
+                  >
+                    Clear
+                  </Button>
+                </div>
+
+                {servicesByCategory.length === 0 ? (
+                  <p className="rounded-md border border-dashed p-3 text-sm text-zinc-500">
+                    No services available yet.
+                  </p>
                 ) : (
-                  <Check className="mr-2 h-4 w-4" />
+                  <div className="space-y-3">
+                    {servicesByCategory.map(({ category, services }) => {
+                      const categoryServiceIds = services.map((service) => service.id);
+                      const categoryAllSelected = isAllSelected(
+                        values.serviceIds,
+                        categoryServiceIds,
+                      );
+                      const categoryPartiallySelected =
+                        !categoryAllSelected &&
+                        isPartiallySelected(values.serviceIds, categoryServiceIds);
+
+                      return (
+                        <div key={category} className="rounded-md border p-3">
+                          <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                            <div>
+                              <p className="text-sm font-medium">{category}</p>
+                              <p className="text-xs text-zinc-500">
+                                {categoryServiceIds.filter((id) =>
+                                  values.serviceIds.includes(id),
+                                ).length}
+                                /{categoryServiceIds.length} selected
+                              </p>
+                            </div>
+                            <label className="flex items-center gap-2 text-xs font-medium text-zinc-600">
+                              <Checkbox
+                                checked={
+                                  categoryAllSelected
+                                    ? true
+                                    : categoryPartiallySelected
+                                      ? "indeterminate"
+                                      : false
+                                }
+                                onCheckedChange={(checked) =>
+                                  setManyNumbers(
+                                    "serviceIds",
+                                    categoryServiceIds,
+                                    checked === true,
+                                  )
+                                }
+                              />
+                              Select category
+                            </label>
+                          </div>
+
+                          <div className="grid gap-2 sm:grid-cols-2">
+                            {services.map((service) => (
+                              <label
+                                key={service.id}
+                                className="flex min-h-11 items-center gap-2 rounded-sm px-1 py-1 text-sm"
+                              >
+                                <Checkbox
+                                  checked={values.serviceIds.includes(service.id)}
+                                  onCheckedChange={() =>
+                                    toggleNumber("serviceIds", service.id)
+                                  }
+                                />
+                                {service.name}
+                              </label>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
                 )}
-                Create Event
-              </Button>
-            </DialogFooter>
-          </form>
-        </Form>
+              </TabsContent>
+
+              <TabsContent value="packages" className="mt-3 space-y-3">
+                <div className="flex flex-wrap items-center justify-between gap-2 rounded-md border p-2">
+                  <label className="flex items-center gap-2 text-sm font-medium">
+                    <Checkbox
+                      checked={
+                        packagesAllSelected
+                          ? true
+                          : packagesPartiallySelected
+                            ? "indeterminate"
+                            : false
+                      }
+                      disabled={allPackageIds.length === 0}
+                      onCheckedChange={(checked) =>
+                        setManyNumbers("packageIds", allPackageIds, checked === true)
+                      }
+                    />
+                    Select all packages
+                  </label>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="xs"
+                    onClick={() => clearSelection("packageIds")}
+                    disabled={values.packageIds.length === 0}
+                  >
+                    Clear
+                  </Button>
+                </div>
+
+                {props.packages.length === 0 ? (
+                  <p className="rounded-md border border-dashed p-3 text-sm text-zinc-500">
+                    No packages available yet.
+                  </p>
+                ) : (
+                  <div className="grid gap-2 rounded-md border p-3 sm:grid-cols-2">
+                    {props.packages.map((pkg) => (
+                      <label
+                        key={pkg.id}
+                        className="flex min-h-11 items-center gap-2 rounded-sm px-1 py-1 text-sm"
+                      >
+                        <Checkbox
+                          checked={values.packageIds.includes(pkg.id)}
+                          onCheckedChange={() => toggleNumber("packageIds", pkg.id)}
+                        />
+                        {pkg.name}
+                      </label>
+                    ))}
+                  </div>
+                )}
+              </TabsContent>
+            </Tabs>
+          </div>
+
+          <div className="space-y-3 rounded-md border p-3">
+            <label className="flex items-center gap-2 text-sm font-medium">
+              <Checkbox
+                checked={values.createSocialDraft}
+                onCheckedChange={(checked) =>
+                  form.setValue("createSocialDraft", checked === true)
+                }
+                disabled={
+                  !props.socialPublishingEnabled ||
+                  props.connectedPlatforms.length === 0
+                }
+              />
+              Create social draft
+            </label>
+            {values.createSocialDraft && (
+              <>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {[SocialPlatform.FACEBOOK_PAGE, SocialPlatform.INSTAGRAM_BUSINESS].map(
+                    (platform) => (
+                      <label key={platform} className="flex items-center gap-2 text-sm">
+                        <Checkbox
+                          checked={values.targetPlatforms.includes(platform)}
+                          disabled={!props.connectedPlatforms.includes(platform)}
+                          onCheckedChange={() => togglePlatform(platform)}
+                        />
+                        {platform === "FACEBOOK_PAGE" ? "Facebook Page" : "Instagram Business"}
+                      </label>
+                    ),
+                  )}
+                </div>
+                <div className="grid gap-2">
+                  <div className="flex items-center justify-between">
+                    <Label>Caption Override</Label>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      disabled={isGenerating}
+                      onClick={generateCaption}
+                    >
+                      {isGenerating ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <>
+                          <Sparkles className="mr-2 h-4 w-4" />
+                          Generate
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                  <Textarea {...form.register("socialCaptionOverride")} />
+                </div>
+                <div className="grid gap-2">
+                  <Label>Image Upload (optional)</Label>
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={(event) => setMediaFile(event.target.files?.[0] || null)}
+                  />
+                  <p className="text-xs text-zinc-500">
+                    If no file is uploaded, we will generate one using the selected style.
+                  </p>
+                </div>
+                <div className="grid gap-2">
+                  <Label>AI Image Style</Label>
+                  <select
+                    className="h-10 rounded-md border border-input bg-background px-3 text-sm"
+                    {...form.register("socialImageProfile")}
+                  >
+                    {SOCIAL_IMAGE_PROFILE_OPTIONS.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="text-xs text-zinc-500">
+                    {
+                      SOCIAL_IMAGE_PROFILE_OPTIONS.find(
+                        (option) => option.value === values.socialImageProfile,
+                      )?.description
+                    }
+                  </p>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+
+        <DialogFooter>
+          <Button type="button" variant="ghost" onClick={() => setOpen(false)}>
+            Cancel
+          </Button>
+          <Button type="button" onClick={onSubmit} disabled={form.formState.isSubmitting}>
+            {form.formState.isSubmitting ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <Check className="mr-2 h-4 w-4" />
+            )}
+            Create Event
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

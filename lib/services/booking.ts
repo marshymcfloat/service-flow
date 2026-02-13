@@ -43,6 +43,8 @@ export type BookingServiceParams = {
   paymongoPaymentId?: string;
   isPublicBooking?: boolean;
   isWalkIn?: boolean;
+  pricingSnapshot?: Awaited<ReturnType<typeof buildBookingPricingSnapshot>>;
+  skipAvailabilityValidation?: boolean;
 };
 
 const roundMoney = (value: number) => Math.round(value * 100) / 100;
@@ -86,6 +88,8 @@ export async function createBookingInDb({
   paymongoPaymentId,
   isPublicBooking = false,
   isWalkIn = false,
+  pricingSnapshot,
+  skipAvailabilityValidation = false,
 }: BookingServiceParams) {
   const maxRetries = 3;
   let attempt = 0;
@@ -94,30 +98,34 @@ export async function createBookingInDb({
     try {
       return await prisma.$transaction(
         async (tx) => {
-          const pricing = await buildBookingPricingSnapshot({
-            db: tx,
-            businessSlug,
-            scheduledAt,
-            services,
-            paymentMethod,
-            paymentType,
-            voucherCode,
-          });
+          const pricing =
+            pricingSnapshot ??
+            (await buildBookingPricingSnapshot({
+              db: tx,
+              businessSlug,
+              scheduledAt,
+              services,
+              paymentMethod,
+              paymentType,
+              voucherCode,
+            }));
           const { business } = pricing;
           const validatedServices = pricing.services;
 
-          await validateBookingOrThrow({
-            businessSlug,
-            scheduledAt,
-            services: validatedServices.map((service) => ({
-              id: service.id,
-              quantity: service.quantity,
-            })),
-            paymentType,
-            isPublicBooking,
-            isWalkIn,
-            db: tx,
-          });
+          if (!skipAvailabilityValidation) {
+            await validateBookingOrThrow({
+              businessSlug,
+              scheduledAt,
+              services: validatedServices.map((service) => ({
+                id: service.id,
+                quantity: service.quantity,
+              })),
+              paymentType,
+              isPublicBooking,
+              isWalkIn,
+              db: tx,
+            });
+          }
 
           let finalCustomerId = customerId;
 

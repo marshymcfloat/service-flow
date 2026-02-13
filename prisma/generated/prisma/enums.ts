@@ -114,6 +114,55 @@ export const DiscountType = {
 export type DiscountType = (typeof DiscountType)[keyof typeof DiscountType]
 
 
+export const SocialPlatform = {
+  FACEBOOK_PAGE: 'FACEBOOK_PAGE',
+  INSTAGRAM_BUSINESS: 'INSTAGRAM_BUSINESS'
+} as const
+
+export type SocialPlatform = (typeof SocialPlatform)[keyof typeof SocialPlatform]
+
+
+export const SocialConnectionStatus = {
+  CONNECTED: 'CONNECTED',
+  EXPIRED: 'EXPIRED',
+  REVOKED: 'REVOKED',
+  ERROR: 'ERROR'
+} as const
+
+export type SocialConnectionStatus = (typeof SocialConnectionStatus)[keyof typeof SocialConnectionStatus]
+
+
+export const SocialPostSource = {
+  SALE_EVENT: 'SALE_EVENT',
+  MANUAL: 'MANUAL'
+} as const
+
+export type SocialPostSource = (typeof SocialPostSource)[keyof typeof SocialPostSource]
+
+
+export const SocialPostStatus = {
+  DRAFT: 'DRAFT',
+  READY: 'READY',
+  PUBLISHING: 'PUBLISHING',
+  PUBLISHED: 'PUBLISHED',
+  FAILED: 'FAILED',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type SocialPostStatus = (typeof SocialPostStatus)[keyof typeof SocialPostStatus]
+
+
+export const SocialTargetStatus = {
+  QUEUED: 'QUEUED',
+  PUBLISHING: 'PUBLISHING',
+  PUBLISHED: 'PUBLISHED',
+  FAILED: 'FAILED',
+  SKIPPED: 'SKIPPED'
+} as const
+
+export type SocialTargetStatus = (typeof SocialTargetStatus)[keyof typeof SocialTargetStatus]
+
+
 export const BookingStatus = {
   HOLD: 'HOLD',
   ACCEPTED: 'ACCEPTED',

@@ -12,6 +12,14 @@ import { getCurrentDateTimePH } from "@/lib/date-utils";
 import { detectAndEmitFutureBookingConflicts } from "@/lib/services/booking-conflicts";
 import { logger } from "@/lib/logger";
 
+async function resolveTenantBusinessId(businessSlug: string) {
+  const business = await prisma.business.findUnique({
+    where: { slug: businessSlug },
+    select: { id: true },
+  });
+  return business?.id ?? null;
+}
+
 // Get all employees for a business
 export async function getEmployeesAction() {
   const auth = await requireAuth();
@@ -185,8 +193,16 @@ export async function updateEmployeeAction(
   const { businessSlug } = auth;
 
   try {
-    const employee = await prisma.employee.findUnique({
-      where: { id: employeeId },
+    const businessId = await resolveTenantBusinessId(businessSlug);
+    if (!businessId) {
+      return { success: false, error: "Business not found" };
+    }
+
+    const employee = await prisma.employee.findFirst({
+      where: {
+        id: employeeId,
+        business_id: businessId,
+      },
       include: { user: true },
     });
 
@@ -250,8 +266,16 @@ export async function deleteEmployeeAction(employeeId: number) {
   const { businessSlug } = auth;
 
   try {
-    const employee = await prisma.employee.findUnique({
-      where: { id: employeeId },
+    const businessId = await resolveTenantBusinessId(businessSlug);
+    if (!businessId) {
+      return { success: false, error: "Business not found" };
+    }
+
+    const employee = await prisma.employee.findFirst({
+      where: {
+        id: employeeId,
+        business_id: businessId,
+      },
     });
 
     if (!employee) {
@@ -261,7 +285,7 @@ export async function deleteEmployeeAction(employeeId: number) {
     // Delete employee (user is linked, decide if you want to delete user too)
     // For now, we'll delete the employee record only
     await prisma.employee.delete({
-      where: { id: employeeId },
+      where: { id: employee.id },
     });
 
     revalidatePath(`/app/${businessSlug}/employees`);
@@ -279,10 +303,19 @@ export async function resetEmployeePasswordAction(
 ) {
   const auth = await requireAuth({ write: true });
   if (!auth.success) return auth;
+  const { businessSlug } = auth;
 
   try {
-    const employee = await prisma.employee.findUnique({
-      where: { id: employeeId },
+    const businessId = await resolveTenantBusinessId(businessSlug);
+    if (!businessId) {
+      return { success: false, error: "Business not found" };
+    }
+
+    const employee = await prisma.employee.findFirst({
+      where: {
+        id: employeeId,
+        business_id: businessId,
+      },
     });
 
     if (!employee) {

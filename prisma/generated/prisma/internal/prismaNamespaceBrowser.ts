@@ -55,6 +55,9 @@ export const ModelName = {
   LeaveRequest: 'LeaveRequest',
   BusinessHours: 'BusinessHours',
   SaleEvent: 'SaleEvent',
+  SocialConnection: 'SocialConnection',
+  SocialPost: 'SocialPost',
+  SocialPostTarget: 'SocialPostTarget',
   User: 'User',
   Employee: 'Employee',
   EmployeeAttendance: 'EmployeeAttendance',
@@ -173,6 +176,64 @@ export const SaleEventScalarFieldEnum = {
 } as const
 
 export type SaleEventScalarFieldEnum = (typeof SaleEventScalarFieldEnum)[keyof typeof SaleEventScalarFieldEnum]
+
+
+export const SocialConnectionScalarFieldEnum = {
+  id: 'id',
+  business_id: 'business_id',
+  platform: 'platform',
+  external_account_id: 'external_account_id',
+  display_name: 'display_name',
+  username: 'username',
+  access_token_encrypted: 'access_token_encrypted',
+  token_expires_at: 'token_expires_at',
+  scopes: 'scopes',
+  status: 'status',
+  last_sync_at: 'last_sync_at',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type SocialConnectionScalarFieldEnum = (typeof SocialConnectionScalarFieldEnum)[keyof typeof SocialConnectionScalarFieldEnum]
+
+
+export const SocialPostScalarFieldEnum = {
+  id: 'id',
+  business_id: 'business_id',
+  sale_event_id: 'sale_event_id',
+  source: 'source',
+  status: 'status',
+  title: 'title',
+  caption_draft: 'caption_draft',
+  caption_final: 'caption_final',
+  hashtags: 'hashtags',
+  media_url: 'media_url',
+  created_by_user_id: 'created_by_user_id',
+  publish_requested_at: 'publish_requested_at',
+  published_at: 'published_at',
+  last_error: 'last_error',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type SocialPostScalarFieldEnum = (typeof SocialPostScalarFieldEnum)[keyof typeof SocialPostScalarFieldEnum]
+
+
+export const SocialPostTargetScalarFieldEnum = {
+  id: 'id',
+  social_post_id: 'social_post_id',
+  social_connection_id: 'social_connection_id',
+  status: 'status',
+  attempts: 'attempts',
+  last_error: 'last_error',
+  remote_post_id: 'remote_post_id',
+  remote_permalink: 'remote_permalink',
+  published_at: 'published_at',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type SocialPostTargetScalarFieldEnum = (typeof SocialPostTargetScalarFieldEnum)[keyof typeof SocialPostTargetScalarFieldEnum]
 
 
 export const UserScalarFieldEnum = {

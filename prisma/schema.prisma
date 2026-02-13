@@ -25,14 +25,14 @@ model Business {
   latitude  Float?
   longitude Float?
 
-  booking_horizon_days       Int     @default(14)
-  booking_min_lead_minutes   Int     @default(30)
-  booking_slot_interval_minutes Int  @default(30)
-  public_allow_full_payment  Boolean @default(true)
-  public_allow_downpayment   Boolean @default(true)
-  public_default_payment_type String @default("FULL")
-  booking_v2_enabled         Boolean @default(true)
-  same_day_attendance_strict_minutes Int @default(120)
+  booking_horizon_days               Int     @default(14)
+  booking_min_lead_minutes           Int     @default(30)
+  booking_slot_interval_minutes      Int     @default(30)
+  public_allow_full_payment          Boolean @default(true)
+  public_allow_downpayment           Boolean @default(true)
+  public_default_payment_type        String  @default("FULL")
+  booking_v2_enabled                 Boolean @default(true)
+  same_day_attendance_strict_minutes Int     @default(120)
 
   services                          Service[]
   employees                         Employee[]
@@ -40,6 +40,8 @@ model Business {
   customers                         Customer[]
   bookings                          Booking[]
   sale_events                       SaleEvent[]
+  social_connections                SocialConnection[]
+  social_posts                      SocialPost[]
   vouchers                          Voucher[]
   gift_cards                        GiftCard[]
   special_dates                     SpecialDate[]
@@ -150,6 +152,40 @@ enum VoucherType {
 enum DiscountType {
   PERCENTAGE
   FLAT
+}
+
+enum SocialPlatform {
+  FACEBOOK_PAGE
+  INSTAGRAM_BUSINESS
+}
+
+enum SocialConnectionStatus {
+  CONNECTED
+  EXPIRED
+  REVOKED
+  ERROR
+}
+
+enum SocialPostSource {
+  SALE_EVENT
+  MANUAL
+}
+
+enum SocialPostStatus {
+  DRAFT
+  READY
+  PUBLISHING
+  PUBLISHED
+  FAILED
+  CANCELLED
+}
+
+enum SocialTargetStatus {
+  QUEUED
+  PUBLISHING
+  PUBLISHED
+  FAILED
+  SKIPPED
 }
 
 enum BookingStatus {
@@ -280,14 +316,97 @@ model SaleEvent {
   applicable_services Service[]
   applicable_packages ServicePackage[]
 
-  business_id String
-  business    Business @relation(fields: [business_id], references: [id], onDelete: Cascade)
+  business_id  String
+  business     Business     @relation(fields: [business_id], references: [id], onDelete: Cascade)
+  social_posts SocialPost[]
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
   @@index([business_id, created_at])
   @@index([business_id, start_date, end_date])
+}
+
+model SocialConnection {
+  id                  String         @id @default(cuid())
+  business_id         String
+  business            Business       @relation(fields: [business_id], references: [id], onDelete: Cascade)
+  platform            SocialPlatform
+  external_account_id String
+  display_name        String
+  username            String?
+
+  access_token_encrypted String
+  token_expires_at       DateTime?
+  scopes                 String[]               @default([])
+  status                 SocialConnectionStatus @default(CONNECTED)
+  last_sync_at           DateTime?
+
+  targets SocialPostTarget[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@unique([business_id, platform])
+  @@index([business_id, status])
+}
+
+model SocialPost {
+  id String @id @default(cuid())
+
+  business_id String
+  business    Business @relation(fields: [business_id], references: [id], onDelete: Cascade)
+
+  sale_event_id Int?
+  sale_event    SaleEvent? @relation(fields: [sale_event_id], references: [id], onDelete: SetNull)
+
+  source SocialPostSource
+  status SocialPostStatus @default(DRAFT)
+
+  title         String
+  caption_draft String
+  caption_final String?
+  hashtags      String[] @default([])
+  media_url     String?
+
+  created_by_user_id String?
+  created_by_user    User?   @relation("SocialPostCreatedBy", fields: [created_by_user_id], references: [id], onDelete: SetNull)
+
+  publish_requested_at DateTime?
+  published_at         DateTime?
+  last_error           String?
+
+  targets SocialPostTarget[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([business_id, status, created_at])
+  @@index([sale_event_id])
+}
+
+model SocialPostTarget {
+  id String @id @default(cuid())
+
+  social_post_id String
+  social_post    SocialPost @relation(fields: [social_post_id], references: [id], onDelete: Cascade)
+
+  social_connection_id String
+  social_connection    SocialConnection @relation(fields: [social_connection_id], references: [id], onDelete: Cascade)
+
+  status SocialTargetStatus @default(SKIPPED)
+
+  attempts         Int       @default(0)
+  last_error       String?
+  remote_post_id   String?
+  remote_permalink String?
+  published_at     DateTime?
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@unique([social_post_id, social_connection_id])
+  @@index([status, attempts, created_at])
 }
 
 model User {
@@ -299,6 +418,7 @@ model User {
   role                             Role                       @default(EMPLOYEE)
   employee                         Employee?
   owner                            Owner?
+  social_posts_created             SocialPost[]               @relation("SocialPostCreatedBy")
   awarded_subscription_credits     SubscriptionCreditLedger[] @relation("CreditAwardedByUser")
   platform_action_logs             PlatformActionLog[]        @relation("PlatformActorUser")
   reviewed_onboarding_applications OnboardingApplication[]    @relation("ReviewedByPlatformUser")

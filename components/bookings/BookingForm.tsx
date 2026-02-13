@@ -34,37 +34,6 @@ import {
   type SaleEventForPricing,
 } from "@/lib/utils/pricing";
 
-const capitalizeWords = (str: string) => {
-  return str.replace(/\b\w/g, (char) => char.toUpperCase());
-};
-
-const maskEmail = (email: string) => {
-  if (!email) return "";
-  const [user, domain] = email.split("@");
-  if (!user || !domain) return email;
-  const maskedUser =
-    user.length > 2
-      ? `${user.substring(0, 2)}***${user.substring(user.length - 1)}`
-      : `${user}***`;
-  return `${maskedUser}@${domain}`;
-};
-
-const MANILA_TIME_ZONE = "Asia/Manila";
-
-const toPHDateString = (date: Date) => {
-  const parts = new Intl.DateTimeFormat("en-US", {
-    timeZone: MANILA_TIME_ZONE,
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).formatToParts(date);
-
-  const getPart = (type: "year" | "month" | "day") =>
-    parts.find((part) => part.type === type)?.value ?? "";
-
-  return `${getPart("year")}-${getPart("month")}-${getPart("day")}`;
-};
-
 import {
   Form,
   FormControl,
@@ -114,6 +83,12 @@ import { Sparkles, Calendar, Ticket, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { BookingPolicy } from "@/lib/types/booking-policy";
 import { getMaxBookingDate, getSlotEmptyState } from "./booking-form-utils";
+import {
+  buildServiceClaimUniqueId,
+  capitalizeWords,
+  maskEmail,
+  toPHDateString,
+} from "./booking-form-helpers";
 
 type SelectedService = {
   id: number;
@@ -129,11 +104,6 @@ type SelectedService = {
   category?: string | null;
   claimedByCurrentEmployee?: boolean;
 };
-
-const buildServiceClaimUniqueId = (
-  service: Pick<SelectedService, "id" | "packageId">,
-  unitIndex: number,
-) => `${service.id}-${service.packageId ? `pkg${service.packageId}` : "std"}-${unitIndex}`;
 
 type SelectedCustomer = {
   email?: string | null;

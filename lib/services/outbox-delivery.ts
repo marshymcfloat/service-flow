@@ -5,6 +5,10 @@ import { prisma } from "@/prisma/prisma";
 import { toAbsoluteUrl } from "@/lib/site-url";
 import type { OutboxEventType, OutboxPayloadMap } from "@/lib/services/outbox";
 import {
+  deliverSocialTargetPublish,
+  SocialNonRetryableError,
+} from "@/lib/services/social/deliver-social-target";
+import {
   BOOKING_DETAILS_TOKEN_TTL_SECONDS,
   createBookingSuccessToken,
 } from "@/lib/security/booking-success-token";
@@ -17,7 +21,10 @@ export class NonRetryableOutboxError extends Error {
 }
 
 export function isNonRetryableOutboxError(error: unknown) {
-  return error instanceof NonRetryableOutboxError;
+  return (
+    error instanceof NonRetryableOutboxError ||
+    error instanceof SocialNonRetryableError
+  );
 }
 
 function getResendClient() {
@@ -290,6 +297,7 @@ export async function deliverOutboxEvent<TType extends OutboxEventType>(params: 
   eventType: TType;
   payload: OutboxPayloadMap[TType];
   businessId: string;
+  outboxMessageId?: string;
 }) {
   switch (params.eventType) {
     case "BOOKING_CREATED":
@@ -338,6 +346,15 @@ export async function deliverOutboxEvent<TType extends OutboxEventType>(params: 
       );
       return;
     case "FLOW_REMINDER_SENT":
+      return;
+    case "SOCIAL_TARGET_PUBLISH":
+      await deliverSocialTargetPublish({
+        socialPostTargetId: (
+          params.payload as OutboxPayloadMap["SOCIAL_TARGET_PUBLISH"]
+        ).socialPostTargetId,
+        businessId: params.businessId,
+        outboxMessageId: params.outboxMessageId,
+      });
       return;
     default:
       logger.warn("[Outbox] Unsupported event type in delivery", {

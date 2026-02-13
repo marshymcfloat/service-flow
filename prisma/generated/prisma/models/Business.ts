@@ -354,6 +354,8 @@ export type BusinessWhereInput = {
   customers?: Prisma.CustomerListRelationFilter
   bookings?: Prisma.BookingListRelationFilter
   sale_events?: Prisma.SaleEventListRelationFilter
+  social_connections?: Prisma.SocialConnectionListRelationFilter
+  social_posts?: Prisma.SocialPostListRelationFilter
   vouchers?: Prisma.VoucherListRelationFilter
   gift_cards?: Prisma.GiftCardListRelationFilter
   special_dates?: Prisma.SpecialDateListRelationFilter
@@ -397,6 +399,8 @@ export type BusinessOrderByWithRelationInput = {
   customers?: Prisma.CustomerOrderByRelationAggregateInput
   bookings?: Prisma.BookingOrderByRelationAggregateInput
   sale_events?: Prisma.SaleEventOrderByRelationAggregateInput
+  social_connections?: Prisma.SocialConnectionOrderByRelationAggregateInput
+  social_posts?: Prisma.SocialPostOrderByRelationAggregateInput
   vouchers?: Prisma.VoucherOrderByRelationAggregateInput
   gift_cards?: Prisma.GiftCardOrderByRelationAggregateInput
   special_dates?: Prisma.SpecialDateOrderByRelationAggregateInput
@@ -443,6 +447,8 @@ export type BusinessWhereUniqueInput = Prisma.AtLeast<{
   customers?: Prisma.CustomerListRelationFilter
   bookings?: Prisma.BookingListRelationFilter
   sale_events?: Prisma.SaleEventListRelationFilter
+  social_connections?: Prisma.SocialConnectionListRelationFilter
+  social_posts?: Prisma.SocialPostListRelationFilter
   vouchers?: Prisma.VoucherListRelationFilter
   gift_cards?: Prisma.GiftCardListRelationFilter
   special_dates?: Prisma.SpecialDateListRelationFilter
@@ -538,6 +544,8 @@ export type BusinessCreateInput = {
   customers?: Prisma.CustomerCreateNestedManyWithoutBusinessInput
   bookings?: Prisma.BookingCreateNestedManyWithoutBusinessInput
   sale_events?: Prisma.SaleEventCreateNestedManyWithoutBusinessInput
+  social_connections?: Prisma.SocialConnectionCreateNestedManyWithoutBusinessInput
+  social_posts?: Prisma.SocialPostCreateNestedManyWithoutBusinessInput
   vouchers?: Prisma.VoucherCreateNestedManyWithoutBusinessInput
   gift_cards?: Prisma.GiftCardCreateNestedManyWithoutBusinessInput
   special_dates?: Prisma.SpecialDateCreateNestedManyWithoutBusinessInput
@@ -581,6 +589,8 @@ export type BusinessUncheckedCreateInput = {
   customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutBusinessInput
   bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutBusinessInput
   sale_events?: Prisma.SaleEventUncheckedCreateNestedManyWithoutBusinessInput
+  social_connections?: Prisma.SocialConnectionUncheckedCreateNestedManyWithoutBusinessInput
+  social_posts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutBusinessInput
   vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutBusinessInput
   gift_cards?: Prisma.GiftCardUncheckedCreateNestedManyWithoutBusinessInput
   special_dates?: Prisma.SpecialDateUncheckedCreateNestedManyWithoutBusinessInput
@@ -624,6 +634,8 @@ export type BusinessUpdateInput = {
   customers?: Prisma.CustomerUpdateManyWithoutBusinessNestedInput
   bookings?: Prisma.BookingUpdateManyWithoutBusinessNestedInput
   sale_events?: Prisma.SaleEventUpdateManyWithoutBusinessNestedInput
+  social_connections?: Prisma.SocialConnectionUpdateManyWithoutBusinessNestedInput
+  social_posts?: Prisma.SocialPostUpdateManyWithoutBusinessNestedInput
   vouchers?: Prisma.VoucherUpdateManyWithoutBusinessNestedInput
   gift_cards?: Prisma.GiftCardUpdateManyWithoutBusinessNestedInput
   special_dates?: Prisma.SpecialDateUpdateManyWithoutBusinessNestedInput
@@ -667,6 +679,8 @@ export type BusinessUncheckedUpdateInput = {
   customers?: Prisma.CustomerUncheckedUpdateManyWithoutBusinessNestedInput
   bookings?: Prisma.BookingUncheckedUpdateManyWithoutBusinessNestedInput
   sale_events?: Prisma.SaleEventUncheckedUpdateManyWithoutBusinessNestedInput
+  social_connections?: Prisma.SocialConnectionUncheckedUpdateManyWithoutBusinessNestedInput
+  social_posts?: Prisma.SocialPostUncheckedUpdateManyWithoutBusinessNestedInput
   vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutBusinessNestedInput
   gift_cards?: Prisma.GiftCardUncheckedUpdateManyWithoutBusinessNestedInput
   special_dates?: Prisma.SpecialDateUncheckedUpdateManyWithoutBusinessNestedInput
@@ -920,6 +934,34 @@ export type BusinessUpdateOneRequiredWithoutSale_eventsNestedInput = {
   upsert?: Prisma.BusinessUpsertWithoutSale_eventsInput
   connect?: Prisma.BusinessWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.BusinessUpdateToOneWithWhereWithoutSale_eventsInput, Prisma.BusinessUpdateWithoutSale_eventsInput>, Prisma.BusinessUncheckedUpdateWithoutSale_eventsInput>
+}
+
+export type BusinessCreateNestedOneWithoutSocial_connectionsInput = {
+  create?: Prisma.XOR<Prisma.BusinessCreateWithoutSocial_connectionsInput, Prisma.BusinessUncheckedCreateWithoutSocial_connectionsInput>
+  connectOrCreate?: Prisma.BusinessCreateOrConnectWithoutSocial_connectionsInput
+  connect?: Prisma.BusinessWhereUniqueInput
+}
+
+export type BusinessUpdateOneRequiredWithoutSocial_connectionsNestedInput = {
+  create?: Prisma.XOR<Prisma.BusinessCreateWithoutSocial_connectionsInput, Prisma.BusinessUncheckedCreateWithoutSocial_connectionsInput>
+  connectOrCreate?: Prisma.BusinessCreateOrConnectWithoutSocial_connectionsInput
+  upsert?: Prisma.BusinessUpsertWithoutSocial_connectionsInput
+  connect?: Prisma.BusinessWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.BusinessUpdateToOneWithWhereWithoutSocial_connectionsInput, Prisma.BusinessUpdateWithoutSocial_connectionsInput>, Prisma.BusinessUncheckedUpdateWithoutSocial_connectionsInput>
+}
+
+export type BusinessCreateNestedOneWithoutSocial_postsInput = {
+  create?: Prisma.XOR<Prisma.BusinessCreateWithoutSocial_postsInput, Prisma.BusinessUncheckedCreateWithoutSocial_postsInput>
+  connectOrCreate?: Prisma.BusinessCreateOrConnectWithoutSocial_postsInput
+  connect?: Prisma.BusinessWhereUniqueInput
+}
+
+export type BusinessUpdateOneRequiredWithoutSocial_postsNestedInput = {
+  create?: Prisma.XOR<Prisma.BusinessCreateWithoutSocial_postsInput, Prisma.BusinessUncheckedCreateWithoutSocial_postsInput>
+  connectOrCreate?: Prisma.BusinessCreateOrConnectWithoutSocial_postsInput
+  upsert?: Prisma.BusinessUpsertWithoutSocial_postsInput
+  connect?: Prisma.BusinessWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.BusinessUpdateToOneWithWhereWithoutSocial_postsInput, Prisma.BusinessUpdateWithoutSocial_postsInput>, Prisma.BusinessUncheckedUpdateWithoutSocial_postsInput>
 }
 
 export type BusinessCreateNestedOneWithoutEmployeesInput = {
@@ -1206,6 +1248,8 @@ export type BusinessCreateWithoutLeave_requestsInput = {
   customers?: Prisma.CustomerCreateNestedManyWithoutBusinessInput
   bookings?: Prisma.BookingCreateNestedManyWithoutBusinessInput
   sale_events?: Prisma.SaleEventCreateNestedManyWithoutBusinessInput
+  social_connections?: Prisma.SocialConnectionCreateNestedManyWithoutBusinessInput
+  social_posts?: Prisma.SocialPostCreateNestedManyWithoutBusinessInput
   vouchers?: Prisma.VoucherCreateNestedManyWithoutBusinessInput
   gift_cards?: Prisma.GiftCardCreateNestedManyWithoutBusinessInput
   special_dates?: Prisma.SpecialDateCreateNestedManyWithoutBusinessInput
@@ -1248,6 +1292,8 @@ export type BusinessUncheckedCreateWithoutLeave_requestsInput = {
   customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutBusinessInput
   bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutBusinessInput
   sale_events?: Prisma.SaleEventUncheckedCreateNestedManyWithoutBusinessInput
+  social_connections?: Prisma.SocialConnectionUncheckedCreateNestedManyWithoutBusinessInput
+  social_posts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutBusinessInput
   vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutBusinessInput
   gift_cards?: Prisma.GiftCardUncheckedCreateNestedManyWithoutBusinessInput
   special_dates?: Prisma.SpecialDateUncheckedCreateNestedManyWithoutBusinessInput
@@ -1306,6 +1352,8 @@ export type BusinessUpdateWithoutLeave_requestsInput = {
   customers?: Prisma.CustomerUpdateManyWithoutBusinessNestedInput
   bookings?: Prisma.BookingUpdateManyWithoutBusinessNestedInput
   sale_events?: Prisma.SaleEventUpdateManyWithoutBusinessNestedInput
+  social_connections?: Prisma.SocialConnectionUpdateManyWithoutBusinessNestedInput
+  social_posts?: Prisma.SocialPostUpdateManyWithoutBusinessNestedInput
   vouchers?: Prisma.VoucherUpdateManyWithoutBusinessNestedInput
   gift_cards?: Prisma.GiftCardUpdateManyWithoutBusinessNestedInput
   special_dates?: Prisma.SpecialDateUpdateManyWithoutBusinessNestedInput
@@ -1348,6 +1396,8 @@ export type BusinessUncheckedUpdateWithoutLeave_requestsInput = {
   customers?: Prisma.CustomerUncheckedUpdateManyWithoutBusinessNestedInput
   bookings?: Prisma.BookingUncheckedUpdateManyWithoutBusinessNestedInput
   sale_events?: Prisma.SaleEventUncheckedUpdateManyWithoutBusinessNestedInput
+  social_connections?: Prisma.SocialConnectionUncheckedUpdateManyWithoutBusinessNestedInput
+  social_posts?: Prisma.SocialPostUncheckedUpdateManyWithoutBusinessNestedInput
   vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutBusinessNestedInput
   gift_cards?: Prisma.GiftCardUncheckedUpdateManyWithoutBusinessNestedInput
   special_dates?: Prisma.SpecialDateUncheckedUpdateManyWithoutBusinessNestedInput
@@ -1390,6 +1440,8 @@ export type BusinessCreateWithoutBusiness_hoursInput = {
   customers?: Prisma.CustomerCreateNestedManyWithoutBusinessInput
   bookings?: Prisma.BookingCreateNestedManyWithoutBusinessInput
   sale_events?: Prisma.SaleEventCreateNestedManyWithoutBusinessInput
+  social_connections?: Prisma.SocialConnectionCreateNestedManyWithoutBusinessInput
+  social_posts?: Prisma.SocialPostCreateNestedManyWithoutBusinessInput
   vouchers?: Prisma.VoucherCreateNestedManyWithoutBusinessInput
   gift_cards?: Prisma.GiftCardCreateNestedManyWithoutBusinessInput
   special_dates?: Prisma.SpecialDateCreateNestedManyWithoutBusinessInput
@@ -1432,6 +1484,8 @@ export type BusinessUncheckedCreateWithoutBusiness_hoursInput = {
   customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutBusinessInput
   bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutBusinessInput
   sale_events?: Prisma.SaleEventUncheckedCreateNestedManyWithoutBusinessInput
+  social_connections?: Prisma.SocialConnectionUncheckedCreateNestedManyWithoutBusinessInput
+  social_posts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutBusinessInput
   vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutBusinessInput
   gift_cards?: Prisma.GiftCardUncheckedCreateNestedManyWithoutBusinessInput
   special_dates?: Prisma.SpecialDateUncheckedCreateNestedManyWithoutBusinessInput
@@ -1490,6 +1544,8 @@ export type BusinessUpdateWithoutBusiness_hoursInput = {
   customers?: Prisma.CustomerUpdateManyWithoutBusinessNestedInput
   bookings?: Prisma.BookingUpdateManyWithoutBusinessNestedInput
   sale_events?: Prisma.SaleEventUpdateManyWithoutBusinessNestedInput
+  social_connections?: Prisma.SocialConnectionUpdateManyWithoutBusinessNestedInput
+  social_posts?: Prisma.SocialPostUpdateManyWithoutBusinessNestedInput
   vouchers?: Prisma.VoucherUpdateManyWithoutBusinessNestedInput
   gift_cards?: Prisma.GiftCardUpdateManyWithoutBusinessNestedInput
   special_dates?: Prisma.SpecialDateUpdateManyWithoutBusinessNestedInput
@@ -1532,6 +1588,8 @@ export type BusinessUncheckedUpdateWithoutBusiness_hoursInput = {
   customers?: Prisma.CustomerUncheckedUpdateManyWithoutBusinessNestedInput
   bookings?: Prisma.BookingUncheckedUpdateManyWithoutBusinessNestedInput
   sale_events?: Prisma.SaleEventUncheckedUpdateManyWithoutBusinessNestedInput
+  social_connections?: Prisma.SocialConnectionUncheckedUpdateManyWithoutBusinessNestedInput
+  social_posts?: Prisma.SocialPostUncheckedUpdateManyWithoutBusinessNestedInput
   vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutBusinessNestedInput
   gift_cards?: Prisma.GiftCardUncheckedUpdateManyWithoutBusinessNestedInput
   special_dates?: Prisma.SpecialDateUncheckedUpdateManyWithoutBusinessNestedInput
@@ -1573,6 +1631,8 @@ export type BusinessCreateWithoutSale_eventsInput = {
   owners?: Prisma.OwnerCreateNestedManyWithoutBusinessInput
   customers?: Prisma.CustomerCreateNestedManyWithoutBusinessInput
   bookings?: Prisma.BookingCreateNestedManyWithoutBusinessInput
+  social_connections?: Prisma.SocialConnectionCreateNestedManyWithoutBusinessInput
+  social_posts?: Prisma.SocialPostCreateNestedManyWithoutBusinessInput
   vouchers?: Prisma.VoucherCreateNestedManyWithoutBusinessInput
   gift_cards?: Prisma.GiftCardCreateNestedManyWithoutBusinessInput
   special_dates?: Prisma.SpecialDateCreateNestedManyWithoutBusinessInput
@@ -1615,6 +1675,8 @@ export type BusinessUncheckedCreateWithoutSale_eventsInput = {
   owners?: Prisma.OwnerUncheckedCreateNestedManyWithoutBusinessInput
   customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutBusinessInput
   bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutBusinessInput
+  social_connections?: Prisma.SocialConnectionUncheckedCreateNestedManyWithoutBusinessInput
+  social_posts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutBusinessInput
   vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutBusinessInput
   gift_cards?: Prisma.GiftCardUncheckedCreateNestedManyWithoutBusinessInput
   special_dates?: Prisma.SpecialDateUncheckedCreateNestedManyWithoutBusinessInput
@@ -1673,6 +1735,8 @@ export type BusinessUpdateWithoutSale_eventsInput = {
   owners?: Prisma.OwnerUpdateManyWithoutBusinessNestedInput
   customers?: Prisma.CustomerUpdateManyWithoutBusinessNestedInput
   bookings?: Prisma.BookingUpdateManyWithoutBusinessNestedInput
+  social_connections?: Prisma.SocialConnectionUpdateManyWithoutBusinessNestedInput
+  social_posts?: Prisma.SocialPostUpdateManyWithoutBusinessNestedInput
   vouchers?: Prisma.VoucherUpdateManyWithoutBusinessNestedInput
   gift_cards?: Prisma.GiftCardUpdateManyWithoutBusinessNestedInput
   special_dates?: Prisma.SpecialDateUpdateManyWithoutBusinessNestedInput
@@ -1715,6 +1779,392 @@ export type BusinessUncheckedUpdateWithoutSale_eventsInput = {
   owners?: Prisma.OwnerUncheckedUpdateManyWithoutBusinessNestedInput
   customers?: Prisma.CustomerUncheckedUpdateManyWithoutBusinessNestedInput
   bookings?: Prisma.BookingUncheckedUpdateManyWithoutBusinessNestedInput
+  social_connections?: Prisma.SocialConnectionUncheckedUpdateManyWithoutBusinessNestedInput
+  social_posts?: Prisma.SocialPostUncheckedUpdateManyWithoutBusinessNestedInput
+  vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutBusinessNestedInput
+  gift_cards?: Prisma.GiftCardUncheckedUpdateManyWithoutBusinessNestedInput
+  special_dates?: Prisma.SpecialDateUncheckedUpdateManyWithoutBusinessNestedInput
+  packages?: Prisma.ServicePackageUncheckedUpdateManyWithoutBusinessNestedInput
+  leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
+  business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
+  service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.BusinessSubscriptionUncheckedUpdateManyWithoutBusinessNestedInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedUpdateManyWithoutBusinessNestedInput
+  referral_code?: Prisma.ReferralCodeUncheckedUpdateOneWithoutBusinessNestedInput
+  referral_leads_converted?: Prisma.ReferralLeadUncheckedUpdateManyWithoutConverted_businessNestedInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferrer_businessNestedInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferred_businessNestedInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedUpdateManyWithoutConverted_businessNestedInput
+  platform_action_logs?: Prisma.PlatformActionLogUncheckedUpdateManyWithoutBusinessNestedInput
+}
+
+export type BusinessCreateWithoutSocial_connectionsInput = {
+  id?: string
+  name: string
+  slug: string
+  initials: string
+  description?: string | null
+  imageUrl?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  booking_horizon_days?: number
+  booking_min_lead_minutes?: number
+  booking_slot_interval_minutes?: number
+  public_allow_full_payment?: boolean
+  public_allow_downpayment?: boolean
+  public_default_payment_type?: string
+  booking_v2_enabled?: boolean
+  same_day_attendance_strict_minutes?: number
+  commission_calculation_basis?: $Enums.CommissionCalculationBasis
+  created_at?: Date | string
+  updated_at?: Date | string
+  services?: Prisma.ServiceCreateNestedManyWithoutBusinessInput
+  employees?: Prisma.EmployeeCreateNestedManyWithoutBusinessInput
+  owners?: Prisma.OwnerCreateNestedManyWithoutBusinessInput
+  customers?: Prisma.CustomerCreateNestedManyWithoutBusinessInput
+  bookings?: Prisma.BookingCreateNestedManyWithoutBusinessInput
+  sale_events?: Prisma.SaleEventCreateNestedManyWithoutBusinessInput
+  social_posts?: Prisma.SocialPostCreateNestedManyWithoutBusinessInput
+  vouchers?: Prisma.VoucherCreateNestedManyWithoutBusinessInput
+  gift_cards?: Prisma.GiftCardCreateNestedManyWithoutBusinessInput
+  special_dates?: Prisma.SpecialDateCreateNestedManyWithoutBusinessInput
+  packages?: Prisma.ServicePackageCreateNestedManyWithoutBusinessInput
+  leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
+  business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
+  service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.BusinessSubscriptionCreateNestedManyWithoutBusinessInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceCreateNestedManyWithoutBusinessInput
+  referral_code?: Prisma.ReferralCodeCreateNestedOneWithoutBusinessInput
+  referral_leads_converted?: Prisma.ReferralLeadCreateNestedManyWithoutConverted_businessInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionCreateNestedManyWithoutReferrer_businessInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionCreateNestedManyWithoutReferred_businessInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationCreateNestedManyWithoutConverted_businessInput
+  platform_action_logs?: Prisma.PlatformActionLogCreateNestedManyWithoutBusinessInput
+}
+
+export type BusinessUncheckedCreateWithoutSocial_connectionsInput = {
+  id?: string
+  name: string
+  slug: string
+  initials: string
+  description?: string | null
+  imageUrl?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  booking_horizon_days?: number
+  booking_min_lead_minutes?: number
+  booking_slot_interval_minutes?: number
+  public_allow_full_payment?: boolean
+  public_allow_downpayment?: boolean
+  public_default_payment_type?: string
+  booking_v2_enabled?: boolean
+  same_day_attendance_strict_minutes?: number
+  commission_calculation_basis?: $Enums.CommissionCalculationBasis
+  created_at?: Date | string
+  updated_at?: Date | string
+  services?: Prisma.ServiceUncheckedCreateNestedManyWithoutBusinessInput
+  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutBusinessInput
+  owners?: Prisma.OwnerUncheckedCreateNestedManyWithoutBusinessInput
+  customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutBusinessInput
+  bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutBusinessInput
+  sale_events?: Prisma.SaleEventUncheckedCreateNestedManyWithoutBusinessInput
+  social_posts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutBusinessInput
+  vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutBusinessInput
+  gift_cards?: Prisma.GiftCardUncheckedCreateNestedManyWithoutBusinessInput
+  special_dates?: Prisma.SpecialDateUncheckedCreateNestedManyWithoutBusinessInput
+  packages?: Prisma.ServicePackageUncheckedCreateNestedManyWithoutBusinessInput
+  leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
+  business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
+  service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.BusinessSubscriptionUncheckedCreateNestedManyWithoutBusinessInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedCreateNestedManyWithoutBusinessInput
+  referral_code?: Prisma.ReferralCodeUncheckedCreateNestedOneWithoutBusinessInput
+  referral_leads_converted?: Prisma.ReferralLeadUncheckedCreateNestedManyWithoutConverted_businessInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferrer_businessInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferred_businessInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedCreateNestedManyWithoutConverted_businessInput
+  platform_action_logs?: Prisma.PlatformActionLogUncheckedCreateNestedManyWithoutBusinessInput
+}
+
+export type BusinessCreateOrConnectWithoutSocial_connectionsInput = {
+  where: Prisma.BusinessWhereUniqueInput
+  create: Prisma.XOR<Prisma.BusinessCreateWithoutSocial_connectionsInput, Prisma.BusinessUncheckedCreateWithoutSocial_connectionsInput>
+}
+
+export type BusinessUpsertWithoutSocial_connectionsInput = {
+  update: Prisma.XOR<Prisma.BusinessUpdateWithoutSocial_connectionsInput, Prisma.BusinessUncheckedUpdateWithoutSocial_connectionsInput>
+  create: Prisma.XOR<Prisma.BusinessCreateWithoutSocial_connectionsInput, Prisma.BusinessUncheckedCreateWithoutSocial_connectionsInput>
+  where?: Prisma.BusinessWhereInput
+}
+
+export type BusinessUpdateToOneWithWhereWithoutSocial_connectionsInput = {
+  where?: Prisma.BusinessWhereInput
+  data: Prisma.XOR<Prisma.BusinessUpdateWithoutSocial_connectionsInput, Prisma.BusinessUncheckedUpdateWithoutSocial_connectionsInput>
+}
+
+export type BusinessUpdateWithoutSocial_connectionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  initials?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  services?: Prisma.ServiceUpdateManyWithoutBusinessNestedInput
+  employees?: Prisma.EmployeeUpdateManyWithoutBusinessNestedInput
+  owners?: Prisma.OwnerUpdateManyWithoutBusinessNestedInput
+  customers?: Prisma.CustomerUpdateManyWithoutBusinessNestedInput
+  bookings?: Prisma.BookingUpdateManyWithoutBusinessNestedInput
+  sale_events?: Prisma.SaleEventUpdateManyWithoutBusinessNestedInput
+  social_posts?: Prisma.SocialPostUpdateManyWithoutBusinessNestedInput
+  vouchers?: Prisma.VoucherUpdateManyWithoutBusinessNestedInput
+  gift_cards?: Prisma.GiftCardUpdateManyWithoutBusinessNestedInput
+  special_dates?: Prisma.SpecialDateUpdateManyWithoutBusinessNestedInput
+  packages?: Prisma.ServicePackageUpdateManyWithoutBusinessNestedInput
+  leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
+  business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
+  service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.BusinessSubscriptionUpdateManyWithoutBusinessNestedInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUpdateManyWithoutBusinessNestedInput
+  referral_code?: Prisma.ReferralCodeUpdateOneWithoutBusinessNestedInput
+  referral_leads_converted?: Prisma.ReferralLeadUpdateManyWithoutConverted_businessNestedInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUpdateManyWithoutReferrer_businessNestedInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUpdateManyWithoutReferred_businessNestedInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUpdateManyWithoutConverted_businessNestedInput
+  platform_action_logs?: Prisma.PlatformActionLogUpdateManyWithoutBusinessNestedInput
+}
+
+export type BusinessUncheckedUpdateWithoutSocial_connectionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  initials?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  services?: Prisma.ServiceUncheckedUpdateManyWithoutBusinessNestedInput
+  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutBusinessNestedInput
+  owners?: Prisma.OwnerUncheckedUpdateManyWithoutBusinessNestedInput
+  customers?: Prisma.CustomerUncheckedUpdateManyWithoutBusinessNestedInput
+  bookings?: Prisma.BookingUncheckedUpdateManyWithoutBusinessNestedInput
+  sale_events?: Prisma.SaleEventUncheckedUpdateManyWithoutBusinessNestedInput
+  social_posts?: Prisma.SocialPostUncheckedUpdateManyWithoutBusinessNestedInput
+  vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutBusinessNestedInput
+  gift_cards?: Prisma.GiftCardUncheckedUpdateManyWithoutBusinessNestedInput
+  special_dates?: Prisma.SpecialDateUncheckedUpdateManyWithoutBusinessNestedInput
+  packages?: Prisma.ServicePackageUncheckedUpdateManyWithoutBusinessNestedInput
+  leave_requests?: Prisma.LeaveRequestUncheckedUpdateManyWithoutBusinessNestedInput
+  business_hours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
+  service_flows?: Prisma.ServiceFlowUncheckedUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.BusinessSubscriptionUncheckedUpdateManyWithoutBusinessNestedInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedUpdateManyWithoutBusinessNestedInput
+  referral_code?: Prisma.ReferralCodeUncheckedUpdateOneWithoutBusinessNestedInput
+  referral_leads_converted?: Prisma.ReferralLeadUncheckedUpdateManyWithoutConverted_businessNestedInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferrer_businessNestedInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedUpdateManyWithoutReferred_businessNestedInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedUpdateManyWithoutConverted_businessNestedInput
+  platform_action_logs?: Prisma.PlatformActionLogUncheckedUpdateManyWithoutBusinessNestedInput
+}
+
+export type BusinessCreateWithoutSocial_postsInput = {
+  id?: string
+  name: string
+  slug: string
+  initials: string
+  description?: string | null
+  imageUrl?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  booking_horizon_days?: number
+  booking_min_lead_minutes?: number
+  booking_slot_interval_minutes?: number
+  public_allow_full_payment?: boolean
+  public_allow_downpayment?: boolean
+  public_default_payment_type?: string
+  booking_v2_enabled?: boolean
+  same_day_attendance_strict_minutes?: number
+  commission_calculation_basis?: $Enums.CommissionCalculationBasis
+  created_at?: Date | string
+  updated_at?: Date | string
+  services?: Prisma.ServiceCreateNestedManyWithoutBusinessInput
+  employees?: Prisma.EmployeeCreateNestedManyWithoutBusinessInput
+  owners?: Prisma.OwnerCreateNestedManyWithoutBusinessInput
+  customers?: Prisma.CustomerCreateNestedManyWithoutBusinessInput
+  bookings?: Prisma.BookingCreateNestedManyWithoutBusinessInput
+  sale_events?: Prisma.SaleEventCreateNestedManyWithoutBusinessInput
+  social_connections?: Prisma.SocialConnectionCreateNestedManyWithoutBusinessInput
+  vouchers?: Prisma.VoucherCreateNestedManyWithoutBusinessInput
+  gift_cards?: Prisma.GiftCardCreateNestedManyWithoutBusinessInput
+  special_dates?: Prisma.SpecialDateCreateNestedManyWithoutBusinessInput
+  packages?: Prisma.ServicePackageCreateNestedManyWithoutBusinessInput
+  leave_requests?: Prisma.LeaveRequestCreateNestedManyWithoutBusinessInput
+  business_hours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
+  service_flows?: Prisma.ServiceFlowCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.BusinessSubscriptionCreateNestedManyWithoutBusinessInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceCreateNestedManyWithoutBusinessInput
+  referral_code?: Prisma.ReferralCodeCreateNestedOneWithoutBusinessInput
+  referral_leads_converted?: Prisma.ReferralLeadCreateNestedManyWithoutConverted_businessInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionCreateNestedManyWithoutReferrer_businessInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionCreateNestedManyWithoutReferred_businessInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationCreateNestedManyWithoutConverted_businessInput
+  platform_action_logs?: Prisma.PlatformActionLogCreateNestedManyWithoutBusinessInput
+}
+
+export type BusinessUncheckedCreateWithoutSocial_postsInput = {
+  id?: string
+  name: string
+  slug: string
+  initials: string
+  description?: string | null
+  imageUrl?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  booking_horizon_days?: number
+  booking_min_lead_minutes?: number
+  booking_slot_interval_minutes?: number
+  public_allow_full_payment?: boolean
+  public_allow_downpayment?: boolean
+  public_default_payment_type?: string
+  booking_v2_enabled?: boolean
+  same_day_attendance_strict_minutes?: number
+  commission_calculation_basis?: $Enums.CommissionCalculationBasis
+  created_at?: Date | string
+  updated_at?: Date | string
+  services?: Prisma.ServiceUncheckedCreateNestedManyWithoutBusinessInput
+  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutBusinessInput
+  owners?: Prisma.OwnerUncheckedCreateNestedManyWithoutBusinessInput
+  customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutBusinessInput
+  bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutBusinessInput
+  sale_events?: Prisma.SaleEventUncheckedCreateNestedManyWithoutBusinessInput
+  social_connections?: Prisma.SocialConnectionUncheckedCreateNestedManyWithoutBusinessInput
+  vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutBusinessInput
+  gift_cards?: Prisma.GiftCardUncheckedCreateNestedManyWithoutBusinessInput
+  special_dates?: Prisma.SpecialDateUncheckedCreateNestedManyWithoutBusinessInput
+  packages?: Prisma.ServicePackageUncheckedCreateNestedManyWithoutBusinessInput
+  leave_requests?: Prisma.LeaveRequestUncheckedCreateNestedManyWithoutBusinessInput
+  business_hours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
+  service_flows?: Prisma.ServiceFlowUncheckedCreateNestedManyWithoutBusinessInput
+  subscriptions?: Prisma.BusinessSubscriptionUncheckedCreateNestedManyWithoutBusinessInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUncheckedCreateNestedManyWithoutBusinessInput
+  referral_code?: Prisma.ReferralCodeUncheckedCreateNestedOneWithoutBusinessInput
+  referral_leads_converted?: Prisma.ReferralLeadUncheckedCreateNestedManyWithoutConverted_businessInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferrer_businessInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUncheckedCreateNestedManyWithoutReferred_businessInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUncheckedCreateNestedManyWithoutConverted_businessInput
+  platform_action_logs?: Prisma.PlatformActionLogUncheckedCreateNestedManyWithoutBusinessInput
+}
+
+export type BusinessCreateOrConnectWithoutSocial_postsInput = {
+  where: Prisma.BusinessWhereUniqueInput
+  create: Prisma.XOR<Prisma.BusinessCreateWithoutSocial_postsInput, Prisma.BusinessUncheckedCreateWithoutSocial_postsInput>
+}
+
+export type BusinessUpsertWithoutSocial_postsInput = {
+  update: Prisma.XOR<Prisma.BusinessUpdateWithoutSocial_postsInput, Prisma.BusinessUncheckedUpdateWithoutSocial_postsInput>
+  create: Prisma.XOR<Prisma.BusinessCreateWithoutSocial_postsInput, Prisma.BusinessUncheckedCreateWithoutSocial_postsInput>
+  where?: Prisma.BusinessWhereInput
+}
+
+export type BusinessUpdateToOneWithWhereWithoutSocial_postsInput = {
+  where?: Prisma.BusinessWhereInput
+  data: Prisma.XOR<Prisma.BusinessUpdateWithoutSocial_postsInput, Prisma.BusinessUncheckedUpdateWithoutSocial_postsInput>
+}
+
+export type BusinessUpdateWithoutSocial_postsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  initials?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  services?: Prisma.ServiceUpdateManyWithoutBusinessNestedInput
+  employees?: Prisma.EmployeeUpdateManyWithoutBusinessNestedInput
+  owners?: Prisma.OwnerUpdateManyWithoutBusinessNestedInput
+  customers?: Prisma.CustomerUpdateManyWithoutBusinessNestedInput
+  bookings?: Prisma.BookingUpdateManyWithoutBusinessNestedInput
+  sale_events?: Prisma.SaleEventUpdateManyWithoutBusinessNestedInput
+  social_connections?: Prisma.SocialConnectionUpdateManyWithoutBusinessNestedInput
+  vouchers?: Prisma.VoucherUpdateManyWithoutBusinessNestedInput
+  gift_cards?: Prisma.GiftCardUpdateManyWithoutBusinessNestedInput
+  special_dates?: Prisma.SpecialDateUpdateManyWithoutBusinessNestedInput
+  packages?: Prisma.ServicePackageUpdateManyWithoutBusinessNestedInput
+  leave_requests?: Prisma.LeaveRequestUpdateManyWithoutBusinessNestedInput
+  business_hours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
+  service_flows?: Prisma.ServiceFlowUpdateManyWithoutBusinessNestedInput
+  subscriptions?: Prisma.BusinessSubscriptionUpdateManyWithoutBusinessNestedInput
+  subscription_invoices?: Prisma.SubscriptionInvoiceUpdateManyWithoutBusinessNestedInput
+  referral_code?: Prisma.ReferralCodeUpdateOneWithoutBusinessNestedInput
+  referral_leads_converted?: Prisma.ReferralLeadUpdateManyWithoutConverted_businessNestedInput
+  referral_attributions_as_referrer?: Prisma.ReferralAttributionUpdateManyWithoutReferrer_businessNestedInput
+  referral_attributions_as_referred?: Prisma.ReferralAttributionUpdateManyWithoutReferred_businessNestedInput
+  onboarding_applications_converted?: Prisma.OnboardingApplicationUpdateManyWithoutConverted_businessNestedInput
+  platform_action_logs?: Prisma.PlatformActionLogUpdateManyWithoutBusinessNestedInput
+}
+
+export type BusinessUncheckedUpdateWithoutSocial_postsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  initials?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  booking_horizon_days?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_min_lead_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  booking_slot_interval_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  public_allow_full_payment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_allow_downpayment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  public_default_payment_type?: Prisma.StringFieldUpdateOperationsInput | string
+  booking_v2_enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  same_day_attendance_strict_minutes?: Prisma.IntFieldUpdateOperationsInput | number
+  commission_calculation_basis?: Prisma.EnumCommissionCalculationBasisFieldUpdateOperationsInput | $Enums.CommissionCalculationBasis
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  services?: Prisma.ServiceUncheckedUpdateManyWithoutBusinessNestedInput
+  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutBusinessNestedInput
+  owners?: Prisma.OwnerUncheckedUpdateManyWithoutBusinessNestedInput
+  customers?: Prisma.CustomerUncheckedUpdateManyWithoutBusinessNestedInput
+  bookings?: Prisma.BookingUncheckedUpdateManyWithoutBusinessNestedInput
+  sale_events?: Prisma.SaleEventUncheckedUpdateManyWithoutBusinessNestedInput
+  social_connections?: Prisma.SocialConnectionUncheckedUpdateManyWithoutBusinessNestedInput
   vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutBusinessNestedInput
   gift_cards?: Prisma.GiftCardUncheckedUpdateManyWithoutBusinessNestedInput
   special_dates?: Prisma.SpecialDateUncheckedUpdateManyWithoutBusinessNestedInput
@@ -1757,6 +2207,8 @@ export type BusinessCreateWithoutEmployeesInput = {
   customers?: Prisma.CustomerCreateNestedManyWithoutBusinessInput
   bookings?: Prisma.BookingCreateNestedManyWithoutBusinessInput
   sale_events?: Prisma.SaleEventCreateNestedManyWithoutBusinessInput
+  social_connections?: Prisma.SocialConnectionCreateNestedManyWithoutBusinessInput
+  social_posts?: Prisma.SocialPostCreateNestedManyWithoutBusinessInput
   vouchers?: Prisma.VoucherCreateNestedManyWithoutBusinessInput
   gift_cards?: Prisma.GiftCardCreateNestedManyWithoutBusinessInput
   special_dates?: Prisma.SpecialDateCreateNestedManyWithoutBusinessInput
@@ -1799,6 +2251,8 @@ export type BusinessUncheckedCreateWithoutEmployeesInput = {
   customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutBusinessInput
   bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutBusinessInput
   sale_events?: Prisma.SaleEventUncheckedCreateNestedManyWithoutBusinessInput
+  social_connections?: Prisma.SocialConnectionUncheckedCreateNestedManyWithoutBusinessInput
+  social_posts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutBusinessInput
   vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutBusinessInput
   gift_cards?: Prisma.GiftCardUncheckedCreateNestedManyWithoutBusinessInput
   special_dates?: Prisma.SpecialDateUncheckedCreateNestedManyWithoutBusinessInput
@@ -1857,6 +2311,8 @@ export type BusinessUpdateWithoutEmployeesInput = {
   customers?: Prisma.CustomerUpdateManyWithoutBusinessNestedInput
   bookings?: Prisma.BookingUpdateManyWithoutBusinessNestedInput
   sale_events?: Prisma.SaleEventUpdateManyWithoutBusinessNestedInput
+  social_connections?: Prisma.SocialConnectionUpdateManyWithoutBusinessNestedInput
+  social_posts?: Prisma.SocialPostUpdateManyWithoutBusinessNestedInput
   vouchers?: Prisma.VoucherUpdateManyWithoutBusinessNestedInput
   gift_cards?: Prisma.GiftCardUpdateManyWithoutBusinessNestedInput
   special_dates?: Prisma.SpecialDateUpdateManyWithoutBusinessNestedInput
@@ -1899,6 +2355,8 @@ export type BusinessUncheckedUpdateWithoutEmployeesInput = {
   customers?: Prisma.CustomerUncheckedUpdateManyWithoutBusinessNestedInput
   bookings?: Prisma.BookingUncheckedUpdateManyWithoutBusinessNestedInput
   sale_events?: Prisma.SaleEventUncheckedUpdateManyWithoutBusinessNestedInput
+  social_connections?: Prisma.SocialConnectionUncheckedUpdateManyWithoutBusinessNestedInput
+  social_posts?: Prisma.SocialPostUncheckedUpdateManyWithoutBusinessNestedInput
   vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutBusinessNestedInput
   gift_cards?: Prisma.GiftCardUncheckedUpdateManyWithoutBusinessNestedInput
   special_dates?: Prisma.SpecialDateUncheckedUpdateManyWithoutBusinessNestedInput
@@ -1942,6 +2400,8 @@ export type BusinessCreateWithoutSpecial_datesInput = {
   customers?: Prisma.CustomerCreateNestedManyWithoutBusinessInput
   bookings?: Prisma.BookingCreateNestedManyWithoutBusinessInput
   sale_events?: Prisma.SaleEventCreateNestedManyWithoutBusinessInput
+  social_connections?: Prisma.SocialConnectionCreateNestedManyWithoutBusinessInput
+  social_posts?: Prisma.SocialPostCreateNestedManyWithoutBusinessInput
   vouchers?: Prisma.VoucherCreateNestedManyWithoutBusinessInput
   gift_cards?: Prisma.GiftCardCreateNestedManyWithoutBusinessInput
   packages?: Prisma.ServicePackageCreateNestedManyWithoutBusinessInput
@@ -1984,6 +2444,8 @@ export type BusinessUncheckedCreateWithoutSpecial_datesInput = {
   customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutBusinessInput
   bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutBusinessInput
   sale_events?: Prisma.SaleEventUncheckedCreateNestedManyWithoutBusinessInput
+  social_connections?: Prisma.SocialConnectionUncheckedCreateNestedManyWithoutBusinessInput
+  social_posts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutBusinessInput
   vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutBusinessInput
   gift_cards?: Prisma.GiftCardUncheckedCreateNestedManyWithoutBusinessInput
   packages?: Prisma.ServicePackageUncheckedCreateNestedManyWithoutBusinessInput
@@ -2042,6 +2504,8 @@ export type BusinessUpdateWithoutSpecial_datesInput = {
   customers?: Prisma.CustomerUpdateManyWithoutBusinessNestedInput
   bookings?: Prisma.BookingUpdateManyWithoutBusinessNestedInput
   sale_events?: Prisma.SaleEventUpdateManyWithoutBusinessNestedInput
+  social_connections?: Prisma.SocialConnectionUpdateManyWithoutBusinessNestedInput
+  social_posts?: Prisma.SocialPostUpdateManyWithoutBusinessNestedInput
   vouchers?: Prisma.VoucherUpdateManyWithoutBusinessNestedInput
   gift_cards?: Prisma.GiftCardUpdateManyWithoutBusinessNestedInput
   packages?: Prisma.ServicePackageUpdateManyWithoutBusinessNestedInput
@@ -2084,6 +2548,8 @@ export type BusinessUncheckedUpdateWithoutSpecial_datesInput = {
   customers?: Prisma.CustomerUncheckedUpdateManyWithoutBusinessNestedInput
   bookings?: Prisma.BookingUncheckedUpdateManyWithoutBusinessNestedInput
   sale_events?: Prisma.SaleEventUncheckedUpdateManyWithoutBusinessNestedInput
+  social_connections?: Prisma.SocialConnectionUncheckedUpdateManyWithoutBusinessNestedInput
+  social_posts?: Prisma.SocialPostUncheckedUpdateManyWithoutBusinessNestedInput
   vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutBusinessNestedInput
   gift_cards?: Prisma.GiftCardUncheckedUpdateManyWithoutBusinessNestedInput
   packages?: Prisma.ServicePackageUncheckedUpdateManyWithoutBusinessNestedInput
@@ -2125,6 +2591,8 @@ export type BusinessCreateWithoutOwnersInput = {
   customers?: Prisma.CustomerCreateNestedManyWithoutBusinessInput
   bookings?: Prisma.BookingCreateNestedManyWithoutBusinessInput
   sale_events?: Prisma.SaleEventCreateNestedManyWithoutBusinessInput
+  social_connections?: Prisma.SocialConnectionCreateNestedManyWithoutBusinessInput
+  social_posts?: Prisma.SocialPostCreateNestedManyWithoutBusinessInput
   vouchers?: Prisma.VoucherCreateNestedManyWithoutBusinessInput
   gift_cards?: Prisma.GiftCardCreateNestedManyWithoutBusinessInput
   special_dates?: Prisma.SpecialDateCreateNestedManyWithoutBusinessInput
@@ -2167,6 +2635,8 @@ export type BusinessUncheckedCreateWithoutOwnersInput = {
   customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutBusinessInput
   bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutBusinessInput
   sale_events?: Prisma.SaleEventUncheckedCreateNestedManyWithoutBusinessInput
+  social_connections?: Prisma.SocialConnectionUncheckedCreateNestedManyWithoutBusinessInput
+  social_posts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutBusinessInput
   vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutBusinessInput
   gift_cards?: Prisma.GiftCardUncheckedCreateNestedManyWithoutBusinessInput
   special_dates?: Prisma.SpecialDateUncheckedCreateNestedManyWithoutBusinessInput
@@ -2225,6 +2695,8 @@ export type BusinessUpdateWithoutOwnersInput = {
   customers?: Prisma.CustomerUpdateManyWithoutBusinessNestedInput
   bookings?: Prisma.BookingUpdateManyWithoutBusinessNestedInput
   sale_events?: Prisma.SaleEventUpdateManyWithoutBusinessNestedInput
+  social_connections?: Prisma.SocialConnectionUpdateManyWithoutBusinessNestedInput
+  social_posts?: Prisma.SocialPostUpdateManyWithoutBusinessNestedInput
   vouchers?: Prisma.VoucherUpdateManyWithoutBusinessNestedInput
   gift_cards?: Prisma.GiftCardUpdateManyWithoutBusinessNestedInput
   special_dates?: Prisma.SpecialDateUpdateManyWithoutBusinessNestedInput
@@ -2267,6 +2739,8 @@ export type BusinessUncheckedUpdateWithoutOwnersInput = {
   customers?: Prisma.CustomerUncheckedUpdateManyWithoutBusinessNestedInput
   bookings?: Prisma.BookingUncheckedUpdateManyWithoutBusinessNestedInput
   sale_events?: Prisma.SaleEventUncheckedUpdateManyWithoutBusinessNestedInput
+  social_connections?: Prisma.SocialConnectionUncheckedUpdateManyWithoutBusinessNestedInput
+  social_posts?: Prisma.SocialPostUncheckedUpdateManyWithoutBusinessNestedInput
   vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutBusinessNestedInput
   gift_cards?: Prisma.GiftCardUncheckedUpdateManyWithoutBusinessNestedInput
   special_dates?: Prisma.SpecialDateUncheckedUpdateManyWithoutBusinessNestedInput
@@ -2310,6 +2784,8 @@ export type BusinessCreateWithoutSubscriptionsInput = {
   customers?: Prisma.CustomerCreateNestedManyWithoutBusinessInput
   bookings?: Prisma.BookingCreateNestedManyWithoutBusinessInput
   sale_events?: Prisma.SaleEventCreateNestedManyWithoutBusinessInput
+  social_connections?: Prisma.SocialConnectionCreateNestedManyWithoutBusinessInput
+  social_posts?: Prisma.SocialPostCreateNestedManyWithoutBusinessInput
   vouchers?: Prisma.VoucherCreateNestedManyWithoutBusinessInput
   gift_cards?: Prisma.GiftCardCreateNestedManyWithoutBusinessInput
   special_dates?: Prisma.SpecialDateCreateNestedManyWithoutBusinessInput
@@ -2352,6 +2828,8 @@ export type BusinessUncheckedCreateWithoutSubscriptionsInput = {
   customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutBusinessInput
   bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutBusinessInput
   sale_events?: Prisma.SaleEventUncheckedCreateNestedManyWithoutBusinessInput
+  social_connections?: Prisma.SocialConnectionUncheckedCreateNestedManyWithoutBusinessInput
+  social_posts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutBusinessInput
   vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutBusinessInput
   gift_cards?: Prisma.GiftCardUncheckedCreateNestedManyWithoutBusinessInput
   special_dates?: Prisma.SpecialDateUncheckedCreateNestedManyWithoutBusinessInput
@@ -2410,6 +2888,8 @@ export type BusinessUpdateWithoutSubscriptionsInput = {
   customers?: Prisma.CustomerUpdateManyWithoutBusinessNestedInput
   bookings?: Prisma.BookingUpdateManyWithoutBusinessNestedInput
   sale_events?: Prisma.SaleEventUpdateManyWithoutBusinessNestedInput
+  social_connections?: Prisma.SocialConnectionUpdateManyWithoutBusinessNestedInput
+  social_posts?: Prisma.SocialPostUpdateManyWithoutBusinessNestedInput
   vouchers?: Prisma.VoucherUpdateManyWithoutBusinessNestedInput
   gift_cards?: Prisma.GiftCardUpdateManyWithoutBusinessNestedInput
   special_dates?: Prisma.SpecialDateUpdateManyWithoutBusinessNestedInput
@@ -2452,6 +2932,8 @@ export type BusinessUncheckedUpdateWithoutSubscriptionsInput = {
   customers?: Prisma.CustomerUncheckedUpdateManyWithoutBusinessNestedInput
   bookings?: Prisma.BookingUncheckedUpdateManyWithoutBusinessNestedInput
   sale_events?: Prisma.SaleEventUncheckedUpdateManyWithoutBusinessNestedInput
+  social_connections?: Prisma.SocialConnectionUncheckedUpdateManyWithoutBusinessNestedInput
+  social_posts?: Prisma.SocialPostUncheckedUpdateManyWithoutBusinessNestedInput
   vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutBusinessNestedInput
   gift_cards?: Prisma.GiftCardUncheckedUpdateManyWithoutBusinessNestedInput
   special_dates?: Prisma.SpecialDateUncheckedUpdateManyWithoutBusinessNestedInput
@@ -2494,6 +2976,8 @@ export type BusinessCreateWithoutSubscription_invoicesInput = {
   customers?: Prisma.CustomerCreateNestedManyWithoutBusinessInput
   bookings?: Prisma.BookingCreateNestedManyWithoutBusinessInput
   sale_events?: Prisma.SaleEventCreateNestedManyWithoutBusinessInput
+  social_connections?: Prisma.SocialConnectionCreateNestedManyWithoutBusinessInput
+  social_posts?: Prisma.SocialPostCreateNestedManyWithoutBusinessInput
   vouchers?: Prisma.VoucherCreateNestedManyWithoutBusinessInput
   gift_cards?: Prisma.GiftCardCreateNestedManyWithoutBusinessInput
   special_dates?: Prisma.SpecialDateCreateNestedManyWithoutBusinessInput
@@ -2536,6 +3020,8 @@ export type BusinessUncheckedCreateWithoutSubscription_invoicesInput = {
   customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutBusinessInput
   bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutBusinessInput
   sale_events?: Prisma.SaleEventUncheckedCreateNestedManyWithoutBusinessInput
+  social_connections?: Prisma.SocialConnectionUncheckedCreateNestedManyWithoutBusinessInput
+  social_posts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutBusinessInput
   vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutBusinessInput
   gift_cards?: Prisma.GiftCardUncheckedCreateNestedManyWithoutBusinessInput
   special_dates?: Prisma.SpecialDateUncheckedCreateNestedManyWithoutBusinessInput
@@ -2594,6 +3080,8 @@ export type BusinessUpdateWithoutSubscription_invoicesInput = {
   customers?: Prisma.CustomerUpdateManyWithoutBusinessNestedInput
   bookings?: Prisma.BookingUpdateManyWithoutBusinessNestedInput
   sale_events?: Prisma.SaleEventUpdateManyWithoutBusinessNestedInput
+  social_connections?: Prisma.SocialConnectionUpdateManyWithoutBusinessNestedInput
+  social_posts?: Prisma.SocialPostUpdateManyWithoutBusinessNestedInput
   vouchers?: Prisma.VoucherUpdateManyWithoutBusinessNestedInput
   gift_cards?: Prisma.GiftCardUpdateManyWithoutBusinessNestedInput
   special_dates?: Prisma.SpecialDateUpdateManyWithoutBusinessNestedInput
@@ -2636,6 +3124,8 @@ export type BusinessUncheckedUpdateWithoutSubscription_invoicesInput = {
   customers?: Prisma.CustomerUncheckedUpdateManyWithoutBusinessNestedInput
   bookings?: Prisma.BookingUncheckedUpdateManyWithoutBusinessNestedInput
   sale_events?: Prisma.SaleEventUncheckedUpdateManyWithoutBusinessNestedInput
+  social_connections?: Prisma.SocialConnectionUncheckedUpdateManyWithoutBusinessNestedInput
+  social_posts?: Prisma.SocialPostUncheckedUpdateManyWithoutBusinessNestedInput
   vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutBusinessNestedInput
   gift_cards?: Prisma.GiftCardUncheckedUpdateManyWithoutBusinessNestedInput
   special_dates?: Prisma.SpecialDateUncheckedUpdateManyWithoutBusinessNestedInput
@@ -2678,6 +3168,8 @@ export type BusinessCreateWithoutReferral_codeInput = {
   customers?: Prisma.CustomerCreateNestedManyWithoutBusinessInput
   bookings?: Prisma.BookingCreateNestedManyWithoutBusinessInput
   sale_events?: Prisma.SaleEventCreateNestedManyWithoutBusinessInput
+  social_connections?: Prisma.SocialConnectionCreateNestedManyWithoutBusinessInput
+  social_posts?: Prisma.SocialPostCreateNestedManyWithoutBusinessInput
   vouchers?: Prisma.VoucherCreateNestedManyWithoutBusinessInput
   gift_cards?: Prisma.GiftCardCreateNestedManyWithoutBusinessInput
   special_dates?: Prisma.SpecialDateCreateNestedManyWithoutBusinessInput
@@ -2720,6 +3212,8 @@ export type BusinessUncheckedCreateWithoutReferral_codeInput = {
   customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutBusinessInput
   bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutBusinessInput
   sale_events?: Prisma.SaleEventUncheckedCreateNestedManyWithoutBusinessInput
+  social_connections?: Prisma.SocialConnectionUncheckedCreateNestedManyWithoutBusinessInput
+  social_posts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutBusinessInput
   vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutBusinessInput
   gift_cards?: Prisma.GiftCardUncheckedCreateNestedManyWithoutBusinessInput
   special_dates?: Prisma.SpecialDateUncheckedCreateNestedManyWithoutBusinessInput
@@ -2778,6 +3272,8 @@ export type BusinessUpdateWithoutReferral_codeInput = {
   customers?: Prisma.CustomerUpdateManyWithoutBusinessNestedInput
   bookings?: Prisma.BookingUpdateManyWithoutBusinessNestedInput
   sale_events?: Prisma.SaleEventUpdateManyWithoutBusinessNestedInput
+  social_connections?: Prisma.SocialConnectionUpdateManyWithoutBusinessNestedInput
+  social_posts?: Prisma.SocialPostUpdateManyWithoutBusinessNestedInput
   vouchers?: Prisma.VoucherUpdateManyWithoutBusinessNestedInput
   gift_cards?: Prisma.GiftCardUpdateManyWithoutBusinessNestedInput
   special_dates?: Prisma.SpecialDateUpdateManyWithoutBusinessNestedInput
@@ -2820,6 +3316,8 @@ export type BusinessUncheckedUpdateWithoutReferral_codeInput = {
   customers?: Prisma.CustomerUncheckedUpdateManyWithoutBusinessNestedInput
   bookings?: Prisma.BookingUncheckedUpdateManyWithoutBusinessNestedInput
   sale_events?: Prisma.SaleEventUncheckedUpdateManyWithoutBusinessNestedInput
+  social_connections?: Prisma.SocialConnectionUncheckedUpdateManyWithoutBusinessNestedInput
+  social_posts?: Prisma.SocialPostUncheckedUpdateManyWithoutBusinessNestedInput
   vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutBusinessNestedInput
   gift_cards?: Prisma.GiftCardUncheckedUpdateManyWithoutBusinessNestedInput
   special_dates?: Prisma.SpecialDateUncheckedUpdateManyWithoutBusinessNestedInput
@@ -2862,6 +3360,8 @@ export type BusinessCreateWithoutReferral_leads_convertedInput = {
   customers?: Prisma.CustomerCreateNestedManyWithoutBusinessInput
   bookings?: Prisma.BookingCreateNestedManyWithoutBusinessInput
   sale_events?: Prisma.SaleEventCreateNestedManyWithoutBusinessInput
+  social_connections?: Prisma.SocialConnectionCreateNestedManyWithoutBusinessInput
+  social_posts?: Prisma.SocialPostCreateNestedManyWithoutBusinessInput
   vouchers?: Prisma.VoucherCreateNestedManyWithoutBusinessInput
   gift_cards?: Prisma.GiftCardCreateNestedManyWithoutBusinessInput
   special_dates?: Prisma.SpecialDateCreateNestedManyWithoutBusinessInput
@@ -2904,6 +3404,8 @@ export type BusinessUncheckedCreateWithoutReferral_leads_convertedInput = {
   customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutBusinessInput
   bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutBusinessInput
   sale_events?: Prisma.SaleEventUncheckedCreateNestedManyWithoutBusinessInput
+  social_connections?: Prisma.SocialConnectionUncheckedCreateNestedManyWithoutBusinessInput
+  social_posts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutBusinessInput
   vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutBusinessInput
   gift_cards?: Prisma.GiftCardUncheckedCreateNestedManyWithoutBusinessInput
   special_dates?: Prisma.SpecialDateUncheckedCreateNestedManyWithoutBusinessInput
@@ -2962,6 +3464,8 @@ export type BusinessUpdateWithoutReferral_leads_convertedInput = {
   customers?: Prisma.CustomerUpdateManyWithoutBusinessNestedInput
   bookings?: Prisma.BookingUpdateManyWithoutBusinessNestedInput
   sale_events?: Prisma.SaleEventUpdateManyWithoutBusinessNestedInput
+  social_connections?: Prisma.SocialConnectionUpdateManyWithoutBusinessNestedInput
+  social_posts?: Prisma.SocialPostUpdateManyWithoutBusinessNestedInput
   vouchers?: Prisma.VoucherUpdateManyWithoutBusinessNestedInput
   gift_cards?: Prisma.GiftCardUpdateManyWithoutBusinessNestedInput
   special_dates?: Prisma.SpecialDateUpdateManyWithoutBusinessNestedInput
@@ -3004,6 +3508,8 @@ export type BusinessUncheckedUpdateWithoutReferral_leads_convertedInput = {
   customers?: Prisma.CustomerUncheckedUpdateManyWithoutBusinessNestedInput
   bookings?: Prisma.BookingUncheckedUpdateManyWithoutBusinessNestedInput
   sale_events?: Prisma.SaleEventUncheckedUpdateManyWithoutBusinessNestedInput
+  social_connections?: Prisma.SocialConnectionUncheckedUpdateManyWithoutBusinessNestedInput
+  social_posts?: Prisma.SocialPostUncheckedUpdateManyWithoutBusinessNestedInput
   vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutBusinessNestedInput
   gift_cards?: Prisma.GiftCardUncheckedUpdateManyWithoutBusinessNestedInput
   special_dates?: Prisma.SpecialDateUncheckedUpdateManyWithoutBusinessNestedInput
@@ -3046,6 +3552,8 @@ export type BusinessCreateWithoutReferral_attributions_as_referrerInput = {
   customers?: Prisma.CustomerCreateNestedManyWithoutBusinessInput
   bookings?: Prisma.BookingCreateNestedManyWithoutBusinessInput
   sale_events?: Prisma.SaleEventCreateNestedManyWithoutBusinessInput
+  social_connections?: Prisma.SocialConnectionCreateNestedManyWithoutBusinessInput
+  social_posts?: Prisma.SocialPostCreateNestedManyWithoutBusinessInput
   vouchers?: Prisma.VoucherCreateNestedManyWithoutBusinessInput
   gift_cards?: Prisma.GiftCardCreateNestedManyWithoutBusinessInput
   special_dates?: Prisma.SpecialDateCreateNestedManyWithoutBusinessInput
@@ -3088,6 +3596,8 @@ export type BusinessUncheckedCreateWithoutReferral_attributions_as_referrerInput
   customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutBusinessInput
   bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutBusinessInput
   sale_events?: Prisma.SaleEventUncheckedCreateNestedManyWithoutBusinessInput
+  social_connections?: Prisma.SocialConnectionUncheckedCreateNestedManyWithoutBusinessInput
+  social_posts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutBusinessInput
   vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutBusinessInput
   gift_cards?: Prisma.GiftCardUncheckedCreateNestedManyWithoutBusinessInput
   special_dates?: Prisma.SpecialDateUncheckedCreateNestedManyWithoutBusinessInput
@@ -3135,6 +3645,8 @@ export type BusinessCreateWithoutReferral_attributions_as_referredInput = {
   customers?: Prisma.CustomerCreateNestedManyWithoutBusinessInput
   bookings?: Prisma.BookingCreateNestedManyWithoutBusinessInput
   sale_events?: Prisma.SaleEventCreateNestedManyWithoutBusinessInput
+  social_connections?: Prisma.SocialConnectionCreateNestedManyWithoutBusinessInput
+  social_posts?: Prisma.SocialPostCreateNestedManyWithoutBusinessInput
   vouchers?: Prisma.VoucherCreateNestedManyWithoutBusinessInput
   gift_cards?: Prisma.GiftCardCreateNestedManyWithoutBusinessInput
   special_dates?: Prisma.SpecialDateCreateNestedManyWithoutBusinessInput
@@ -3177,6 +3689,8 @@ export type BusinessUncheckedCreateWithoutReferral_attributions_as_referredInput
   customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutBusinessInput
   bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutBusinessInput
   sale_events?: Prisma.SaleEventUncheckedCreateNestedManyWithoutBusinessInput
+  social_connections?: Prisma.SocialConnectionUncheckedCreateNestedManyWithoutBusinessInput
+  social_posts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutBusinessInput
   vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutBusinessInput
   gift_cards?: Prisma.GiftCardUncheckedCreateNestedManyWithoutBusinessInput
   special_dates?: Prisma.SpecialDateUncheckedCreateNestedManyWithoutBusinessInput
@@ -3235,6 +3749,8 @@ export type BusinessUpdateWithoutReferral_attributions_as_referrerInput = {
   customers?: Prisma.CustomerUpdateManyWithoutBusinessNestedInput
   bookings?: Prisma.BookingUpdateManyWithoutBusinessNestedInput
   sale_events?: Prisma.SaleEventUpdateManyWithoutBusinessNestedInput
+  social_connections?: Prisma.SocialConnectionUpdateManyWithoutBusinessNestedInput
+  social_posts?: Prisma.SocialPostUpdateManyWithoutBusinessNestedInput
   vouchers?: Prisma.VoucherUpdateManyWithoutBusinessNestedInput
   gift_cards?: Prisma.GiftCardUpdateManyWithoutBusinessNestedInput
   special_dates?: Prisma.SpecialDateUpdateManyWithoutBusinessNestedInput
@@ -3277,6 +3793,8 @@ export type BusinessUncheckedUpdateWithoutReferral_attributions_as_referrerInput
   customers?: Prisma.CustomerUncheckedUpdateManyWithoutBusinessNestedInput
   bookings?: Prisma.BookingUncheckedUpdateManyWithoutBusinessNestedInput
   sale_events?: Prisma.SaleEventUncheckedUpdateManyWithoutBusinessNestedInput
+  social_connections?: Prisma.SocialConnectionUncheckedUpdateManyWithoutBusinessNestedInput
+  social_posts?: Prisma.SocialPostUncheckedUpdateManyWithoutBusinessNestedInput
   vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutBusinessNestedInput
   gift_cards?: Prisma.GiftCardUncheckedUpdateManyWithoutBusinessNestedInput
   special_dates?: Prisma.SpecialDateUncheckedUpdateManyWithoutBusinessNestedInput
@@ -3330,6 +3848,8 @@ export type BusinessUpdateWithoutReferral_attributions_as_referredInput = {
   customers?: Prisma.CustomerUpdateManyWithoutBusinessNestedInput
   bookings?: Prisma.BookingUpdateManyWithoutBusinessNestedInput
   sale_events?: Prisma.SaleEventUpdateManyWithoutBusinessNestedInput
+  social_connections?: Prisma.SocialConnectionUpdateManyWithoutBusinessNestedInput
+  social_posts?: Prisma.SocialPostUpdateManyWithoutBusinessNestedInput
   vouchers?: Prisma.VoucherUpdateManyWithoutBusinessNestedInput
   gift_cards?: Prisma.GiftCardUpdateManyWithoutBusinessNestedInput
   special_dates?: Prisma.SpecialDateUpdateManyWithoutBusinessNestedInput
@@ -3372,6 +3892,8 @@ export type BusinessUncheckedUpdateWithoutReferral_attributions_as_referredInput
   customers?: Prisma.CustomerUncheckedUpdateManyWithoutBusinessNestedInput
   bookings?: Prisma.BookingUncheckedUpdateManyWithoutBusinessNestedInput
   sale_events?: Prisma.SaleEventUncheckedUpdateManyWithoutBusinessNestedInput
+  social_connections?: Prisma.SocialConnectionUncheckedUpdateManyWithoutBusinessNestedInput
+  social_posts?: Prisma.SocialPostUncheckedUpdateManyWithoutBusinessNestedInput
   vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutBusinessNestedInput
   gift_cards?: Prisma.GiftCardUncheckedUpdateManyWithoutBusinessNestedInput
   special_dates?: Prisma.SpecialDateUncheckedUpdateManyWithoutBusinessNestedInput
@@ -3414,6 +3936,8 @@ export type BusinessCreateWithoutOnboarding_applications_convertedInput = {
   customers?: Prisma.CustomerCreateNestedManyWithoutBusinessInput
   bookings?: Prisma.BookingCreateNestedManyWithoutBusinessInput
   sale_events?: Prisma.SaleEventCreateNestedManyWithoutBusinessInput
+  social_connections?: Prisma.SocialConnectionCreateNestedManyWithoutBusinessInput
+  social_posts?: Prisma.SocialPostCreateNestedManyWithoutBusinessInput
   vouchers?: Prisma.VoucherCreateNestedManyWithoutBusinessInput
   gift_cards?: Prisma.GiftCardCreateNestedManyWithoutBusinessInput
   special_dates?: Prisma.SpecialDateCreateNestedManyWithoutBusinessInput
@@ -3456,6 +3980,8 @@ export type BusinessUncheckedCreateWithoutOnboarding_applications_convertedInput
   customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutBusinessInput
   bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutBusinessInput
   sale_events?: Prisma.SaleEventUncheckedCreateNestedManyWithoutBusinessInput
+  social_connections?: Prisma.SocialConnectionUncheckedCreateNestedManyWithoutBusinessInput
+  social_posts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutBusinessInput
   vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutBusinessInput
   gift_cards?: Prisma.GiftCardUncheckedCreateNestedManyWithoutBusinessInput
   special_dates?: Prisma.SpecialDateUncheckedCreateNestedManyWithoutBusinessInput
@@ -3514,6 +4040,8 @@ export type BusinessUpdateWithoutOnboarding_applications_convertedInput = {
   customers?: Prisma.CustomerUpdateManyWithoutBusinessNestedInput
   bookings?: Prisma.BookingUpdateManyWithoutBusinessNestedInput
   sale_events?: Prisma.SaleEventUpdateManyWithoutBusinessNestedInput
+  social_connections?: Prisma.SocialConnectionUpdateManyWithoutBusinessNestedInput
+  social_posts?: Prisma.SocialPostUpdateManyWithoutBusinessNestedInput
   vouchers?: Prisma.VoucherUpdateManyWithoutBusinessNestedInput
   gift_cards?: Prisma.GiftCardUpdateManyWithoutBusinessNestedInput
   special_dates?: Prisma.SpecialDateUpdateManyWithoutBusinessNestedInput
@@ -3556,6 +4084,8 @@ export type BusinessUncheckedUpdateWithoutOnboarding_applications_convertedInput
   customers?: Prisma.CustomerUncheckedUpdateManyWithoutBusinessNestedInput
   bookings?: Prisma.BookingUncheckedUpdateManyWithoutBusinessNestedInput
   sale_events?: Prisma.SaleEventUncheckedUpdateManyWithoutBusinessNestedInput
+  social_connections?: Prisma.SocialConnectionUncheckedUpdateManyWithoutBusinessNestedInput
+  social_posts?: Prisma.SocialPostUncheckedUpdateManyWithoutBusinessNestedInput
   vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutBusinessNestedInput
   gift_cards?: Prisma.GiftCardUncheckedUpdateManyWithoutBusinessNestedInput
   special_dates?: Prisma.SpecialDateUncheckedUpdateManyWithoutBusinessNestedInput
@@ -3598,6 +4128,8 @@ export type BusinessCreateWithoutPlatform_action_logsInput = {
   customers?: Prisma.CustomerCreateNestedManyWithoutBusinessInput
   bookings?: Prisma.BookingCreateNestedManyWithoutBusinessInput
   sale_events?: Prisma.SaleEventCreateNestedManyWithoutBusinessInput
+  social_connections?: Prisma.SocialConnectionCreateNestedManyWithoutBusinessInput
+  social_posts?: Prisma.SocialPostCreateNestedManyWithoutBusinessInput
   vouchers?: Prisma.VoucherCreateNestedManyWithoutBusinessInput
   gift_cards?: Prisma.GiftCardCreateNestedManyWithoutBusinessInput
   special_dates?: Prisma.SpecialDateCreateNestedManyWithoutBusinessInput
@@ -3640,6 +4172,8 @@ export type BusinessUncheckedCreateWithoutPlatform_action_logsInput = {
   customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutBusinessInput
   bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutBusinessInput
   sale_events?: Prisma.SaleEventUncheckedCreateNestedManyWithoutBusinessInput
+  social_connections?: Prisma.SocialConnectionUncheckedCreateNestedManyWithoutBusinessInput
+  social_posts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutBusinessInput
   vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutBusinessInput
   gift_cards?: Prisma.GiftCardUncheckedCreateNestedManyWithoutBusinessInput
   special_dates?: Prisma.SpecialDateUncheckedCreateNestedManyWithoutBusinessInput
@@ -3698,6 +4232,8 @@ export type BusinessUpdateWithoutPlatform_action_logsInput = {
   customers?: Prisma.CustomerUpdateManyWithoutBusinessNestedInput
   bookings?: Prisma.BookingUpdateManyWithoutBusinessNestedInput
   sale_events?: Prisma.SaleEventUpdateManyWithoutBusinessNestedInput
+  social_connections?: Prisma.SocialConnectionUpdateManyWithoutBusinessNestedInput
+  social_posts?: Prisma.SocialPostUpdateManyWithoutBusinessNestedInput
   vouchers?: Prisma.VoucherUpdateManyWithoutBusinessNestedInput
   gift_cards?: Prisma.GiftCardUpdateManyWithoutBusinessNestedInput
   special_dates?: Prisma.SpecialDateUpdateManyWithoutBusinessNestedInput
@@ -3740,6 +4276,8 @@ export type BusinessUncheckedUpdateWithoutPlatform_action_logsInput = {
   customers?: Prisma.CustomerUncheckedUpdateManyWithoutBusinessNestedInput
   bookings?: Prisma.BookingUncheckedUpdateManyWithoutBusinessNestedInput
   sale_events?: Prisma.SaleEventUncheckedUpdateManyWithoutBusinessNestedInput
+  social_connections?: Prisma.SocialConnectionUncheckedUpdateManyWithoutBusinessNestedInput
+  social_posts?: Prisma.SocialPostUncheckedUpdateManyWithoutBusinessNestedInput
   vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutBusinessNestedInput
   gift_cards?: Prisma.GiftCardUncheckedUpdateManyWithoutBusinessNestedInput
   special_dates?: Prisma.SpecialDateUncheckedUpdateManyWithoutBusinessNestedInput
@@ -3781,6 +4319,8 @@ export type BusinessCreateWithoutServicesInput = {
   customers?: Prisma.CustomerCreateNestedManyWithoutBusinessInput
   bookings?: Prisma.BookingCreateNestedManyWithoutBusinessInput
   sale_events?: Prisma.SaleEventCreateNestedManyWithoutBusinessInput
+  social_connections?: Prisma.SocialConnectionCreateNestedManyWithoutBusinessInput
+  social_posts?: Prisma.SocialPostCreateNestedManyWithoutBusinessInput
   vouchers?: Prisma.VoucherCreateNestedManyWithoutBusinessInput
   gift_cards?: Prisma.GiftCardCreateNestedManyWithoutBusinessInput
   special_dates?: Prisma.SpecialDateCreateNestedManyWithoutBusinessInput
@@ -3823,6 +4363,8 @@ export type BusinessUncheckedCreateWithoutServicesInput = {
   customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutBusinessInput
   bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutBusinessInput
   sale_events?: Prisma.SaleEventUncheckedCreateNestedManyWithoutBusinessInput
+  social_connections?: Prisma.SocialConnectionUncheckedCreateNestedManyWithoutBusinessInput
+  social_posts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutBusinessInput
   vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutBusinessInput
   gift_cards?: Prisma.GiftCardUncheckedCreateNestedManyWithoutBusinessInput
   special_dates?: Prisma.SpecialDateUncheckedCreateNestedManyWithoutBusinessInput
@@ -3881,6 +4423,8 @@ export type BusinessUpdateWithoutServicesInput = {
   customers?: Prisma.CustomerUpdateManyWithoutBusinessNestedInput
   bookings?: Prisma.BookingUpdateManyWithoutBusinessNestedInput
   sale_events?: Prisma.SaleEventUpdateManyWithoutBusinessNestedInput
+  social_connections?: Prisma.SocialConnectionUpdateManyWithoutBusinessNestedInput
+  social_posts?: Prisma.SocialPostUpdateManyWithoutBusinessNestedInput
   vouchers?: Prisma.VoucherUpdateManyWithoutBusinessNestedInput
   gift_cards?: Prisma.GiftCardUpdateManyWithoutBusinessNestedInput
   special_dates?: Prisma.SpecialDateUpdateManyWithoutBusinessNestedInput
@@ -3923,6 +4467,8 @@ export type BusinessUncheckedUpdateWithoutServicesInput = {
   customers?: Prisma.CustomerUncheckedUpdateManyWithoutBusinessNestedInput
   bookings?: Prisma.BookingUncheckedUpdateManyWithoutBusinessNestedInput
   sale_events?: Prisma.SaleEventUncheckedUpdateManyWithoutBusinessNestedInput
+  social_connections?: Prisma.SocialConnectionUncheckedUpdateManyWithoutBusinessNestedInput
+  social_posts?: Prisma.SocialPostUncheckedUpdateManyWithoutBusinessNestedInput
   vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutBusinessNestedInput
   gift_cards?: Prisma.GiftCardUncheckedUpdateManyWithoutBusinessNestedInput
   special_dates?: Prisma.SpecialDateUncheckedUpdateManyWithoutBusinessNestedInput
@@ -3966,6 +4512,8 @@ export type BusinessCreateWithoutPackagesInput = {
   customers?: Prisma.CustomerCreateNestedManyWithoutBusinessInput
   bookings?: Prisma.BookingCreateNestedManyWithoutBusinessInput
   sale_events?: Prisma.SaleEventCreateNestedManyWithoutBusinessInput
+  social_connections?: Prisma.SocialConnectionCreateNestedManyWithoutBusinessInput
+  social_posts?: Prisma.SocialPostCreateNestedManyWithoutBusinessInput
   vouchers?: Prisma.VoucherCreateNestedManyWithoutBusinessInput
   gift_cards?: Prisma.GiftCardCreateNestedManyWithoutBusinessInput
   special_dates?: Prisma.SpecialDateCreateNestedManyWithoutBusinessInput
@@ -4008,6 +4556,8 @@ export type BusinessUncheckedCreateWithoutPackagesInput = {
   customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutBusinessInput
   bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutBusinessInput
   sale_events?: Prisma.SaleEventUncheckedCreateNestedManyWithoutBusinessInput
+  social_connections?: Prisma.SocialConnectionUncheckedCreateNestedManyWithoutBusinessInput
+  social_posts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutBusinessInput
   vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutBusinessInput
   gift_cards?: Prisma.GiftCardUncheckedCreateNestedManyWithoutBusinessInput
   special_dates?: Prisma.SpecialDateUncheckedCreateNestedManyWithoutBusinessInput
@@ -4066,6 +4616,8 @@ export type BusinessUpdateWithoutPackagesInput = {
   customers?: Prisma.CustomerUpdateManyWithoutBusinessNestedInput
   bookings?: Prisma.BookingUpdateManyWithoutBusinessNestedInput
   sale_events?: Prisma.SaleEventUpdateManyWithoutBusinessNestedInput
+  social_connections?: Prisma.SocialConnectionUpdateManyWithoutBusinessNestedInput
+  social_posts?: Prisma.SocialPostUpdateManyWithoutBusinessNestedInput
   vouchers?: Prisma.VoucherUpdateManyWithoutBusinessNestedInput
   gift_cards?: Prisma.GiftCardUpdateManyWithoutBusinessNestedInput
   special_dates?: Prisma.SpecialDateUpdateManyWithoutBusinessNestedInput
@@ -4108,6 +4660,8 @@ export type BusinessUncheckedUpdateWithoutPackagesInput = {
   customers?: Prisma.CustomerUncheckedUpdateManyWithoutBusinessNestedInput
   bookings?: Prisma.BookingUncheckedUpdateManyWithoutBusinessNestedInput
   sale_events?: Prisma.SaleEventUncheckedUpdateManyWithoutBusinessNestedInput
+  social_connections?: Prisma.SocialConnectionUncheckedUpdateManyWithoutBusinessNestedInput
+  social_posts?: Prisma.SocialPostUncheckedUpdateManyWithoutBusinessNestedInput
   vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutBusinessNestedInput
   gift_cards?: Prisma.GiftCardUncheckedUpdateManyWithoutBusinessNestedInput
   special_dates?: Prisma.SpecialDateUncheckedUpdateManyWithoutBusinessNestedInput
@@ -4149,6 +4703,8 @@ export type BusinessCreateWithoutCustomersInput = {
   owners?: Prisma.OwnerCreateNestedManyWithoutBusinessInput
   bookings?: Prisma.BookingCreateNestedManyWithoutBusinessInput
   sale_events?: Prisma.SaleEventCreateNestedManyWithoutBusinessInput
+  social_connections?: Prisma.SocialConnectionCreateNestedManyWithoutBusinessInput
+  social_posts?: Prisma.SocialPostCreateNestedManyWithoutBusinessInput
   vouchers?: Prisma.VoucherCreateNestedManyWithoutBusinessInput
   gift_cards?: Prisma.GiftCardCreateNestedManyWithoutBusinessInput
   special_dates?: Prisma.SpecialDateCreateNestedManyWithoutBusinessInput
@@ -4191,6 +4747,8 @@ export type BusinessUncheckedCreateWithoutCustomersInput = {
   owners?: Prisma.OwnerUncheckedCreateNestedManyWithoutBusinessInput
   bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutBusinessInput
   sale_events?: Prisma.SaleEventUncheckedCreateNestedManyWithoutBusinessInput
+  social_connections?: Prisma.SocialConnectionUncheckedCreateNestedManyWithoutBusinessInput
+  social_posts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutBusinessInput
   vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutBusinessInput
   gift_cards?: Prisma.GiftCardUncheckedCreateNestedManyWithoutBusinessInput
   special_dates?: Prisma.SpecialDateUncheckedCreateNestedManyWithoutBusinessInput
@@ -4249,6 +4807,8 @@ export type BusinessUpdateWithoutCustomersInput = {
   owners?: Prisma.OwnerUpdateManyWithoutBusinessNestedInput
   bookings?: Prisma.BookingUpdateManyWithoutBusinessNestedInput
   sale_events?: Prisma.SaleEventUpdateManyWithoutBusinessNestedInput
+  social_connections?: Prisma.SocialConnectionUpdateManyWithoutBusinessNestedInput
+  social_posts?: Prisma.SocialPostUpdateManyWithoutBusinessNestedInput
   vouchers?: Prisma.VoucherUpdateManyWithoutBusinessNestedInput
   gift_cards?: Prisma.GiftCardUpdateManyWithoutBusinessNestedInput
   special_dates?: Prisma.SpecialDateUpdateManyWithoutBusinessNestedInput
@@ -4291,6 +4851,8 @@ export type BusinessUncheckedUpdateWithoutCustomersInput = {
   owners?: Prisma.OwnerUncheckedUpdateManyWithoutBusinessNestedInput
   bookings?: Prisma.BookingUncheckedUpdateManyWithoutBusinessNestedInput
   sale_events?: Prisma.SaleEventUncheckedUpdateManyWithoutBusinessNestedInput
+  social_connections?: Prisma.SocialConnectionUncheckedUpdateManyWithoutBusinessNestedInput
+  social_posts?: Prisma.SocialPostUncheckedUpdateManyWithoutBusinessNestedInput
   vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutBusinessNestedInput
   gift_cards?: Prisma.GiftCardUncheckedUpdateManyWithoutBusinessNestedInput
   special_dates?: Prisma.SpecialDateUncheckedUpdateManyWithoutBusinessNestedInput
@@ -4333,6 +4895,8 @@ export type BusinessCreateWithoutBookingsInput = {
   owners?: Prisma.OwnerCreateNestedManyWithoutBusinessInput
   customers?: Prisma.CustomerCreateNestedManyWithoutBusinessInput
   sale_events?: Prisma.SaleEventCreateNestedManyWithoutBusinessInput
+  social_connections?: Prisma.SocialConnectionCreateNestedManyWithoutBusinessInput
+  social_posts?: Prisma.SocialPostCreateNestedManyWithoutBusinessInput
   vouchers?: Prisma.VoucherCreateNestedManyWithoutBusinessInput
   gift_cards?: Prisma.GiftCardCreateNestedManyWithoutBusinessInput
   special_dates?: Prisma.SpecialDateCreateNestedManyWithoutBusinessInput
@@ -4375,6 +4939,8 @@ export type BusinessUncheckedCreateWithoutBookingsInput = {
   owners?: Prisma.OwnerUncheckedCreateNestedManyWithoutBusinessInput
   customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutBusinessInput
   sale_events?: Prisma.SaleEventUncheckedCreateNestedManyWithoutBusinessInput
+  social_connections?: Prisma.SocialConnectionUncheckedCreateNestedManyWithoutBusinessInput
+  social_posts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutBusinessInput
   vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutBusinessInput
   gift_cards?: Prisma.GiftCardUncheckedCreateNestedManyWithoutBusinessInput
   special_dates?: Prisma.SpecialDateUncheckedCreateNestedManyWithoutBusinessInput
@@ -4433,6 +4999,8 @@ export type BusinessUpdateWithoutBookingsInput = {
   owners?: Prisma.OwnerUpdateManyWithoutBusinessNestedInput
   customers?: Prisma.CustomerUpdateManyWithoutBusinessNestedInput
   sale_events?: Prisma.SaleEventUpdateManyWithoutBusinessNestedInput
+  social_connections?: Prisma.SocialConnectionUpdateManyWithoutBusinessNestedInput
+  social_posts?: Prisma.SocialPostUpdateManyWithoutBusinessNestedInput
   vouchers?: Prisma.VoucherUpdateManyWithoutBusinessNestedInput
   gift_cards?: Prisma.GiftCardUpdateManyWithoutBusinessNestedInput
   special_dates?: Prisma.SpecialDateUpdateManyWithoutBusinessNestedInput
@@ -4475,6 +5043,8 @@ export type BusinessUncheckedUpdateWithoutBookingsInput = {
   owners?: Prisma.OwnerUncheckedUpdateManyWithoutBusinessNestedInput
   customers?: Prisma.CustomerUncheckedUpdateManyWithoutBusinessNestedInput
   sale_events?: Prisma.SaleEventUncheckedUpdateManyWithoutBusinessNestedInput
+  social_connections?: Prisma.SocialConnectionUncheckedUpdateManyWithoutBusinessNestedInput
+  social_posts?: Prisma.SocialPostUncheckedUpdateManyWithoutBusinessNestedInput
   vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutBusinessNestedInput
   gift_cards?: Prisma.GiftCardUncheckedUpdateManyWithoutBusinessNestedInput
   special_dates?: Prisma.SpecialDateUncheckedUpdateManyWithoutBusinessNestedInput
@@ -4518,6 +5088,8 @@ export type BusinessCreateWithoutVouchersInput = {
   customers?: Prisma.CustomerCreateNestedManyWithoutBusinessInput
   bookings?: Prisma.BookingCreateNestedManyWithoutBusinessInput
   sale_events?: Prisma.SaleEventCreateNestedManyWithoutBusinessInput
+  social_connections?: Prisma.SocialConnectionCreateNestedManyWithoutBusinessInput
+  social_posts?: Prisma.SocialPostCreateNestedManyWithoutBusinessInput
   gift_cards?: Prisma.GiftCardCreateNestedManyWithoutBusinessInput
   special_dates?: Prisma.SpecialDateCreateNestedManyWithoutBusinessInput
   packages?: Prisma.ServicePackageCreateNestedManyWithoutBusinessInput
@@ -4560,6 +5132,8 @@ export type BusinessUncheckedCreateWithoutVouchersInput = {
   customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutBusinessInput
   bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutBusinessInput
   sale_events?: Prisma.SaleEventUncheckedCreateNestedManyWithoutBusinessInput
+  social_connections?: Prisma.SocialConnectionUncheckedCreateNestedManyWithoutBusinessInput
+  social_posts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutBusinessInput
   gift_cards?: Prisma.GiftCardUncheckedCreateNestedManyWithoutBusinessInput
   special_dates?: Prisma.SpecialDateUncheckedCreateNestedManyWithoutBusinessInput
   packages?: Prisma.ServicePackageUncheckedCreateNestedManyWithoutBusinessInput
@@ -4618,6 +5192,8 @@ export type BusinessUpdateWithoutVouchersInput = {
   customers?: Prisma.CustomerUpdateManyWithoutBusinessNestedInput
   bookings?: Prisma.BookingUpdateManyWithoutBusinessNestedInput
   sale_events?: Prisma.SaleEventUpdateManyWithoutBusinessNestedInput
+  social_connections?: Prisma.SocialConnectionUpdateManyWithoutBusinessNestedInput
+  social_posts?: Prisma.SocialPostUpdateManyWithoutBusinessNestedInput
   gift_cards?: Prisma.GiftCardUpdateManyWithoutBusinessNestedInput
   special_dates?: Prisma.SpecialDateUpdateManyWithoutBusinessNestedInput
   packages?: Prisma.ServicePackageUpdateManyWithoutBusinessNestedInput
@@ -4660,6 +5236,8 @@ export type BusinessUncheckedUpdateWithoutVouchersInput = {
   customers?: Prisma.CustomerUncheckedUpdateManyWithoutBusinessNestedInput
   bookings?: Prisma.BookingUncheckedUpdateManyWithoutBusinessNestedInput
   sale_events?: Prisma.SaleEventUncheckedUpdateManyWithoutBusinessNestedInput
+  social_connections?: Prisma.SocialConnectionUncheckedUpdateManyWithoutBusinessNestedInput
+  social_posts?: Prisma.SocialPostUncheckedUpdateManyWithoutBusinessNestedInput
   gift_cards?: Prisma.GiftCardUncheckedUpdateManyWithoutBusinessNestedInput
   special_dates?: Prisma.SpecialDateUncheckedUpdateManyWithoutBusinessNestedInput
   packages?: Prisma.ServicePackageUncheckedUpdateManyWithoutBusinessNestedInput
@@ -4702,6 +5280,8 @@ export type BusinessCreateWithoutGift_cardsInput = {
   customers?: Prisma.CustomerCreateNestedManyWithoutBusinessInput
   bookings?: Prisma.BookingCreateNestedManyWithoutBusinessInput
   sale_events?: Prisma.SaleEventCreateNestedManyWithoutBusinessInput
+  social_connections?: Prisma.SocialConnectionCreateNestedManyWithoutBusinessInput
+  social_posts?: Prisma.SocialPostCreateNestedManyWithoutBusinessInput
   vouchers?: Prisma.VoucherCreateNestedManyWithoutBusinessInput
   special_dates?: Prisma.SpecialDateCreateNestedManyWithoutBusinessInput
   packages?: Prisma.ServicePackageCreateNestedManyWithoutBusinessInput
@@ -4744,6 +5324,8 @@ export type BusinessUncheckedCreateWithoutGift_cardsInput = {
   customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutBusinessInput
   bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutBusinessInput
   sale_events?: Prisma.SaleEventUncheckedCreateNestedManyWithoutBusinessInput
+  social_connections?: Prisma.SocialConnectionUncheckedCreateNestedManyWithoutBusinessInput
+  social_posts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutBusinessInput
   vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutBusinessInput
   special_dates?: Prisma.SpecialDateUncheckedCreateNestedManyWithoutBusinessInput
   packages?: Prisma.ServicePackageUncheckedCreateNestedManyWithoutBusinessInput
@@ -4802,6 +5384,8 @@ export type BusinessUpdateWithoutGift_cardsInput = {
   customers?: Prisma.CustomerUpdateManyWithoutBusinessNestedInput
   bookings?: Prisma.BookingUpdateManyWithoutBusinessNestedInput
   sale_events?: Prisma.SaleEventUpdateManyWithoutBusinessNestedInput
+  social_connections?: Prisma.SocialConnectionUpdateManyWithoutBusinessNestedInput
+  social_posts?: Prisma.SocialPostUpdateManyWithoutBusinessNestedInput
   vouchers?: Prisma.VoucherUpdateManyWithoutBusinessNestedInput
   special_dates?: Prisma.SpecialDateUpdateManyWithoutBusinessNestedInput
   packages?: Prisma.ServicePackageUpdateManyWithoutBusinessNestedInput
@@ -4844,6 +5428,8 @@ export type BusinessUncheckedUpdateWithoutGift_cardsInput = {
   customers?: Prisma.CustomerUncheckedUpdateManyWithoutBusinessNestedInput
   bookings?: Prisma.BookingUncheckedUpdateManyWithoutBusinessNestedInput
   sale_events?: Prisma.SaleEventUncheckedUpdateManyWithoutBusinessNestedInput
+  social_connections?: Prisma.SocialConnectionUncheckedUpdateManyWithoutBusinessNestedInput
+  social_posts?: Prisma.SocialPostUncheckedUpdateManyWithoutBusinessNestedInput
   vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutBusinessNestedInput
   special_dates?: Prisma.SpecialDateUncheckedUpdateManyWithoutBusinessNestedInput
   packages?: Prisma.ServicePackageUncheckedUpdateManyWithoutBusinessNestedInput
@@ -4886,6 +5472,8 @@ export type BusinessCreateWithoutService_flowsInput = {
   customers?: Prisma.CustomerCreateNestedManyWithoutBusinessInput
   bookings?: Prisma.BookingCreateNestedManyWithoutBusinessInput
   sale_events?: Prisma.SaleEventCreateNestedManyWithoutBusinessInput
+  social_connections?: Prisma.SocialConnectionCreateNestedManyWithoutBusinessInput
+  social_posts?: Prisma.SocialPostCreateNestedManyWithoutBusinessInput
   vouchers?: Prisma.VoucherCreateNestedManyWithoutBusinessInput
   gift_cards?: Prisma.GiftCardCreateNestedManyWithoutBusinessInput
   special_dates?: Prisma.SpecialDateCreateNestedManyWithoutBusinessInput
@@ -4928,6 +5516,8 @@ export type BusinessUncheckedCreateWithoutService_flowsInput = {
   customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutBusinessInput
   bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutBusinessInput
   sale_events?: Prisma.SaleEventUncheckedCreateNestedManyWithoutBusinessInput
+  social_connections?: Prisma.SocialConnectionUncheckedCreateNestedManyWithoutBusinessInput
+  social_posts?: Prisma.SocialPostUncheckedCreateNestedManyWithoutBusinessInput
   vouchers?: Prisma.VoucherUncheckedCreateNestedManyWithoutBusinessInput
   gift_cards?: Prisma.GiftCardUncheckedCreateNestedManyWithoutBusinessInput
   special_dates?: Prisma.SpecialDateUncheckedCreateNestedManyWithoutBusinessInput
@@ -4986,6 +5576,8 @@ export type BusinessUpdateWithoutService_flowsInput = {
   customers?: Prisma.CustomerUpdateManyWithoutBusinessNestedInput
   bookings?: Prisma.BookingUpdateManyWithoutBusinessNestedInput
   sale_events?: Prisma.SaleEventUpdateManyWithoutBusinessNestedInput
+  social_connections?: Prisma.SocialConnectionUpdateManyWithoutBusinessNestedInput
+  social_posts?: Prisma.SocialPostUpdateManyWithoutBusinessNestedInput
   vouchers?: Prisma.VoucherUpdateManyWithoutBusinessNestedInput
   gift_cards?: Prisma.GiftCardUpdateManyWithoutBusinessNestedInput
   special_dates?: Prisma.SpecialDateUpdateManyWithoutBusinessNestedInput
@@ -5028,6 +5620,8 @@ export type BusinessUncheckedUpdateWithoutService_flowsInput = {
   customers?: Prisma.CustomerUncheckedUpdateManyWithoutBusinessNestedInput
   bookings?: Prisma.BookingUncheckedUpdateManyWithoutBusinessNestedInput
   sale_events?: Prisma.SaleEventUncheckedUpdateManyWithoutBusinessNestedInput
+  social_connections?: Prisma.SocialConnectionUncheckedUpdateManyWithoutBusinessNestedInput
+  social_posts?: Prisma.SocialPostUncheckedUpdateManyWithoutBusinessNestedInput
   vouchers?: Prisma.VoucherUncheckedUpdateManyWithoutBusinessNestedInput
   gift_cards?: Prisma.GiftCardUncheckedUpdateManyWithoutBusinessNestedInput
   special_dates?: Prisma.SpecialDateUncheckedUpdateManyWithoutBusinessNestedInput
@@ -5056,6 +5650,8 @@ export type BusinessCountOutputType = {
   customers: number
   bookings: number
   sale_events: number
+  social_connections: number
+  social_posts: number
   vouchers: number
   gift_cards: number
   special_dates: number
@@ -5079,6 +5675,8 @@ export type BusinessCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensio
   customers?: boolean | BusinessCountOutputTypeCountCustomersArgs
   bookings?: boolean | BusinessCountOutputTypeCountBookingsArgs
   sale_events?: boolean | BusinessCountOutputTypeCountSale_eventsArgs
+  social_connections?: boolean | BusinessCountOutputTypeCountSocial_connectionsArgs
+  social_posts?: boolean | BusinessCountOutputTypeCountSocial_postsArgs
   vouchers?: boolean | BusinessCountOutputTypeCountVouchersArgs
   gift_cards?: boolean | BusinessCountOutputTypeCountGift_cardsArgs
   special_dates?: boolean | BusinessCountOutputTypeCountSpecial_datesArgs
@@ -5145,6 +5743,20 @@ export type BusinessCountOutputTypeCountBookingsArgs<ExtArgs extends runtime.Typ
  */
 export type BusinessCountOutputTypeCountSale_eventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.SaleEventWhereInput
+}
+
+/**
+ * BusinessCountOutputType without action
+ */
+export type BusinessCountOutputTypeCountSocial_connectionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SocialConnectionWhereInput
+}
+
+/**
+ * BusinessCountOutputType without action
+ */
+export type BusinessCountOutputTypeCountSocial_postsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SocialPostWhereInput
 }
 
 /**
@@ -5272,6 +5884,8 @@ export type BusinessSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   customers?: boolean | Prisma.Business$customersArgs<ExtArgs>
   bookings?: boolean | Prisma.Business$bookingsArgs<ExtArgs>
   sale_events?: boolean | Prisma.Business$sale_eventsArgs<ExtArgs>
+  social_connections?: boolean | Prisma.Business$social_connectionsArgs<ExtArgs>
+  social_posts?: boolean | Prisma.Business$social_postsArgs<ExtArgs>
   vouchers?: boolean | Prisma.Business$vouchersArgs<ExtArgs>
   gift_cards?: boolean | Prisma.Business$gift_cardsArgs<ExtArgs>
   special_dates?: boolean | Prisma.Business$special_datesArgs<ExtArgs>
@@ -5364,6 +5978,8 @@ export type BusinessInclude<ExtArgs extends runtime.Types.Extensions.InternalArg
   customers?: boolean | Prisma.Business$customersArgs<ExtArgs>
   bookings?: boolean | Prisma.Business$bookingsArgs<ExtArgs>
   sale_events?: boolean | Prisma.Business$sale_eventsArgs<ExtArgs>
+  social_connections?: boolean | Prisma.Business$social_connectionsArgs<ExtArgs>
+  social_posts?: boolean | Prisma.Business$social_postsArgs<ExtArgs>
   vouchers?: boolean | Prisma.Business$vouchersArgs<ExtArgs>
   gift_cards?: boolean | Prisma.Business$gift_cardsArgs<ExtArgs>
   special_dates?: boolean | Prisma.Business$special_datesArgs<ExtArgs>
@@ -5393,6 +6009,8 @@ export type $BusinessPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     customers: Prisma.$CustomerPayload<ExtArgs>[]
     bookings: Prisma.$BookingPayload<ExtArgs>[]
     sale_events: Prisma.$SaleEventPayload<ExtArgs>[]
+    social_connections: Prisma.$SocialConnectionPayload<ExtArgs>[]
+    social_posts: Prisma.$SocialPostPayload<ExtArgs>[]
     vouchers: Prisma.$VoucherPayload<ExtArgs>[]
     gift_cards: Prisma.$GiftCardPayload<ExtArgs>[]
     special_dates: Prisma.$SpecialDatePayload<ExtArgs>[]
@@ -5829,6 +6447,8 @@ export interface Prisma__BusinessClient<T, Null = never, ExtArgs extends runtime
   customers<T extends Prisma.Business$customersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Business$customersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CustomerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   bookings<T extends Prisma.Business$bookingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Business$bookingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BookingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   sale_events<T extends Prisma.Business$sale_eventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Business$sale_eventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SaleEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  social_connections<T extends Prisma.Business$social_connectionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Business$social_connectionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SocialConnectionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  social_posts<T extends Prisma.Business$social_postsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Business$social_postsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SocialPostPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   vouchers<T extends Prisma.Business$vouchersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Business$vouchersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$VoucherPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   gift_cards<T extends Prisma.Business$gift_cardsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Business$gift_cardsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$GiftCardPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   special_dates<T extends Prisma.Business$special_datesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Business$special_datesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SpecialDatePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -6421,6 +7041,54 @@ export type Business$sale_eventsArgs<ExtArgs extends runtime.Types.Extensions.In
   take?: number
   skip?: number
   distinct?: Prisma.SaleEventScalarFieldEnum | Prisma.SaleEventScalarFieldEnum[]
+}
+
+/**
+ * Business.social_connections
+ */
+export type Business$social_connectionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SocialConnection
+   */
+  select?: Prisma.SocialConnectionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the SocialConnection
+   */
+  omit?: Prisma.SocialConnectionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SocialConnectionInclude<ExtArgs> | null
+  where?: Prisma.SocialConnectionWhereInput
+  orderBy?: Prisma.SocialConnectionOrderByWithRelationInput | Prisma.SocialConnectionOrderByWithRelationInput[]
+  cursor?: Prisma.SocialConnectionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.SocialConnectionScalarFieldEnum | Prisma.SocialConnectionScalarFieldEnum[]
+}
+
+/**
+ * Business.social_posts
+ */
+export type Business$social_postsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SocialPost
+   */
+  select?: Prisma.SocialPostSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the SocialPost
+   */
+  omit?: Prisma.SocialPostOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SocialPostInclude<ExtArgs> | null
+  where?: Prisma.SocialPostWhereInput
+  orderBy?: Prisma.SocialPostOrderByWithRelationInput | Prisma.SocialPostOrderByWithRelationInput[]
+  cursor?: Prisma.SocialPostWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.SocialPostScalarFieldEnum | Prisma.SocialPostScalarFieldEnum[]
 }
 
 /**

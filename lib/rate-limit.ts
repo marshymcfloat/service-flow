@@ -2,6 +2,7 @@ type RateLimitConfig = {
   windowMs: number;
   maxRequests: number;
   namespace?: string;
+  onStoreError?: "allow" | "deny" | "memory";
 };
 
 const trackers = new Map<string, { count: number; expiresAt: number }>();
@@ -104,19 +105,41 @@ async function runUpstashRateLimit(
 
 export async function rateLimit(
   key: string,
-  config: RateLimitConfig = { windowMs: 60 * 1000, maxRequests: 100 },
+  config: RateLimitConfig = {
+    windowMs: 60 * 1000,
+    maxRequests: 100,
+    onStoreError: "memory",
+  },
 ) {
   const mergedConfig: Required<RateLimitConfig> = {
     windowMs: config.windowMs,
     maxRequests: config.maxRequests,
     namespace: config.namespace || "service-flow:rate-limit",
+    onStoreError: config.onStoreError || "memory",
   };
 
   if (hasUpstashConfig()) {
     try {
       return await runUpstashRateLimit(key, mergedConfig);
     } catch {
-      // Fail open to local limiter if Upstash is transiently unavailable.
+      if (mergedConfig.onStoreError === "deny") {
+        return {
+          success: false,
+          limit: mergedConfig.maxRequests,
+          remaining: 0,
+          reset: Date.now() + mergedConfig.windowMs,
+        };
+      }
+
+      if (mergedConfig.onStoreError === "allow") {
+        return {
+          success: true,
+          limit: mergedConfig.maxRequests,
+          remaining: mergedConfig.maxRequests,
+          reset: Date.now() + mergedConfig.windowMs,
+        };
+      }
+
       return runInMemoryRateLimit(key, mergedConfig);
     }
   }

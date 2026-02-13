@@ -9,6 +9,10 @@ export async function searchCustomer(name: string, businessSlug: string) {
   if (!auth.success) return { success: false, error: "Unauthorized" };
 
   try {
+    // Force tenant scope from authenticated session, never from caller input.
+    const tenantSlug = auth.businessSlug;
+    void businessSlug;
+
     const customers = await prisma.customer.findMany({
       where: {
         name: {
@@ -16,7 +20,7 @@ export async function searchCustomer(name: string, businessSlug: string) {
           mode: "insensitive",
         },
         business: {
-          slug: businessSlug,
+          slug: tenantSlug,
         },
       },
       take: 5,
@@ -39,6 +43,8 @@ export async function createCustomer(data: {
   const { businessSlug } = auth;
 
   try {
+    void data.businessSlug;
+
     const business = await prisma.business.findUnique({
       where: { slug: businessSlug }, // ensuring we use the session slug
     });
@@ -78,8 +84,15 @@ export async function updateCustomer(
   const { businessSlug } = auth;
 
   try {
-    const customer = await prisma.customer.update({
-      where: { id },
+    void data.businessSlug;
+
+    const updated = await prisma.customer.updateMany({
+      where: {
+        id,
+        business: {
+          slug: businessSlug,
+        },
+      },
       data: {
         name: data.name,
         email: data.email,
@@ -87,8 +100,18 @@ export async function updateCustomer(
       },
     });
 
+    if (updated.count === 0) {
+      return { success: false, error: "Customer not found or unauthorized" };
+    }
+
+    const customer = await prisma.customer.findUnique({
+      where: { id },
+    });
+
     revalidatePath(`/app/${businessSlug}/customers`);
-    return { success: true, data: customer };
+    return customer
+      ? { success: true, data: customer }
+      : { success: false, error: "Failed to load updated customer" };
   } catch (error) {
     console.error("Update customer error:", error);
     return { success: false, error: "Failed to update customer" };
@@ -101,9 +124,18 @@ export async function deleteCustomer(id: string) {
   const { businessSlug } = auth;
 
   try {
-    await prisma.customer.delete({
-      where: { id },
+    const deleted = await prisma.customer.deleteMany({
+      where: {
+        id,
+        business: {
+          slug: businessSlug,
+        },
+      },
     });
+
+    if (deleted.count === 0) {
+      return { success: false, error: "Customer not found or unauthorized" };
+    }
 
     revalidatePath(`/app/${businessSlug}/customers`);
     return { success: true };

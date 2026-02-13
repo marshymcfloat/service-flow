@@ -2,24 +2,32 @@ import { expect, test } from "@playwright/test";
 import "dotenv/config";
 import { Client } from "pg";
 
-const hasDatabase = Boolean(process.env.DATABASE_URL);
-const runDbE2E =
-  process.env.RUN_DB_E2E === "true" || process.env.CI === "true";
+const dbConnectionString =
+  process.env.E2E_DATABASE_URL ||
+  process.env.DIRECT_DATABASE_URL ||
+  process.env.DATABASE_URL;
+const hasDatabase = Boolean(dbConnectionString);
+const usesAccelerateProtocol = Boolean(
+  dbConnectionString?.startsWith("prisma+postgres://"),
+);
 const businessSlug = `e2e-booking-${Date.now()}`;
 const businessName = "E2E Booking Salon";
 const businessId = `e2e_${Date.now()}`;
 let dbClient: Client | null = null;
 
 test.describe("Public booking smoke", () => {
-  test.skip(
-    !hasDatabase || !runDbE2E,
-    "DATABASE_URL and RUN_DB_E2E=true are required for booking smoke E2E.",
-  );
+  test.skip(!hasDatabase, "DIRECT_DATABASE_URL (or E2E_DATABASE_URL) is required for booking smoke E2E.");
 
   test.beforeAll(async () => {
+    if (usesAccelerateProtocol) {
+      throw new Error(
+        "DB smoke E2E requires direct Postgres URL (postgresql://...), not prisma+postgres://.",
+      );
+    }
+
     try {
       dbClient = new Client({
-        connectionString: process.env.DATABASE_URL,
+        connectionString: dbConnectionString,
         connectionTimeoutMillis: 4000,
       });
       await dbClient.connect();

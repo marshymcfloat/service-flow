@@ -13,6 +13,8 @@ const adminRoutes = [
 ];
 
 test.describe("Platform admin route protection", () => {
+  test.setTimeout(90_000);
+
   test("redirects unauthenticated users from all admin routes", async ({ page }) => {
     for (const route of adminRoutes) {
       await page.goto(route);

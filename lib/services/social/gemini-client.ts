@@ -1,0 +1,174 @@
+import { logger } from "@/lib/logger";
+
+const GEMINI_API_BASE =
+  "https://generativelanguage.googleapis.com/v1beta/models";
+
+type GeminiInlineData = {
+  data?: string;
+  mimeType?: string;
+  mime_type?: string;
+};
+
+type GeminiPart = {
+  text?: string;
+  inlineData?: GeminiInlineData;
+  inline_data?: GeminiInlineData;
+};
+
+type GeminiCandidate = {
+  content?: {
+    parts?: GeminiPart[];
+  };
+  finishReason?: string;
+};
+
+type GeminiErrorResponse = {
+  error?: {
+    message?: string;
+    status?: string;
+  };
+};
+
+type GeminiGenerateContentResponse = GeminiErrorResponse & {
+  candidates?: GeminiCandidate[];
+  promptFeedback?: {
+    blockReason?: string;
+  };
+};
+
+type GenerateGeminiContentInput = {
+  model: string;
+  prompt: string;
+  generationConfig?: Record<string, unknown>;
+};
+
+function getGeminiApiKey() {
+  return process.env.GEMINI_KEY || process.env.GEMINI_API_KEY || "";
+}
+
+export function isGeminiConfigured() {
+  return !!getGeminiApiKey();
+}
+
+async function generateGeminiContent(input: GenerateGeminiContentInput) {
+  const apiKey = getGeminiApiKey();
+  if (!apiKey) {
+    throw new Error("GEMINI_KEY is not configured");
+  }
+
+  const response = await fetch(
+    `${GEMINI_API_BASE}/${encodeURIComponent(input.model)}:generateContent`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-goog-api-key": apiKey,
+      },
+      body: JSON.stringify({
+        contents: [
+          {
+            role: "user",
+            parts: [{ text: input.prompt }],
+          },
+        ],
+        generationConfig: input.generationConfig,
+      }),
+    },
+  );
+
+  const payload = (await response.json()) as GeminiGenerateContentResponse;
+
+  if (!response.ok || payload.error) {
+    const message =
+      payload.error?.message ||
+      `Gemini request failed with status ${response.status}`;
+    throw new Error(message);
+  }
+
+  if (!payload.candidates?.length) {
+    const blockedReason = payload.promptFeedback?.blockReason;
+    if (blockedReason) {
+      throw new Error(`Gemini blocked response: ${blockedReason}`);
+    }
+    throw new Error("Gemini did not return candidates");
+  }
+
+  return payload;
+}
+
+function extractText(payload: GeminiGenerateContentResponse) {
+  const texts = (payload.candidates ?? []).flatMap((candidate) =>
+    (candidate.content?.parts ?? [])
+      .map((part) => part.text?.trim())
+      .filter((value): value is string => !!value),
+  );
+
+  return texts.join("\n").trim();
+}
+
+function extractInlineImage(payload: GeminiGenerateContentResponse) {
+  for (const candidate of payload.candidates ?? []) {
+    for (const part of candidate.content?.parts ?? []) {
+      const inline = part.inlineData || part.inline_data;
+      if (inline?.data) {
+        return {
+          data: inline.data,
+          mimeType: inline.mimeType || inline.mime_type || "image/png",
+        };
+      }
+    }
+  }
+  return null;
+}
+
+export async function generateGeminiText(input: {
+  model: string;
+  prompt: string;
+  temperature?: number;
+  maxOutputTokens?: number;
+  responseMimeType?: string;
+}) {
+  const payload = await generateGeminiContent({
+    model: input.model,
+    prompt: input.prompt,
+    generationConfig: {
+      temperature: input.temperature,
+      maxOutputTokens: input.maxOutputTokens,
+      responseMimeType: input.responseMimeType,
+    },
+  });
+
+  const text = extractText(payload);
+  if (!text) {
+    throw new Error("Gemini returned an empty text response");
+  }
+  return text;
+}
+
+export async function generateGeminiImage(input: {
+  model: string;
+  prompt: string;
+}) {
+  const payload = await generateGeminiContent({
+    model: input.model,
+    prompt: input.prompt,
+    generationConfig: {
+      responseModalities: ["TEXT", "IMAGE"],
+    },
+  });
+
+  const inline = extractInlineImage(payload);
+  if (!inline) {
+    const maybeText = extractText(payload);
+    logger.warn("[Social] Gemini image generation returned no image parts", {
+      model: input.model,
+      responseText: maybeText || null,
+    });
+    throw new Error("Gemini did not return image bytes");
+  }
+
+  return {
+    bytes: Buffer.from(inline.data, "base64"),
+    mimeType: inline.mimeType,
+  };
+}

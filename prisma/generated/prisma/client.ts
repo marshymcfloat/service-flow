@@ -60,6 +60,21 @@ export type BusinessHours = Prisma.BusinessHoursModel
  */
 export type SaleEvent = Prisma.SaleEventModel
 /**
+ * Model SocialConnection
+ * 
+ */
+export type SocialConnection = Prisma.SocialConnectionModel
+/**
+ * Model SocialPost
+ * 
+ */
+export type SocialPost = Prisma.SocialPostModel
+/**
+ * Model SocialPostTarget
+ * 
+ */
+export type SocialPostTarget = Prisma.SocialPostTargetModel
+/**
  * Model User
  * 
  */

@@ -1,17 +1,37 @@
 const isProduction = process.env.NODE_ENV === "production";
 
+function parseCspList(envValue: string | undefined) {
+  if (!envValue) return [];
+  return envValue
+    .split(",")
+    .map((value) => value.trim())
+    .filter(Boolean);
+}
+
+const connectSrc = [
+  "'self'",
+  ...parseCspList(process.env.NEXT_PUBLIC_CSP_CONNECT_SRC),
+];
+
+const frameSrc = [
+  "'self'",
+  "https://checkout.paymongo.com",
+  ...parseCspList(process.env.NEXT_PUBLIC_CSP_FRAME_SRC),
+];
+
 const contentSecurityPolicyDirectives = [
   "default-src 'self'",
   "base-uri 'self'",
   "form-action 'self'",
-  "frame-ancestors 'self'",
+  "frame-ancestors 'none'",
   "object-src 'none'",
   "img-src 'self' data: blob: https:",
-  "font-src 'self' data: https:",
-  "script-src 'self' 'unsafe-inline' https:",
-  "style-src 'self' 'unsafe-inline' https:",
-  "connect-src 'self' https:",
-  "frame-src 'self' https:",
+  "font-src 'self' data:",
+  "script-src 'self' 'unsafe-inline'",
+  "style-src 'self' 'unsafe-inline'",
+  `connect-src ${connectSrc.join(" ")}`,
+  `frame-src ${frameSrc.join(" ")}`,
+  "worker-src 'self' blob:",
 ];
 
 if (isProduction) {
@@ -28,7 +48,7 @@ export const SECURITY_HEADERS = {
           "max-age=63072000; includeSubDomains; preload",
       }
     : {}),
-  "X-Frame-Options": "SAMEORIGIN",
+  "X-Frame-Options": "DENY",
   "X-Content-Type-Options": "nosniff",
   "Referrer-Policy": "strict-origin-when-cross-origin",
   "Permissions-Policy":

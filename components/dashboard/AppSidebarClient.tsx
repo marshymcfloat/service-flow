@@ -15,6 +15,7 @@ import {
   ChevronRight,
   Sparkles,
   Percent,
+  Megaphone,
   Crown,
   CreditCard,
   type LucideIcon,
@@ -94,6 +95,11 @@ export function AppSidebarClient({ businessSlug, user }: SidebarProps) {
           title: "Sale Events",
           url: `/app/${slug}/sale-events`,
           icon: Percent,
+        },
+        {
+          title: "Social Posts",
+          url: `/app/${slug}/social-posts`,
+          icon: Megaphone,
         },
         {
           title: "Business Hours",

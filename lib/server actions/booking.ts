@@ -196,6 +196,8 @@ export async function createBooking({
         totalDiscount: pricing.voucherDiscount,
         isPublicBooking: !session,
         isWalkIn,
+        pricingSnapshot: pricing,
+        skipAvailabilityValidation: true,
       });
 
       if (metricBusinessId) {
@@ -311,6 +313,8 @@ export async function createBooking({
       paymongoPaymentMethodId: qrPayment.paymentMethodId,
       isPublicBooking: !session,
       isWalkIn,
+      pricingSnapshot: pricing,
+      skipAvailabilityValidation: true,
     });
 
     if (metricBusinessId) {

@@ -68,3 +68,16 @@ export async function requireTenantAccess(
 export async function requireTenantWriteAccess(businessSlug: string) {
   return requireTenantAccess(businessSlug, { write: true });
 }
+
+export async function requireOwnerTenantWriteAccess(businessSlug: string) {
+  const auth = await requireTenantWriteAccess(businessSlug);
+  if (!auth.success) {
+    return auth;
+  }
+
+  if (auth.session.user.role !== Role.OWNER) {
+    return { success: false as const, error: "Forbidden" };
+  }
+
+  return auth;
+}

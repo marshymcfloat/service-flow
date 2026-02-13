@@ -10,6 +10,7 @@ export const OUTBOX_EVENT_TYPES = [
   "PAYSLIP_GENERATED",
   "FLOW_REMINDER_SENT",
   "MANUAL_PAYMENT_SUBMITTED",
+  "SOCIAL_TARGET_PUBLISH",
 ] as const;
 
 export type OutboxEventType = (typeof OUTBOX_EVENT_TYPES)[number];
@@ -91,6 +92,10 @@ export type OutboxPayloadMap = {
     note?: string;
     proofUrl?: string;
     submittedAt: string;
+  };
+  SOCIAL_TARGET_PUBLISH: {
+    socialPostTargetId: string;
+    businessId: string;
   };
 };
 
@@ -274,6 +279,11 @@ export function parseOutboxPayload<TType extends OutboxEventType>(
         note: optionalString(payload, "note"),
         proofUrl: optionalString(payload, "proofUrl"),
         submittedAt: requireString(payload, "submittedAt", eventType),
+      } as OutboxPayloadMap[TType];
+    case "SOCIAL_TARGET_PUBLISH":
+      return {
+        socialPostTargetId: requireString(payload, "socialPostTargetId", eventType),
+        businessId: requireString(payload, "businessId", eventType),
       } as OutboxPayloadMap[TType];
     default:
       throw new Error(`[Outbox:${eventType}] Unsupported event type`);

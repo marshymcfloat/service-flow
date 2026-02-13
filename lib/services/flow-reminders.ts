@@ -8,6 +8,24 @@ import {
 import { logger } from "@/lib/logger";
 
 const FLOW_REMINDER_EVENT_TYPE = "FLOW_REMINDER_SENT";
+const FLOW_REMINDER_SEND_CONCURRENCY = 5;
+
+function getPublicBookingLink(businessSlug: string) {
+  const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://serviceflow.store")
+    .replace(/\/$/, "");
+  return `${baseUrl}/${businessSlug}`;
+}
+
+async function runInChunks<T>(
+  items: T[],
+  chunkSize: number,
+  task: (item: T) => Promise<void>,
+) {
+  for (let i = 0; i < items.length; i += chunkSize) {
+    const chunk = items.slice(i, i + chunkSize);
+    await Promise.allSettled(chunk.map((item) => task(item)));
+  }
+}
 
 function readPayloadString(
   payload: unknown,
@@ -32,9 +50,23 @@ export async function sendFlowReminders() {
 
     // 1. Get all active service flows
     const activeFlows = await prisma.serviceFlow.findMany({
-      include: {
-        trigger_service: true,
-        suggested_service: true,
+      select: {
+        id: true,
+        business_id: true,
+        delay_duration: true,
+        delay_unit: true,
+        type: true,
+        trigger_service_id: true,
+        trigger_service: {
+          select: {
+            name: true,
+          },
+        },
+        suggested_service: {
+          select: {
+            name: true,
+          },
+        },
       },
     });
 
@@ -105,11 +137,24 @@ export async function sendFlowReminders() {
             },
           },
         },
-        include: {
+        select: {
+          completed_at: true,
           booking: {
-            include: {
-              customer: true,
-              business: true,
+            select: {
+              customer_id: true,
+              business_id: true,
+              customer: {
+                select: {
+                  name: true,
+                  email: true,
+                },
+              },
+              business: {
+                select: {
+                  name: true,
+                  slug: true,
+                },
+              },
             },
           },
         },
@@ -144,42 +189,59 @@ export async function sendFlowReminders() {
         }
       }
 
+      const uniqueServicesByCustomer = new Map<string, (typeof qualifyingServices)[number]>();
       for (const item of qualifyingServices) {
-        if (!item.booking.customer.email) continue;
         const customerId = String(item.booking.customer_id);
-
-        if (remindedCustomerIds.has(customerId)) {
-          duplicateSkips += 1;
-          continue;
+        if (!uniqueServicesByCustomer.has(customerId)) {
+          uniqueServicesByCustomer.set(customerId, item);
         }
+      }
 
-        const customerName = item.booking.customer.name;
-        const businessName = item.booking.business.name;
-        const serviceName = flow.trigger_service.name;
-        const nextServiceName = flow.suggested_service.name;
+      const sendQueue = Array.from(uniqueServicesByCustomer.values()).filter(
+        (item) => {
+          const customerId = String(item.booking.customer_id);
+          if (remindedCustomerIds.has(customerId)) {
+            duplicateSkips += 1;
+            return false;
+          }
+          return true;
+        },
+      );
 
-        // Create a slug-like booking link (or use your actual booking URL logic here)
-        const bookingLink = `https://serviceflow.store/${businessName
-          .toLowerCase()
-          .replace(/\s+/g, "-")}`;
+      await runInChunks(
+        sendQueue,
+        FLOW_REMINDER_SEND_CONCURRENCY,
+        async (item) => {
+          if (!item.booking.customer.email) {
+            return;
+          }
+          const customerId = String(item.booking.customer_id);
 
-        const isRequired = flow.type === "REQUIRED";
+          const customerName = item.booking.customer.name;
+          const businessName = item.booking.business.name;
+          const serviceName = flow.trigger_service.name;
+          const nextServiceName = flow.suggested_service.name;
+
+          const bookingLink = getPublicBookingLink(item.booking.business.slug);
+
+          const isRequired = flow.type === "REQUIRED";
 
         // 1. Dynamic Subject Line (No Emojis)
-        const subject = isRequired
-          ? `Action Required: Next step for your ${serviceName}`
-          : `Recommendation: Try ${nextServiceName} at ${businessName}`;
+          const subject = isRequired
+            ? `Action Required: Next step for your ${serviceName}`
+            : `Recommendation: Try ${nextServiceName} at ${businessName}`;
 
         // 2. Dynamic Body Text
         // We keep this clean text, letting the HTML handle the bolding/layout
-        const introText = isRequired
-          ? `It is time for the next step in your treatment process. To ensure the best results, please book your follow-up service soon.`
-          : `Based on your recent visit for ${serviceName}, we highly recommend trying this follow-up service. It is the perfect addition to your routine!`;
+          const introText = isRequired
+            ? `It is time for the next step in your treatment process. To ensure the best results, please book your follow-up service soon.`
+            : `Based on your recent visit for ${serviceName}, we highly recommend trying this follow-up service. It is the perfect addition to your routine!`;
 
         // 3. Dynamic Labels for the Green Box
-        const boxLabel = isRequired ? "ACTION REQUIRED" : "RECOMMENDED FOR YOU";
+          const boxLabel =
+            isRequired ? "ACTION REQUIRED" : "RECOMMENDED FOR YOU";
         // 4. The HTML Template (Matches the "BeautyFeel" Screenshot)
-        const emailHtml = `
+          const emailHtml = `
             <!DOCTYPE html>
             <html lang="en">
             <head>
@@ -290,44 +352,45 @@ export async function sendFlowReminders() {
             </html>
          `;
 
-        const { error } = await resend.emails.send({
-          from: "ServiceFlow <reminders@serviceflow.store>",
-          to: [item.booking.customer.email],
-          subject: subject,
-          html: emailHtml,
-        });
+          const { error } = await resend.emails.send({
+            from: "ServiceFlow <reminders@serviceflow.store>",
+            to: [item.booking.customer.email],
+            subject: subject,
+            html: emailHtml,
+          });
 
-        if (error) {
-          logger.error(
-            `[Flow Reminders] Failed to send to ${item.booking.customer.email}`,
-            { error },
-          );
-        } else {
-          sentCount++;
+          if (error) {
+            logger.error(
+              `[Flow Reminders] Failed to send to ${item.booking.customer.email}`,
+              { error },
+            );
+          } else {
+            sentCount++;
 
           // Track this reminder in OutboxMessage for dashboard visibility
-          await prisma.outboxMessage.create({
-            data: {
-              event_type: FLOW_REMINDER_EVENT_TYPE,
-              aggregate_type: "ServiceFlow",
-              aggregate_id: String(flow.id),
-              business_id: item.booking.business_id,
-              payload: {
-                customerId,
-                customerName,
-                customerEmail: item.booking.customer.email,
-                triggerServiceName: serviceName,
-                suggestedServiceName: nextServiceName,
-                flowType: flow.type,
-                sentAt: getCurrentDateTimePH().toISOString(),
+            await prisma.outboxMessage.create({
+              data: {
+                event_type: FLOW_REMINDER_EVENT_TYPE,
+                aggregate_type: "ServiceFlow",
+                aggregate_id: String(flow.id),
+                business_id: item.booking.business_id,
+                payload: {
+                  customerId,
+                  customerName,
+                  customerEmail: item.booking.customer.email,
+                  triggerServiceName: serviceName,
+                  suggestedServiceName: nextServiceName,
+                  flowType: flow.type,
+                  sentAt: getCurrentDateTimePH().toISOString(),
+                },
+                processed: true,
+                processed_at: getCurrentDateTimePH(),
               },
-              processed: true,
-              processed_at: getCurrentDateTimePH(),
-            },
-          });
-          remindedCustomerIds.add(customerId);
-        }
-      }
+            });
+            remindedCustomerIds.add(customerId);
+          }
+        },
+      );
     }
 
     return {

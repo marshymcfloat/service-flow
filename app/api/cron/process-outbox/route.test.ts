@@ -10,6 +10,7 @@ const loggerMock = vi.hoisted(() => ({
 const prismaMock = vi.hoisted(() => ({
   outboxMessage: {
     findMany: vi.fn(),
+    updateMany: vi.fn(),
     update: vi.fn(),
   },
 }));
@@ -33,6 +34,7 @@ describe("processOutboxBatch", () => {
   beforeEach(() => {
     vi.resetAllMocks();
     isNonRetryableOutboxErrorMock.mockReturnValue(false);
+    prismaMock.outboxMessage.updateMany.mockResolvedValue({ count: 1 });
   });
 
   it("marks valid events as processed on successful delivery", async () => {
@@ -67,6 +69,7 @@ describe("processOutboxBatch", () => {
       data: {
         processed: true,
         processed_at: expect.any(Date),
+        last_error: null,
       },
     });
     expect(result).toEqual(
@@ -108,7 +111,6 @@ describe("processOutboxBatch", () => {
     expect(prismaMock.outboxMessage.update).toHaveBeenCalledWith({
       where: { id: "msg_2" },
       data: {
-        attempts: { increment: 1 },
         last_error: "SMTP down",
       },
     });
@@ -162,7 +164,6 @@ describe("processOutboxBatch", () => {
       data: {
         processed: true,
         processed_at: expect.any(Date),
-        attempts: { increment: 1 },
         last_error:
           "[SKIPPED_NON_RETRYABLE] [Outbox:BOOKING_CANCELLED] Recipient email is missing for booking 333",
       },
@@ -182,6 +183,36 @@ describe("processOutboxBatch", () => {
         failed: 1,
         terminalFailures: 1,
         skippedNonRetryable: 1,
+      }),
+    );
+  });
+
+  it("skips candidates that were claimed by another worker", async () => {
+    prismaMock.outboxMessage.findMany.mockResolvedValue([
+      {
+        id: "msg_4",
+        event_type: "BOOKING_CANCELLED",
+        payload: {
+          bookingId: 404,
+          reason: "HOLD_EXPIRED",
+          status: "CANCELLED",
+          email: "claimed@example.com",
+        },
+        business_id: "biz_4",
+        attempts: 0,
+        created_at: new Date("2026-02-12T08:00:00.000Z"),
+      },
+    ]);
+    prismaMock.outboxMessage.updateMany.mockResolvedValueOnce({ count: 0 });
+
+    const result = await processOutboxBatch({ batchSize: 10, maxAttempts: 3 });
+
+    expect(deliverOutboxEventMock).not.toHaveBeenCalled();
+    expect(result).toEqual(
+      expect.objectContaining({
+        processed: 0,
+        succeeded: 0,
+        failed: 0,
       }),
     );
   });

@@ -216,6 +216,7 @@ export type UserWhereInput = {
   updated_at?: Prisma.DateTimeFilter<"User"> | Date | string
   employee?: Prisma.XOR<Prisma.EmployeeNullableScalarRelationFilter, Prisma.EmployeeWhereInput> | null
   owner?: Prisma.XOR<Prisma.OwnerNullableScalarRelationFilter, Prisma.OwnerWhereInput> | null
+  social_posts_created?: Prisma.SocialPostListRelationFilter
   awarded_subscription_credits?: Prisma.SubscriptionCreditLedgerListRelationFilter
   platform_action_logs?: Prisma.PlatformActionLogListRelationFilter
   reviewed_onboarding_applications?: Prisma.OnboardingApplicationListRelationFilter
@@ -233,6 +234,7 @@ export type UserOrderByWithRelationInput = {
   updated_at?: Prisma.SortOrder
   employee?: Prisma.EmployeeOrderByWithRelationInput
   owner?: Prisma.OwnerOrderByWithRelationInput
+  social_posts_created?: Prisma.SocialPostOrderByRelationAggregateInput
   awarded_subscription_credits?: Prisma.SubscriptionCreditLedgerOrderByRelationAggregateInput
   platform_action_logs?: Prisma.PlatformActionLogOrderByRelationAggregateInput
   reviewed_onboarding_applications?: Prisma.OnboardingApplicationOrderByRelationAggregateInput
@@ -253,6 +255,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   updated_at?: Prisma.DateTimeFilter<"User"> | Date | string
   employee?: Prisma.XOR<Prisma.EmployeeNullableScalarRelationFilter, Prisma.EmployeeWhereInput> | null
   owner?: Prisma.XOR<Prisma.OwnerNullableScalarRelationFilter, Prisma.OwnerWhereInput> | null
+  social_posts_created?: Prisma.SocialPostListRelationFilter
   awarded_subscription_credits?: Prisma.SubscriptionCreditLedgerListRelationFilter
   platform_action_logs?: Prisma.PlatformActionLogListRelationFilter
   reviewed_onboarding_applications?: Prisma.OnboardingApplicationListRelationFilter
@@ -300,6 +303,7 @@ export type UserCreateInput = {
   updated_at?: Date | string
   employee?: Prisma.EmployeeCreateNestedOneWithoutUserInput
   owner?: Prisma.OwnerCreateNestedOneWithoutUserInput
+  social_posts_created?: Prisma.SocialPostCreateNestedManyWithoutCreated_by_userInput
   awarded_subscription_credits?: Prisma.SubscriptionCreditLedgerCreateNestedManyWithoutAwarded_by_userInput
   platform_action_logs?: Prisma.PlatformActionLogCreateNestedManyWithoutActor_userInput
   reviewed_onboarding_applications?: Prisma.OnboardingApplicationCreateNestedManyWithoutReviewed_by_userInput
@@ -317,6 +321,7 @@ export type UserUncheckedCreateInput = {
   updated_at?: Date | string
   employee?: Prisma.EmployeeUncheckedCreateNestedOneWithoutUserInput
   owner?: Prisma.OwnerUncheckedCreateNestedOneWithoutUserInput
+  social_posts_created?: Prisma.SocialPostUncheckedCreateNestedManyWithoutCreated_by_userInput
   awarded_subscription_credits?: Prisma.SubscriptionCreditLedgerUncheckedCreateNestedManyWithoutAwarded_by_userInput
   platform_action_logs?: Prisma.PlatformActionLogUncheckedCreateNestedManyWithoutActor_userInput
   reviewed_onboarding_applications?: Prisma.OnboardingApplicationUncheckedCreateNestedManyWithoutReviewed_by_userInput
@@ -334,6 +339,7 @@ export type UserUpdateInput = {
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   employee?: Prisma.EmployeeUpdateOneWithoutUserNestedInput
   owner?: Prisma.OwnerUpdateOneWithoutUserNestedInput
+  social_posts_created?: Prisma.SocialPostUpdateManyWithoutCreated_by_userNestedInput
   awarded_subscription_credits?: Prisma.SubscriptionCreditLedgerUpdateManyWithoutAwarded_by_userNestedInput
   platform_action_logs?: Prisma.PlatformActionLogUpdateManyWithoutActor_userNestedInput
   reviewed_onboarding_applications?: Prisma.OnboardingApplicationUpdateManyWithoutReviewed_by_userNestedInput
@@ -351,6 +357,7 @@ export type UserUncheckedUpdateInput = {
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   employee?: Prisma.EmployeeUncheckedUpdateOneWithoutUserNestedInput
   owner?: Prisma.OwnerUncheckedUpdateOneWithoutUserNestedInput
+  social_posts_created?: Prisma.SocialPostUncheckedUpdateManyWithoutCreated_by_userNestedInput
   awarded_subscription_credits?: Prisma.SubscriptionCreditLedgerUncheckedUpdateManyWithoutAwarded_by_userNestedInput
   platform_action_logs?: Prisma.PlatformActionLogUncheckedUpdateManyWithoutActor_userNestedInput
   reviewed_onboarding_applications?: Prisma.OnboardingApplicationUncheckedUpdateManyWithoutReviewed_by_userNestedInput
@@ -390,6 +397,11 @@ export type UserUncheckedUpdateManyInput = {
   temp_password_expires_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type UserNullableScalarRelationFilter = {
+  is?: Prisma.UserWhereInput | null
+  isNot?: Prisma.UserWhereInput | null
 }
 
 export type UserCountOrderByAggregateInput = {
@@ -433,17 +445,24 @@ export type UserScalarRelationFilter = {
   isNot?: Prisma.UserWhereInput
 }
 
-export type UserNullableScalarRelationFilter = {
-  is?: Prisma.UserWhereInput | null
-  isNot?: Prisma.UserWhereInput | null
+export type UserCreateNestedOneWithoutSocial_posts_createdInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSocial_posts_createdInput, Prisma.UserUncheckedCreateWithoutSocial_posts_createdInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSocial_posts_createdInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutSocial_posts_createdNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSocial_posts_createdInput, Prisma.UserUncheckedCreateWithoutSocial_posts_createdInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSocial_posts_createdInput
+  upsert?: Prisma.UserUpsertWithoutSocial_posts_createdInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutSocial_posts_createdInput, Prisma.UserUpdateWithoutSocial_posts_createdInput>, Prisma.UserUncheckedUpdateWithoutSocial_posts_createdInput>
 }
 
 export type EnumRoleFieldUpdateOperationsInput = {
   set?: $Enums.Role
-}
-
-export type NullableDateTimeFieldUpdateOperationsInput = {
-  set?: Date | string | null
 }
 
 export type UserCreateNestedOneWithoutEmployeeInput = {
@@ -522,6 +541,90 @@ export type UserUpdateOneWithoutPlatform_action_logsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutPlatform_action_logsInput, Prisma.UserUpdateWithoutPlatform_action_logsInput>, Prisma.UserUncheckedUpdateWithoutPlatform_action_logsInput>
 }
 
+export type UserCreateWithoutSocial_posts_createdInput = {
+  id?: string
+  email: string
+  hashed_password: string
+  name: string
+  role?: $Enums.Role
+  must_change_password?: boolean
+  temp_password_expires_at?: Date | string | null
+  created_at?: Date | string
+  updated_at?: Date | string
+  employee?: Prisma.EmployeeCreateNestedOneWithoutUserInput
+  owner?: Prisma.OwnerCreateNestedOneWithoutUserInput
+  awarded_subscription_credits?: Prisma.SubscriptionCreditLedgerCreateNestedManyWithoutAwarded_by_userInput
+  platform_action_logs?: Prisma.PlatformActionLogCreateNestedManyWithoutActor_userInput
+  reviewed_onboarding_applications?: Prisma.OnboardingApplicationCreateNestedManyWithoutReviewed_by_userInput
+}
+
+export type UserUncheckedCreateWithoutSocial_posts_createdInput = {
+  id?: string
+  email: string
+  hashed_password: string
+  name: string
+  role?: $Enums.Role
+  must_change_password?: boolean
+  temp_password_expires_at?: Date | string | null
+  created_at?: Date | string
+  updated_at?: Date | string
+  employee?: Prisma.EmployeeUncheckedCreateNestedOneWithoutUserInput
+  owner?: Prisma.OwnerUncheckedCreateNestedOneWithoutUserInput
+  awarded_subscription_credits?: Prisma.SubscriptionCreditLedgerUncheckedCreateNestedManyWithoutAwarded_by_userInput
+  platform_action_logs?: Prisma.PlatformActionLogUncheckedCreateNestedManyWithoutActor_userInput
+  reviewed_onboarding_applications?: Prisma.OnboardingApplicationUncheckedCreateNestedManyWithoutReviewed_by_userInput
+}
+
+export type UserCreateOrConnectWithoutSocial_posts_createdInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutSocial_posts_createdInput, Prisma.UserUncheckedCreateWithoutSocial_posts_createdInput>
+}
+
+export type UserUpsertWithoutSocial_posts_createdInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutSocial_posts_createdInput, Prisma.UserUncheckedUpdateWithoutSocial_posts_createdInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutSocial_posts_createdInput, Prisma.UserUncheckedCreateWithoutSocial_posts_createdInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutSocial_posts_createdInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutSocial_posts_createdInput, Prisma.UserUncheckedUpdateWithoutSocial_posts_createdInput>
+}
+
+export type UserUpdateWithoutSocial_posts_createdInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  hashed_password?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  must_change_password?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  temp_password_expires_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  employee?: Prisma.EmployeeUpdateOneWithoutUserNestedInput
+  owner?: Prisma.OwnerUpdateOneWithoutUserNestedInput
+  awarded_subscription_credits?: Prisma.SubscriptionCreditLedgerUpdateManyWithoutAwarded_by_userNestedInput
+  platform_action_logs?: Prisma.PlatformActionLogUpdateManyWithoutActor_userNestedInput
+  reviewed_onboarding_applications?: Prisma.OnboardingApplicationUpdateManyWithoutReviewed_by_userNestedInput
+}
+
+export type UserUncheckedUpdateWithoutSocial_posts_createdInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  hashed_password?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  must_change_password?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  temp_password_expires_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  employee?: Prisma.EmployeeUncheckedUpdateOneWithoutUserNestedInput
+  owner?: Prisma.OwnerUncheckedUpdateOneWithoutUserNestedInput
+  awarded_subscription_credits?: Prisma.SubscriptionCreditLedgerUncheckedUpdateManyWithoutAwarded_by_userNestedInput
+  platform_action_logs?: Prisma.PlatformActionLogUncheckedUpdateManyWithoutActor_userNestedInput
+  reviewed_onboarding_applications?: Prisma.OnboardingApplicationUncheckedUpdateManyWithoutReviewed_by_userNestedInput
+}
+
 export type UserCreateWithoutEmployeeInput = {
   id?: string
   email: string
@@ -533,6 +636,7 @@ export type UserCreateWithoutEmployeeInput = {
   created_at?: Date | string
   updated_at?: Date | string
   owner?: Prisma.OwnerCreateNestedOneWithoutUserInput
+  social_posts_created?: Prisma.SocialPostCreateNestedManyWithoutCreated_by_userInput
   awarded_subscription_credits?: Prisma.SubscriptionCreditLedgerCreateNestedManyWithoutAwarded_by_userInput
   platform_action_logs?: Prisma.PlatformActionLogCreateNestedManyWithoutActor_userInput
   reviewed_onboarding_applications?: Prisma.OnboardingApplicationCreateNestedManyWithoutReviewed_by_userInput
@@ -549,6 +653,7 @@ export type UserUncheckedCreateWithoutEmployeeInput = {
   created_at?: Date | string
   updated_at?: Date | string
   owner?: Prisma.OwnerUncheckedCreateNestedOneWithoutUserInput
+  social_posts_created?: Prisma.SocialPostUncheckedCreateNestedManyWithoutCreated_by_userInput
   awarded_subscription_credits?: Prisma.SubscriptionCreditLedgerUncheckedCreateNestedManyWithoutAwarded_by_userInput
   platform_action_logs?: Prisma.PlatformActionLogUncheckedCreateNestedManyWithoutActor_userInput
   reviewed_onboarding_applications?: Prisma.OnboardingApplicationUncheckedCreateNestedManyWithoutReviewed_by_userInput
@@ -581,6 +686,7 @@ export type UserUpdateWithoutEmployeeInput = {
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   owner?: Prisma.OwnerUpdateOneWithoutUserNestedInput
+  social_posts_created?: Prisma.SocialPostUpdateManyWithoutCreated_by_userNestedInput
   awarded_subscription_credits?: Prisma.SubscriptionCreditLedgerUpdateManyWithoutAwarded_by_userNestedInput
   platform_action_logs?: Prisma.PlatformActionLogUpdateManyWithoutActor_userNestedInput
   reviewed_onboarding_applications?: Prisma.OnboardingApplicationUpdateManyWithoutReviewed_by_userNestedInput
@@ -597,6 +703,7 @@ export type UserUncheckedUpdateWithoutEmployeeInput = {
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   owner?: Prisma.OwnerUncheckedUpdateOneWithoutUserNestedInput
+  social_posts_created?: Prisma.SocialPostUncheckedUpdateManyWithoutCreated_by_userNestedInput
   awarded_subscription_credits?: Prisma.SubscriptionCreditLedgerUncheckedUpdateManyWithoutAwarded_by_userNestedInput
   platform_action_logs?: Prisma.PlatformActionLogUncheckedUpdateManyWithoutActor_userNestedInput
   reviewed_onboarding_applications?: Prisma.OnboardingApplicationUncheckedUpdateManyWithoutReviewed_by_userNestedInput
@@ -613,6 +720,7 @@ export type UserCreateWithoutOwnerInput = {
   created_at?: Date | string
   updated_at?: Date | string
   employee?: Prisma.EmployeeCreateNestedOneWithoutUserInput
+  social_posts_created?: Prisma.SocialPostCreateNestedManyWithoutCreated_by_userInput
   awarded_subscription_credits?: Prisma.SubscriptionCreditLedgerCreateNestedManyWithoutAwarded_by_userInput
   platform_action_logs?: Prisma.PlatformActionLogCreateNestedManyWithoutActor_userInput
   reviewed_onboarding_applications?: Prisma.OnboardingApplicationCreateNestedManyWithoutReviewed_by_userInput
@@ -629,6 +737,7 @@ export type UserUncheckedCreateWithoutOwnerInput = {
   created_at?: Date | string
   updated_at?: Date | string
   employee?: Prisma.EmployeeUncheckedCreateNestedOneWithoutUserInput
+  social_posts_created?: Prisma.SocialPostUncheckedCreateNestedManyWithoutCreated_by_userInput
   awarded_subscription_credits?: Prisma.SubscriptionCreditLedgerUncheckedCreateNestedManyWithoutAwarded_by_userInput
   platform_action_logs?: Prisma.PlatformActionLogUncheckedCreateNestedManyWithoutActor_userInput
   reviewed_onboarding_applications?: Prisma.OnboardingApplicationUncheckedCreateNestedManyWithoutReviewed_by_userInput
@@ -661,6 +770,7 @@ export type UserUpdateWithoutOwnerInput = {
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   employee?: Prisma.EmployeeUpdateOneWithoutUserNestedInput
+  social_posts_created?: Prisma.SocialPostUpdateManyWithoutCreated_by_userNestedInput
   awarded_subscription_credits?: Prisma.SubscriptionCreditLedgerUpdateManyWithoutAwarded_by_userNestedInput
   platform_action_logs?: Prisma.PlatformActionLogUpdateManyWithoutActor_userNestedInput
   reviewed_onboarding_applications?: Prisma.OnboardingApplicationUpdateManyWithoutReviewed_by_userNestedInput
@@ -677,6 +787,7 @@ export type UserUncheckedUpdateWithoutOwnerInput = {
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   employee?: Prisma.EmployeeUncheckedUpdateOneWithoutUserNestedInput
+  social_posts_created?: Prisma.SocialPostUncheckedUpdateManyWithoutCreated_by_userNestedInput
   awarded_subscription_credits?: Prisma.SubscriptionCreditLedgerUncheckedUpdateManyWithoutAwarded_by_userNestedInput
   platform_action_logs?: Prisma.PlatformActionLogUncheckedUpdateManyWithoutActor_userNestedInput
   reviewed_onboarding_applications?: Prisma.OnboardingApplicationUncheckedUpdateManyWithoutReviewed_by_userNestedInput
@@ -694,6 +805,7 @@ export type UserCreateWithoutAwarded_subscription_creditsInput = {
   updated_at?: Date | string
   employee?: Prisma.EmployeeCreateNestedOneWithoutUserInput
   owner?: Prisma.OwnerCreateNestedOneWithoutUserInput
+  social_posts_created?: Prisma.SocialPostCreateNestedManyWithoutCreated_by_userInput
   platform_action_logs?: Prisma.PlatformActionLogCreateNestedManyWithoutActor_userInput
   reviewed_onboarding_applications?: Prisma.OnboardingApplicationCreateNestedManyWithoutReviewed_by_userInput
 }
@@ -710,6 +822,7 @@ export type UserUncheckedCreateWithoutAwarded_subscription_creditsInput = {
   updated_at?: Date | string
   employee?: Prisma.EmployeeUncheckedCreateNestedOneWithoutUserInput
   owner?: Prisma.OwnerUncheckedCreateNestedOneWithoutUserInput
+  social_posts_created?: Prisma.SocialPostUncheckedCreateNestedManyWithoutCreated_by_userInput
   platform_action_logs?: Prisma.PlatformActionLogUncheckedCreateNestedManyWithoutActor_userInput
   reviewed_onboarding_applications?: Prisma.OnboardingApplicationUncheckedCreateNestedManyWithoutReviewed_by_userInput
 }
@@ -742,6 +855,7 @@ export type UserUpdateWithoutAwarded_subscription_creditsInput = {
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   employee?: Prisma.EmployeeUpdateOneWithoutUserNestedInput
   owner?: Prisma.OwnerUpdateOneWithoutUserNestedInput
+  social_posts_created?: Prisma.SocialPostUpdateManyWithoutCreated_by_userNestedInput
   platform_action_logs?: Prisma.PlatformActionLogUpdateManyWithoutActor_userNestedInput
   reviewed_onboarding_applications?: Prisma.OnboardingApplicationUpdateManyWithoutReviewed_by_userNestedInput
 }
@@ -758,6 +872,7 @@ export type UserUncheckedUpdateWithoutAwarded_subscription_creditsInput = {
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   employee?: Prisma.EmployeeUncheckedUpdateOneWithoutUserNestedInput
   owner?: Prisma.OwnerUncheckedUpdateOneWithoutUserNestedInput
+  social_posts_created?: Prisma.SocialPostUncheckedUpdateManyWithoutCreated_by_userNestedInput
   platform_action_logs?: Prisma.PlatformActionLogUncheckedUpdateManyWithoutActor_userNestedInput
   reviewed_onboarding_applications?: Prisma.OnboardingApplicationUncheckedUpdateManyWithoutReviewed_by_userNestedInput
 }
@@ -774,6 +889,7 @@ export type UserCreateWithoutReviewed_onboarding_applicationsInput = {
   updated_at?: Date | string
   employee?: Prisma.EmployeeCreateNestedOneWithoutUserInput
   owner?: Prisma.OwnerCreateNestedOneWithoutUserInput
+  social_posts_created?: Prisma.SocialPostCreateNestedManyWithoutCreated_by_userInput
   awarded_subscription_credits?: Prisma.SubscriptionCreditLedgerCreateNestedManyWithoutAwarded_by_userInput
   platform_action_logs?: Prisma.PlatformActionLogCreateNestedManyWithoutActor_userInput
 }
@@ -790,6 +906,7 @@ export type UserUncheckedCreateWithoutReviewed_onboarding_applicationsInput = {
   updated_at?: Date | string
   employee?: Prisma.EmployeeUncheckedCreateNestedOneWithoutUserInput
   owner?: Prisma.OwnerUncheckedCreateNestedOneWithoutUserInput
+  social_posts_created?: Prisma.SocialPostUncheckedCreateNestedManyWithoutCreated_by_userInput
   awarded_subscription_credits?: Prisma.SubscriptionCreditLedgerUncheckedCreateNestedManyWithoutAwarded_by_userInput
   platform_action_logs?: Prisma.PlatformActionLogUncheckedCreateNestedManyWithoutActor_userInput
 }
@@ -822,6 +939,7 @@ export type UserUpdateWithoutReviewed_onboarding_applicationsInput = {
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   employee?: Prisma.EmployeeUpdateOneWithoutUserNestedInput
   owner?: Prisma.OwnerUpdateOneWithoutUserNestedInput
+  social_posts_created?: Prisma.SocialPostUpdateManyWithoutCreated_by_userNestedInput
   awarded_subscription_credits?: Prisma.SubscriptionCreditLedgerUpdateManyWithoutAwarded_by_userNestedInput
   platform_action_logs?: Prisma.PlatformActionLogUpdateManyWithoutActor_userNestedInput
 }
@@ -838,6 +956,7 @@ export type UserUncheckedUpdateWithoutReviewed_onboarding_applicationsInput = {
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   employee?: Prisma.EmployeeUncheckedUpdateOneWithoutUserNestedInput
   owner?: Prisma.OwnerUncheckedUpdateOneWithoutUserNestedInput
+  social_posts_created?: Prisma.SocialPostUncheckedUpdateManyWithoutCreated_by_userNestedInput
   awarded_subscription_credits?: Prisma.SubscriptionCreditLedgerUncheckedUpdateManyWithoutAwarded_by_userNestedInput
   platform_action_logs?: Prisma.PlatformActionLogUncheckedUpdateManyWithoutActor_userNestedInput
 }
@@ -854,6 +973,7 @@ export type UserCreateWithoutPlatform_action_logsInput = {
   updated_at?: Date | string
   employee?: Prisma.EmployeeCreateNestedOneWithoutUserInput
   owner?: Prisma.OwnerCreateNestedOneWithoutUserInput
+  social_posts_created?: Prisma.SocialPostCreateNestedManyWithoutCreated_by_userInput
   awarded_subscription_credits?: Prisma.SubscriptionCreditLedgerCreateNestedManyWithoutAwarded_by_userInput
   reviewed_onboarding_applications?: Prisma.OnboardingApplicationCreateNestedManyWithoutReviewed_by_userInput
 }
@@ -870,6 +990,7 @@ export type UserUncheckedCreateWithoutPlatform_action_logsInput = {
   updated_at?: Date | string
   employee?: Prisma.EmployeeUncheckedCreateNestedOneWithoutUserInput
   owner?: Prisma.OwnerUncheckedCreateNestedOneWithoutUserInput
+  social_posts_created?: Prisma.SocialPostUncheckedCreateNestedManyWithoutCreated_by_userInput
   awarded_subscription_credits?: Prisma.SubscriptionCreditLedgerUncheckedCreateNestedManyWithoutAwarded_by_userInput
   reviewed_onboarding_applications?: Prisma.OnboardingApplicationUncheckedCreateNestedManyWithoutReviewed_by_userInput
 }
@@ -902,6 +1023,7 @@ export type UserUpdateWithoutPlatform_action_logsInput = {
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   employee?: Prisma.EmployeeUpdateOneWithoutUserNestedInput
   owner?: Prisma.OwnerUpdateOneWithoutUserNestedInput
+  social_posts_created?: Prisma.SocialPostUpdateManyWithoutCreated_by_userNestedInput
   awarded_subscription_credits?: Prisma.SubscriptionCreditLedgerUpdateManyWithoutAwarded_by_userNestedInput
   reviewed_onboarding_applications?: Prisma.OnboardingApplicationUpdateManyWithoutReviewed_by_userNestedInput
 }
@@ -918,6 +1040,7 @@ export type UserUncheckedUpdateWithoutPlatform_action_logsInput = {
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   employee?: Prisma.EmployeeUncheckedUpdateOneWithoutUserNestedInput
   owner?: Prisma.OwnerUncheckedUpdateOneWithoutUserNestedInput
+  social_posts_created?: Prisma.SocialPostUncheckedUpdateManyWithoutCreated_by_userNestedInput
   awarded_subscription_credits?: Prisma.SubscriptionCreditLedgerUncheckedUpdateManyWithoutAwarded_by_userNestedInput
   reviewed_onboarding_applications?: Prisma.OnboardingApplicationUncheckedUpdateManyWithoutReviewed_by_userNestedInput
 }
@@ -928,12 +1051,14 @@ export type UserUncheckedUpdateWithoutPlatform_action_logsInput = {
  */
 
 export type UserCountOutputType = {
+  social_posts_created: number
   awarded_subscription_credits: number
   platform_action_logs: number
   reviewed_onboarding_applications: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  social_posts_created?: boolean | UserCountOutputTypeCountSocial_posts_createdArgs
   awarded_subscription_credits?: boolean | UserCountOutputTypeCountAwarded_subscription_creditsArgs
   platform_action_logs?: boolean | UserCountOutputTypeCountPlatform_action_logsArgs
   reviewed_onboarding_applications?: boolean | UserCountOutputTypeCountReviewed_onboarding_applicationsArgs
@@ -947,6 +1072,13 @@ export type UserCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensi
    * Select specific fields to fetch from the UserCountOutputType
    */
   select?: Prisma.UserCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountSocial_posts_createdArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SocialPostWhereInput
 }
 
 /**
@@ -983,6 +1115,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   updated_at?: boolean
   employee?: boolean | Prisma.User$employeeArgs<ExtArgs>
   owner?: boolean | Prisma.User$ownerArgs<ExtArgs>
+  social_posts_created?: boolean | Prisma.User$social_posts_createdArgs<ExtArgs>
   awarded_subscription_credits?: boolean | Prisma.User$awarded_subscription_creditsArgs<ExtArgs>
   platform_action_logs?: boolean | Prisma.User$platform_action_logsArgs<ExtArgs>
   reviewed_onboarding_applications?: boolean | Prisma.User$reviewed_onboarding_applicationsArgs<ExtArgs>
@@ -1029,6 +1162,7 @@ export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = run
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   employee?: boolean | Prisma.User$employeeArgs<ExtArgs>
   owner?: boolean | Prisma.User$ownerArgs<ExtArgs>
+  social_posts_created?: boolean | Prisma.User$social_posts_createdArgs<ExtArgs>
   awarded_subscription_credits?: boolean | Prisma.User$awarded_subscription_creditsArgs<ExtArgs>
   platform_action_logs?: boolean | Prisma.User$platform_action_logsArgs<ExtArgs>
   reviewed_onboarding_applications?: boolean | Prisma.User$reviewed_onboarding_applicationsArgs<ExtArgs>
@@ -1042,6 +1176,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   objects: {
     employee: Prisma.$EmployeePayload<ExtArgs> | null
     owner: Prisma.$OwnerPayload<ExtArgs> | null
+    social_posts_created: Prisma.$SocialPostPayload<ExtArgs>[]
     awarded_subscription_credits: Prisma.$SubscriptionCreditLedgerPayload<ExtArgs>[]
     platform_action_logs: Prisma.$PlatformActionLogPayload<ExtArgs>[]
     reviewed_onboarding_applications: Prisma.$OnboardingApplicationPayload<ExtArgs>[]
@@ -1452,6 +1587,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   readonly [Symbol.toStringTag]: "PrismaPromise"
   employee<T extends Prisma.User$employeeArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$employeeArgs<ExtArgs>>): Prisma.Prisma__EmployeeClient<runtime.Types.Result.GetResult<Prisma.$EmployeePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   owner<T extends Prisma.User$ownerArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$ownerArgs<ExtArgs>>): Prisma.Prisma__OwnerClient<runtime.Types.Result.GetResult<Prisma.$OwnerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  social_posts_created<T extends Prisma.User$social_posts_createdArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$social_posts_createdArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SocialPostPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   awarded_subscription_credits<T extends Prisma.User$awarded_subscription_creditsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$awarded_subscription_creditsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SubscriptionCreditLedgerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   platform_action_logs<T extends Prisma.User$platform_action_logsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$platform_action_logsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PlatformActionLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   reviewed_onboarding_applications<T extends Prisma.User$reviewed_onboarding_applicationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$reviewed_onboarding_applicationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OnboardingApplicationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -1916,6 +2052,30 @@ export type User$ownerArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs
    */
   include?: Prisma.OwnerInclude<ExtArgs> | null
   where?: Prisma.OwnerWhereInput
+}
+
+/**
+ * User.social_posts_created
+ */
+export type User$social_posts_createdArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SocialPost
+   */
+  select?: Prisma.SocialPostSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the SocialPost
+   */
+  omit?: Prisma.SocialPostOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SocialPostInclude<ExtArgs> | null
+  where?: Prisma.SocialPostWhereInput
+  orderBy?: Prisma.SocialPostOrderByWithRelationInput | Prisma.SocialPostOrderByWithRelationInput[]
+  cursor?: Prisma.SocialPostWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.SocialPostScalarFieldEnum | Prisma.SocialPostScalarFieldEnum[]
 }
 
 /**

@@ -1,6 +1,8 @@
 import { prisma } from "@/prisma/prisma";
 import { SaleEventsPageClient } from "@/components/dashboard/owner/sale-events/SaleEventsPageClient";
 import { redirect } from "next/navigation";
+import { isSocialPublishingEnabledForBusiness } from "@/lib/features/social-publishing";
+import { requireOwnerTenantWriteAccess } from "@/lib/auth/guards";
 
 export default async function SaleEventsPage({
   params,
@@ -8,6 +10,13 @@ export default async function SaleEventsPage({
   params: Promise<{ businessSlug: string }>;
 }) {
   const { businessSlug } = await params;
+  const auth = await requireOwnerTenantWriteAccess(businessSlug);
+  if (!auth.success) {
+    redirect(`/app/${businessSlug}`);
+  }
+
+  const socialPublishingEnabled =
+    isSocialPublishingEnabledForBusiness(businessSlug);
 
   const business = await prisma.business.findUnique({
     where: { slug: businessSlug },
@@ -24,8 +33,18 @@ export default async function SaleEventsPage({
         include: {
           applicable_services: true,
           applicable_packages: true,
+          social_posts: {
+            select: {
+              id: true,
+              status: true,
+            },
+          },
         },
         orderBy: { created_at: "desc" },
+      },
+      social_connections: {
+        where: { status: "CONNECTED" },
+        select: { platform: true },
       },
     },
   });
@@ -41,6 +60,10 @@ export default async function SaleEventsPage({
         initialEvents={business.sale_events}
         services={business.services}
         packages={business.packages}
+        connectedPlatforms={business.social_connections.map(
+          (connection) => connection.platform,
+        )}
+        socialPublishingEnabled={socialPublishingEnabled}
       />
     </div>
   );
