@@ -299,7 +299,7 @@ export async function GET(request: Request) {
         }
 
         const isLocalExpired =
-          attempt.expires_at && attempt.expires_at.getTime() <= Date.now();
+          attempt.expires_at && attempt.expires_at.getTime() <= now.getTime();
         if (snapshot.status === "expired" || isLocalExpired) {
           await prisma.$transaction(async (tx) => {
             const currentAttempt = await tx.bookingPayment.findUnique({

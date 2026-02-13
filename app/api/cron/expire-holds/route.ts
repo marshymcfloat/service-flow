@@ -1,4 +1,5 @@
 import { NextResponse, connection } from "next/server";
+import { getCurrentDateTimePH } from "@/lib/date-utils";
 import { prisma } from "@/prisma/prisma";
 import { Prisma } from "@/prisma/generated/prisma/client";
 import { publishEvent } from "@/lib/services/outbox";
@@ -21,7 +22,7 @@ export async function GET(request: Request) {
       return unauthorizedCronResponse();
     }
 
-    const now = new Date();
+    const now = getCurrentDateTimePH();
 
     const expiredHolds = await prisma.booking.findMany({
       where: {

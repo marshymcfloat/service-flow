@@ -1,6 +1,6 @@
 import { prisma } from "@/prisma/prisma";
 import { Resend } from "resend";
-import { formatPH } from "@/lib/date-utils";
+import { formatPH, getCurrentDateTimePH } from "@/lib/date-utils";
 import { logger } from "@/lib/logger";
 
 const BOOKING_REMINDER_CONCURRENCY = 8;
@@ -19,7 +19,7 @@ async function runInChunks<T>(
 export async function sendBookingReminders() {
   const resend = new Resend(process.env.RESEND_API_KEY);
   try {
-    const now = new Date();
+    const now = getCurrentDateTimePH();
     const fortyFiveMinutesFromNow = new Date(now.getTime() + 45 * 60 * 1000);
 
     const bookings = await prisma.booking.findMany({

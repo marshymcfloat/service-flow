@@ -1,4 +1,5 @@
 import { NextResponse, connection } from "next/server";
+import { getCurrentDateTimePH } from "@/lib/date-utils";
 import { logger } from "@/lib/logger";
 import { prisma } from "@/prisma/prisma";
 import {
@@ -67,7 +68,7 @@ export async function GET(request: Request) {
       totalScanned,
       totalConflicts,
       perBusiness,
-      processedAt: new Date().toISOString(),
+      processedAt: getCurrentDateTimePH().toISOString(),
     });
   } catch (error) {
     logger.error("[BookingConflictsCron] Failed", {
