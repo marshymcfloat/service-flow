@@ -33,19 +33,35 @@ type PrismaConnectionConfig =
   | { mode: "adapter"; connectionString: string }
   | { mode: "accelerate"; accelerateUrl: string };
 
+function isAccelerateConnectionString(url: string) {
+  return url.startsWith("prisma+postgres://");
+}
+
+let hasWarnedAboutInvalidDirectUrl = false;
+
 function resolveConnectionConfig(): PrismaConnectionConfig {
   const databaseUrl = process.env.DATABASE_URL;
   if (!databaseUrl) {
     throw new Error("DATABASE_URL is not set.");
   }
 
-  const usesAccelerateProtocol = databaseUrl.startsWith("prisma+postgres://");
+  const usesAccelerateProtocol = isAccelerateConnectionString(databaseUrl);
   if (!usesAccelerateProtocol) {
     return { mode: "adapter", connectionString: getSafeConnectionString(databaseUrl) };
   }
 
-  const directDatabaseUrl = process.env.DIRECT_DATABASE_URL;
+  const directDatabaseUrl = process.env.DIRECT_DATABASE_URL?.trim();
   if (directDatabaseUrl) {
+    if (isAccelerateConnectionString(directDatabaseUrl)) {
+      if (!hasWarnedAboutInvalidDirectUrl) {
+        hasWarnedAboutInvalidDirectUrl = true;
+        console.warn(
+          "[prisma] DIRECT_DATABASE_URL is an Accelerate URL (prisma+postgres://). Ignoring it and using Prisma Accelerate from DATABASE_URL.",
+        );
+      }
+      return { mode: "accelerate", accelerateUrl: databaseUrl };
+    }
+
     return {
       mode: "adapter",
       connectionString: getSafeConnectionString(directDatabaseUrl),
